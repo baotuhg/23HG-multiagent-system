@@ -1,69 +1,75 @@
 {
   "meta": {
-    "version": "2.2.0",
-    "system": "AEC Master Multi-Agent Architecture",
-    "ingestion_engine": "Multi-Modal Ingestion & Cross-Modal Fusion",
-    "cross_check_status": "PASSED (Zero Discrepancies - 100/100 Audit Verified)"
+    "version": "3.0.0",
+    "system": "23HG-AEC-MultiAgent-System — State Graph v3.0",
+    "data_mode": "REAL (không dùng dữ liệu mẫu)",
+    "built_by": "examples/build_khai_hoang_2_dossier.py",
+    "built_at": "2026-09-27",
+    "sources": [
+      "bang_so_lieu.json / noi_dung.md — trích PDF hồ sơ BVTC 57 trang",
+      "THKL G9 - CHUẨN.xlsx, sheet 'Cau 15m'"
+    ],
+    "output_dir": "C:/Users/baotu/Downloads/Documents/Cầu thôn Khai Hoang 2, Km 14+363.65_Marker/Cầu thôn Khai Hoang 2, Km 14+363.65_Marker/HO_SO_THIET_LAP"
   },
   "project_identity": {
-    "project_name": "Đường từ trung tâm huyện Đồng Văn đi Mốc 450/456, huyện Mèo Vạc, tỉnh Hà Giang",
-    "package_name": "Gói thầu số 9: Km12 - Km24+862.93",
-    "structure_name": "CẦU THÔN KHAI HOANG 2, KM14+363.65 (Lý trình bản vẽ Km14+363.35)",
-    "span_schema": "1 x 15.0m (Tổng chiều dài toàn cầu 24.2m tính cả tường cánh)",
-    "total_girders": 4,
-    "girder_type": "Dầm chữ T BTCT thường L=15.0m, f'c = 40 MPa",
-    "bridge_width": "Khổ cầu B = 7.0m xe chạy + 2 x 0.5m gờ lan can = 8.0m",
-    "substructure_type": "Mố chữ U M1 và M2 đặt trên móng nông tựa tầng đá phiến sét vôi nứt nẻ nhẹ",
-    "rock_anchoring": "98 lỗ khoan D42 sâu 50cm, cấy cốt thép neo D32 vào nền đá",
-    "client": "UBND huyện Đồng Văn - Ban QLDA ĐTXD huyện Đồng Văn",
+    "project_name": "Đường từ trung tâm huyện Đồng Văn đi Mốc 450 (nay là Mốc 456), huyện Mèo Vạc, tỉnh Hà Giang",
+    "package_name": "Gói thầu số 9: Km12 - Km24+862,93",
+    "structure_name": "Cầu thôn Khai Hoang 2, Km14+363,65",
+    "chainage_conflict": "Khung tên bản vẽ ghi Km14+363,35; PD-01 và TC-02 ghi Km14+402,91",
+    "span_schema": "1 nhịp dầm giản đơn L=15m; chiều dài toàn cầu (hết đuôi mố) L=27m",
+    "girders": "4 dầm T BTCT thường L=15m, khoảng cách 2,1m, h=1,0m, f'c=40MPa; 3 dầm ngang",
+    "bridge_width": "B = 7,0m xe chạy + 2 x 0,5m gờ lan can = 8,0m",
+    "live_load": "HL-93; người đi bộ 300 kg/m2",
+    "substructure": "Mố chữ U BTCT, móng ngàm vào đá gốc >= 50cm, 98 thanh neo D32 L=1,0m (lỗ D42 sâu 50cm)",
+    "bearings": "8 gối cao su bản thép 350x500x84mm",
+    "expansion_joints": "2 khe thép răng lược, tổng 14,6m",
+    "hydrology": {"Q2pct_m3s": 53.83, "MNCN": 818.05, "MNKS": 813.46},
+    "abutment_excavation_levels": {"CD1": 814.36, "CD2": 811.36},
+    "seismic": "Cấp 6 MSK-64, A=0,0385",
+    "design_duration": "12 tháng",
+    "client": "UBND huyện Đồng Văn — Ban QLDA ĐTXD huyện Đồng Văn",
     "designer": "Công ty Cổ phần Tư vấn thiết kế giao thông Hà Giang"
   },
-  "detailed_rebar_bbs_summary": {
-    "total_rebar_marks_count": 56,
-    "total_steel_tons": 52.86,
-    "group_D_le_10mm_tons": 2.152,
-    "group_10_lt_D_le_18mm_tons": 22.15,
-    "group_D_gt_18mm_tons": 28.558,
-    "structural_steel_galvanized_tons": 1.27,
-    "cutting_stock_waste_ratio": "1.18% (< 1.5% benchmark)",
-    "standard": "TCVN 1651:2018 (CB240-T, CB400-V) & TCVN 5408:2007"
+  "rebar_bbs": {
+    "rows": 166,
+    "bars": 12361,
+    "total_steel_tons": 68.012,
+    "note": "Tính lại L x n x kg/m chuẩn từ 15 bảng thép bản vẽ, gồm cả tường chắn đầu cầu",
+    "cutting_result": {
+      "stock_bars_11_7m": 3236,
+      "lower_bound": 3236,
+      "status": "OPTIMAL",
+      "waste_ratio_pct": 10.63,
+      "unplanned_long_bars": {"rows": 12, "bars": 311, "reason": "dài hơn 11,7m, bản vẽ không có vùng cho phép nối"},
+      "gate2_score": 85
+    }
   },
-  "concrete_mix_design_summary": {
-    "total_concrete_volume_m3": 516.425,
-    "total_cement_pcb40_tons": 209.45,
-    "total_sand_gold_m3": 234.8,
-    "total_crushed_stone_1x2_m3": 438.25,
-    "total_water_m3": 88.6,
-    "total_admixture_liters": 1680.5,
-    "grades": [
-      "C10_Lean",
-      "C20_Toe",
-      "C25_Abutment_Wing",
-      "C30_Abutment_Pier",
-      "C35_Deck_Slab",
-      "C40_T_Girder_15m",
-      "C50_Non_Shrink_Grout"
-    ]
+  "boq": {
+    "items": 105,
+    "unit_prices": null,
+    "gxd_status": "CHƯA TÍNH — thiếu đơn giá, mã định mức và tỷ lệ chi phí"
   },
-  "qaqc_testing_frequency_summary": {
-    "total_mandatory_tests_and_samples": 152,
-    "rebar_tensile_and_bending_tests": 11,
-    "cement_chemical_physical_tests": 3,
-    "sand_aggregate_tests": 2,
-    "crushed_stone_tests": 3,
-    "slump_tests_on_site": 65,
-    "concrete_cube_compressive_samples": 48,
-    "rock_anchor_pull_out_tests": 6,
-    "bridge_deck_flatness_tests": 4,
-    "bridge_load_testing_static_dynamic": 1
+  "schedule_cpm": {
+    "tasks": 46,
+    "duration_working_days": 146,
+    "non_working_days": "Chủ nhật",
+    "start_date": null,
+    "durations_basis": "Đề xuất của nhà thầu, cần TVGS/CĐT chấp thuận"
   },
-  "cost_estimate_gxd_summary": {
-    "direct_cost_T_vnd": 3824150000,
-    "indirect_cost_GT_vnd": 279162950,
-    "contractor_taxable_income_TL_vnd": 225682212,
-    "before_tax_cost_G_vnd": 4328995162,
-    "vat_10_percent_vnd": 432899516,
-    "total_gxd_after_tax_vnd": 4761894678,
-    "basis": "TT 11/2021/TT-BXD, TT 12/2021/TT-BXD & Luật Xây dựng số 135/2025/QH15"
-  }
+  "qaqc": {
+    "acceptance_records": 43,
+    "test_plan": "04_KCS_Nghiem_Thu_Thi_Nghiem_Cau_Khai_Hoang_2.xlsx / TAN_SUAT_THI_NGHIEM",
+    "lab_results": null
+  },
+  "open_issues": [
+    "Lý trình không thống nhất (Km14+363,65 / 363,35 / 402,91)",
+    "Cấp bê tông bản quá độ, lớp phủ, BT đệm khác nhau giữa thuyết minh và bản vẽ",
+    "BT bệ mố bản vẽ 233,75 m3 khác THKL 220 m3; BT đệm 9,91 khác 9,348 m3",
+    "Thép mố BBS lớn hơn THKL 15,5% (10<D<=18) và 11,3% (D>18) — 6 ký hiệu tường cánh ghi KL bằng 1/2",
+    "Thép tường chắn: bản vẽ dùng sai kg/m cho Φ20; THKL đảo nhãn móng/thân",
+    "THKL gờ lan can tính trùng lưới D6 699,30 kg",
+    "Trùng ký hiệu D2B trên bảng thép dầm T",
+    "Dầm ngang không có BBS chi tiết",
+    "311 thanh dài hơn 11,7m cần phương án thép dài hoặc vị trí nối"
+  ]
 }

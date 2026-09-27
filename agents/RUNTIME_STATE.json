@@ -1,427 +1,105 @@
 {
-  "session_id": "889b0642",
+  "session_id": "9d74b909",
   "schema_version": "3.0.0",
-  "current_phase": "ASBUILT_LOOP",
-  "created_at": "2026-09-26T17:41:39",
-  "updated_at": "2026-09-26T17:41:40",
+  "current_phase": "PAYMENT_03A",
+  "created_at": "2026-09-27T15:11:04",
+  "updated_at": "2026-09-27T15:11:04",
   "max_retries": 3,
   "node_status": {
-    "cad_agent": "SUCCESS",
-    "rebar_agent": "SUCCESS",
-    "bptc_kcs_agent": "SUCCESS",
-    "qs_agent": "SUCCESS",
-    "scheduler_agent": "SUCCESS",
-    "asbuilt_agent": "SUCCESS",
+    "cad_agent": "IDLE",
+    "rebar_agent": "IDLE",
+    "bptc_kcs_agent": "IDLE",
+    "qs_agent": "IDLE",
+    "scheduler_agent": "IDLE",
+    "asbuilt_agent": "IDLE",
+    "payment_agent": "FAILED",
     "supervisor": "RUNNING"
   },
   "run_history": [
     {
-      "agent_id": "cad_agent",
-      "status": "SUCCESS",
-      "started_at": "2026-09-26T17:41:39",
-      "finished_at": "2026-09-26T17:41:40",
+      "agent_id": "payment_agent",
+      "status": "FAILED",
+      "started_at": "2026-09-27T15:11:04",
+      "finished_at": "2026-09-27T15:11:04",
       "attempt": 1,
-      "error_message": "",
-      "output_summary": "Hoàn thành thành công"
-    },
-    {
-      "agent_id": "rebar_agent",
-      "status": "SUCCESS",
-      "started_at": "2026-09-26T17:41:40",
-      "finished_at": "2026-09-26T17:41:40",
-      "attempt": 1,
-      "error_message": "",
-      "output_summary": "Hoàn thành thành công"
-    },
-    {
-      "agent_id": "qs_agent",
-      "status": "SUCCESS",
-      "started_at": "2026-09-26T17:41:40",
-      "finished_at": "2026-09-26T17:41:40",
-      "attempt": 1,
-      "error_message": "",
-      "output_summary": "Hoàn thành thành công"
-    },
-    {
-      "agent_id": "bptc_kcs_agent",
-      "status": "SUCCESS",
-      "started_at": "2026-09-26T17:41:40",
-      "finished_at": "2026-09-26T17:41:40",
-      "attempt": 1,
-      "error_message": "",
-      "output_summary": "Hoàn thành thành công"
-    },
-    {
-      "agent_id": "supervisor",
-      "status": "AWAITING_APPROVAL",
-      "started_at": "2026-09-26T17:41:40",
-      "finished_at": "2026-09-26T17:41:40",
-      "attempt": 1,
-      "error_message": "",
-      "output_summary": "Chờ phê duyệt KS trưởng"
-    },
-    {
-      "agent_id": "supervisor",
-      "status": "RUNNING",
-      "started_at": "2026-09-26T17:41:40",
-      "finished_at": "",
-      "attempt": 2,
-      "error_message": "",
-      "output_summary": "Tiếp tục sau approval"
-    },
-    {
-      "agent_id": "scheduler_agent",
-      "status": "SUCCESS",
-      "started_at": "2026-09-26T17:41:40",
-      "finished_at": "2026-09-26T17:41:40",
-      "attempt": 1,
-      "error_message": "",
-      "output_summary": "Hoàn thành thành công"
-    },
-    {
-      "agent_id": "asbuilt_agent",
-      "status": "SUCCESS",
-      "started_at": "2026-09-26T17:41:40",
-      "finished_at": "2026-09-26T17:41:40",
-      "attempt": 1,
-      "error_message": "",
-      "output_summary": "Hoàn thành thành công"
+      "error_message": "THIẾU DỮ LIỆU THẬT: Thiếu dữ liệu lập Mẫu 03a: khối lượng thực hiện kỳ này (--progress). Muốn chạy thử với dữ liệu mẫu Cầu Km19+529.080 thì thêm cờ --demo.",
+      "output_summary": ""
     }
   ],
-  "project_name": "Cầu Km19+529.080 — Cao tốc Tuyên Quang - Hà Giang",
+  "project_name": "(chưa đặt tên dự án — dùng --project-name)",
   "structure_id": "CAU-KM19-529",
-  "drawings_folder": "c:\\Users\\baotu\\Downloads\\Documents\\HSTK Cầu Km19+529.080_Marker\\HSTK Cầu Km19+529.080_Marker\\01.CAU KM19+529.08",
-  "excel_master_path": "D:\\Code\\DONG_GOI_HETHONG_AEC\\templates\\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx",
+  "drawings_folder": "",
+  "excel_master_path": "",
+  "demo_mode": false,
+  "sample_data_sources": [],
   "cad_data": {
-    "concrete_components": [
-      {
-        "id": "COC-T1-01",
-        "name": "Cọc Ø1200 T1-01",
-        "wbs": "KẾT CẤU MÓNG CỌC",
-        "volume_m3": 45.24,
-        "formwork_m2": 0.0,
-        "rebar_kg": 1250.0
-      },
-      {
-        "id": "COC-T2-01",
-        "name": "Cọc Ø1200 T2-01",
-        "wbs": "KẾT CẤU MÓNG CỌC",
-        "volume_m3": 34.06,
-        "formwork_m2": 0.0,
-        "rebar_kg": 940.0
-      },
-      {
-        "id": "BE-T1",
-        "name": "Bệ trụ T1",
-        "wbs": "KẾT CẤU TRỤ CẦU",
-        "volume_m3": 112.5,
-        "formwork_m2": 185.0,
-        "rebar_kg": 8200.0
-      },
-      {
-        "id": "THAN-T1",
-        "name": "Thân đặc T1",
-        "wbs": "KẾT CẤU TRỤ CẦU",
-        "volume_m3": 65.8,
-        "formwork_m2": 210.0,
-        "rebar_kg": 4100.0
-      },
-      {
-        "id": "XA-MU-T1",
-        "name": "Xà mũ T1",
-        "wbs": "KẾT CẤU TRỤ CẦU",
-        "volume_m3": 28.4,
-        "formwork_m2": 95.0,
-        "rebar_kg": 3200.0
-      },
-      {
-        "id": "DAM-ST-01",
-        "name": "Dầm Super-T nhịp 1 D1",
-        "wbs": "KẾT CẤU NHỊP",
-        "volume_m3": 28.99,
-        "formwork_m2": 0.0,
-        "rebar_kg": 2100.0
-      },
-      {
-        "id": "MAT-CAU",
-        "name": "Bản mặt cầu giai đoạn 1",
-        "wbs": "KẾT CẤU MẶT CẦU",
-        "volume_m3": 305.47,
-        "formwork_m2": 1560.0,
-        "rebar_kg": 42000.0
-      },
-      {
-        "id": "MO-M1",
-        "name": "Mố M1 tổng thể",
-        "wbs": "KẾT CẤU MỐ CẦU",
-        "volume_m3": 185.6,
-        "formwork_m2": 420.0,
-        "rebar_kg": 15800.0
-      }
-    ],
-    "total_concrete_m3": 806.0600000000001,
+    "concrete_components": [],
+    "total_concrete_m3": 0.0,
     "formwork_components": [],
     "total_formwork_m2": 0.0,
     "excavation_m3": 0.0,
     "backfill_m3": 0.0,
-    "drawings_scanned": 61,
-    "drawings_processed": 8,
+    "drawings_scanned": 0,
+    "drawings_processed": 0,
     "source_dwg_files": [],
     "wbs_mapping": {},
-    "revision_tag": "Rev00-Sample",
+    "revision_tag": "Rev00",
     "diff_from_previous": {}
   },
   "rebar_data": {
     "bbs_items": [],
-    "total_rebar_kg": 19700.0,
-    "cutting_result": "<core.agents.rebar_agent.CuttingStockResult object at 0x000001F47F90A6F0>",
-    "splice_zone_check": "PASS",
+    "total_rebar_kg": 0.0,
+    "cutting_result": {
+      "solver_status": "",
+      "bar_length_mm": 11700,
+      "total_bars_needed": 0,
+      "waste_mm_per_bar": [],
+      "total_waste_kg": 0.0,
+      "waste_ratio_pct": 0.0,
+      "cutting_patterns": [],
+      "inter_agent_validation": "",
+      "rejection_reason": ""
+    },
+    "splice_zone_check": "NOT_RUN",
     "splice_violations": []
   },
   "qs_data": {
-    "direct_cost_T_vnd": 61280000000,
-    "indirect_cost_GT_vnd": 4473440000,
-    "tax_TL_vnd": 3616439200,
-    "subtotal_vnd": 69369879200,
-    "vat_vnd": 6936987920,
-    "total_G_XD_vnd": 76306867120,
-    "payment_period_03a_vnd": 72800000,
+    "direct_cost_T_vnd": 0.0,
+    "indirect_cost_GT_vnd": 0.0,
+    "tax_TL_vnd": 0.0,
+    "subtotal_vnd": 0.0,
+    "vat_vnd": 0.0,
+    "total_G_XD_vnd": 0.0,
+    "payment_period_03a_vnd": 0.0,
     "unit_price_breakdown": {},
-    "supplement_items": [
-      {
-        "task_id": "T01",
-        "component_id": "COMP-T01",
-        "description": "Tim mốc định vị",
-        "unit": "Điểm",
-        "contract_volume": 4.0,
-        "as_built_volume": 4.0,
-        "delta_volume": 0.0,
-        "unit_price_vnd": 25000000,
-        "delta_amount_vnd": 0,
-        "category": "TRONG_HOP_DONG",
-        "justification": "Khối lượng theo đúng hồ sơ thiết kế"
-      },
-      {
-        "task_id": "T02",
-        "component_id": "COMP-T02",
-        "description": "Đường công vụ tiếp cận",
-        "unit": "m",
-        "contract_volume": 350.0,
-        "as_built_volume": 365.0,
-        "delta_volume": 15.0,
-        "unit_price_vnd": 1200000,
-        "delta_amount_vnd": 18000000,
-        "category": "PHAT_SINH_NGOAI_HD",
-        "justification": "Khối lượng phát sinh tăng thực tế tại hiện trường (+15.0 m)"
-      },
-      {
-        "task_id": "T03",
-        "component_id": "COMP-T03",
-        "description": "Khoan dò Karst đáy móng cọc",
-        "unit": "Lỗ",
-        "contract_volume": 26.0,
-        "as_built_volume": 26.0,
-        "delta_volume": 0.0,
-        "unit_price_vnd": 12500000,
-        "delta_amount_vnd": 0,
-        "category": "TRONG_HOP_DONG",
-        "justification": "Khối lượng theo đúng hồ sơ thiết kế"
-      },
-      {
-        "task_id": "T04",
-        "component_id": "COMP-T04",
-        "description": "Khoan và đổ bê tông cọc nhồi D1200",
-        "unit": "m",
-        "contract_volume": 320.0,
-        "as_built_volume": 328.0,
-        "delta_volume": 8.0,
-        "unit_price_vnd": 6850000,
-        "delta_amount_vnd": 54800000,
-        "category": "PHAT_SINH_NGOAI_HD",
-        "justification": "Khối lượng phát sinh tăng thực tế tại hiện trường (+8.0 m)"
-      }
-    ]
+    "supplement_items": [],
+    "gt_breakdown_vnd": {},
+    "rates": {},
+    "rate_sources": {},
+    "items_count": 0,
+    "data_source": "",
+    "warnings": [],
+    "payment_summary": {}
   },
   "qaqc_data": {
-    "total_inspection_records": 22,
+    "total_inspection_records": 0,
     "records": [],
-    "lab_results": [
-      {
-        "test_id": "LAS188-BT-01",
-        "material_type": "CONCRETE",
-        "sample_code": "M-COC-T1-01",
-        "r7_mpa": 25.2,
-        "r28_mpa": 33.5,
-        "required_mpa": 30.0,
-        "status": "PASS",
-        "certificate_ref": "PTN-2026/088",
-        "kcs_record_linked": "BBNT-04"
-      },
-      {
-        "test_id": "LAS188-BT-02",
-        "material_type": "CONCRETE",
-        "sample_code": "M-DAM-ST-01",
-        "r7_mpa": 42.0,
-        "r28_mpa": 52.8,
-        "required_mpa": 45.0,
-        "status": "PASS",
-        "certificate_ref": "PTN-2026/102",
-        "kcs_record_linked": "BBNT-14"
-      },
-      {
-        "test_id": "LAS188-BT-03",
-        "material_type": "CONCRETE",
-        "sample_code": "M-BAN-MC-01",
-        "r7_mpa": 29.8,
-        "r28_mpa": 38.6,
-        "required_mpa": 35.0,
-        "status": "PASS",
-        "certificate_ref": "PTN-2026/115",
-        "kcs_record_linked": "BBNT-18"
-      },
-      {
-        "test_id": "LAS188-STEEL-01",
-        "material_type": "REBAR",
-        "sample_code": "ST-D25-CB500",
-        "r7_mpa": 0.0,
-        "r28_mpa": 0.0,
-        "required_mpa": 500.0,
-        "status": "PASS",
-        "certificate_ref": "CCXX-HP-2026-991",
-        "kcs_record_linked": "BBNT-03"
-      },
-      {
-        "test_id": "LAS188-SONIC-01",
-        "material_type": "PILE_INTEGRITY",
-        "sample_code": "SONIC-156-SECTIONS",
-        "r7_mpa": 0.0,
-        "r28_mpa": 0.0,
-        "required_mpa": 1.0,
-        "status": "PASS",
-        "certificate_ref": "BC-SA-2026/01",
-        "kcs_record_linked": "BBNT-07"
-      },
-      {
-        "test_id": "LAS188-PDA-01",
-        "material_type": "PDA_TEST",
-        "sample_code": "PDA-COC-T1-02",
-        "r7_mpa": 0.0,
-        "r28_mpa": 0.0,
-        "required_mpa": 7800.0,
-        "status": "PASS",
-        "certificate_ref": "BC-PDA-2026/02",
-        "kcs_record_linked": "BBNT-08"
-      }
-    ],
-    "hold_points": [
-      "Đã nghiệm thu dò Karst 26 lỗ đạt 5m vào đá liền khối (BBNT-06)",
-      "Đã siêu âm 156 mặt cắt cọc nhồi đạt 100% Loại 1 (BBNT-07)",
-      "Thí nghiệm nén động PDA cọc đạt 9,434 kN vượt tải thiết kế (BBNT-08)",
-      "Bê tông dầm Super-T đạt R28 = 52.8 MPa > 45 MPa, đủ điều kiện căng kéo cáp DƯL (BBNT-14)"
-    ],
-    "date_cross_check_status": "PASSED",
-    "audit_score": 100,
+    "lab_results": [],
+    "hold_points": [],
+    "date_cross_check_status": "NOT_RUN",
+    "audit_score": 0,
     "clashes_detected": []
   },
   "schedule_data": {
-    "start_date": "2026-10-01",
-    "finish_date": "2027-03-16",
-    "total_duration_days": 166,
+    "start_date": "",
+    "finish_date": "",
+    "total_duration_days": 0,
     "tasks": [],
-    "critical_path": [
-      "T01",
-      "T02",
-      "T03",
-      "T04",
-      "T05",
-      "T06",
-      "T07",
-      "T08",
-      "T09",
-      "T10",
-      "T11"
-    ],
-    "overall_progress_pct": 25.1,
+    "critical_path": [],
+    "overall_progress_pct": 0.0,
     "delay_days": 0
   },
-  "site_logs": [
-    {
-      "log_date": "2026-10-05",
-      "weather": "Nắng ráo",
-      "tasks_executed": [
-        {
-          "task_id": "T01",
-          "component_id": "TIM-MOC",
-          "actual_volume": 4.0,
-          "unit": "Điểm",
-          "quality_status": "PASS"
-        }
-      ],
-      "issues": [],
-      "logged_by": "KS_HIEN_TRUONG"
-    },
-    {
-      "log_date": "2026-10-15",
-      "weather": "Mưa nhẹ",
-      "tasks_executed": [
-        {
-          "task_id": "T02",
-          "component_id": "DUONG-CONG-VU",
-          "actual_volume": 365.0,
-          "unit": "m",
-          "quality_status": "PASS"
-        }
-      ],
-      "issues": [
-        "Mưa trưa 2h, làm chậm lu lèn nền đường"
-      ],
-      "logged_by": "KS_HIEN_TRUONG"
-    },
-    {
-      "log_date": "2026-10-28",
-      "weather": "Nắng đẹp",
-      "tasks_executed": [
-        {
-          "task_id": "T03",
-          "component_id": "DO-KARST",
-          "actual_volume": 26.0,
-          "unit": "Lỗ",
-          "quality_status": "PASS"
-        }
-      ],
-      "issues": [],
-      "logged_by": "KS_HIEN_TRUONG"
-    },
-    {
-      "log_date": "2026-11-20",
-      "weather": "Nắng nhẹ",
-      "tasks_executed": [
-        {
-          "task_id": "T04",
-          "component_id": "COC-T1",
-          "actual_volume": 328.0,
-          "unit": "m",
-          "quality_status": "PASS"
-        }
-      ],
-      "issues": [
-        "Gặp hang Karst nhỏ tại cọc T1-03, phải xử lý trám xi măng mất 1.5 ngày"
-      ],
-      "logged_by": "KS_HIEN_TRUONG"
-    }
-  ],
-  "approval_gates": [
-    {
-      "gate_id": "LEGAL-DOCS-APPROVAL",
-      "gate_name": "Phê duyệt xuất tài liệu pháp lý",
-      "status": "APPROVED",
-      "requested_at": "2026-09-26T17:41:40",
-      "resolved_at": "2026-09-26T17:41:40",
-      "approver": "AUTO_APPROVE",
-      "comments": "[Auto-approved in test mode]",
-      "document_ref": "D:\\Code\\DONG_GOI_HETHONG_AEC\\templates\\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx",
-      "clashes_to_review": []
-    }
-  ],
+  "site_logs": [],
+  "approval_gates": [],
   "global_errors": []
 }

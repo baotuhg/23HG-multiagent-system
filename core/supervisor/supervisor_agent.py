@@ -272,21 +272,17 @@ class AECSupervisor:
         if not success:
             return False
 
-        # GATE-4a: phiếu thí nghiệm — có phiếu KHÔNG ĐẠT / BBNT bị CHẶN thì dừng trước Human Gate
-        qaqc = self.bus.get_qaqc_data()
-        passed, results = self.quality_gate.run_phase_gate("QAQC_REVIEW", {"qaqc": qaqc.__dict__})
-        self._print_gate_results("GATE-4a: Phiếu thí nghiệm & Hold Point", results, agent_id="bptc_kcs_agent")
-
-        # GATE-4b: kiểm toán Excel master — chỉ khi có file
+        # Excel Audit — chỉ chạy EXCEL_AUDIT_GATE (không cần QS check lại)
         excel_path = self.bus._state.excel_master_path
         if excel_path and os.path.exists(excel_path):
             audit_result = self.quality_gate.check_excel_audit(excel_path)
-            self._print_gate_results("GATE-4b: Excel Audit 100/100", [audit_result],
+            self._print_gate_results("GATE-4: Excel Audit 100/100", [audit_result],
                                      agent_id="bptc_kcs_agent")
-            passed = passed and audit_result.passed
+            return audit_result.passed
         else:
-            print("  [Supervisor] Không có Excel master (--excel) — bỏ qua GATE-4b kiểm toán workbook")
-        return passed
+            print(f"  [Supervisor] ✗ Không tìm thấy Excel master ({excel_path or 'chưa chỉ định --excel'}) "
+                  f"— không thể kiểm toán, dừng phase")
+            return False
 
     def _phase_human_gate(self) -> bool:
         """

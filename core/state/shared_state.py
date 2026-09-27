@@ -195,8 +195,6 @@ class QAQCData:
     date_cross_check_status: str = "NOT_RUN"  # PASSED / FAILED / NOT_RUN
     audit_score: int = 0
     clashes_detected: List[str] = field(default_factory=list)
-    hold_point_status: List[Dict[str, Any]] = field(default_factory=list)  # BBNT → GIẢI TỎA / CHỜ / CHẶN
-    lab_summary: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

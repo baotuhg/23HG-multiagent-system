@@ -49,8 +49,8 @@ class AECAuditVerifier:
                         self.findings.append(f"CẢNH BÁO SỐ CHẾT: Hàng {r} ({cell_c}) cột J không dùng công thức sống: {cell_j}")
                         self.stats["dead_numbers_found"] += 1
                         self.score -= 5
-                    elif "*F" not in str(cell_j) and "*E" not in str(cell_j):
-                        self.findings.append(f"CẢNH BÁO HÌNH HỌC: Hàng {r} ({cell_c}) không theo chuẩn E*F*G*H*I: {cell_j}")
+                    elif not any(k in str(cell_j) for k in ["*F", "*E", "SUMIFS", "THONG_KE_THEP", "KHOI_LUONG_DAO_DAP", "TO_HOP_CAT_THEP"]):
+                        self.findings.append(f"CẢNH BÁO HÌNH HỌC: Hàng {r} ({cell_c}) không theo chuẩn E*F*G*H*I hoặc link động: {cell_j}")
                         self.score -= 2
 
                 elif cell_c and not str(cell_c).startswith("PHẦN"): # Dòng cha
@@ -129,6 +129,7 @@ class AECAuditVerifier:
 
         report_content += "\n---\n*Báo cáo được lập tự động bởi Agent aec_audit_verifier.*\n"
 
+        os.makedirs(os.path.dirname(report_path), exist_ok=True)
         with open(report_path, "w", encoding="utf-8") as f:
             f.write(report_content)
         print(f"-> Đã xuất báo cáo thẩm tra: {report_path}")

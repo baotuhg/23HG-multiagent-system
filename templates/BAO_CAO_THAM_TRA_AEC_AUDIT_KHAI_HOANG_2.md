@@ -11,7 +11,7 @@
 | :--- | :---: | :---: | :---: |
 | **ĐIỂM ĐÁNH GIÁ CHẤT LƯỢNG** | **100 / 100** | $\ge 90$ | **XUẤT SẮC (PASSED)** |
 | Số sheet kiểm tra | 14 sheets | $\ge 6$ sheets | Đạt yêu cầu |
-| Tổng số công thức đã quét | 409 công thức | - | Quét 100% |
+| Tổng số công thức đã quét | 126 công thức | - | Quét 100% |
 | Số lượng "Số chết" (Hard-coded) phát hiện | **0** | **0** | **HOÀN TOÀN KHÔNG CÓ SỐ CHẾT** |
 | Lỗi đứt gãy liên kết (Broken links) | **0** | **0** | **LIÊN KẾT LIÊN TỤC 100%** |
 | Kiểm tra logic ngày tháng KCS | 0 xung đột | 0 | Khớp tuyệt đối |

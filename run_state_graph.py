@@ -233,16 +233,6 @@ def main():
                      help="Tỷ lệ giữ lại (bảo hành / bảo đảm), %% giá trị gồm thuế (ghi 0 nếu không có)")
     pay.add_argument("--period", default="", help="Kỳ thanh toán, vd 01")
     pay.add_argument("--payment-out", default=None, help="Xuất Mẫu 03a (.xlsx)")
-    lab = parser.add_argument_group("QA/QC phiếu thí nghiệm (phase qaqc)")
-    lab.add_argument("--lab", default=None,
-                     help="Bảng phiếu thí nghiệm (.xlsx/.csv/.json) — mẫu cột: templates/Phieu_thi_nghiem_mau.csv")
-    lab.add_argument("--lab-sheet", default=None, help="Tên sheet phiếu thí nghiệm (mặc định: tự tìm)")
-    lab.add_argument("--concrete-group-ratio", type=float, default=1.0,
-                     help="Bê tông: cường độ tổ mẫu ≥ yêu cầu × hệ số (mặc định 1.0)")
-    lab.add_argument("--concrete-specimen-ratio", type=float, default=0.85,
-                     help="Bê tông: viên thấp nhất ≥ yêu cầu × hệ số (mặc định 0.85)")
-    lab.add_argument("--acceptance-age", type=int, default=28, help="Tuổi mẫu nghiệm thu (ngày, mặc định 28)")
-    lab.add_argument("--qaqc-out", default=None, help="Xuất báo cáo QA/QC & Hold Point (.xlsx)")
     parser.add_argument(
         "--project-name", default=None,
         help="Tên dự án hiển thị trong báo cáo"
@@ -329,15 +319,7 @@ def main():
                         "tl": args.rate_tl, "vat": args.vat},
         qs_out=args.qs_out,
     ))
-    from tools.lab_qaqc import LabCriteria
-    supervisor.register_agent(BPTCKCSAgent(
-        lab_path=args.lab,
-        lab_sheet=args.lab_sheet,
-        criteria=LabCriteria(group_min_ratio=args.concrete_group_ratio,
-                             specimen_min_ratio=args.concrete_specimen_ratio,
-                             acceptance_age_days=args.acceptance_age),
-        qaqc_out=args.qaqc_out,
-    ))
+    supervisor.register_agent(BPTCKCSAgent())
     supervisor.register_agent(SchedulerAgent(
         schedule_path=args.schedule,
         schedule_sheet=args.schedule_sheet,
@@ -391,7 +373,6 @@ def main():
             print("         tối ưu cắt thép từ BBS thật:         python run_state_graph.py --phase rebar --bbs <file>")
             print("         tính tiến độ CPM từ file thật:       python run_state_graph.py --phase schedule --schedule <file>")
             print("         tính dự toán G_XD từ bảng QS thật:   python run_state_graph.py --phase qs --qs <file>")
-            print("         đánh giá phiếu thí nghiệm QA/QC:     python run_state_graph.py --phase qaqc --lab <file>")
             print("         lập Mẫu 03a:                         python run_state_graph.py --phase payment --qs <file> "
                   "--progress <file> --price-basis direct --advance-recovery-pct 20 --retention-pct 5")
 
