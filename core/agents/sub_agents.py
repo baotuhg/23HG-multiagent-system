@@ -14,7 +14,10 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
-from core.supervisor.base_agent import BaseAgent, MissingDataError
+from datetime import date
+from typing import Iterable, Optional
+
+from core.supervisor.base_agent import BaseAgent, DataInputError, MissingDataError
 from core.state.state_bus import StateBus
 
 DEMO_HINT = "Muốn chạy thử với dữ liệu mẫu Cầu Km19+529.080 thì thêm cờ --demo."
@@ -285,28 +288,152 @@ class BPTCKCSAgent(BaseAgent):
 
 class SchedulerAgent(BaseAgent):
     """
-    Sub-Agent Tiến độ CPM — tính đường găng và % hoàn thành.
+    Sub-Agent Tiến độ CPM — tính đường găng từ danh mục công việc THẬT.
+    Nguồn: MS Project XML / Excel / CSV / JSON (schedule_path). Không có file → dừng,
+    trừ chế độ --demo (dùng 11 công việc mẫu).
     """
 
-    def __init__(self):
+    MAX_LISTED = 10
+
+    def __init__(
+        self,
+        schedule_path: Optional[str] = None,
+        schedule_sheet: Optional[str] = None,
+        start_date: Optional[str] = None,
+        non_working_weekdays: Iterable[int] = (),
+        holidays: Iterable[date] = (),
+        schedule_out: Optional[str] = None,
+    ):
         super().__init__(
             agent_id="scheduler_agent",
             description="Tiến độ CPM — đường găng và As-Built tracking"
         )
+        self.schedule_path = schedule_path
+        self.schedule_sheet = schedule_sheet
+        self.start_date = start_date
+        self.non_working_weekdays = set(non_working_weekdays)
+        self.holidays = set(holidays)
+        self.schedule_out = schedule_out
 
     def run(self, bus: StateBus) -> bool:
         print("  [SchedulerAgent] Tính CPM tiến độ...")
 
-        if not bus.is_demo_mode():
-            raise MissingDataError(
-                "Chưa có danh mục công việc tiến độ thật (thời lượng, quan hệ trước-sau). "
-                "11 công việc trong code chỉ là mẫu Cầu Km19+529.080. " + DEMO_HINT
-            )
-        bus.mark_sample_data(self.agent_id, "11 công việc tiến độ mẫu viết sẵn trong code")
-
         from tools.cpm_calculator import CPMCalculator
 
-        tasks = [
+        tasks, source, file_start, warnings = self._load_tasks(bus)
+        start_date = self.start_date or file_start
+        if not start_date:
+            warnings.append("Chưa có ngày khởi công (--start-date) — chỉ tính theo số ngày, không quy đổi ngày lịch")
+
+        result = CPMCalculator().calculate(
+            tasks, start_date_str=start_date or "",
+            non_working_weekdays=self.non_working_weekdays, holidays=self.holidays,
+        )
+        if result.status == "ERROR":
+            raise DataInputError(
+                f"Tiến độ {source} có lỗi logic:\n    " + "\n    ".join(result.warnings[:self.MAX_LISTED])
+            )
+        warnings.extend(result.warnings)
+
+        # Đối chiếu ngày ghi trong file với kết quả tính
+        file_dates = {t["id"]: (t.get("file_start", ""), t.get("file_finish", "")) for t in tasks}
+        differ = [
+            t for t in result.tasks
+            if all(file_dates.get(t.task_id, ("", ""))) and t.start_date
+            and file_dates[t.task_id] != (t.start_date, t.finish_date)
+        ]
+        if differ:
+            warnings.append(
+                f"{len(differ)}/{len(result.tasks)} công việc có ngày trong file khác kết quả tính CPM "
+                f"(với lịch nghỉ đang chọn)"
+            )
+
+        self._codes = {t["id"]: str(t.get("code") or t["id"]) for t in tasks}
+        critical_codes = [self._codes[c] for c in result.critical_path]
+        bus.set_schedule_data({
+            "start_date": result.project_start,
+            "finish_date": result.project_finish,
+            "total_duration_days": result.total_duration_days,
+            "critical_path": result.critical_path,
+            "tasks": [self._task_dict(t, file_dates.get(t.task_id, ("", ""))) for t in result.tasks],
+            "overall_progress_pct": result.overall_progress_pct,
+            "delay_days": result.delay_days,
+        })
+
+        print(f"  [SchedulerAgent] Nguồn tiến độ: {source} — {len(result.tasks)} công việc")
+        print(f"  [SchedulerAgent] Tổng thời gian: {result.total_duration_days} ngày làm việc")
+        if result.project_finish:
+            print(f"  [SchedulerAgent] Khởi công {result.project_start} → hoàn thành {result.project_finish}")
+        print(f"  [SchedulerAgent] Đường găng ({len(critical_codes)} việc): " + " → ".join(critical_codes))
+        for w in warnings[:self.MAX_LISTED]:
+            print(f"    ⚠ {w}")
+        if len(warnings) > self.MAX_LISTED:
+            print(f"    ... và {len(warnings) - self.MAX_LISTED} cảnh báo khác")
+
+        if self.schedule_out:
+            self._write_csv(result, file_dates)
+            print(f"  [SchedulerAgent] Đã xuất bảng tiến độ CPM: {self.schedule_out}")
+        return True
+
+    def _load_tasks(self, bus: StateBus):
+        """Trả về (tasks, nguồn, ngày khởi công trong file, cảnh báo)."""
+        if self.schedule_path:
+            from tools.schedule_loader import ScheduleLoadError, find_date_violations, load_schedule
+            try:
+                loaded = load_schedule(self.schedule_path, sheet=self.schedule_sheet)
+            except ScheduleLoadError as e:
+                raise DataInputError(str(e)) from e
+            if loaded.errors:
+                listed = "\n    ".join(loaded.errors[:self.MAX_LISTED])
+                more = f"\n    ... và {len(loaded.errors) - self.MAX_LISTED} dòng khác" \
+                    if len(loaded.errors) > self.MAX_LISTED else ""
+                raise DataInputError(
+                    f"Tiến độ {loaded.source} có {len(loaded.errors)} dòng sai dữ liệu — sửa file:\n    "
+                    f"{listed}{more}"
+                )
+            violations = find_date_violations(loaded.tasks)
+            warnings = [f"Ngày trong file vi phạm quan hệ logic: {v}" for v in violations]
+            return loaded.tasks, loaded.source, loaded.project_start, warnings
+
+        if not bus.is_demo_mode():
+            raise MissingDataError(
+                "Chưa có danh mục công việc tiến độ thật — chỉ định file bằng "
+                "--schedule <file.xml|.xlsx|.csv> (MS Project XML hoặc bảng Excel). " + DEMO_HINT
+            )
+        bus.mark_sample_data(self.agent_id, "11 công việc tiến độ mẫu viết sẵn trong code")
+        return self._sample_tasks(), "11 công việc mẫu Cầu Km19 (demo)", "2026-10-01", []
+
+    def _task_dict(self, t, file_dates) -> dict:
+        codes = getattr(self, "_codes", {})
+        return {
+            "task_id": t.task_id, "code": codes.get(t.task_id, t.task_id),
+            "name": t.name, "duration_days": t.duration_days,
+            "predecessors": [
+                f"{codes.get(l.pred_id, l.pred_id)}{l.type}" + (f"{l.lag_days:+g}d" if l.lag_days else "")
+                for l in t.links
+            ],
+            "early_start": t.start_date or t.es, "early_finish": t.finish_date or t.ef,
+            "float_days": t.tf, "is_critical": t.is_critical,
+            "file_start": file_dates[0], "file_finish": file_dates[1],
+        }
+
+    def _write_csv(self, result, file_dates) -> None:
+        import csv
+        with open(self.schedule_out, "w", encoding="utf-8-sig", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(["Mã", "Công việc", "Thời gian (ngày)", "Quan hệ", "ES", "EF", "LS", "LF",
+                        "Dự trữ TF (ngày)", "Găng", "Bắt đầu (tính)", "Kết thúc (tính)",
+                        "Bắt đầu (file)", "Kết thúc (file)"])
+            for t in result.tasks:
+                d = self._task_dict(t, file_dates.get(t.task_id, ("", "")))
+                w.writerow([d["code"], t.name, t.duration_days, "; ".join(d["predecessors"]),
+                            t.es, t.ef, t.ls, t.lf, t.tf, "X" if t.is_critical else "",
+                            t.start_date, t.finish_date, d["file_start"], d["file_finish"]])
+
+    @staticmethod
+    def _sample_tasks() -> list:
+        """11 công việc mẫu Cầu Km19+529.080 — CHỈ dùng ở chế độ --demo."""
+        return [
             {"id": "T01", "name": "Tim mốc định vị", "duration": 3, "predecessors": []},
             {"id": "T02", "name": "Đường công vụ", "duration": 7, "predecessors": ["T01"]},
             {"id": "T03", "name": "Khoan dò Karst", "duration": 14, "predecessors": ["T02"]},
@@ -319,19 +446,3 @@ class SchedulerAgent(BaseAgent):
             {"id": "T10", "name": "Thảm BTN C16", "duration": 7, "predecessors": ["T09"]},
             {"id": "T11", "name": "Thử tải", "duration": 5, "predecessors": ["T10"]},
         ]
-
-        calc = CPMCalculator()
-        result = calc.calculate(tasks, start_date_str="2026-10-01")
-
-        bus.set_schedule_data({
-            "start_date": result.project_start,
-            "finish_date": result.project_finish,
-            "total_duration_days": result.total_duration_days,
-            "critical_path": result.critical_path,
-            "overall_progress_pct": result.overall_progress_pct,
-            "delay_days": result.delay_days,
-        })
-
-        print(f"  [SchedulerAgent] Đường găng: {' → '.join(result.critical_path)}")
-        print(f"  [SchedulerAgent] Dự kiến hoàn thành: {result.project_finish} ({result.total_duration_days} ngày)")
-        return True

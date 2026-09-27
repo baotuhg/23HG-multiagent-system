@@ -6,6 +6,8 @@ Kiến trúc: State Graph + Supervisor Pattern (thay thế Linear Pipeline cũ)
 Dùng lệnh:
   python run_state_graph.py --demo                        # Chạy thử toàn bộ bằng dữ liệu mẫu
   python run_state_graph.py --phase rebar --bbs BBS.xlsx  # Tối ưu cắt thép từ BBS thật
+  python run_state_graph.py --phase schedule --schedule TienDo.xml --non-working-days cn
+                                                          # Tính CPM từ MS Project XML / Excel thật
   python run_state_graph.py --solver-test                 # Chỉ test OR-Tools solver
 
 Dữ liệu thật vs dữ liệu mẫu:
@@ -21,6 +23,7 @@ Backward compatibility:
 import argparse
 import os
 import sys
+from datetime import date, timedelta
 
 # Thêm project root vào sys.path
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -46,6 +49,37 @@ PHASE_MAP = {
     "schedule": ProjectPhase.SCHEDULE_CPM,
     "asbuilt":  ProjectPhase.ASBUILT_LOOP,
 }
+
+
+WEEKDAYS = {
+    "t2": 0, "mon": 0, "t3": 1, "tue": 1, "t4": 2, "wed": 2, "t5": 3, "thu": 3,
+    "t6": 4, "fri": 4, "t7": 5, "sat": 5, "cn": 6, "sun": 6,
+}
+
+
+def parse_weekdays(text: str) -> set:
+    """'cn' / 't7,cn' / 'sat,sun' → {5, 6}."""
+    days = set()
+    for part in filter(None, (p.strip().lower() for p in (text or "").split(","))):
+        if part not in WEEKDAYS:
+            raise argparse.ArgumentTypeError(f"Ngày nghỉ không hợp lệ '{part}' (dùng t2..t7, cn hoặc mon..sun)")
+        days.add(WEEKDAYS[part])
+    return days
+
+
+def parse_holidays(text: str) -> set:
+    """'2027-02-05:2027-02-12,2027-04-30' → tập ngày lễ."""
+    days = set()
+    for part in filter(None, (p.strip() for p in (text or "").split(","))):
+        try:
+            first, _, last = part.partition(":")
+            d, end = date.fromisoformat(first), date.fromisoformat(last or first)
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"Ngày lễ không hợp lệ '{part}' (dùng YYYY-MM-DD hoặc YYYY-MM-DD:YYYY-MM-DD)")
+        while d <= end:
+            days.add(d)
+            d += timedelta(days=1)
+    return days
 
 
 # ── MAIN ─────────────────────────────────────────────────────────────────────
@@ -141,6 +175,30 @@ def main():
         "--project-name", default=None,
         help="Tên dự án hiển thị trong báo cáo"
     )
+    parser.add_argument(
+        "--schedule", default=None,
+        help="File tiến độ thật: MS Project XML (.xml), Excel (.xlsx), CSV hoặc JSON"
+    )
+    parser.add_argument(
+        "--schedule-sheet", default=None,
+        help="Tên sheet tiến độ trong file Excel (mặc định: tự tìm)"
+    )
+    parser.add_argument(
+        "--start-date", default=None,
+        help="Ngày khởi công YYYY-MM-DD (mặc định: lấy từ file tiến độ)"
+    )
+    parser.add_argument(
+        "--non-working-days", type=parse_weekdays, default=set(),
+        help="Thứ nghỉ trong tuần, vd 'cn' hoặc 't7,cn' (mặc định: làm cả tuần)"
+    )
+    parser.add_argument(
+        "--holidays", type=parse_holidays, default=set(),
+        help="Ngày nghỉ lễ, vd '2027-02-05:2027-02-12,2027-04-30'"
+    )
+    parser.add_argument(
+        "--schedule-out", default=None,
+        help="Xuất bảng tiến độ CPM (ES/EF/LS/LF/dự trữ/ngày) ra file CSV"
+    )
 
     args = parser.parse_args()
 
@@ -181,7 +239,14 @@ def main():
     ))
     supervisor.register_agent(QSAgent())
     supervisor.register_agent(BPTCKCSAgent())
-    supervisor.register_agent(SchedulerAgent())
+    supervisor.register_agent(SchedulerAgent(
+        schedule_path=args.schedule,
+        schedule_sheet=args.schedule_sheet,
+        start_date=args.start_date,
+        non_working_weekdays=args.non_working_days,
+        holidays=args.holidays,
+        schedule_out=args.schedule_out,
+    ))
     supervisor.register_agent(AsBuiltAgent())
 
     # Chọn phases
@@ -210,6 +275,7 @@ def main():
         if not args.demo:
             print("\n  Gợi ý: chạy thử toàn bộ bằng dữ liệu mẫu:  python run_state_graph.py --demo")
             print("         tối ưu cắt thép từ BBS thật:         python run_state_graph.py --phase rebar --bbs <file>")
+            print("         tính tiến độ CPM từ file thật:       python run_state_graph.py --phase schedule --schedule <file>")
 
     sys.exit(0 if success else 1)
 

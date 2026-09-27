@@ -113,7 +113,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
 | **Gia công Cốt thép** | File BBS thật `.xlsx` / `.csv` / `.json` (`--bbs`) | Phiếu cắt từng phương án cây 11.7m (CSV), số cây, cận dưới, đề-xê, mẩu thừa tận dụng | OR-Tools Column Generation (GLOP) + CP-SAT, tách nhóm Ø + mác thép, tính lưỡi cắt 3mm |
 | **Dự toán Chi phí** | Khối lượng trích xuất, Đơn giá định mức | Bảng dự toán tổng hợp chi phí xây dựng `G_xd` | Excel 100% công thức động (`G_xd = T + GT + TL + VAT 10%`) |
 | **Thanh toán Hợp đồng**| Khối lượng thiết kế vs Khối lượng hoàn công | Bảng xác định khối lượng hoàn thành Phụ lục 03a | Nghị định 99/2021/NĐ-CP, tính phát sinh tự động |
-| **Quản lý Tiến độ** | Danh mục công việc, thời lượng, liên kết FS/SS | Tệp tiến độ `MS Project (.xml, .mpp)` & Gantt Chart | Thuật toán CPM (Critical Path Method), Early/Late/Float |
+| **Quản lý Tiến độ** | File tiến độ thật `MS Project .xml` / `.xlsx` / `.csv` (`--schedule`) | Bảng CPM (ES/EF/LS/LF, dự trữ, đường găng, ngày lịch) CSV; cảnh báo ngày trong file vi phạm quan hệ logic | CPM với quan hệ FS/SS/FF/SF + lag, lịch nghỉ (Chủ nhật, ngày lễ) |
 | **Quản lý Chất lượng**| Phiếu thí nghiệm nén R7/R28, kéo thép, PDA | 22 Biên bản nghiệm thu KCS in ấn A4 chuẩn | Excel A4 Form (`MAU_BIEN_BAN_KCS`, thay thế hoàn toàn Word) |
 | **Biện pháp Thi công** | Yêu cầu KTXD, điều kiện địa chất, thủy văn | Thuyết minh BPTC 8 chương TCVN | Markdown chuẩn kỹ thuật, tích hợp RAG Hugging Face |
 | **Đối soát Hiện trường**| Nhật ký thi công hàng ngày `DailySiteLog` | Báo cáo chênh lệch tiến độ & Chi phí phát sinh | As-Built Closed Loop, tự động cập nhật mạng CPM |
@@ -175,7 +175,7 @@ pip install -r requirements.txt
 
 > ⚠ **Dữ liệu thật và dữ liệu mẫu:** mặc định hệ thống **chỉ dùng dữ liệu thật**. Pha nào thiếu dữ liệu sẽ dừng ngay và báo rõ cần cung cấp gì, không tự thay bằng số liệu mẫu. Dữ liệu mẫu (Cầu Km19+529.080) chỉ được dùng khi có cờ `--demo`, và mọi chỗ dùng đều được đánh dấu trong log, Quality Gate, Human Gate và báo cáo cuối.
 >
-> Hiện tại mới có **pha cắt thép** chạy được bằng dữ liệu thật (BBS). Các pha CAD, dự toán, QA/QC, tiến độ và hoàn công vẫn chỉ có dữ liệu mẫu trong code, nên sẽ dừng nếu không có `--demo`.
+> Hiện tại có **pha cắt thép** (BBS) và **pha tiến độ CPM** (MS Project XML / Excel / CSV) chạy được bằng dữ liệu thật. Các pha CAD, dự toán, QA/QC và hoàn công vẫn chỉ có dữ liệu mẫu trong code, nên sẽ dừng nếu không có `--demo`.
 
 #### a. Tối ưu cắt thép từ BBS thật (dùng được cho dự án):
 ```powershell
@@ -187,6 +187,15 @@ python run_state_graph.py --phase rebar --bbs "BBS_du_an.xlsx" --cut-plan-out ph
 > - Thanh dài hơn 11.7m (cần nối) và cáp DƯL **không** được đưa vào kế hoạch cắt và được cảnh báo riêng. Vị trí nối phải lấy từ bản vẽ; hiện chưa kiểm tra tự động (`NOT_RUN`).
 >
 > Ví dụ với BBS trong workbook mẫu: `python run_state_graph.py --phase rebar --bbs "templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx" --bbs-skip-invalid`
+
+#### a2. Tính tiến độ CPM từ file tiến độ thật:
+```powershell
+python run_state_graph.py --phase schedule --schedule "TienDo.xml" --non-working-days cn --holidays 2027-02-05:2027-02-12 --schedule-out tien_do_cpm.csv
+```
+> - Đọc được **MS Project XML** (File → Save As → XML trong MS Project), Excel, CSV hoặc JSON. Cột nhận diện theo tiêu đề: *Mã WBS*, *Danh mục công tác*, *Thời gian (ngày)*, *Quan hệ logic* (vd `1.2FS; 1.3SS+3d`), *Ngày bắt đầu/hoàn thành* (tùy chọn, dùng để đối chiếu).
+> - Hỗ trợ quan hệ **FS / SS / FF / SF** có độ trễ (âm hoặc dương), ngày nghỉ trong tuần (`--non-working-days t7,cn`) và ngày lễ (`--holidays`). Ngày khởi công lấy từ file, hoặc chỉ định bằng `--start-date`.
+> - Liên kết tới công việc không tồn tại, vòng lặp logic, thời lượng sai: **dừng và liệt kê từng lỗi**. Ô Excel là công thức chưa được tính thì phải mở và lưu lại file bằng Excel trước.
+> - **Đối chiếu ngày ghi trong file:** cảnh báo khi ngày trong file vi phạm chính quan hệ logic của nó. Ví dụ file mẫu `Tien_Do_Thi_Cong_Cau_Km19+529.080.xml` có 4 công việc khai báo FS nhưng ngày lại chồng lấn, nên tính lại ra 187 ngày (hoàn thành 05/04/2027) thay vì 28/03/2027 như ghi trong file.
 
 #### b. Chạy thử toàn bộ 7 pha bằng dữ liệu mẫu (demo):
 ```powershell
@@ -263,7 +272,8 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 ├── tools/                        # ⚙️ CÔNG CỤ TÍNH TOÁN XÁC ĐỊNH (PURE PYTHON, ZERO LLM)
 │   ├── cutting_stock_solver.py   # Solver cắt thép 1D (Column Generation GLOP + CP-SAT, tách nhóm Ø + mác thép)
 │   ├── bbs_loader.py             # Đọc BBS thật từ Excel / CSV / JSON, phát hiện dòng sai dữ liệu
-│   ├── cpm_calculator.py         # Bộ tính tiến độ CPM (Topological Sort, Forward/Backward)
+│   ├── schedule_loader.py        # Đọc tiến độ thật từ MS Project XML / Excel / CSV, đối chiếu ngày trong file
+│   ├── cpm_calculator.py         # Bộ tính CPM: FS/SS/FF/SF + lag, lịch nghỉ, Forward/Backward Pass
 │   └── cad_diff_engine.py        # Động cơ so sánh phiên bản bản vẽ CAD Rev00 vs Rev01
 │
 ├── schemas/                      # 📋 ĐẶC TẢ SCHEMA DỮ LIỆU CHUYÊN NGÀNH
