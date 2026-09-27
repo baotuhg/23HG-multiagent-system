@@ -75,6 +75,15 @@ class BBSLoaderTest(unittest.TestCase):
         self.assertEqual(len(result.errors), 3)
         self.assertEqual(len(result.skipped), 1)
 
+    def test_rebarcut_style_headers(self):
+        # Định dạng sheet INPUT của RebarCut Pro Excel: cột đường kính chỉ ghi "Ø (mm)"
+        path = self.write("bbs.csv", (
+            "STT,Số hiệu / Bar Mark,Ø (mm),Số lượng,Chiều dài (m),Cho nối?\n"
+            "1,F1,25,57,\"7,262\",Có\n"
+        ))
+        d = load_bbs(path).demands[0]
+        self.assertEqual((d.mark, d.diameter_mm, d.length_mm, d.quantity), ("F1", 25, 7262, 57))
+
     def test_json(self):
         path = self.write("bbs.json", json.dumps({"items": [
             {"mark": "A", "diameter_mm": 12, "length_mm": 1200, "quantity": 5},

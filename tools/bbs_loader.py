@@ -180,7 +180,8 @@ def _detect_columns(headers: Sequence[Any]) -> Dict[str, Any]:
             continue
         if "kyhieu" in h or "sohieu" in h or h in ("mark", "barmark"):
             cols.setdefault("mark", idx)
-        elif "duongkinh" in h or h in ("d", "dmm", "dia", "diameter", "diametermm", "phi"):
+        elif "duongkinh" in h or h in ("d", "dmm", "dia", "diameter", "diametermm", "phi") \
+                or str(raw).strip().lower().startswith(("ø", "∅", "φ")):   # "Ø (mm)"
             cols.setdefault("diameter", idx)
         elif "macthep" in h or "capthep" in h or h == "grade":
             cols.setdefault("grade", idx)
