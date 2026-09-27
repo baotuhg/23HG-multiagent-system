@@ -312,6 +312,37 @@ class QualityGate:
 
         return result
 
+    # ── GATE 4a: Phiếu thí nghiệm & Hold Point ───────────────────────────────
+
+    def check_lab_results(self, qaqc: Dict[str, Any]) -> GateCheckResult:
+        """
+        Không có phiếu KHÔNG ĐẠT và không BBNT nào bị CHẶN. Phiếu chờ R28 → cảnh báo
+        (BBNT tương ứng chưa được giải tỏa, không xuất biên bản nghiệm thu đó).
+        """
+        result = GateCheckResult(gate_name="LAB_QAQC_GATE", passed=False)
+        records = qaqc.get("lab_results") or []
+        holds = qaqc.get("hold_point_status") or []
+        if not records:
+            result.issues.append("Không có phiếu thí nghiệm nào được đánh giá")
+            return result
+        failed = [r for r in records if r.get("status") == "FAIL"]
+        blocked = [h for h in holds if h.get("status") == "CHẶN"]
+        pending = [h for h in holds if h.get("status") == "CHỜ"]
+        for r in failed:
+            result.issues.append(f"{r.get('test_id')} ({r.get('component')}) KHÔNG ĐẠT: {r.get('detail')}")
+        for h in blocked:
+            result.issues.append(f"{h.get('bbnt')} bị CHẶN — không được nghiệm thu / chuyển bước")
+        for h in pending:
+            result.warnings.append(f"{h.get('bbnt')} CHỜ kết quả ({', '.join(h.get('reasons', []))[:120]})")
+        for w in (qaqc.get("lab_summary") or {}).get("warnings", [])[:5]:
+            if "KHÔNG ĐẠT" not in w:
+                result.warnings.append(w)
+        result.score = 100 if not result.issues else max(0, 100 - 25 * len(failed))
+        result.passed = not result.issues
+        result.details = {"records": len(records), "failed": len(failed), "blocked": len(blocked),
+                          "pending": len(pending)}
+        return result
+
     # ── GATE 5: Mẫu 03a ──────────────────────────────────────────────────────
 
     def check_payment(self, p: Dict[str, Any]) -> GateCheckResult:
@@ -374,6 +405,9 @@ class QualityGate:
                 context.get("splice_status", "NOT_RUN"),
                 context.get("splice_violations", []),
             ))
+
+        elif phase == "QAQC_REVIEW":
+            results.append(self.check_lab_results(context.get("qaqc", {})))
 
         elif phase == "PAYMENT_03A":
             results.append(self.check_payment(context.get("payment", {})))

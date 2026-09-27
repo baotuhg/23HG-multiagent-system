@@ -175,7 +175,7 @@ pip install -r requirements.txt
 
 > ⚠ **Dữ liệu thật và dữ liệu mẫu:** mặc định hệ thống **chỉ dùng dữ liệu thật**. Pha nào thiếu dữ liệu sẽ dừng ngay và báo rõ cần cung cấp gì, không tự thay bằng số liệu mẫu. Dữ liệu mẫu (Cầu Km19+529.080) chỉ được dùng khi có cờ `--demo`, và mọi chỗ dùng đều được đánh dấu trong log, Quality Gate, Human Gate và báo cáo cuối.
 >
-> Hiện tại có **pha cắt thép** (BBS), **pha tiến độ CPM** (MS Project XML / Excel / CSV), **pha dự toán G_XD** (bảng QS) và **pha thanh toán Mẫu 03a** chạy được bằng dữ liệu thật. Các pha CAD, QA/QC và hoàn công vẫn chỉ có dữ liệu mẫu trong code, nên sẽ dừng nếu không có `--demo`.
+> Hiện tại có **pha cắt thép** (BBS), **pha tiến độ CPM** (MS Project XML / Excel / CSV), **pha dự toán G_XD** (bảng QS), **pha thanh toán Mẫu 03a** và **pha QA/QC phiếu thí nghiệm** chạy được bằng dữ liệu thật. Pha CAD và hoàn công vẫn chỉ có dữ liệu mẫu trong code, nên sẽ dừng nếu không có `--demo`.
 >
 > File Excel chỉ có công thức mà chưa từng được Excel tính (ví dụ file do phần mềm tạo ra) vẫn đọc được: `tools/excel_eval.py` tự tính các hàm thông dụng (SUM, SUMIF(S), COUNTIF(S), ROUND/ROUNDUP, tham chiếu sang sheet khác…). Gặp hàm chưa hỗ trợ thì hệ thống báo rõ, không đoán.
 
@@ -229,6 +229,20 @@ python run_state_graph.py --phase payment --qs "Du_toan.xlsx" --progress "KL_ky_
 > - **Không có giá trị mặc định** cho cơ sở đơn giá, tỷ lệ thu hồi tạm ứng và tỷ lệ giữ lại (ghi 0 nếu không có). Khai báo `--advance-outstanding` thì số thu hồi không vượt số tạm ứng còn lại.
 > - **Khối lượng lũy kế vượt hợp đồng** không được thanh toán theo 03a. **Công việc ngoài hợp đồng** cũng không được thanh toán. Cả hai được liệt kê ở sheet `PHAT_SINH_CANH_BAO` để làm phụ lục hoặc phát sinh.
 > - Gate-5 kiểm tra số học: tổng các dòng, VAT, đề nghị thanh toán = tổng − thu hồi − giữ lại, lũy kế ≤ hợp đồng.
+
+#### a5. QA/QC — đánh giá phiếu thí nghiệm & giải tỏa điểm dừng kỹ thuật:
+```powershell
+python run_state_graph.py --phase qaqc --lab "Phieu_thi_nghiem.xlsx" --qaqc-out bao_cao_qaqc.xlsx
+```
+> - Mẫu cột: [`templates/Phieu_thi_nghiem_mau.csv`](templates/Phieu_thi_nghiem_mau.csv). Mỗi dòng là một phiếu, gồm *Mã phiếu*, *Loại thí nghiệm*, *Cấu kiện*, *Mã BBNT*, rồi tùy loại:
+>   - **Nén bê tông:** *Mẫu 1..n* (MPa), *Ngày đúc*, *Ngày thí nghiệm* (hoặc *Tuổi*), *Yêu cầu* (`C30/37`, `C30`, `M300` hoặc số MPa), *Loại mẫu* (lập phương 100/150/200, trụ).
+>   - **Kéo thép:** *Mác thép* (CB240-T, CB300-V, CB400-V, CB500-V), *Giới hạn chảy*, *Giới hạn bền*, *Độ giãn dài*.
+>   - **Chỉ tiêu khác** (PDA, siêu âm, độ sụt…): *Kết quả* so với *Yêu cầu* `≥ 7800`, `≤ 3`, `18±2`, `16-20` hoặc chữ (`Loại 1`).
+> - **Tiêu chí mặc định** (chỉnh bằng `--concrete-group-ratio`, `--concrete-specimen-ratio`, `--acceptance-age`; phải đối chiếu chỉ dẫn kỹ thuật dự án):
+>   - Bê tông tuổi ≥ 28 ngày: tổ mẫu ≥ 100% yêu cầu và không viên nào < 85%. Tổ 3 viên có viên lệch > 15% thì lấy viên giữa. Quy đổi mẫu lập phương 100mm × 0.91, 200mm × 1.05.
+>   - Mẫu chưa đủ tuổi: **CHỜ**, có cảnh báo sớm nếu cường độ < 65% yêu cầu.
+>   - Mức tối thiểu cho thép xem sheet `TIEU_CHI` của báo cáo.
+> - **Điểm dừng kỹ thuật theo BBNT:** có phiếu không đạt thì **CHẶN**, và Gate-4a dừng pha trước Human Gate. Còn phiếu chờ thì **CHỜ**. Tất cả đạt thì **GIẢI TỎA**. Kiểm toán Excel master (Gate-4b) chỉ chạy khi có `--excel`.
 
 #### b. Chạy thử toàn bộ 7 pha bằng dữ liệu mẫu (demo):
 ```powershell
@@ -311,6 +325,7 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 │   ├── qs_loader.py              # Đọc bảng QS thật, tỷ lệ chi phí, tính G_XD TT 11/2021 + đối chiếu
 │   ├── qs_export.py              # Xuất bảng tổng hợp G_XD + chi tiết công tác (.xlsx)
 │   ├── payment.py                # Mẫu 03a NĐ 99/2021: KL thực hiện × đơn giá HĐ, tạm ứng, giữ lại, vượt HĐ
+│   ├── lab_qaqc.py               # Đánh giá phiếu thí nghiệm (nén BT, kéo thép, PDA...) + Hold Point theo BBNT
 │   ├── excel_eval.py             # Tính công thức Excel chưa có kết quả lưu sẵn (Pure Python)
 │   ├── cpm_calculator.py         # Bộ tính CPM: FS/SS/FF/SF + lag, lịch nghỉ, Forward/Backward Pass
 │   └── cad_diff_engine.py        # Động cơ so sánh phiên bản bản vẽ CAD Rev00 vs Rev01
