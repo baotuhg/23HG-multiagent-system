@@ -152,11 +152,13 @@ class CuttingStockSolution:
     reusable_offcuts: int = 0        # Số đầu thừa ≥ 100D có thể nhập kho tận dụng
     reusable_offcut_length_mm: int = 0
     offcut_summary: Dict[str, List[int]] = field(default_factory=dict)
-    total_splices: int = 0
+    total_splices: int = 0           # số mối nối (thanh k đoạn có k−1 mối nối)
     splice_extra_mm: int = 0
+    long_bars_split: int = 0         # số thanh dài hơn cây thép đã được tách đoạn
     patterns: List[CuttingPattern] = field(default_factory=list)  # phương án khác nhau
     assignment: List[Dict] = field(default_factory=list)          # chi tiết từng cây
-    splices: List[Dict] = field(default_factory=list)             # chi tiết mối nối
+    splices: List[Dict] = field(default_factory=list)             # chi tiết từng mối nối
+    unplanned: List[Dict] = field(default_factory=list)           # thanh CHƯA có trong kế hoạch cắt
     groups: List[DiameterGroupResult] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
     warning: str = ""                # Gộp warnings (giữ tương thích)
@@ -164,15 +166,17 @@ class CuttingStockSolution:
 
 @dataclass
 class _SplitOption:
-    owner: int       # chỉ số item nguyên (thanh được nối)
-    a_item: int
-    b_item: int
-    a_len: int
-    b_len: int
+    """Một cách ghép thanh `owner` từ các đoạn nối (theo thứ tự dọc thanh)."""
+    owner: int
+    segments: List[int]              # chiều dài từng đoạn, từ đầu thanh
+    seg_items: List[int]             # chỉ số item của từng đoạn
     lap: int
-    lap_from: int    # vùng chồng nối đo từ đầu thanh (mm)
-    lap_to: int
-    a_first: bool    # đoạn A nằm ở đầu thanh
+    laps: List[Tuple[int, int]]      # vùng chồng nối (từ, đến) đo từ đầu thanh
+    mandatory: bool                  # thanh dài hơn cây thép: bắt buộc nối
+
+    @property
+    def centers(self) -> List[float]:
+        return [(a + b) / 2 for a, b in self.laps]
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -184,6 +188,9 @@ class CuttingStockSolver:
     1D Cutting Stock Solver — tách nhóm theo (đường kính, mác thép), mỗi nhóm:
       Heuristic tham lam → Column Generation (GLOP) → CP-SAT nghiệm nguyên.
     """
+
+    # Hai mối nối chồng coi là cùng một mặt cắt khi tâm cách nhau < 1.3 × L_nối
+    SAME_SECTION_FACTOR = 1.3
 
     def __init__(
         self,
@@ -221,7 +228,18 @@ class CuttingStockSolver:
 
     # ── PUBLIC API ─────────────────────────────────────────────────────────
 
-    def solve(self, demands: List[CutDemand], allow_splicing: bool = False) -> CuttingStockSolution:
+    def solve(
+        self,
+        demands: List[CutDemand],
+        allow_splicing: bool = False,
+        split_long_bars: bool = False,
+    ) -> CuttingStockSolution:
+        """
+        allow_splicing : đề xuất nối thanh ngắn hơn cây để tận dụng đầu thừa (cần duyệt).
+        split_long_bars: tách thanh dài hơn cây thép thành các đoạn nối trong vùng cho phép nối;
+                         thanh không tách được đưa vào `unplanned` (có cảnh báo).
+                         False: có thanh dài hơn cây → INFEASIBLE.
+        """
         sol = CuttingStockSolution(
             bar_length_mm=self.bar_length_mm, kerf_mm=self.kerf_mm,
             end_trim_mm=self.end_trim_mm, splicing=allow_splicing,
@@ -253,7 +271,7 @@ class CuttingStockSolver:
             return fail("INFEASIBLE", "Danh sách cần cắt rỗng")
 
         too_long = [d.length_mm for d in active if d.length_mm > self.usable_length_mm]
-        if too_long:
+        if too_long and not split_long_bars:
             return fail("INFEASIBLE", f"Có {len(too_long)} đoạn dài hơn cây {self.bar_length_mm}mm"
                                       f"{' (sau cắt đầu)' if self.end_trim_mm else ''}: {too_long[:5]}")
 
@@ -270,7 +288,12 @@ class CuttingStockSolver:
         solver_names = set()
         for key in sorted(groups):
             name = self._solve_diameter_group(key, groups[key], allow_splicing, sol)
-            solver_names.add(name)
+            if name:
+                solver_names.add(name)
+
+        if not sol.groups:
+            return fail("INFEASIBLE", "Không có thanh nào lập được kế hoạch cắt: "
+                                      + "; ".join(u["reason"] for u in sol.unplanned[:3]))
 
         sol.total_bars_needed = sum(g.total_bars_needed for g in sol.groups)
         sol.lower_bound_bars = sum(g.lower_bound_bars for g in sol.groups)
@@ -290,6 +313,7 @@ class CuttingStockSolver:
                 acc[1] += mm
         sol.total_splices = len(sol.splices)
         sol.splice_extra_mm = sum(s["lap_mm"] for s in sol.splices)
+        sol.long_bars_split = len({s["assembly_id"] for s in sol.splices if s["mandatory"]})
         sol.status = "OPTIMAL" if all(g.status == "OPTIMAL" for g in sol.groups) else "FEASIBLE"
         sol.solver_name = ", ".join(sorted(solver_names))
 
@@ -307,10 +331,22 @@ class CuttingStockSolver:
                     f"Đề-xê {sol.waste_ratio_pct:.2f}% > {MAX_WASTE_RATIO_PCT}%; phương án chưa chứng minh "
                     f"tối ưu (dùng {sol.total_bars_needed} cây, cận dưới {sol.lower_bound_bars} cây)."
                 )
-        if sol.splices:
+        optional = sum(1 for s in sol.splices if not s["mandatory"])
+        if optional:
             sol.warnings.append(
-                f"Phương án có {len(sol.splices)} mối nối — CHỈ là đề xuất vật tư, phải được kỹ thuật "
+                f"Phương án có {optional} mối nối tận dụng đầu thừa — CHỈ là đề xuất vật tư, phải được kỹ thuật "
                 f"duyệt vị trí nối, tỷ lệ nối trên mặt cắt và cấu tạo theo hồ sơ dự án."
+            )
+        if sol.long_bars_split:
+            sol.warnings.append(
+                f"Đã tách {sol.long_bars_split} thanh dài hơn cây thép "
+                f"({sum(1 for s in sol.splices if s['mandatory'])} mối nối, so le tâm ≥ "
+                f"{self.SAME_SECTION_FACTOR:g}×L_nối) — đối chiếu vị trí nối với bản vẽ trước khi gia công."
+            )
+        if sol.unplanned:
+            sol.warnings.append(
+                f"{len(sol.unplanned)} dòng BBS ({sum(u['quantity'] for u in sol.unplanned):,} thanh) "
+                f"CHƯA có trong kế hoạch cắt — xem danh sách 'unplanned'"
             )
         sol.warning = " | ".join(sol.warnings)
         return sol
@@ -320,9 +356,13 @@ class CuttingStockSolver:
     def _solve_diameter_group(
         self, key: Tuple[int, str], demands: List[CutDemand], allow_splicing: bool,
         sol: CuttingStockSolution,
-    ) -> str:
+    ) -> Optional[str]:
         diameter, grade = key
-        lap_default = self.lap_xd * diameter
+        usable = self.usable_length_mm
+
+        def unplanned(d: CutDemand, reason: str) -> None:
+            sol.unplanned.append({"mark": d.mark, "diameter_mm": diameter, "grade": grade,
+                                  "length_mm": d.length_mm, "quantity": d.quantity, "reason": reason})
 
         # Item nguyên: gộp theo chiều dài, trừ khi cần theo dõi từng Bar Mark
         per_mark = self.max_marks_per_bar is not None
@@ -332,14 +372,24 @@ class CuttingStockSolver:
         marks: List[List[List]] = []
         owner_demand: Dict[int, CutDemand] = {}
         for d in sorted(demands, key=lambda x: -x.length_mm):
-            spliceable = allow_splicing and d.splice_allowed
-            if spliceable and not (d.splice_zones or self.default_splice_zones):
-                sol.warnings.append(
-                    f"{d.mark} Ø{diameter}: cho nối nhưng chưa có vùng cho phép nối dạng số "
-                    f"(vd 0-0.25; 0.75-1) — KHÔNG đề xuất nối"
-                )
-                spliceable = False
-            k = (int(d.length_mm), d.mark if (per_mark or spliceable) else None)
+            zones = d.splice_zones or self.default_splice_zones
+            if d.length_mm > usable:
+                if not zones:
+                    unplanned(d, f"dài {d.length_mm}mm > cây {usable}mm nhưng chưa có vùng cho phép nối "
+                                 f"dạng số để tách đoạn")
+                    continue
+                spliceable = True
+            else:
+                spliceable = allow_splicing and d.splice_allowed
+                if spliceable and not zones:
+                    sol.warnings.append(
+                        f"{d.mark} Ø{diameter}: cho nối nhưng chưa có vùng cho phép nối dạng số "
+                        f"(vd 0-0.25; 0.75-1) — KHÔNG đề xuất nối"
+                    )
+                    spliceable = False
+            # Thanh được nối: mỗi dòng BBS là một item riêng để tỷ lệ nối / so le tính theo từng dòng
+            # (hai dòng trùng ký hiệu có thể là hai cấu kiện khác nhau)
+            k = (int(d.length_mm), d.mark if per_mark else None, id(d) if spliceable else None)
             if k not in item_keys:
                 item_keys[k] = len(lengths)
                 lengths.append(int(d.length_mm))
@@ -352,47 +402,86 @@ class CuttingStockSolver:
                 owner_demand[i] = d
 
         n_whole = len(lengths)
+        seg_item_of: Dict[int, int] = {}      # chiều dài đoạn nối → item (dùng chung trong nhóm)
         options: List[_SplitOption] = []
         ratio_cap: Dict[int, int] = {}
-        if owner_demand:
-            for i, d in owner_demand.items():
-                ratio = self.max_splice_ratio if d.max_splice_ratio is None else d.max_splice_ratio
-                ratio = min(ratio, self.max_splice_ratio)
+        stagger_rows: List[Tuple[List[int], int]] = []
+        initial_splits: List[int] = []
+        for i, d in owner_demand.items():
+            ratio = self.max_splice_ratio if d.max_splice_ratio is None else d.max_splice_ratio
+            ratio = min(ratio, self.max_splice_ratio)
+            lap = int(round((d.lap_xd if d.lap_xd is not None else self.lap_xd) * diameter))
+            zones = d.splice_zones or self.default_splice_zones
+            mandatory = lengths[i] > usable
+            if ratio > 0.5 and not mandatory:
+                sol.warnings.append(f"{d.mark}: tỷ lệ nối {ratio:.0%} > 50% — kiểm tra quy định nối trên cùng mặt cắt")
+
+            if not mandatory:
                 cap = int(qty[i] * ratio + 1e-9)
-                if ratio > 0.5:
-                    sol.warnings.append(f"{d.mark}: tỷ lệ nối {ratio:.0%} > 50% — kiểm tra quy định nối trên cùng mặt cắt")
                 if cap <= 0:
                     continue
-                lap = int(round((d.lap_xd if d.lap_xd is not None else self.lap_xd) * diameter))
-                zones = d.splice_zones or self.default_splice_zones
-                opts = self._split_candidates(lengths[i], lap, diameter, zones, lengths[:n_whole])
-                for a, b, lap_from, a_first in opts:
-                    a_item = len(lengths)
-                    lengths.append(a)
-                    b_item = a_item + 1
-                    lengths.append(b)
-                    qty.extend([0, 0])
-                    marks.extend([[], []])
-                    options.append(_SplitOption(i, a_item, b_item, a, b, lap, lap_from, lap_from + lap, a_first))
-                if opts:
+                layouts = [(segs, laps) for segs, laps in self._split_candidates(
+                    lengths[i], lap, diameter, zones, lengths[:n_whole])]
+                if layouts:
                     ratio_cap[i] = cap
+            else:
+                layouts = self._long_bar_layouts(lengths[i], lap, diameter, zones)
+                if not layouts:
+                    unplanned(d, f"không bố trí được các đoạn ≤ {usable}mm với mối nối nằm trong vùng "
+                                 f"cho phép {zones}")
+                    qty[i] = 0
+                    continue
+
+            first = len(options)
+            for segs, laps in layouts:
+                seg_items = []
+                for seg in segs:
+                    if seg not in seg_item_of:
+                        seg_item_of[seg] = len(lengths)
+                        lengths.append(seg)
+                        qty.append(0)
+                        marks.append([])
+                    seg_items.append(seg_item_of[seg])
+                options.append(_SplitOption(i, list(segs), seg_items, lap, list(laps), mandatory))
+                initial_splits.append(0)
+
+            if mandatory:
+                own = list(range(first, len(options)))
+                sec_cap = max(1, int(qty[i] * ratio + 1e-9))
+                rows = self._stagger_rows(options, own, lap, sec_cap)
+                start = self._initial_stagger(options, own, lap, sec_cap, qty[i])
+                if start is None:
+                    unplanned(d, f"không đủ vị trí nối so le (tâm cách ≥ {self.SAME_SECTION_FACTOR:g}×L_nối) "
+                                 f"để mỗi mặt cắt ≤ {ratio:.0%} số thanh — mở rộng vùng cho phép nối")
+                    qty[i] = 0
+                    del options[first:]
+                    del initial_splits[first:]
+                    continue
+                stagger_rows.extend(rows)
+                for j, count in start.items():
+                    initial_splits[j] = count
+
+        if sum(qty) == 0 and not any(initial_splits):
+            return None
 
         item_bars, split_counts, status, lower_bound, solver_name = self._solve_group(
-            lengths, qty, n_whole, options, ratio_cap
+            lengths, qty, n_whole, options, ratio_cap, stagger_rows, initial_splits
         )
 
         # ── Gán ký hiệu và ghi kết quả ────────────────────────────────────────
         unit_w = rebar_unit_weight_kg_m(diameter)
         mark_queue = {i: [list(m) for m in marks[i]] for i in range(n_whole)}
         unique_marks = {i: "|".join(dict.fromkeys(m[0] for m in marks[i])) for i in range(n_whole)}
-        seg_label: Dict[int, str] = {}
-        for opt in options:
-            owner = unique_marks[opt.owner]
-            seg_label[opt.a_item] = f"{owner}(nối-A)"
-            seg_label[opt.b_item] = f"{owner}(nối-B)"
+        seg_queue: Dict[int, List[Tuple[int, int, int]]] = defaultdict(list)  # item → [(ghép, lần, vị trí)]
+        for j, (opt, count) in enumerate(zip(options, split_counts)):
+            for inst in range(count):
+                for pos, item in enumerate(opt.seg_items):
+                    seg_queue[item].append((j, inst, pos))
+        seg_label = {item: "|".join(dict.fromkeys(unique_marks[options[j].owner] for j, _, _ in queue))
+                     for item, queue in seg_queue.items()}
+        seg_bar: Dict[Tuple[int, int, int], int] = {}   # (ghép, lần, vị trí đoạn) → mã cây
 
         bar_offset = len(sol.assignment)
-        seg_bars: Dict[int, List[int]] = defaultdict(list)   # item đoạn nối → mã cây
         offcuts: List[int] = []
         summary: Dict[str, List[int]] = {c: [0, 0] for c in OFFCUT_CLASSES}
         pattern_counter: Counter = Counter()
@@ -401,7 +490,7 @@ class CuttingStockSolver:
             bar_id = bar_offset + n
             cuts = [lengths[i] for i in bar]
             used = sum(cuts) + self.kerf_mm * max(len(cuts) - 1, 0)
-            leftover = self.usable_length_mm - used
+            leftover = usable - used
             cls = self.classify_offcut(leftover, diameter)
             summary[cls][0] += 1
             summary[cls][1] += leftover
@@ -411,8 +500,9 @@ class CuttingStockSolver:
                 if i < n_whole:
                     labels.append(_pop_mark(mark_queue[i]))
                 else:
-                    labels.append(seg_label[i])
-                    seg_bars[i].append(bar_id)
+                    j, inst, pos = seg_queue[i].pop(0)
+                    seg_bar[(j, inst, pos)] = bar_id
+                    labels.append(f"{unique_marks[options[j].owner]}(nối-{chr(65 + pos)})")
             sol.assignment.append({
                 "bar_id": bar_id,
                 "diameter_mm": diameter,
@@ -431,31 +521,39 @@ class CuttingStockSolver:
             cuts, leftover, cls = pattern_info[pkey]
             sol.patterns.append(CuttingPattern(
                 cuts=cuts, waste_mm=leftover, bars_used=count, diameter_mm=diameter, grade=grade,
-                marks=[unique_marks[i] if i < n_whole else seg_label[i] for i in pkey],
+                marks=[unique_marks[i] if i < n_whole else f"{seg_label.get(i, '?')}(nối)" for i in pkey],
                 offcut_class=cls,
             ))
 
         group_splices = 0
-        for opt, count in zip(options, split_counts):
-            a_bars, b_bars = seg_bars[opt.a_item], seg_bars[opt.b_item]
-            for _ in range(count):
-                group_splices += 1
-                sol.splices.append({
-                    "splice_id": f"S{len(sol.splices) + 1}",
-                    "diameter_mm": diameter,
-                    "grade": grade,
-                    "mark": unique_marks[opt.owner],
-                    "bar_length_mm": lengths[opt.owner],
-                    "a_mm": opt.a_len,
-                    "b_mm": opt.b_len,
-                    "lap_mm": opt.lap,
-                    "lap_from_mm": opt.lap_from,
-                    "lap_to_mm": opt.lap_to,
-                    "first_segment": "A" if opt.a_first else "B",
-                    "bar_a": a_bars.pop(0),
-                    "bar_b": b_bars.pop(0),
-                    "kind": owner_demand[opt.owner].splice_kind or "Nối chồng",
-                })
+        for j, (opt, count) in enumerate(zip(options, split_counts)):
+            for inst in range(count):
+                assembly = f"G{len({s['assembly_id'] for s in sol.splices}) + 1}"
+                bars = [seg_bar[(j, inst, pos)] for pos in range(len(opt.seg_items))]
+                for pos, (lap_from, lap_to) in enumerate(opt.laps):
+                    group_splices += 1
+                    sol.splices.append({
+                        "splice_id": f"S{len(sol.splices) + 1}",
+                        "assembly_id": assembly,
+                        "mandatory": opt.mandatory,
+                        "diameter_mm": diameter,
+                        "grade": grade,
+                        "mark": unique_marks[opt.owner],
+                        "bar_length_mm": lengths[opt.owner],
+                        "segments_mm": list(opt.segments),
+                        "segment_bars": bars,
+                        "a_mm": opt.segments[pos],
+                        "b_mm": opt.segments[pos + 1],
+                        "a_label": chr(65 + pos),
+                        "b_label": chr(66 + pos),
+                        "lap_mm": opt.lap,
+                        "lap_from_mm": lap_from,
+                        "lap_to_mm": lap_to,
+                        "first_segment": "A",
+                        "bar_a": bars[pos],
+                        "bar_b": bars[pos + 1],
+                        "kind": owner_demand[opt.owner].splice_kind or "Nối chồng",
+                    })
 
         pieces = sum(qty[:n_whole])
         net_len = sum(lengths[i] * qty[i] for i in range(n_whole))
@@ -478,7 +576,7 @@ class CuttingStockSolver:
             reusable_offcut_length_mm=reusable[1],
             offcut_summary={c: v for c, v in summary.items() if v[0]},
             splices=group_splices,
-            splice_extra_mm=sum(o.lap * c for o, c in zip(options, split_counts)),
+            splice_extra_mm=sum(o.lap * len(o.laps) * c for o, c in zip(options, split_counts)),
         ))
         return solver_name
 
@@ -492,26 +590,27 @@ class CuttingStockSolver:
             return "Đầu thừa ngắn"
         return "Phế"
 
+    # ── CÁCH GHÉP THANH TỪ CÁC ĐOẠN NỐI ────────────────────────────────────
+
+    def _min_segment(self, lap: int, diameter: int) -> int:
+        return max(lap, int(math.ceil(self.min_splice_segment_xd * diameter)), 1)
+
+    @staticmethod
+    def _in_zones(lap_from: float, lap_to: float, length: int, zones) -> bool:
+        return any(z0 * length - 1e-6 <= lap_from and lap_to <= z1 * length + 1e-6 for z0, z1 in zones)
+
     def _split_candidates(
         self, length: int, lap: int, diameter: int, zones: List[Tuple[float, float]],
         other_lengths: Sequence[int],
-    ) -> List[Tuple[int, int, int, bool]]:
+    ) -> List[Tuple[List[int], List[Tuple[int, int]]]]:
         """
-        Sinh các cách tách thanh dài `length` thành A + B = length + lap.
-        Trả về [(A, B, vùng chồng nối từ (mm), A ở đầu thanh?)] — ưu tiên A/B lấp
-        vừa phần dư của các phương án cắt thông thường.
+        Nối tùy chọn (tận dụng đầu thừa): tách thanh `length` thành 2 đoạn A + B = length + lap.
+        Trả về [([đoạn đầu, đoạn cuối], [vùng chồng nối])] — ưu tiên đoạn lấp vừa phần dư
+        của các phương án cắt thông thường.
         """
         usable, kerf = self.usable_length_mm, self.kerf_mm
-        min_seg = max(lap, int(math.ceil(self.min_splice_segment_xd * diameter)), 1)
+        min_seg = self._min_segment(lap, diameter)
         total = length + lap
-
-        def placement(a: int) -> Optional[Tuple[int, bool]]:
-            """Vị trí vùng chồng nối nếu A ở đầu thanh, hoặc B ở đầu thanh."""
-            for lap_from, a_first in ((a - lap, True), (total - a - lap, False)):
-                lap_to = lap_from + lap
-                if any(z0 * length - 1e-6 <= lap_from and lap_to <= z1 * length + 1e-6 for z0, z1 in zones):
-                    return lap_from, a_first
-            return None
 
         preferred: List[int] = []
         for other in sorted(set(other_lengths), reverse=True):
@@ -521,10 +620,9 @@ class CuttingStockSolver:
                     preferred.extend([remnant, total - remnant])
         preferred.append(usable)
         preferred.append(total - usable)
-        step = 250
-        grid = list(range(min_seg, total - min_seg + 1, step))
+        grid = list(range(min_seg, total - min_seg + 1, 250))
 
-        result: List[Tuple[int, int, int, bool]] = []
+        result = []
         seen = set()
         for a in preferred + grid:
             b = total - a
@@ -533,14 +631,122 @@ class CuttingStockSolver:
             key = (min(a, b), max(a, b))
             if key in seen:
                 continue
-            place = placement(a)
-            if place is None:
-                continue
-            seen.add(key)
-            result.append((a, b, place[0], place[1]))
+            for first, second in ((a, b), (b, a)):   # đoạn nào ở đầu thanh
+                lap_from = first - lap
+                if self._in_zones(lap_from, first, length, zones):
+                    seen.add(key)
+                    result.append(([first, second], [(lap_from, first)]))
+                    break
             if len(result) >= MAX_SPLIT_OPTIONS:
                 break
         return result
+
+    def _long_bar_layouts(
+        self, length: int, lap: int, diameter: int, zones: List[Tuple[float, float]],
+        max_layouts: int = 40,
+    ) -> List[Tuple[List[int], List[Tuple[int, int]]]]:
+        """
+        Thanh dài hơn cây thép: tách thành k đoạn (k nhỏ nhất có thể, thử thêm k+1),
+        mỗi đoạn ≤ cây thép và ≥ max(L_nối, 20D), mọi vùng chồng nối nằm trong vùng cho phép.
+        Vùng chồng nối thứ j là [x_j, x_j + lap]; đoạn j dài x_j + lap − x_{j-1}.
+        Sinh nhiều vị trí nối đầu tiên khác nhau để có thể bố trí so le giữa các thanh.
+        """
+        usable = self.usable_length_mm
+        min_seg = self._min_segment(lap, diameter)
+        if usable <= lap:
+            return []
+        intervals = sorted((z0 * length, z1 * length - lap) for z0, z1 in zones if z1 * length - lap >= z0 * length)
+        if not intervals:
+            return []
+        step = max(50, int(self.SAME_SECTION_FACTOR * lap / 2))
+
+        def allowed(lo: float, hi: float, spread: bool) -> List[int]:
+            """Vị trí bắt đầu vùng nối cho phép trong [lo, hi]: điểm xa nhất trước, rồi rải đều."""
+            picks: List[int] = []
+            for a, b in intervals:
+                a, b = max(a, lo), min(b, hi)
+                if a > b + 1e-9:
+                    continue
+                a, b = int(math.ceil(a)), int(math.floor(b))
+                if a > b:
+                    continue
+                picks.append(b)
+                if spread:
+                    picks.extend(range(b - step, a - 1, -step))
+                    picks.append(a)
+                else:
+                    picks.append(a)
+            return sorted(set(picks), reverse=True)
+
+        layouts: List[Tuple[List[int], List[Tuple[int, int]]]] = []
+        seen = set()
+
+        def extend(start: int, xs: List[int], remaining: int) -> None:
+            if len(layouts) >= max_layouts:
+                return
+            if remaining == 1:
+                last = length - start
+                if min_seg <= last <= usable:
+                    segs, prev = [], 0
+                    for x in xs:
+                        segs.append(x + lap - prev)
+                        prev = x
+                    segs.append(last)
+                    key = tuple(segs)
+                    if key not in seen:
+                        seen.add(key)
+                        layouts.append((segs, [(x, x + lap) for x in xs]))
+                return
+            # đoạn hiện tại: x + lap − start ∈ [min_seg, usable]; phần còn lại phải phủ được
+            max_rest = (remaining - 1) * usable - (remaining - 2) * lap
+            lo = max(start + min_seg - lap, length - max_rest, start + 1)
+            hi = min(start + usable - lap, length - min_seg)
+            for x in allowed(lo, hi, spread=not xs)[: (12 if not xs else 2)]:
+                extend(x, xs + [x], remaining - 1)
+
+        k_min = max(2, math.ceil((length - lap) / (usable - lap)))
+        for k in (k_min, k_min + 1):
+            extend(0, [], k)
+            if len(layouts) >= max_layouts // 2:
+                break
+        return layouts
+
+    def _same_section(self, a: float, b: float, lap: int) -> bool:
+        return abs(a - b) < self.SAME_SECTION_FACTOR * lap
+
+    def _stagger_rows(
+        self, options: List[_SplitOption], own: List[int], lap: int, cap: int,
+    ) -> List[Tuple[List[int], int]]:
+        """Mỗi mặt cắt (tâm mối nối): tổng số thanh có mối nối tại đó ≤ cap."""
+        rows, seen = [], set()
+        for j in own:
+            for c in options[j].centers:
+                members = tuple(sorted(
+                    k for k in own if any(self._same_section(c, c2, lap) for c2 in options[k].centers)
+                ))
+                if members not in seen:
+                    seen.add(members)
+                    rows.append((list(members), cap))
+        return rows
+
+    def _initial_stagger(
+        self, options: List[_SplitOption], own: List[int], lap: int, cap: int, quantity: int,
+    ) -> Optional[Dict[int, int]]:
+        """Lời giải khởi đầu: chọn các cách ghép có mối nối không cùng mặt cắt, chia đều số thanh."""
+        chosen: List[int] = []
+        for j in own:
+            if all(not self._same_section(c, c2, lap)
+                   for k in chosen for c in options[j].centers for c2 in options[k].centers):
+                chosen.append(j)
+            if len(chosen) * cap >= quantity:
+                break
+        if len(chosen) * cap < quantity:
+            return None
+        counts, left = {}, quantity
+        for j in chosen:
+            counts[j] = min(cap, left)
+            left -= counts[j]
+        return counts
 
     # ── GROUP SOLVER ───────────────────────────────────────────────────────
 
@@ -551,48 +757,56 @@ class CuttingStockSolver:
         n_whole: int,
         options: List[_SplitOption],
         ratio_cap: Dict[int, int],
+        stagger_rows: List[Tuple[List[int], int]],
+        initial_splits: List[int],
     ) -> Tuple[List[List[int]], List[int], str, int, str]:
         """
         Giải một nhóm. Item 0..n_whole-1 là thanh nguyên (qty), item còn lại là đoạn nối.
-        Trả về (danh sách cây [chỉ số item], số lần dùng mỗi cách nối, status, cận dưới, tên solver).
+        Trả về (danh sách cây [chỉ số item], số lần dùng mỗi cách ghép, status, cận dưới, tên solver).
         """
         n = len(lengths)
         cap = self.usable_length_mm + self.kerf_mm        # mẹo kerf: mỗi đoạn chiếm l + kerf
         weights = [l + self.kerf_mm for l in lengths]
-        no_splits = [0] * len(options)
+        split_ub = self._split_upper_bounds(options, ratio_cap, qty)
 
         material_lb = -(-sum(qty[i] * weights[i] for i in range(n_whole)) // cap)
-        greedy = self._greedy_patterns(weights, qty, cap)
+        greedy_need = self._need(qty, options, initial_splits)
+        greedy = self._greedy_patterns(weights, greedy_need, cap)
         greedy_bars = sum(m for _, m in greedy)
 
         def expand(chosen, splits):
-            return self._expand(chosen, qty, n_whole, options, splits, lengths)
+            return self._expand(chosen, self._need(qty, options, splits), lengths)
 
         if greedy_bars <= material_lb:
-            return expand(greedy, no_splits), no_splits, "OPTIMAL", material_lb, "Greedy"
+            return expand(greedy, initial_splits), list(initial_splits), "OPTIMAL", material_lb, "Greedy"
 
         if not self.use_ortools:
-            return expand(greedy, no_splits), no_splits, "FEASIBLE", material_lb, "Greedy (không OR-Tools)"
+            return (expand(greedy, initial_splits), list(initial_splits), "FEASIBLE", material_lb,
+                    "Greedy (không OR-Tools)")
 
         try:
             deadline = time.monotonic() + self.time_limit_s
             patterns, lp_lb = self._column_generation(
-                weights, qty, n_whole, cap, options, ratio_cap, [p for p, _ in greedy], deadline
+                weights, qty, n_whole, cap, options, split_ub, ratio_cap, stagger_rows,
+                [p for p, _ in greedy], deadline,
             )
             lower_bound = max(material_lb, lp_lb)
             if greedy_bars <= lower_bound:
-                return expand(greedy, no_splits), no_splits, "OPTIMAL", lower_bound, "Greedy + LP bound"
+                return (expand(greedy, initial_splits), list(initial_splits), "OPTIMAL", lower_bound,
+                        "Greedy + LP bound")
 
             solved = self._solve_integer_master(
-                patterns, qty, n_whole, options, ratio_cap, lower_bound, dict(greedy),
-                max(1.0, deadline - time.monotonic()),
+                patterns, qty, n_whole, options, split_ub, ratio_cap, stagger_rows, lower_bound,
+                dict(greedy), initial_splits, max(1.0, deadline - time.monotonic()),
             )
         except (ImportError, RuntimeError):
             # OR-Tools không có hoặc LP lỗi: dùng heuristic, trạng thái vẫn so với cận dưới vật liệu
-            return expand(greedy, no_splits), no_splits, "FEASIBLE", material_lb, "Greedy (OR-Tools lỗi)"
+            return (expand(greedy, initial_splits), list(initial_splits), "FEASIBLE", material_lb,
+                    "Greedy (OR-Tools lỗi)")
 
-        if solved is None or sum(solved[0]) >= greedy_bars:
-            chosen, splits = greedy, no_splits
+        if solved is None or sum(solved[0]) > greedy_bars or (
+                sum(solved[0]) == greedy_bars and sum(solved[1]) >= sum(initial_splits)):
+            chosen, splits = greedy, list(initial_splits)
         else:
             counts, splits = solved
             chosen = [(p, c) for p, c in zip(patterns, counts) if c > 0]
@@ -601,12 +815,28 @@ class CuttingStockSolver:
         status = "OPTIMAL" if len(bars) <= lower_bound else "FEASIBLE"
         return bars, list(splits), status, lower_bound, "OR-Tools GLOP + CP-SAT"
 
-    def _item_bounds(self, weights, qty, n_whole, options, ratio_cap, cap) -> List[int]:
+    @staticmethod
+    def _split_upper_bounds(options, ratio_cap, qty) -> List[int]:
+        return [ratio_cap.get(o.owner, 0) if not o.mandatory else qty[o.owner] for o in options]
+
+    @staticmethod
+    def _need(qty: Sequence[int], options: List[_SplitOption], splits: Sequence[int]) -> List[int]:
+        need = list(qty)
+        for opt, s in zip(options, splits):
+            if s:
+                need[opt.owner] -= s
+                for item in opt.seg_items:
+                    need[item] += s
+        return need
+
+    def _item_bounds(self, weights, qty, n_whole, options, split_ub, cap) -> List[int]:
         bounds = [min(qty[i], cap // weights[i]) if i < n_whole else 0 for i in range(len(weights))]
-        for opt in options:
-            limit = ratio_cap.get(opt.owner, 0)
-            for item in (opt.a_item, opt.b_item):
-                bounds[item] = min(limit, cap // weights[item])
+        seg_need: Counter = Counter()
+        for opt, ub in zip(options, split_ub):
+            for item in opt.seg_items:
+                seg_need[item] += ub
+        for item, total in seg_need.items():
+            bounds[item] = min(total, cap // weights[item])
         if self.max_pieces_per_bar:
             bounds = [min(b, self.max_pieces_per_bar) for b in bounds]
         return bounds
@@ -623,7 +853,7 @@ class CuttingStockSolver:
         order = sorted(range(n), key=lambda i: -weights[i])
         max_p = self.max_pieces_per_bar or 10 ** 9
         max_t = self.max_marks_per_bar or 10 ** 9
-        remaining = list(qty)
+        remaining = [q if weights[i] <= cap else 0 for i, q in enumerate(qty)]
         result: List[Tuple[Tuple[int, ...], int]] = []
         while any(remaining):
             counts = [0] * n
@@ -648,7 +878,9 @@ class CuttingStockSolver:
         n_whole: int,
         cap: int,
         options: List[_SplitOption],
+        split_ub: List[int],
         ratio_cap: Dict[int, int],
+        stagger_rows: List[Tuple[List[int], int]],
         initial_patterns: List[Tuple[int, ...]],
         deadline: float,
         max_iterations: int = 2000,
@@ -657,12 +889,12 @@ class CuttingStockSolver:
         from ortools.linear_solver import pywraplp
 
         n = len(weights)
-        bounds = self._item_bounds(weights, qty, n_whole, options, ratio_cap, cap)
+        bounds = self._item_bounds(weights, qty, n_whole, options, split_ub, cap)
         patterns: List[Tuple[int, ...]] = []
         seen = set()
         singles = [tuple(bounds[i] if k == i else 0 for k in range(n)) for i in range(n) if bounds[i] > 0]
         for p in list(initial_patterns) + singles:
-            if p not in seen:
+            if p not in seen and any(p):
                 seen.add(p)
                 patterns.append(p)
 
@@ -674,14 +906,21 @@ class CuttingStockSolver:
         objective = lp.Objective()
         objective.SetMinimization()
 
-        # Biến số lần dùng mỗi cách nối: thay 1 thanh nguyên bằng đoạn A + đoạn B
+        # Biến số lần dùng mỗi cách ghép: thay 1 thanh nguyên bằng các đoạn nối
         ratio_rows = {owner: lp.Constraint(-infinity, float(limit)) for owner, limit in ratio_cap.items()}
-        for opt in options:
-            s = lp.NumVar(0.0, float(ratio_cap.get(opt.owner, 0)), "")
+        split_vars = []
+        for opt, ub in zip(options, split_ub):
+            s = lp.NumVar(0.0, float(ub), "")
+            split_vars.append(s)
             rows[opt.owner].SetCoefficient(s, 1.0)
-            rows[opt.a_item].SetCoefficient(s, -1.0)
-            rows[opt.b_item].SetCoefficient(s, -1.0)
-            ratio_rows[opt.owner].SetCoefficient(s, 1.0)
+            for item, mult in Counter(opt.seg_items).items():
+                rows[item].SetCoefficient(s, -float(mult))
+            if opt.owner in ratio_rows:
+                ratio_rows[opt.owner].SetCoefficient(s, 1.0)
+        for members, limit in stagger_rows:
+            row = lp.Constraint(-infinity, float(limit))
+            for j in members:
+                row.SetCoefficient(split_vars[j], 1.0)
 
         def add_column(p: Tuple[int, ...]) -> None:
             x = lp.NumVar(0.0, infinity, "")
@@ -719,18 +958,22 @@ class CuttingStockSolver:
         qty: Sequence[int],
         n_whole: int,
         options: List[_SplitOption],
+        split_ub: List[int],
         ratio_cap: Dict[int, int],
+        stagger_rows: List[Tuple[List[int], int]],
         lower_bound: int,
         hint: Dict[Tuple[int, ...], int],
+        initial_splits: Sequence[int],
         time_limit_s: float,
     ) -> Optional[Tuple[List[int], List[int]]]:
-        """CP-SAT: chọn số cây cho từng phương án (và số lần nối), tối thiểu số cây rồi số mối nối."""
+        """CP-SAT: chọn số cây cho từng phương án (và số lần ghép nối), tối thiểu số cây rồi số mối nối."""
         from ortools.sat.python import cp_model
 
         n = len(qty)
         need = list(qty)
-        for opt in options:
-            need[opt.a_item] = need[opt.b_item] = ratio_cap.get(opt.owner, 0)
+        for opt, ub in zip(options, split_ub):
+            for item in opt.seg_items:
+                need[item] += ub
 
         model = cp_model.CpModel()
         xs = []
@@ -740,30 +983,34 @@ class CuttingStockSolver:
             model.AddHint(x, hint.get(p, 0))
             xs.append(x)
         ss = []
-        for k, opt in enumerate(options):
-            s = model.NewIntVar(0, ratio_cap.get(opt.owner, 0), f"s{k}")
-            model.AddHint(s, 0)
+        for k, (opt, ub) in enumerate(zip(options, split_ub)):
+            s = model.NewIntVar(0, ub, f"s{k}")
+            model.AddHint(s, initial_splits[k])
             ss.append(s)
 
         split_of: Dict[int, List] = defaultdict(list)
-        seg_of: Dict[int, object] = {}
+        seg_of: Dict[int, List] = defaultdict(list)
         for opt, s in zip(options, ss):
             split_of[opt.owner].append(s)
-            seg_of[opt.a_item] = s
-            seg_of[opt.b_item] = s
+            for item in opt.seg_items:
+                seg_of[item].append(s)
         for i in range(n):
             produced = sum(p[i] * xs[j] for j, p in enumerate(patterns) if p[i])
             if i < n_whole:
-                model.Add(produced + sum(split_of[i]) >= qty[i])
+                if qty[i]:
+                    model.Add(produced + sum(split_of[i]) >= qty[i])
             elif i in seg_of:
-                model.Add(produced >= seg_of[i])
+                model.Add(produced >= sum(seg_of[i]))
         for owner, limit in ratio_cap.items():
             model.Add(sum(split_of[owner]) <= limit)
+        for members, limit in stagger_rows:
+            model.Add(sum(ss[j] for j in members) <= limit)
 
         total = sum(xs)
         model.Add(total >= lower_bound)
-        big = sum(ratio_cap.values()) + 1
-        model.Minimize(total * big + sum(ss))   # ít cây nhất, rồi ít mối nối nhất
+        joints = sum(len(opt.laps) * s for opt, s in zip(options, ss))
+        big = sum(len(opt.laps) * ub for opt, ub in zip(options, split_ub)) + 1
+        model.Minimize(total * big + joints)   # ít cây nhất, rồi ít mối nối nhất
 
         solver = cp_model.CpSolver()
         solver.parameters.max_time_in_seconds = time_limit_s
@@ -777,19 +1024,10 @@ class CuttingStockSolver:
     @staticmethod
     def _expand(
         chosen: List[Tuple[Tuple[int, ...], int]],
-        qty: Sequence[int],
-        n_whole: int,
-        options: List[_SplitOption],
-        splits: Sequence[int],
+        need: Sequence[int],
         lengths: Sequence[int],
     ) -> List[List[int]]:
         """Bung phương án thành từng cây (chỉ số item), bỏ bớt các đoạn cắt dư so với nhu cầu."""
-        need = list(qty)
-        for opt, s in zip(options, splits):
-            need[opt.owner] -= s
-            need[opt.a_item] += s
-            need[opt.b_item] += s
-
         bars: List[List[int]] = []
         for p, count in chosen:
             items = [i for i, a in enumerate(p) for _ in range(a)]
@@ -960,12 +1198,15 @@ def write_cut_plan_csv(solution: CuttingStockSolution, path: str) -> None:
             ])
         if solution.splices:
             w.writerow([])
-            w.writerow(["MỐI NỐI ĐỀ XUẤT — CẦN KỸ THUẬT DUYỆT", "Đường kính (mm)", "Bar Mark",
-                        "Đoạn A (mm)", "Đoạn B (mm)", "Chồng nối (mm)", "Vùng nối từ (mm)",
-                        "Vùng nối đến (mm)", "Cây A / B", "Kiểu nối"])
+            w.writerow(["MỐI NỐI — CẦN KỸ THUẬT DUYỆT", "Mã thanh ghép", "Loại", "Đường kính (mm)", "Bar Mark",
+                        "Các đoạn (mm)", "Đoạn trước (mm)", "Đoạn sau (mm)", "Chồng nối (mm)",
+                        "Vùng nối từ (mm)", "Vùng nối đến (mm)", "Cây đoạn trước / sau", "Kiểu nối"])
             for s in solution.splices:
-                w.writerow([s["splice_id"], s["diameter_mm"], s["mark"], s["a_mm"], s["b_mm"], s["lap_mm"],
-                            s["lap_from_mm"], s["lap_to_mm"], f"C{s['bar_a']} / C{s['bar_b']}", s["kind"]])
+                w.writerow([s["splice_id"], s["assembly_id"],
+                            "Bắt buộc (thanh dài)" if s["mandatory"] else "Tận dụng đầu thừa",
+                            s["diameter_mm"], s["mark"], " + ".join(map(str, s["segments_mm"])),
+                            s["a_mm"], s["b_mm"], s["lap_mm"], s["lap_from_mm"], s["lap_to_mm"],
+                            f"C{s['bar_a']} / C{s['bar_b']}", s["kind"]])
         w.writerow([])
         w.writerow([
             "TỔNG HỢP", "Đường kính (mm)", "Mác thép", "Số cây", "Cận dưới", "Trạng thái",

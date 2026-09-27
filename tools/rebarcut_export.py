@@ -143,21 +143,30 @@ def write_rebarcut_workbook(
     if spliced is not None:
         _plan_sheet(wb, "PA_NOI", "PA NỐI THÉP – ĐỀ XUẤT, CẦN KỸ THUẬT DUYỆT", spliced)
 
+    all_splices = list(base.splices) + (list(spliced.splices) if spliced is not None else [])
+    if all_splices:
         ws = wb.create_sheet("MOI_NOI")
-        ws["A1"] = "CHI TIẾT MỐI NỐI ĐỀ XUẤT"
-        ws["A2"] = "Vùng nối đo từ đầu thanh (đầu có đoạn ghi ở cột 'Đoạn ở đầu thanh'). Cần duyệt theo hồ sơ dự án."
-        headers = ["Mã nối", "Ø (mm)", "Bar Mark", "Chiều dài thanh (m)", "Đoạn A (m)", "Đoạn B (m)",
-                   "Bù nối (m)", "Kiểm tra A+B−L (m)", "Kiểu nối", "Cây A / B", "Vùng nối từ (m)",
-                   "Vùng nối đến (m)", "Đoạn ở đầu thanh", "Kỹ thuật duyệt"]
+        ws["A1"] = "CHI TIẾT MỐI NỐI"
+        ws["A2"] = ("Vùng nối đo từ đầu thanh (đầu có đoạn A). 'Bắt buộc' = thanh dài hơn cây thép phải tách; "
+                    "'Tận dụng đầu thừa' = đề xuất. Tất cả cần duyệt theo hồ sơ dự án.")
+        headers = ["Phương án", "Mã nối", "Mã thanh ghép", "Loại", "Ø (mm)", "Bar Mark", "Chiều dài thanh (m)",
+                   "Các đoạn (m)", "Đoạn trước (m)", "Đoạn sau (m)", "Bù nối (m)",
+                   "Kiểm tra Σđoạn − (k−1)·L_nối − L (m)", "Kiểu nối", "Cây đoạn trước / sau",
+                   "Vùng nối từ (m)", "Vùng nối đến (m)", "Kỹ thuật duyệt"]
         for c, h in enumerate(headers, start=1):
             ws.cell(row=4, column=c, value=h)
         _style_header(ws, 4, len(headers))
-        for s in spliced.splices:
-            ws.append([s["splice_id"], s["diameter_mm"], s["mark"], s["bar_length_mm"] / 1000,
-                       s["a_mm"] / 1000, s["b_mm"] / 1000, s["lap_mm"] / 1000,
-                       (s["a_mm"] + s["b_mm"] - s["lap_mm"] - s["bar_length_mm"]) / 1000, s["kind"],
-                       f"C{s['bar_a']} / C{s['bar_b']}", s["lap_from_mm"] / 1000, s["lap_to_mm"] / 1000,
-                       s["first_segment"], ""])
+        plans = [("PA_TOI_UU", base)] + ([("PA_NOI", spliced)] if spliced is not None else [])
+        for label, sol in plans:
+            for s in sol.splices:
+                segs = s["segments_mm"]
+                check = (sum(segs) - s["lap_mm"] * (len(segs) - 1) - s["bar_length_mm"]) / 1000
+                ws.append([label, s["splice_id"], s["assembly_id"],
+                           "Bắt buộc (thanh dài)" if s["mandatory"] else "Tận dụng đầu thừa",
+                           s["diameter_mm"], s["mark"], s["bar_length_mm"] / 1000,
+                           " + ".join(f"{chr(65 + k)} {seg / 1000:.3f}" for k, seg in enumerate(segs)),
+                           s["a_mm"] / 1000, s["b_mm"] / 1000, s["lap_mm"] / 1000, check, s["kind"],
+                           f"C{s['bar_a']} / C{s['bar_b']}", s["lap_from_mm"] / 1000, s["lap_to_mm"] / 1000, ""])
 
     # ── REMAIN ───────────────────────────────────────────────────────────────
     ws = wb.create_sheet("REMAIN")
@@ -181,10 +190,14 @@ def write_rebarcut_workbook(
         ws.cell(row=4, column=c, value=h)
     _style_header(ws, 4, len(headers))
     for label, sol in [("PA_TOI_UU", base)] + ([("PA_NOI", spliced)] if spliced is not None else []):
-        seg_ids: Dict[int, List[List]] = defaultdict(list)   # cây → [(dài, phía, mã nối)]
+        seg_ids: Dict[int, List[List]] = defaultdict(list)   # cây → [(dài, phía, mã thanh ghép)]
+        done = set()
         for s in sol.splices:
-            seg_ids[s["bar_a"]].append([s["a_mm"], "A", f"{s['splice_id']}-A"])
-            seg_ids[s["bar_b"]].append([s["b_mm"], "B", f"{s['splice_id']}-B"])
+            if s["assembly_id"] in done:
+                continue
+            done.add(s["assembly_id"])
+            for k, (seg, bar) in enumerate(zip(s["segments_mm"], s["segment_bars"])):
+                seg_ids[bar].append([seg, chr(65 + k), f"{s['assembly_id']}-{chr(65 + k)}"])
         for a in sol.assignment:
             pending = seg_ids.get(a["bar_id"], [])
             for length, mark in zip(a["cuts_mm"], a["marks"]):

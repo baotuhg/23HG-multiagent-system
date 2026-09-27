@@ -111,26 +111,30 @@ class RebarAgent(BaseAgent):
         if len(input_warnings) > MAX_LISTED:
             print(f"    ... và {len(input_warnings) - MAX_LISTED} cảnh báo khác")
 
-        # ── BƯỚC 2: Tách thanh dài hơn cây thép — phải nối, không cắt trọn từ 1 cây
-        usable = self.solver.usable_length_mm
-        valid_demands = [d for d in demands if d.length_mm <= usable]
-        oversize = [d for d in demands if d.length_mm > usable]
-        oversize_items = [f"{d.mark} Ø{d.diameter_mm} L={d.length_mm}mm × {d.quantity}" for d in oversize]
-        if oversize:
-            input_summary.append(
-                f"{len(oversize)} dòng BBS ({sum(d.quantity for d in oversize):,} thanh) dài hơn cây "
-                f"{self.bar_length_mm}mm — phải tách đoạn nối theo bản vẽ, CHƯA có trong kế hoạch cắt"
-            )
-            print(f"  [RebarAgent] ⚠ {input_summary[-1]}: {oversize_items[:3]}")
-
-        if not valid_demands:
-            raise DataInputError(
-                f"Không có thanh nào ≤ {self.bar_length_mm}mm để lập kế hoạch cắt (nguồn: {source})"
-            )
-
-        # ── BƯỚC 2b: Tool Calling — CuttingStockSolver ───────────────────────
+        # ── BƯỚC 2: Tool Calling — CuttingStockSolver ────────────────────────
+        # Thanh dài hơn cây thép được tách thành các đoạn nối trong vùng cho phép nối;
+        # thanh không có vùng nối / không bố trí được → 'unplanned' (cảnh báo, không bỏ qua lặng lẽ)
         print("  [RebarAgent] Gọi CuttingStockSolver (OR-Tools, tách nhóm đường kính + mác thép)...")
-        solution = self.solver.solve(valid_demands)
+        solution = self.solver.solve(demands, split_long_bars=True)
+        if solution.status not in ("OPTIMAL", "FEASIBLE"):
+            raise DataInputError(f"Solver trả về {solution.status}: {solution.warning}")
+
+        oversize_items = [f"{u['mark']} Ø{u['diameter_mm']} L={u['length_mm']}mm × {u['quantity']}: {u['reason']}"
+                          for u in solution.unplanned]
+        if solution.long_bars_split:
+            input_summary.append(
+                f"Đã tách {solution.long_bars_split:,} thanh dài hơn cây {self.bar_length_mm}mm thành đoạn nối "
+                f"({sum(1 for s in solution.splices if s['mandatory']):,} mối nối so le trong vùng cho phép) "
+                f"— đối chiếu bản vẽ trước khi gia công"
+            )
+        if solution.unplanned:
+            input_summary.append(
+                f"{len(solution.unplanned)} dòng BBS ({sum(u['quantity'] for u in solution.unplanned):,} thanh) "
+                f"CHƯA có trong kế hoạch cắt (thanh dài hơn cây nhưng thiếu vùng cho phép nối hoặc "
+                f"không bố trí được mối nối)"
+            )
+            for item in oversize_items[:MAX_LISTED]:
+                print(f"    ⚠ CHƯA LẬP KẾ HOẠCH: {item}")
 
         print(f"  [RebarAgent] Solver: {solution.status} ({solution.solver_name})")
         print(f"  [RebarAgent] Số cây thép: {solution.total_bars_needed:,} (cận dưới {solution.lower_bound_bars:,})")
@@ -149,7 +153,7 @@ class RebarAgent(BaseAgent):
         splice_summary = {}
         if self.splice:
             print("  [RebarAgent] Tính phương án nối thép (chỉ Bar Mark có vùng cho phép nối)...")
-            spliced = self.solver.solve(valid_demands, allow_splicing=True)
+            spliced = self.solver.solve(demands, allow_splicing=True, split_long_bars=True)
             saved = solution.total_bars_needed - spliced.total_bars_needed
             splice_summary = {
                 "status": spliced.status,
@@ -176,7 +180,7 @@ class RebarAgent(BaseAgent):
                 print(f"  [RebarAgent] Đã xuất phiếu cắt PA nối (đề xuất): {stem}_PA_noi{ext or '.csv'}")
         if self.rebarcut_out:
             from tools.rebarcut_export import write_rebarcut_workbook
-            write_rebarcut_workbook(self.rebarcut_out, valid_demands, solution, spliced, self.params)
+            write_rebarcut_workbook(self.rebarcut_out, demands, solution, spliced, self.params)
             print(f"  [RebarAgent] Đã xuất file theo bố cục RebarCut: {self.rebarcut_out}")
 
         # ── BƯỚC 3: Kiểm tra vùng nối ─────────────────────────────────────────
@@ -194,8 +198,9 @@ class RebarAgent(BaseAgent):
             print(f"    {v}")
 
         # ── BƯỚC 4: Ghi kết quả vào StateBus ─────────────────────────────────
-        pieces_demanded = sum(d.quantity for d in valid_demands)
-        pieces_cut = sum(len(a["cuts_mm"]) for a in solution.assignment)
+        pieces_demanded = sum(d.quantity for d in demands) - sum(u["quantity"] for u in solution.unplanned)
+        pieces_cut = (sum(1 for a in solution.assignment for m in a["marks"] if "(nối-" not in m)
+                      + len({s["assembly_id"] for s in solution.splices}))
         cutting_dict = {
             "status": solution.status,
             "solver_name": solution.solver_name,
@@ -240,9 +245,6 @@ class RebarAgent(BaseAgent):
             # Không raise exception — trả False để Supervisor quyết định retry
             # (Supervisor sẽ escalate lên human gate nếu hết retry)
             return False
-
-        if solution.status not in ("OPTIMAL", "FEASIBLE"):
-            raise DataInputError(f"Solver trả về {solution.status}: {solution.warning}")
 
         return True
 
