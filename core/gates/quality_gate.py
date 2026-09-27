@@ -221,11 +221,11 @@ class QualityGate:
 
     def check_qs_estimate(self, qs_data: Dict[str, Any]) -> GateCheckResult:
         """
-        Kiểm tra dự toán G_XD:
-          1. G_XD > 0
-          2. Công thức: G_XD = (T + GT + TL) * 1.10 (VAT 10%)
-          3. GT = T * 7.3%, TL = (T+GT) * 5.5%
-          4. Không có giá âm
+        Kiểm tra dự toán G_XD (TT 11/2021/TT-BXD) theo đúng tỷ lệ đã dùng (qs_data.rates):
+          1. Có công tác và G_XD > 0
+          2. GT = T × (chi phí chung + nhà tạm + KXĐ)
+          3. TL = (T + GT) × tỷ lệ thu nhập chịu thuế tính trước
+          4. VAT = G × thuế suất và G_XD = G + VAT
         """
         result = GateCheckResult(gate_name="QS_ESTIMATE_GATE", passed=False)
         score = 0
@@ -235,47 +235,49 @@ class QualityGate:
         TL = qs_data.get("tax_TL_vnd", 0)
         VAT = qs_data.get("vat_vnd", 0)
         G_XD = qs_data.get("total_G_XD_vnd", 0)
+        rates = qs_data.get("rates") or {}
+        missing = [k for k in ("chung", "nha_tam", "kxd", "tl", "vat") if k not in rates]
+        if missing:
+            result.issues.append(f"Thiếu tỷ lệ đã dùng để tính G_XD: {missing} — không kiểm tra được")
+            result.score = 0
+            return result
 
-        # Check 1: G_XD > 0
-        if G_XD > 0:
+        def close(actual, expected):
+            return abs(actual - expected) <= max(2.0, 1e-6 * abs(expected))
+
+        # Check 1: có dữ liệu
+        if G_XD > 0 and T > 0 and qs_data.get("items_count", 1) > 0:
             score += 25
         else:
-            result.issues.append(f"G_XD = {G_XD:,.0f} VNĐ — không hợp lệ")
+            result.issues.append(f"T = {T:,.0f}, G_XD = {G_XD:,.0f} — không hợp lệ")
 
-        # Check 2: GT formula (tolerance 1%)
-        if T > 0:
-            expected_GT = T * 0.073
-            if abs(GT - expected_GT) / expected_GT < 0.01:
-                score += 25
-            else:
-                result.issues.append(
-                    f"GT = {GT:,.0f} ≠ T×7.3% = {expected_GT:,.0f} (sai lệch)"
-                )
+        # Check 2: GT
+        gt_rate = rates["chung"] + rates["nha_tam"] + rates["kxd"]
+        if close(GT, T * gt_rate):
+            score += 25
+        else:
+            result.issues.append(f"GT = {GT:,.0f} ≠ T × {gt_rate * 100:g}% = {T * gt_rate:,.0f}")
 
-        # Check 3: TL formula
-        if T > 0 and GT > 0:
-            expected_TL = (T + GT) * 0.055
-            if abs(TL - expected_TL) / max(expected_TL, 1) < 0.01:
-                score += 25
-            else:
-                result.issues.append(
-                    f"TL = {TL:,.0f} ≠ (T+GT)×5.5% = {expected_TL:,.0f}"
-                )
+        # Check 3: TL
+        if close(TL, (T + GT) * rates["tl"]):
+            score += 25
+        else:
+            result.issues.append(f"TL = {TL:,.0f} ≠ (T+GT) × {rates['tl'] * 100:g}% = {(T + GT) * rates['tl']:,.0f}")
 
-        # Check 4: VAT 10%
-        subtotal = T + GT + TL
-        if subtotal > 0:
-            expected_VAT = subtotal * 0.10
-            if abs(VAT - expected_VAT) / max(expected_VAT, 1) < 0.01:
-                score += 25
-            else:
-                result.issues.append(
-                    f"VAT = {VAT:,.0f} ≠ subtotal×10% = {expected_VAT:,.0f}"
-                )
+        # Check 4: VAT và G_XD
+        G = T + GT + TL
+        if close(VAT, G * rates["vat"]) and close(G_XD, G + VAT):
+            score += 25
+        else:
+            result.issues.append(f"VAT/G_XD không khớp: VAT = {VAT:,.0f}, G × {rates['vat'] * 100:g}% = "
+                                 f"{G * rates['vat']:,.0f}; G_XD = {G_XD:,.0f}, G + VAT = {G + VAT:,.0f}")
+
+        for w in (qs_data.get("warnings") or [])[:10]:
+            result.warnings.append(f"QS: {w}")
 
         result.score = score
         result.passed = (score >= 75 and not result.issues)
-        result.details = {"T": T, "GT": GT, "TL": TL, "VAT": VAT, "G_XD": G_XD}
+        result.details = {"T": T, "GT": GT, "TL": TL, "VAT": VAT, "G_XD": G_XD, "rates": rates}
         return result
 
     # ── GATE 4: Excel Audit (100/100) ────────────────────────────────────────

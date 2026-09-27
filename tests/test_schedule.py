@@ -150,9 +150,12 @@ class ScheduleLoaderTest(unittest.TestCase):
         self.assertEqual(res.status, "OK")
         self.assertEqual(res.total_duration_days, 187)
 
+        # Sheet Excel: thời gian là công thức chưa có kết quả → được tự tính (tools/excel_eval)
         xlsx = load_schedule(TEMPLATE_XLSX)
-        self.assertEqual(len(xlsx.tasks), 0)
-        self.assertTrue(all("công thức chưa được tính" in e for e in xlsx.errors))
+        self.assertEqual((len(xlsx.tasks), xlsx.errors), (30, []))
+        self.assertEqual(find_date_violations(xlsx.tasks), [])   # Excel ghi 1.3SS+3d đúng ý đồ
+        res = CPMCalculator().calculate(xlsx.tasks, start_date_str=xlsx.project_start)
+        self.assertEqual((res.status, res.total_duration_days), ("OK", 186))
 
     def test_unknown_format(self):
         with self.assertRaises(ScheduleLoadError):

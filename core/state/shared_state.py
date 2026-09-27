@@ -152,14 +152,20 @@ class RebarData:
 class QSData:
     """Dự toán tổng hợp G_XD theo TT 11/2021/TT-BXD."""
     direct_cost_T_vnd: float = 0.0       # T — Chi phí trực tiếp
-    indirect_cost_GT_vnd: float = 0.0    # GT = T * 7.3%
-    tax_TL_vnd: float = 0.0              # TL = (T + GT) * 5.5%
+    indirect_cost_GT_vnd: float = 0.0    # GT = T × (tỷ lệ chi phí chung + nhà tạm + KXĐ)
+    tax_TL_vnd: float = 0.0              # TL = (T + GT) × tỷ lệ thu nhập chịu thuế tính trước
     subtotal_vnd: float = 0.0            # T + GT + TL
     vat_vnd: float = 0.0                 # VAT = subtotal * 10%
     total_G_XD_vnd: float = 0.0          # G_XD = subtotal + VAT
     payment_period_03a_vnd: float = 0.0  # Phụ lục 03a kỳ thanh toán
     unit_price_breakdown: Dict[str, float] = field(default_factory=dict)
     supplement_items: List[Dict[str, Any]] = field(default_factory=list)  # Phát sinh
+    gt_breakdown_vnd: Dict[str, float] = field(default_factory=dict)      # chung / nha_tam / kxd
+    rates: Dict[str, float] = field(default_factory=dict)                 # tỷ lệ đã dùng (0.051 = 5.1%)
+    rate_sources: Dict[str, str] = field(default_factory=dict)
+    items_count: int = 0
+    data_source: str = ""
+    warnings: List[str] = field(default_factory=list)
 
 
 @dataclass

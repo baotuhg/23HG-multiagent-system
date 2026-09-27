@@ -32,7 +32,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Sequence
 
-from tools.bbs_loader import _FORMULA, _cell, _merge_formula_markers, _norm, _to_number
+from tools.bbs_loader import _FORMULA, _cell, _norm, _to_number
 from tools.cpm_calculator import parse_predecessor
 
 HEADER_SCAN_ROWS = 40
@@ -165,23 +165,16 @@ def _iso_duration_hours(value: str) -> Optional[float]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _load_excel(path: str, sheet: Optional[str]) -> ScheduleLoadResult:
-    import openpyxl
+    from tools.excel_eval import WorkbookEvaluator
 
-    values_wb = openpyxl.load_workbook(path, data_only=True, read_only=True)
-    formulas_wb = openpyxl.load_workbook(path, data_only=False, read_only=True)
-    try:
-        if sheet and sheet not in values_wb.sheetnames:
-            raise ScheduleLoadError(f"Không có sheet '{sheet}' trong {path}. Các sheet: {values_wb.sheetnames}")
-        for name in ([sheet] if sheet else values_wb.sheetnames):
-            rows = _merge_formula_markers(
-                values_wb[name].iter_rows(values_only=True),
-                formulas_wb[name].iter_rows(values_only=True),
-            )
-            if _find_header(rows) is not None:
-                return _parse_rows(rows, source=f"{path}#{name}")
-    finally:
-        values_wb.close()
-        formulas_wb.close()
+    # Giá trị Excel lưu sẵn; ô công thức chưa có kết quả được tự tính, không tính được → _FORMULA
+    ev = WorkbookEvaluator(path)
+    if sheet and sheet not in ev.sheetnames:
+        raise ScheduleLoadError(f"Không có sheet '{sheet}' trong {path}. Các sheet: {ev.sheetnames}")
+    for name in ([sheet] if sheet else ev.sheetnames):
+        rows = ev.rows(name, missing=_FORMULA)
+        if _find_header(rows) is not None:
+            return _parse_rows(rows, source=f"{path}#{name}")
     raise ScheduleLoadError(
         f"Không tìm thấy bảng tiến độ trong {path} — cần các cột mã công việc và thời gian (ngày)"
     )

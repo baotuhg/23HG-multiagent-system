@@ -15,7 +15,7 @@ if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
 from datetime import date
-from typing import Iterable, Optional
+from typing import Dict, Iterable, Optional
 
 from core.supervisor.base_agent import BaseAgent, DataInputError, MissingDataError
 from core.state.state_bus import StateBus
@@ -114,47 +114,96 @@ class CADAgent(BaseAgent):
 
 class QSAgent(BaseAgent):
     """
-    Sub-Agent Dự toán — tính G_XD theo TT 11/2021/TT-BXD.
-    Input  (từ StateBus): cad_data (khối lượng BT, VK, thép)
-    Output (vào StateBus): qs_data (T, GT, TL, VAT, G_XD)
+    Sub-Agent Dự toán — tính G_XD theo TT 11/2021/TT-BXD từ bảng QS THẬT.
+    Input : file QS/BOQ (qs_path): khối lượng × đơn giá từng công tác; tỷ lệ chi phí lấy từ
+            sheet tổng hợp G_XD trong file hoặc tham số (rate_overrides, đơn vị %)
+    Output (vào StateBus): qs_data (T, GT, TL, G, VAT, G_XD, tỷ lệ, số công tác)
+    Không có file → dừng, trừ chế độ --demo (dùng bảng QS của workbook mẫu Cầu Km19).
     """
 
-    def __init__(self):
+    MAX_LISTED = 10
+
+    def __init__(
+        self,
+        qs_path: Optional[str] = None,
+        qs_sheet: Optional[str] = None,
+        rate_overrides: Optional[Dict[str, Optional[float]]] = None,
+        qs_out: Optional[str] = None,
+        sample_path: Optional[str] = None,
+    ):
         super().__init__(
             agent_id="qs_agent",
-            description="Dự toán G_XD — TT 11/2021/TT-BXD, VAT 10%"
+            description="Dự toán G_XD — TT 11/2021/TT-BXD từ bảng QS"
         )
+        self.qs_path = qs_path
+        self.qs_sheet = qs_sheet
+        self.rate_overrides = rate_overrides or {}
+        self.qs_out = qs_out
+        self.sample_path = sample_path or os.path.join(
+            _ROOT, "templates", "Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx")
 
     def run(self, bus: StateBus) -> bool:
         print("  [QSAgent] Tính dự toán G_XD...")
+        from tools.qs_loader import QSLoadError, RATE_LABELS, apply_rate_overrides, load_qs
 
-        # Chưa có nguồn chi phí trực tiếp T thật (đơn giá × khối lượng) — chỉ có số mẫu
-        if not bus.is_demo_mode():
+        path = self.qs_path
+        if not path:
+            if not bus.is_demo_mode():
+                raise MissingDataError(
+                    "Chưa có bảng QS thật — chỉ định bằng --qs <file.xlsx|.csv|.json> "
+                    "(bảng khối lượng × đơn giá, kèm sheet tổng hợp G_XD hoặc tham số --rate-*). " + DEMO_HINT
+                )
+            path = self.sample_path
+            bus.mark_sample_data(self.agent_id, "bảng QS và tỷ lệ chi phí của workbook mẫu Cầu Km19")
+
+        try:
+            est = load_qs(path, sheet=self.qs_sheet)
+        except QSLoadError as e:
+            raise DataInputError(str(e)) from e
+        if est.errors:
+            listed = "\n    ".join(est.errors[:self.MAX_LISTED])
+            raise DataInputError(f"Bảng QS {est.source} có {len(est.errors)} dòng sai dữ liệu:\n    {listed}")
+        apply_rate_overrides(est, self.rate_overrides)
+        if est.missing_rates:
+            flags = {"chung": "--rate-chung", "nha_tam": "--rate-nha-tam", "kxd": "--rate-kxd",
+                     "tl": "--rate-tl", "vat": "--vat"}
             raise MissingDataError(
-                "Chưa có nguồn chi phí trực tiếp T thật (khối lượng × đơn giá). "
-                "T = 61,28 tỷ và tỷ lệ GT 7,3% / TL 5,5% trong code chỉ là số mẫu. " + DEMO_HINT
+                "Thiếu tỷ lệ tính G_XD (không có trong sheet tổng hợp của file, không tự điền mặc định): "
+                + "; ".join(f"{RATE_LABELS[k]} → {flags[k]}" for k in est.missing_rates)
             )
+        est.compute()
 
-        T = 61_280_000_000  # VNĐ — số mẫu Cầu Km19+529.080
-        bus.mark_sample_data(self.agent_id, "chi phí trực tiếp T = 61,28 tỷ và tỷ lệ GT/TL mẫu")
-
-        GT = round(T * 0.073)            # Chi phí gián tiếp 7.3%
-        TL = round((T + GT) * 0.055)     # Lợi nhuận 5.5%
-        subtotal = T + GT + TL
-        VAT = round(subtotal * 0.10)     # VAT 10% (Luật XD 135/2025)
-        G_XD = subtotal + VAT
+        print(f"  [QSAgent] Nguồn QS: {est.source} — {len(est.items)} công tác"
+              + (f" (tự tính {est.evaluated_cells:,} ô công thức chưa có kết quả)" if est.evaluated_cells else ""))
+        for key, rate in est.rates.items():
+            print(f"    {RATE_LABELS[key]}: {rate * 100:g}%  ← {est.rate_sources.get(key, '')}")
+        print(f"  [QSAgent] T = {est.T:,} | GT = {est.GT:,} | TL = {est.TL:,} | G = {est.G:,} | "
+              f"VAT = {est.VAT:,}")
+        print(f"  [QSAgent] G_XD = {est.G_XD:,} VNĐ")
+        for w in est.warnings[:self.MAX_LISTED]:
+            print(f"    ⚠ {w}")
+        if len(est.warnings) > self.MAX_LISTED:
+            print(f"    ... và {len(est.warnings) - self.MAX_LISTED} cảnh báo khác")
 
         bus.set_qs_data({
-            "direct_cost_T_vnd": T,
-            "indirect_cost_GT_vnd": GT,
-            "tax_TL_vnd": TL,
-            "subtotal_vnd": subtotal,
-            "vat_vnd": VAT,
-            "total_G_XD_vnd": G_XD,
+            "direct_cost_T_vnd": est.T,
+            "indirect_cost_GT_vnd": est.GT,
+            "gt_breakdown_vnd": dict(est.GT_components),
+            "tax_TL_vnd": est.TL,
+            "subtotal_vnd": est.G,
+            "vat_vnd": est.VAT,
+            "total_G_XD_vnd": est.G_XD,
+            "rates": dict(est.rates),
+            "rate_sources": dict(est.rate_sources),
+            "items_count": len(est.items),
+            "data_source": est.source,
+            "warnings": list(est.warnings),
         })
 
-        print(f"  [QSAgent] G_XD = {G_XD:,.0f} VNĐ "
-              f"(T={T/1e9:.2f}B + GT={GT/1e9:.2f}B + TL={TL/1e9:.2f}B + VAT={VAT/1e9:.2f}B)")
+        if self.qs_out:
+            from tools.qs_export import write_gxd_workbook
+            write_gxd_workbook(self.qs_out, est)
+            print(f"  [QSAgent] Đã xuất bảng dự toán G_XD: {self.qs_out}")
         return True
 
 

@@ -175,7 +175,9 @@ pip install -r requirements.txt
 
 > ⚠ **Dữ liệu thật và dữ liệu mẫu:** mặc định hệ thống **chỉ dùng dữ liệu thật**. Pha nào thiếu dữ liệu sẽ dừng ngay và báo rõ cần cung cấp gì, không tự thay bằng số liệu mẫu. Dữ liệu mẫu (Cầu Km19+529.080) chỉ được dùng khi có cờ `--demo`, và mọi chỗ dùng đều được đánh dấu trong log, Quality Gate, Human Gate và báo cáo cuối.
 >
-> Hiện tại có **pha cắt thép** (BBS) và **pha tiến độ CPM** (MS Project XML / Excel / CSV) chạy được bằng dữ liệu thật. Các pha CAD, dự toán, QA/QC và hoàn công vẫn chỉ có dữ liệu mẫu trong code, nên sẽ dừng nếu không có `--demo`.
+> Hiện tại có **pha cắt thép** (BBS), **pha tiến độ CPM** (MS Project XML / Excel / CSV) và **pha dự toán G_XD** (bảng QS) chạy được bằng dữ liệu thật. Các pha CAD, QA/QC và hoàn công vẫn chỉ có dữ liệu mẫu trong code, nên sẽ dừng nếu không có `--demo`.
+>
+> File Excel chỉ có công thức mà chưa từng được Excel tính (ví dụ file do phần mềm tạo ra) vẫn đọc được: `tools/excel_eval.py` tự tính các hàm thông dụng (SUM, SUMIF(S), COUNTIF(S), ROUND/ROUNDUP, tham chiếu sang sheet khác…). Gặp hàm chưa hỗ trợ thì hệ thống báo rõ, không đoán.
 
 #### a. Tối ưu cắt thép từ BBS thật (dùng được cho dự án):
 ```powershell
@@ -208,6 +210,15 @@ python run_state_graph.py --phase schedule --schedule "TienDo.xml" --non-working
 > - Hỗ trợ quan hệ **FS / SS / FF / SF** có độ trễ (âm hoặc dương), ngày nghỉ trong tuần (`--non-working-days t7,cn`) và ngày lễ (`--holidays`). Ngày khởi công lấy từ file, hoặc chỉ định bằng `--start-date`.
 > - Liên kết tới công việc không tồn tại, vòng lặp logic, thời lượng sai: **dừng và liệt kê từng lỗi**. Ô Excel là công thức chưa được tính thì phải mở và lưu lại file bằng Excel trước.
 > - **Đối chiếu ngày ghi trong file:** cảnh báo khi ngày trong file vi phạm chính quan hệ logic của nó. Ví dụ file mẫu `Tien_Do_Thi_Cong_Cau_Km19+529.080.xml` có 4 công việc khai báo FS nhưng ngày lại chồng lấn, nên tính lại ra 187 ngày (hoàn thành 05/04/2027) thay vì 28/03/2027 như ghi trong file.
+
+#### a3. Tính dự toán G_XD từ bảng QS thật:
+```powershell
+python run_state_graph.py --phase qs --qs "Du_toan.xlsx" --qs-out du_toan_gxd.xlsx
+```
+> - Đọc bảng QS / BOQ (Excel, CSV hoặc JSON) theo các cột *STT*, *Mã hiệu*, *Nội dung công tác*, *ĐVT*, *Khối lượng*, *Đơn giá* (hoặc *Đơn giá vật liệu / nhân công / máy*), *Thành tiền*. Dòng bắt đầu bằng `-` hoặc `+` là dòng diễn giải.
+> - `T = Σ khối lượng × đơn giá` (tính lại, không lấy cột thành tiền). `GT = T × (chi phí chung + nhà tạm + công việc không xác định KL)`, `TL = (T + GT) × tỷ lệ`, `G = T + GT + TL`, `G_XD = G + VAT` (TT 11/2021/TT-BXD).
+> - **Tỷ lệ** được đọc từ sheet tổng hợp G_XD trong file, hoặc truyền bằng `--rate-chung --rate-nha-tam --rate-kxd --rate-tl --vat` (đơn vị %). **Không có tỷ lệ mặc định**: thiếu tỷ lệ nào hệ thống sẽ dừng và báo tên tỷ lệ đó.
+> - **Đối chiếu tự động:** công tác thiếu đơn giá hoặc khối lượng (dừng); thành tiền trong file ≠ KL × ĐG; khối lượng công tác khác tổng các dòng diễn giải; T và G_XD ghi trong file ≠ kết quả tính lại.
 
 #### b. Chạy thử toàn bộ 7 pha bằng dữ liệu mẫu (demo):
 ```powershell
@@ -286,6 +297,9 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 │   ├── bbs_loader.py             # Đọc BBS thật từ Excel / CSV / JSON (cả sheet INPUT của RebarCut), cột nối thép
 │   ├── rebarcut_export.py        # Xuất kết quả cắt thép theo bố cục RebarCut Pro Excel (.xlsx)
 │   ├── schedule_loader.py        # Đọc tiến độ thật từ MS Project XML / Excel / CSV, đối chiếu ngày trong file
+│   ├── qs_loader.py              # Đọc bảng QS thật, tỷ lệ chi phí, tính G_XD TT 11/2021 + đối chiếu
+│   ├── qs_export.py              # Xuất bảng tổng hợp G_XD + chi tiết công tác (.xlsx)
+│   ├── excel_eval.py             # Tính công thức Excel chưa có kết quả lưu sẵn (Pure Python)
 │   ├── cpm_calculator.py         # Bộ tính CPM: FS/SS/FF/SF + lag, lịch nghỉ, Forward/Backward Pass
 │   └── cad_diff_engine.py        # Động cơ so sánh phiên bản bản vẽ CAD Rev00 vs Rev01
 │

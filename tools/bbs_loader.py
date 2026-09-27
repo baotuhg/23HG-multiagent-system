@@ -81,46 +81,27 @@ def load_bbs(path: str, sheet: Optional[str] = None) -> BBSLoadResult:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _load_excel(path: str, sheet: Optional[str]) -> BBSLoadResult:
-    import openpyxl
+    from tools.excel_eval import WorkbookEvaluator
 
-    values_wb = openpyxl.load_workbook(path, data_only=True, read_only=True)
-    formulas_wb = openpyxl.load_workbook(path, data_only=False, read_only=True)
-    try:
-        if sheet:
-            if sheet not in values_wb.sheetnames:
-                raise BBSLoadError(f"Không có sheet '{sheet}' trong {path}. Các sheet: {values_wb.sheetnames}")
-            candidates = [sheet]
-        else:
-            candidates = list(values_wb.sheetnames)
+    # Giá trị Excel lưu sẵn; ô công thức chưa có kết quả được tự tính, không tính được → _FORMULA
+    ev = WorkbookEvaluator(path)
+    if sheet:
+        if sheet not in ev.sheetnames:
+            raise BBSLoadError(f"Không có sheet '{sheet}' trong {path}. Các sheet: {ev.sheetnames}")
+        candidates = [sheet]
+    else:
+        candidates = list(ev.sheetnames)
 
-        for name in candidates:
-            rows = _merge_formula_markers(
-                values_wb[name].iter_rows(values_only=True),
-                formulas_wb[name].iter_rows(values_only=True),
-            )
-            if _find_header(rows) is not None:
-                return _parse_rows(rows, source=f"{path}#{name}")
-    finally:
-        values_wb.close()
-        formulas_wb.close()
+    for name in candidates:
+        rows = ev.rows(name, missing=_FORMULA)
+        if _find_header(rows) is not None:
+            return _parse_rows(rows, source=f"{path}#{name}")
 
     where = f"sheet '{sheet}'" if sheet else "bất kỳ sheet nào"
     raise BBSLoadError(
         f"Không tìm thấy bảng BBS trong {where} của {path} — cần các cột đường kính, "
         f"chiều dài (ghi đơn vị m hoặc mm) và số lượng"
     )
-
-
-def _merge_formula_markers(values_rows, formula_rows) -> List[List[Any]]:
-    """Ô có công thức nhưng chưa có giá trị tính sẵn → đánh dấu _FORMULA thay vì None."""
-    merged = []
-    for vals, forms in zip(values_rows, formula_rows):
-        row = list(vals)
-        for i, f in enumerate(forms):
-            if i < len(row) and row[i] is None and isinstance(f, str) and f.startswith("="):
-                row[i] = _FORMULA
-        merged.append(row)
-    return merged
 
 
 def _read_csv(path: str) -> List[List[Any]]:

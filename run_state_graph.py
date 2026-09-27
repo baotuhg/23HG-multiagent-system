@@ -207,6 +207,17 @@ def main():
                             "theo tỷ lệ chiều dài thanh, vd '0-0.25; 0.75-1'")
     rebar.add_argument("--rebarcut-out", default=None,
                        help="Xuất kết quả theo bố cục RebarCut Pro Excel (.xlsx)")
+    qs = parser.add_argument_group("Dự toán G_XD (phase qs)")
+    qs.add_argument("--qs", default=None, help="Bảng QS / BOQ thật (.xlsx/.csv/.json): khối lượng × đơn giá")
+    qs.add_argument("--qs-sheet", default=None, help="Tên sheet QS trong file Excel (mặc định: tự tìm)")
+    qs.add_argument("--rate-chung", type=float, default=None, help="Chi phí chung, %% của T (vd 5.1)")
+    qs.add_argument("--rate-nha-tam", type=float, default=None, help="Chi phí nhà tạm, %% của T (vd 1.2)")
+    qs.add_argument("--rate-kxd", type=float, default=None,
+                    help="Chi phí công việc không xác định được KL, %% của T (vd 1.0)")
+    qs.add_argument("--rate-tl", type=float, default=None,
+                    help="Thu nhập chịu thuế tính trước, %% của (T+GT) (vd 5.5)")
+    qs.add_argument("--vat", type=float, default=None, help="Thuế suất VAT, %% của G (vd 10 hoặc 8)")
+    qs.add_argument("--qs-out", default=None, help="Xuất bảng tổng hợp G_XD + chi tiết công tác (.xlsx)")
     parser.add_argument(
         "--project-name", default=None,
         help="Tên dự án hiển thị trong báo cáo"
@@ -285,7 +296,13 @@ def main():
         splice_zones=args.splice_zone,
         rebarcut_out=args.rebarcut_out,
     ))
-    supervisor.register_agent(QSAgent())
+    supervisor.register_agent(QSAgent(
+        qs_path=args.qs,
+        qs_sheet=args.qs_sheet,
+        rate_overrides={"chung": args.rate_chung, "nha_tam": args.rate_nha_tam, "kxd": args.rate_kxd,
+                        "tl": args.rate_tl, "vat": args.vat},
+        qs_out=args.qs_out,
+    ))
     supervisor.register_agent(BPTCKCSAgent())
     supervisor.register_agent(SchedulerAgent(
         schedule_path=args.schedule,
@@ -324,6 +341,7 @@ def main():
             print("\n  Gợi ý: chạy thử toàn bộ bằng dữ liệu mẫu:  python run_state_graph.py --demo")
             print("         tối ưu cắt thép từ BBS thật:         python run_state_graph.py --phase rebar --bbs <file>")
             print("         tính tiến độ CPM từ file thật:       python run_state_graph.py --phase schedule --schedule <file>")
+            print("         tính dự toán G_XD từ bảng QS thật:   python run_state_graph.py --phase qs --qs <file>")
 
     sys.exit(0 if success else 1)
 
