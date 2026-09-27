@@ -312,6 +312,46 @@ class QualityGate:
 
         return result
 
+    # ── GATE 5: Mẫu 03a ──────────────────────────────────────────────────────
+
+    def check_payment(self, p: Dict[str, Any]) -> GateCheckResult:
+        """
+        Kiểm tra số học Mẫu 03a:
+          1. Giá trị kỳ này = Σ giá trị từng công tác
+          2. VAT = giá trị × thuế suất; tổng = giá trị + VAT
+          3. Đề nghị thanh toán = tổng − thu hồi tạm ứng − giữ lại, không âm
+          4. Lũy kế không vượt giá trị hợp đồng
+        """
+        result = GateCheckResult(gate_name="PAYMENT_03A_GATE", passed=False)
+        if not p:
+            result.issues.append("Chưa có kết quả Mẫu 03a")
+            return result
+        score = 0
+        if p["this_value"] == sum(p.get("line_values", [])):
+            score += 25
+        else:
+            result.issues.append("Giá trị kỳ này ≠ tổng giá trị các công tác")
+        if abs(p["this_vat"] - p["this_value"] * p["vat_rate"]) <= 1 and p["this_total"] == p["this_value"] + p["this_vat"]:
+            score += 25
+        else:
+            result.issues.append("VAT / tổng giá trị kỳ này không khớp")
+        if p["payable"] == p["this_total"] - p["advance_recovery"] - p["retention"] and p["payable"] >= 0:
+            score += 25
+        else:
+            result.issues.append("Số đề nghị thanh toán ≠ tổng − thu hồi tạm ứng − giữ lại (hoặc âm)")
+        if p["cumulative_value"] <= p["contract_value"]:
+            score += 25
+        else:
+            result.issues.append("Giá trị lũy kế vượt giá trị hợp đồng")
+        if p.get("overrun_value"):
+            result.warnings.append(f"Khối lượng vượt hợp đồng trị giá {p['overrun_value']:,} chưa thanh toán — "
+                                   f"cần phụ lục hợp đồng / phát sinh")
+        if p.get("unmatched"):
+            result.warnings.append(f"{p['unmatched']} dòng công việc ngoài hợp đồng không thanh toán theo 03a")
+        result.score = score
+        result.passed = score == 100 and not result.issues
+        return result
+
     # ── AGGREGATE: Run all gates for a phase ─────────────────────────────────
 
     def run_phase_gate(
@@ -334,6 +374,9 @@ class QualityGate:
                 context.get("splice_status", "NOT_RUN"),
                 context.get("splice_violations", []),
             ))
+
+        elif phase == "PAYMENT_03A":
+            results.append(self.check_payment(context.get("payment", {})))
 
         elif phase == "QS_ESTIMATE":
             results.append(self.check_qs_estimate(context.get("qs_data", {})))

@@ -53,6 +53,7 @@ class ProjectPhase(str, Enum):
     HUMAN_GATE     = "HUMAN_GATE"
     SCHEDULE_CPM   = "SCHEDULE_CPM"
     ASBUILT_LOOP   = "ASBUILT_LOOP"
+    PAYMENT_03A    = "PAYMENT_03A"
     COMPLETED      = "COMPLETED"
     ERROR          = "ERROR"
 
@@ -166,6 +167,7 @@ class QSData:
     items_count: int = 0
     data_source: str = ""
     warnings: List[str] = field(default_factory=list)
+    payment_summary: Dict[str, Any] = field(default_factory=dict)  # Mẫu 03a kỳ hiện tại
 
 
 @dataclass
@@ -277,6 +279,7 @@ class ProjectSharedState:
         "qs_agent":        NodeStatus.IDLE,
         "scheduler_agent": NodeStatus.IDLE,
         "asbuilt_agent":   NodeStatus.IDLE,
+        "payment_agent":   NodeStatus.IDLE,
         "supervisor":      NodeStatus.RUNNING,
     })
 

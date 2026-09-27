@@ -175,7 +175,7 @@ pip install -r requirements.txt
 
 > ⚠ **Dữ liệu thật và dữ liệu mẫu:** mặc định hệ thống **chỉ dùng dữ liệu thật**. Pha nào thiếu dữ liệu sẽ dừng ngay và báo rõ cần cung cấp gì, không tự thay bằng số liệu mẫu. Dữ liệu mẫu (Cầu Km19+529.080) chỉ được dùng khi có cờ `--demo`, và mọi chỗ dùng đều được đánh dấu trong log, Quality Gate, Human Gate và báo cáo cuối.
 >
-> Hiện tại có **pha cắt thép** (BBS), **pha tiến độ CPM** (MS Project XML / Excel / CSV) và **pha dự toán G_XD** (bảng QS) chạy được bằng dữ liệu thật. Các pha CAD, QA/QC và hoàn công vẫn chỉ có dữ liệu mẫu trong code, nên sẽ dừng nếu không có `--demo`.
+> Hiện tại có **pha cắt thép** (BBS), **pha tiến độ CPM** (MS Project XML / Excel / CSV), **pha dự toán G_XD** (bảng QS) và **pha thanh toán Mẫu 03a** chạy được bằng dữ liệu thật. Các pha CAD, QA/QC và hoàn công vẫn chỉ có dữ liệu mẫu trong code, nên sẽ dừng nếu không có `--demo`.
 >
 > File Excel chỉ có công thức mà chưa từng được Excel tính (ví dụ file do phần mềm tạo ra) vẫn đọc được: `tools/excel_eval.py` tự tính các hàm thông dụng (SUM, SUMIF(S), COUNTIF(S), ROUND/ROUNDUP, tham chiếu sang sheet khác…). Gặp hàm chưa hỗ trợ thì hệ thống báo rõ, không đoán.
 
@@ -219,6 +219,16 @@ python run_state_graph.py --phase qs --qs "Du_toan.xlsx" --qs-out du_toan_gxd.xl
 > - `T = Σ khối lượng × đơn giá` (tính lại, không lấy cột thành tiền). `GT = T × (chi phí chung + nhà tạm + công việc không xác định KL)`, `TL = (T + GT) × tỷ lệ`, `G = T + GT + TL`, `G_XD = G + VAT` (TT 11/2021/TT-BXD).
 > - **Tỷ lệ** được đọc từ sheet tổng hợp G_XD trong file, hoặc truyền bằng `--rate-chung --rate-nha-tam --rate-kxd --rate-tl --vat` (đơn vị %). **Không có tỷ lệ mặc định**: thiếu tỷ lệ nào hệ thống sẽ dừng và báo tên tỷ lệ đó.
 > - **Đối chiếu tự động:** công tác thiếu đơn giá hoặc khối lượng (dừng); thành tiền trong file ≠ KL × ĐG; khối lượng công tác khác tổng các dòng diễn giải; T và G_XD ghi trong file ≠ kết quả tính lại.
+
+#### a4. Lập Mẫu 03a — giá trị khối lượng hoàn thành đề nghị thanh toán (NĐ 99/2021):
+```powershell
+python run_state_graph.py --phase payment --qs "Du_toan.xlsx" --progress "KL_ky_01.xlsx" --price-basis direct --advance-recovery-pct 20 --retention-pct 5 --period 01 --payment-out Mau_03a_ky01.xlsx
+```
+> - **Hợp đồng** (khối lượng, đơn giá) lấy từ bảng QS. **Khối lượng thực hiện** lấy từ file `--progress` với các cột *Mã hiệu* / *STT* / *Nội dung*, *KL lũy kế kỳ trước* và *KL thực hiện kỳ này*. Kỳ sau dùng cột lũy kế hết kỳ của file 03a kỳ trước.
+> - `--price-basis direct`: đơn giá QS là chi phí trực tiếp, được nhân hệ số G/T (gồm GT và TL) để ra đơn giá hợp đồng trước thuế. `contract`: đơn giá QS đã là đơn giá hợp đồng.
+> - **Không có giá trị mặc định** cho cơ sở đơn giá, tỷ lệ thu hồi tạm ứng và tỷ lệ giữ lại (ghi 0 nếu không có). Khai báo `--advance-outstanding` thì số thu hồi không vượt số tạm ứng còn lại.
+> - **Khối lượng lũy kế vượt hợp đồng** không được thanh toán theo 03a. **Công việc ngoài hợp đồng** cũng không được thanh toán. Cả hai được liệt kê ở sheet `PHAT_SINH_CANH_BAO` để làm phụ lục hoặc phát sinh.
+> - Gate-5 kiểm tra số học: tổng các dòng, VAT, đề nghị thanh toán = tổng − thu hồi − giữ lại, lũy kế ≤ hợp đồng.
 
 #### b. Chạy thử toàn bộ 7 pha bằng dữ liệu mẫu (demo):
 ```powershell
@@ -286,7 +296,8 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 │   │   └── base_agent.py         # Lớp cơ sở trừu tượng BaseAgent
 │   ├── agents/
 │   │   ├── rebar_agent.py        # Sub-Agent Cắt thép OR-Tools & Phản biện TCVN 5574
-│   │   ├── asbuilt_agent.py      # Sub-Agent Vòng lặp Hiện trường & Phụ lục 03a
+│   │   ├── asbuilt_agent.py      # Sub-Agent Vòng lặp Hiện trường (demo)
+│   │   ├── payment_agent.py      # Sub-Agent Thanh toán Mẫu 03a từ bảng QS + khối lượng thực hiện
 │   │   └── sub_agents.py         # CADAgent, QSAgent, BPTCKCSAgent (Lab Link), SchedulerAgent
 │   └── gates/
 │       ├── quality_gate.py       # 4 Cổng kiểm soát kỹ thuật số học xác định
@@ -299,6 +310,7 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 │   ├── schedule_loader.py        # Đọc tiến độ thật từ MS Project XML / Excel / CSV, đối chiếu ngày trong file
 │   ├── qs_loader.py              # Đọc bảng QS thật, tỷ lệ chi phí, tính G_XD TT 11/2021 + đối chiếu
 │   ├── qs_export.py              # Xuất bảng tổng hợp G_XD + chi tiết công tác (.xlsx)
+│   ├── payment.py                # Mẫu 03a NĐ 99/2021: KL thực hiện × đơn giá HĐ, tạm ứng, giữ lại, vượt HĐ
 │   ├── excel_eval.py             # Tính công thức Excel chưa có kết quả lưu sẵn (Pure Python)
 │   ├── cpm_calculator.py         # Bộ tính CPM: FS/SS/FF/SF + lag, lịch nghỉ, Forward/Backward Pass
 │   └── cad_diff_engine.py        # Động cơ so sánh phiên bản bản vẽ CAD Rev00 vs Rev01

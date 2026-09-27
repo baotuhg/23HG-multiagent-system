@@ -48,6 +48,7 @@ PHASE_MAP = {
     "gate":     ProjectPhase.HUMAN_GATE,
     "schedule": ProjectPhase.SCHEDULE_CPM,
     "asbuilt":  ProjectPhase.ASBUILT_LOOP,
+    "payment":  ProjectPhase.PAYMENT_03A,
 }
 
 
@@ -218,6 +219,20 @@ def main():
                     help="Thu nhập chịu thuế tính trước, %% của (T+GT) (vd 5.5)")
     qs.add_argument("--vat", type=float, default=None, help="Thuế suất VAT, %% của G (vd 10 hoặc 8)")
     qs.add_argument("--qs-out", default=None, help="Xuất bảng tổng hợp G_XD + chi tiết công tác (.xlsx)")
+    pay = parser.add_argument_group("Thanh toán Mẫu 03a (phase payment; dùng bảng QS --qs làm hợp đồng)")
+    pay.add_argument("--progress", default=None,
+                     help="File khối lượng thực hiện (.xlsx/.csv/.json): Mã hiệu/STT, KL lũy kế kỳ trước, KL kỳ này")
+    pay.add_argument("--progress-sheet", default=None, help="Tên sheet khối lượng thực hiện (mặc định: tự tìm)")
+    pay.add_argument("--price-basis", choices=["direct", "contract"], default=None,
+                     help="direct: đơn giá QS là chi phí trực tiếp (nhân hệ số G/T); contract: đã là đơn giá HĐ trước thuế")
+    pay.add_argument("--advance-recovery-pct", type=float, default=None,
+                     help="Tỷ lệ thu hồi tạm ứng kỳ này, %% giá trị gồm thuế (ghi 0 nếu không có)")
+    pay.add_argument("--advance-outstanding", type=float, default=None,
+                     help="Số tạm ứng còn chưa thu hồi (VNĐ) — thu hồi kỳ này không vượt số này")
+    pay.add_argument("--retention-pct", type=float, default=None,
+                     help="Tỷ lệ giữ lại (bảo hành / bảo đảm), %% giá trị gồm thuế (ghi 0 nếu không có)")
+    pay.add_argument("--period", default="", help="Kỳ thanh toán, vd 01")
+    pay.add_argument("--payment-out", default=None, help="Xuất Mẫu 03a (.xlsx)")
     parser.add_argument(
         "--project-name", default=None,
         help="Tên dự án hiển thị trong báo cáo"
@@ -276,6 +291,7 @@ def main():
     )
     from core.agents.rebar_agent import RebarAgent
     from core.agents.asbuilt_agent import AsBuiltAgent
+    from core.agents.payment_agent import PaymentAgent
 
     supervisor.register_agent(CADAgent(drawings_folder=args.drawings))
     supervisor.register_agent(RebarAgent(
@@ -313,6 +329,21 @@ def main():
         schedule_out=args.schedule_out,
     ))
     supervisor.register_agent(AsBuiltAgent())
+    rates = {"chung": args.rate_chung, "nha_tam": args.rate_nha_tam, "kxd": args.rate_kxd,
+             "tl": args.rate_tl, "vat": args.vat}
+    supervisor.register_agent(PaymentAgent(
+        qs_path=args.qs,
+        qs_sheet=args.qs_sheet,
+        rate_overrides=rates,
+        progress_path=args.progress,
+        progress_sheet=args.progress_sheet,
+        price_basis=args.price_basis,
+        advance_recovery_pct=args.advance_recovery_pct,
+        retention_pct=args.retention_pct,
+        advance_outstanding=args.advance_outstanding,
+        period=args.period,
+        payment_out=args.payment_out,
+    ))
 
     # Chọn phases
     selected_phases = None
@@ -342,6 +373,8 @@ def main():
             print("         tối ưu cắt thép từ BBS thật:         python run_state_graph.py --phase rebar --bbs <file>")
             print("         tính tiến độ CPM từ file thật:       python run_state_graph.py --phase schedule --schedule <file>")
             print("         tính dự toán G_XD từ bảng QS thật:   python run_state_graph.py --phase qs --qs <file>")
+            print("         lập Mẫu 03a:                         python run_state_graph.py --phase payment --qs <file> "
+                  "--progress <file> --price-basis direct --advance-recovery-pct 20 --retention-pct 5")
 
     sys.exit(0 if success else 1)
 

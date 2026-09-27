@@ -127,6 +127,7 @@ class AECSupervisor:
             ProjectPhase.HUMAN_GATE,
             ProjectPhase.SCHEDULE_CPM,
             ProjectPhase.ASBUILT_LOOP,
+            ProjectPhase.PAYMENT_03A,
         ]
         run_phases = phases if phases else all_phases
 
@@ -168,6 +169,8 @@ class AECSupervisor:
             return self._phase_schedule_cpm()
         elif phase == ProjectPhase.ASBUILT_LOOP:
             return self._phase_asbuilt_loop()
+        elif phase == ProjectPhase.PAYMENT_03A:
+            return self._phase_payment()
         else:
             print(f"  [Supervisor] Phase không xác định: {phase}")
             return False
@@ -349,6 +352,17 @@ class AECSupervisor:
             print("  [Supervisor] asbuilt_agent chưa được đăng ký — bỏ qua As-Built loop")
             return True
         return self._run_agent_with_retry("asbuilt_agent", max_retries=1)
+
+    def _phase_payment(self) -> bool:
+        if "payment_agent" not in self._agents:
+            print("  [Supervisor] payment_agent chưa được đăng ký — bỏ qua Mẫu 03a")
+            return True
+        if not self._run_agent_with_retry("payment_agent", max_retries=1):
+            return False
+        summary = self.bus.get_qs_data().payment_summary
+        passed, results = self.quality_gate.run_phase_gate("PAYMENT_03A", {"payment": summary})
+        self._print_gate_results("GATE-5: Mẫu 03a", results, agent_id="payment_agent")
+        return passed
 
     # ─────────────────────────────────────────────────────────────────────────
     # HELPERS
