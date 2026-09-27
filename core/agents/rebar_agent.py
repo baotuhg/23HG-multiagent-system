@@ -30,7 +30,8 @@ from core.supervisor.base_agent import BaseAgent, DataInputError, MissingDataErr
 from core.state.state_bus import StateBus
 from tools.bbs_loader import BBSLoadError, load_bbs
 from tools.cutting_stock_solver import (
-    SAW_KERF_MM, CuttingStockSolver, CutDemand, SpliceZoneValidator, write_cut_plan_csv,
+    DEFAULT_LAP_XD, DEFAULT_MAX_SPLICE_RATIO, MIN_SPLICE_SEGMENT_XD, REUSE_OFFCUT_XD, SAW_KERF_MM,
+    SHORT_OFFCUT_XD, CuttingStockSolver, CutDemand, SpliceZoneValidator, write_cut_plan_csv,
 )
 
 MAX_LISTED = 10  # Số dòng lỗi/cảnh báo tối đa in ra
@@ -53,6 +54,17 @@ class RebarAgent(BaseAgent):
         skip_invalid_rows: bool = False,
         cut_plan_out: Optional[str] = None,
         kerf_mm: int = SAW_KERF_MM,
+        end_trim_mm: int = 0,
+        max_pieces_per_bar: Optional[int] = None,
+        max_marks_per_bar: Optional[int] = None,
+        reuse_xd: float = REUSE_OFFCUT_XD,
+        short_xd: float = SHORT_OFFCUT_XD,
+        splice: bool = False,
+        lap_xd: float = DEFAULT_LAP_XD,
+        max_splice_ratio: float = DEFAULT_MAX_SPLICE_RATIO,
+        min_splice_segment_xd: float = MIN_SPLICE_SEGMENT_XD,
+        splice_zones: Optional[List[Tuple[float, float]]] = None,
+        rebarcut_out: Optional[str] = None,
     ):
         super().__init__(
             agent_id="rebar_agent",
@@ -64,7 +76,20 @@ class RebarAgent(BaseAgent):
         self.bbs_sheet = bbs_sheet
         self.skip_invalid_rows = skip_invalid_rows
         self.cut_plan_out = cut_plan_out
-        self.solver = CuttingStockSolver(bar_length_mm=bar_length_mm, kerf_mm=kerf_mm)
+        self.splice = splice
+        self.rebarcut_out = rebarcut_out
+        self.params = {
+            "reuse_xd": reuse_xd, "short_xd": short_xd, "lap_xd": lap_xd,
+            "max_splice_ratio": max_splice_ratio, "min_splice_segment_xd": min_splice_segment_xd,
+            "max_pieces_per_bar": max_pieces_per_bar, "max_marks_per_bar": max_marks_per_bar,
+        }
+        self.solver = CuttingStockSolver(
+            bar_length_mm=bar_length_mm, kerf_mm=kerf_mm, end_trim_mm=end_trim_mm,
+            max_pieces_per_bar=max_pieces_per_bar, max_marks_per_bar=max_marks_per_bar,
+            reuse_offcut_xd=reuse_xd, short_offcut_xd=short_xd, lap_xd=lap_xd,
+            max_splice_ratio=max_splice_ratio, min_splice_segment_xd=min_splice_segment_xd,
+            default_splice_zones=splice_zones,
+        )
         self.splice_validator = SpliceZoneValidator()
 
     def run(self, bus: StateBus) -> bool:
@@ -87,8 +112,9 @@ class RebarAgent(BaseAgent):
             print(f"    ... và {len(input_warnings) - MAX_LISTED} cảnh báo khác")
 
         # ── BƯỚC 2: Tách thanh dài hơn cây thép — phải nối, không cắt trọn từ 1 cây
-        valid_demands = [d for d in demands if d.length_mm <= self.bar_length_mm]
-        oversize = [d for d in demands if d.length_mm > self.bar_length_mm]
+        usable = self.solver.usable_length_mm
+        valid_demands = [d for d in demands if d.length_mm <= usable]
+        oversize = [d for d in demands if d.length_mm > usable]
         oversize_items = [f"{d.mark} Ø{d.diameter_mm} L={d.length_mm}mm × {d.quantity}" for d in oversize]
         if oversize:
             input_summary.append(
@@ -115,10 +141,43 @@ class RebarAgent(BaseAgent):
                   f"(cận dưới {g.lower_bound_bars:,}) đề-xê {g.waste_ratio_pct:5.2f}% [{g.status}]")
         for w in solution.warnings:
             print(f"  [RebarAgent] ⚠ {w}")
+        offcuts = ", ".join(f"{cls} {n:,} ({mm / 1000:,.1f} m)" for cls, (n, mm) in solution.offcut_summary.items())
+        print(f"  [RebarAgent] Đầu thừa: {offcuts}")
+
+        # ── BƯỚC 2c: Phương án nối thép (đề xuất, cần duyệt) ─────────────────
+        spliced = None
+        splice_summary = {}
+        if self.splice:
+            print("  [RebarAgent] Tính phương án nối thép (chỉ Bar Mark có vùng cho phép nối)...")
+            spliced = self.solver.solve(valid_demands, allow_splicing=True)
+            saved = solution.total_bars_needed - spliced.total_bars_needed
+            splice_summary = {
+                "status": spliced.status,
+                "total_bars_needed": spliced.total_bars_needed,
+                "lower_bound_bars": spliced.lower_bound_bars,
+                "bars_saved": saved,
+                "weight_saved_kg": round(solution.total_weight_kg - spliced.total_weight_kg, 2),
+                "splices": spliced.total_splices,
+                "splice_extra_m": spliced.splice_extra_mm / 1000,
+                "warnings": [w for w in spliced.warnings if w not in solution.warnings],
+            }
+            print(f"  [RebarAgent] PA nối: {spliced.total_bars_needed:,} cây (giảm {saved:,} cây, "
+                  f"{splice_summary['weight_saved_kg']:,.1f} kg), {spliced.total_splices:,} mối nối, "
+                  f"thép bù nối {splice_summary['splice_extra_m']:,.1f} m [{spliced.status}]")
+            for w in splice_summary["warnings"][:MAX_LISTED]:
+                print(f"    ⚠ {w}")
 
         if self.cut_plan_out:
             write_cut_plan_csv(solution, self.cut_plan_out)
             print(f"  [RebarAgent] Đã xuất phiếu cắt thép: {self.cut_plan_out}")
+            if spliced is not None:
+                stem, ext = os.path.splitext(self.cut_plan_out)
+                write_cut_plan_csv(spliced, f"{stem}_PA_noi{ext or '.csv'}")
+                print(f"  [RebarAgent] Đã xuất phiếu cắt PA nối (đề xuất): {stem}_PA_noi{ext or '.csv'}")
+        if self.rebarcut_out:
+            from tools.rebarcut_export import write_rebarcut_workbook
+            write_rebarcut_workbook(self.rebarcut_out, valid_demands, solution, spliced, self.params)
+            print(f"  [RebarAgent] Đã xuất file theo bố cục RebarCut: {self.rebarcut_out}")
 
         # ── BƯỚC 3: Kiểm tra vùng nối ─────────────────────────────────────────
         if is_sample:
@@ -155,6 +214,9 @@ class RebarAgent(BaseAgent):
             "input_warnings": input_warnings,
             "input_summary": input_summary,
             "oversize_items": oversize_items,
+            "end_trim_mm": solution.end_trim_mm,
+            "offcut_summary": solution.offcut_summary,
+            "splice_plan": splice_summary,
             "groups": [g.__dict__ for g in solution.groups],
             "patterns": [
                 {"diameter_mm": p.diameter_mm, "grade": p.grade, "cuts": p.cuts,

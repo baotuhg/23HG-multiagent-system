@@ -82,6 +82,20 @@ def parse_holidays(text: str) -> set:
     return days
 
 
+def parse_splice_zone(text: str):
+    """'0-0.25; 0.75-1' hoặc '0-25%; 75-100%' → [(0, 0.25), (0.75, 1)]."""
+    from tools.bbs_loader import _parse_zones
+    if "m" in text.lower():
+        raise argparse.ArgumentTypeError("--splice-zone dùng tỷ lệ (0-0.25) hoặc % (0-25%), không dùng mét")
+    try:
+        zones = _parse_zones(text, 1000)
+    except ValueError as e:
+        raise argparse.ArgumentTypeError(str(e))
+    if not zones:
+        raise argparse.ArgumentTypeError(f"Không đọc được vùng nối '{text}'")
+    return zones
+
+
 # ── MAIN ─────────────────────────────────────────────────────────────────────
 
 def run_solver_test():
@@ -171,6 +185,28 @@ def main():
         "--cut-plan-out", default=None,
         help="Xuất phiếu cắt thép cho xưởng ra file CSV"
     )
+    rebar = parser.add_argument_group("Cắt thép (phase rebar)")
+    rebar.add_argument("--kerf-mm", type=int, default=3, help="Hao hụt mỗi nhát cắt (mm, mặc định 3)")
+    rebar.add_argument("--end-trim-mm", type=int, default=0, help="Cắt bỏ mỗi đầu cây (mm, mặc định 0)")
+    rebar.add_argument("--max-pieces-per-bar", type=int, default=None,
+                       help="Giới hạn cho tổ cắt: tối đa số đoạn / cây")
+    rebar.add_argument("--max-marks-per-bar", type=int, default=None,
+                       help="Giới hạn cho tổ cắt: tối đa số Bar Mark / cây")
+    rebar.add_argument("--reuse-xd", type=float, default=100, help="Đầu thừa ≥ xD được tái sử dụng (mặc định 100)")
+    rebar.add_argument("--short-offcut-xd", type=float, default=20,
+                       help="Đầu thừa ≥ xD là đầu thừa ngắn, ngắn hơn là phế (mặc định 20)")
+    rebar.add_argument("--splice", action="store_true",
+                       help="Tính thêm phương án nối thép tận dụng đầu thừa (đề xuất, cần kỹ thuật duyệt)")
+    rebar.add_argument("--lap-xd", type=float, default=40, help="Chiều dài nối chồng mặc định xD (mặc định 40)")
+    rebar.add_argument("--max-splice-ratio", type=float, default=0.5,
+                       help="Tỷ lệ thanh được nối tối đa mỗi Bar Mark (mặc định 0.5)")
+    rebar.add_argument("--min-splice-segment-xd", type=float, default=20,
+                       help="Đoạn nối tối thiểu mỗi phía xD (mặc định 20)")
+    rebar.add_argument("--splice-zone", type=parse_splice_zone, default=None,
+                       help="Vùng cho phép nối mặc định cho mọi Bar Mark 'Cho nối = Có' chưa ghi vùng, "
+                            "theo tỷ lệ chiều dài thanh, vd '0-0.25; 0.75-1'")
+    rebar.add_argument("--rebarcut-out", default=None,
+                       help="Xuất kết quả theo bố cục RebarCut Pro Excel (.xlsx)")
     parser.add_argument(
         "--project-name", default=None,
         help="Tên dự án hiển thị trong báo cáo"
@@ -236,6 +272,18 @@ def main():
         bbs_sheet=args.bbs_sheet,
         skip_invalid_rows=args.bbs_skip_invalid,
         cut_plan_out=args.cut_plan_out,
+        kerf_mm=args.kerf_mm,
+        end_trim_mm=args.end_trim_mm,
+        max_pieces_per_bar=args.max_pieces_per_bar,
+        max_marks_per_bar=args.max_marks_per_bar,
+        reuse_xd=args.reuse_xd,
+        short_xd=args.short_offcut_xd,
+        splice=args.splice,
+        lap_xd=args.lap_xd,
+        max_splice_ratio=args.max_splice_ratio,
+        min_splice_segment_xd=args.min_splice_segment_xd,
+        splice_zones=args.splice_zone,
+        rebarcut_out=args.rebarcut_out,
     ))
     supervisor.register_agent(QSAgent())
     supervisor.register_agent(BPTCKCSAgent())

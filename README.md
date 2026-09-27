@@ -186,6 +186,13 @@ python run_state_graph.py --phase rebar --bbs "BBS_du_an.xlsx" --cut-plan-out ph
 > - Solver chỉ ghép các đoạn **cùng đường kính và cùng mác thép**, trừ 3mm lưỡi cắt mỗi nhát, rồi báo **cận dưới** số cây. `OPTIMAL` nghĩa là đã chứng minh không thể dùng ít cây hơn. Nếu đề-xê vẫn > 1.5% thì đó là do chiều dài thanh trong BBS, không phải do cách ghép.
 > - Thanh dài hơn 11.7m (cần nối) và cáp DƯL **không** được đưa vào kế hoạch cắt và được cảnh báo riêng. Vị trí nối phải lấy từ bản vẽ; hiện chưa kiểm tra tự động (`NOT_RUN`).
 >
+> - **Giới hạn cho tổ cắt:** `--max-pieces-per-bar 4 --max-marks-per-bar 2`. **Cắt đầu cây:** `--end-trim-mm 50`. **Lưỡi cắt:** `--kerf-mm 3`. **Đầu thừa** được phân loại *Tái sử dụng* (≥ 100D, đổi bằng `--reuse-xd`), *Đầu thừa ngắn* (≥ 20D) hoặc *Phế*.
+> - **Phương án nối thép tận dụng đầu thừa** (`--splice`), đưa phép nối vào ngay mô hình tối ưu OR-Tools, chặt hơn PA4 của RebarCut:
+>   - Chỉ nối Bar Mark có *Cho nối? = Có* **và** có *Vùng cho phép nối* dạng số (vd `0-0.25; 0.75-1`, `0-25%`, hoặc `0-2.5m`). Có thể đặt vùng mặc định cho mọi thanh bằng `--splice-zone`.
+>   - Vùng chồng nối phải nằm trọn trong vùng cho phép. Mỗi đoạn ≥ max(L nối, 20D). Số thanh được nối không vượt *Max nối %* của từng Bar Mark.
+>   - Phiếu cắt chính thức vẫn là phương án không nối. Phương án nối được xuất riêng (`*_PA_noi.csv`, sheet `PA_NOI`, `MOI_NOI`) để kỹ thuật duyệt.
+> - **Xuất theo bố cục RebarCut Pro Excel:** `--rebarcut-out ket_qua.xlsx`, gồm các sheet INPUT, SO_SANH, PA_TOI_UU, PA_NOI, MOI_NOI, REMAIN, CHI_TIET. Sheet INPUT copy sang RebarCut được, và hệ thống cũng đọc được sheet INPUT của file RebarCut (`--bbs RebarCut_Pro_Excel_V5.xlsm`).
+>
 > Ví dụ với BBS trong workbook mẫu: `python run_state_graph.py --phase rebar --bbs "templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx" --bbs-skip-invalid`
 
 #### a2. Tính tiến độ CPM từ file tiến độ thật:
@@ -271,7 +278,8 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 │
 ├── tools/                        # ⚙️ CÔNG CỤ TÍNH TOÁN XÁC ĐỊNH (PURE PYTHON, ZERO LLM)
 │   ├── cutting_stock_solver.py   # Solver cắt thép 1D (Column Generation GLOP + CP-SAT, tách nhóm Ø + mác thép)
-│   ├── bbs_loader.py             # Đọc BBS thật từ Excel / CSV / JSON, phát hiện dòng sai dữ liệu
+│   ├── bbs_loader.py             # Đọc BBS thật từ Excel / CSV / JSON (cả sheet INPUT của RebarCut), cột nối thép
+│   ├── rebarcut_export.py        # Xuất kết quả cắt thép theo bố cục RebarCut Pro Excel (.xlsx)
 │   ├── schedule_loader.py        # Đọc tiến độ thật từ MS Project XML / Excel / CSV, đối chiếu ngày trong file
 │   ├── cpm_calculator.py         # Bộ tính CPM: FS/SS/FF/SF + lag, lịch nghỉ, Forward/Backward Pass
 │   └── cad_diff_engine.py        # Động cơ so sánh phiên bản bản vẽ CAD Rev00 vs Rev01

@@ -178,7 +178,17 @@ def _detect_columns(headers: Sequence[Any]) -> Dict[str, Any]:
         if "tongchieudai" in h or "trongluong" in h or "khoiluong" in h or "weight" in h \
                 or "totallength" in h:
             continue
-        if "kyhieu" in h or "sohieu" in h or h in ("mark", "barmark"):
+        if "chonoi" in h or h in ("splice", "spliceallowed", "allowsplice"):
+            cols.setdefault("splice_allowed", idx)
+        elif "kieunoi" in h or h in ("splicetype", "splicekind"):
+            cols.setdefault("splice_kind", idx)
+        elif h.startswith("lnoi") or "noixd" in h or h in ("lapxd", "lap"):
+            cols.setdefault("lap_xd", idx)
+        elif "maxnoi" in h or "tylenoi" in h or h in ("maxspliceratio", "spliceratio"):
+            cols.setdefault("max_splice_ratio", idx)
+        elif "vungnoi" in h or "vungchophepnoi" in h or h in ("splicezone", "splicezones"):
+            cols.setdefault("splice_zones", idx)
+        elif "kyhieu" in h or "sohieu" in h or h in ("mark", "barmark"):
             cols.setdefault("mark", idx)
         elif "duongkinh" in h or h in ("d", "dmm", "dia", "diameter", "diametermm", "phi") \
                 or str(raw).strip().lower().startswith(("ø", "∅", "φ")):   # "Ø (mm)"
@@ -312,14 +322,96 @@ def _parse_rows(rows: List[List[Any]], source: str) -> BBSLoadResult:
         if quantity == 0:
             continue
 
+        splice = _parse_splice(row, cols, where, length_mm, result.errors)
+        if splice is None:
+            continue
+
         result.demands.append(CutDemand(
             length_mm=length_mm,
             quantity=int(round(quantity)),
             diameter_mm=int(diameter),
             mark=label,
             grade=grade,
+            **splice,
         ))
 
     if not result.demands and not result.errors:
         raise BBSLoadError(f"{source}: bảng BBS không có dòng dữ liệu nào")
     return result
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CỘT NỐI THÉP (tùy chọn)
+# ─────────────────────────────────────────────────────────────────────────────
+
+_YES = {"co", "c", "yes", "y", "x", "1", "true", "dung"}
+_NO = {"", "khong", "k", "no", "n", "0", "false"}
+
+
+def _parse_zones(text: Any, length_mm: int) -> Optional[List[Tuple[float, float]]]:
+    """
+    '0-0.25; 0.75-1' | '0-25%; 75-100%' | '0-2.5m; 7-9.5m' → [(0, 0.25), (0.75, 1)] (tỷ lệ chiều dài thanh).
+    Chữ không phải vùng số (vd 'Theo thiết kế') → None. Sai cú pháp số → ValueError.
+    """
+    if text is None:
+        return None
+    raw = str(text).strip()
+    if not raw or not re.search(r"\d", raw):
+        return None
+    zones = []
+    for part in re.split(r"[;|]", raw):
+        part = part.strip()
+        if not part:
+            continue
+        m = re.fullmatch(r"(\d+(?:[.,]\d+)?)\s*(%|m)?\s*[-–÷]\s*(\d+(?:[.,]\d+)?)\s*(%|m)?", part)
+        if not m:
+            raise ValueError(f"không đọc được vùng nối '{part}' (vd 0-0.25; 0.75-1 hoặc 0-25%)")
+        a, b = (float(m.group(k).replace(",", ".")) for k in (1, 3))
+        unit = m.group(4) or m.group(2)
+        if unit == "%":
+            a, b = a / 100, b / 100
+        elif unit == "m":
+            a, b = a * 1000 / length_mm, b * 1000 / length_mm
+        if not (0 <= a < b <= 1 + 1e-9):
+            raise ValueError(f"vùng nối '{part}' phải nằm trong chiều dài thanh và bắt đầu < kết thúc")
+        zones.append((a, min(b, 1.0)))
+    return zones or None
+
+
+def _parse_splice(row, cols, where: str, length_mm: int, errors: List[str]) -> Optional[Dict[str, Any]]:
+    """Đọc các cột nối thép. Trả về dict tham số cho CutDemand, hoặc None nếu dòng sai (đã ghi lỗi)."""
+    out: Dict[str, Any] = {}
+    if "splice_allowed" not in cols:
+        return out
+    allowed_raw = _cell(row, cols["splice_allowed"])
+    allowed = _norm(allowed_raw) if allowed_raw is not None else ""
+    if allowed not in _YES | _NO:
+        errors.append(f"{where}: cột 'Cho nối?' chỉ nhận Có/Không, gặp '{allowed_raw}'")
+        return None
+    out["splice_allowed"] = allowed in _YES
+    if not out["splice_allowed"]:
+        return out
+
+    kind = str(_cell(row, cols.get("splice_kind")) or "").strip()
+    out["splice_kind"] = kind
+    lap = _to_number(_cell(row, cols.get("lap_xd")))
+    if lap is None and "coupler" in _norm(kind):
+        errors.append(f"{where}: Coupler cần ghi rõ chiều dài bù nối xD (0 nếu không bù)")
+        return None
+    if lap is not None and lap < 0:
+        errors.append(f"{where}: chiều dài nối xD âm")
+        return None
+    out["lap_xd"] = lap
+    ratio = _to_number(_cell(row, cols.get("max_splice_ratio")))
+    if ratio is not None:
+        ratio = ratio / 100 if ratio > 1 else ratio
+        if not 0 <= ratio <= 1:
+            errors.append(f"{where}: tỷ lệ nối '{ratio}' không hợp lệ")
+            return None
+    out["max_splice_ratio"] = ratio
+    try:
+        out["splice_zones"] = _parse_zones(_cell(row, cols.get("splice_zones")), length_mm)
+    except ValueError as e:
+        errors.append(f"{where}: {e}")
+        return None
+    return out

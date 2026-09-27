@@ -198,6 +198,13 @@ class QualityGate:
         for w in cutting_result.get("input_summary", []):
             result.warnings.append(f"BBS: {w}")
 
+        plan = cutting_result.get("splice_plan") or {}
+        if plan.get("splices"):
+            result.warnings.append(
+                f"PA nối thép (đề xuất) giảm {plan['bars_saved']} cây với {plan['splices']} mối nối — "
+                f"phiếu cắt chính thức vẫn là PA không nối cho tới khi kỹ thuật duyệt PA nối"
+            )
+
         result.score = score
         result.passed = (score >= 70 and not result.issues)
         result.details = {
