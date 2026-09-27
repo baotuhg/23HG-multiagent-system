@@ -20,12 +20,18 @@ flowchart TD
     S6 --> S7["BƯỚC 7: HỒ SƠ KCS & MA TRẬN LOGIC CHÉO NGÀY\n(Chuẩn NĐ 207/2026: Không bị đá ngày, xuất Word .docx)"]
     S6 --> S8["BƯỚC 8: THUYẾT MINH BPTC & KIỂM TOÁN AUDIT\n(RAG Hugging Face: BGE-M3 + Qwen2.5-7B tra cứu TCVN, Audit 100/100)"]
     
-    subgraph KET_QUA["BỘ SẢN PHẨM HOÀN CHỈNH BẮT BUỘC BÀN GIAO"]
-        Out1["1. File Excel 9 Sheet liên kết động 100%"]
-        Out2["2. File Tiến độ MS Project (.xml / .mpp)"]
-        Out3["3. Trọn bộ Biên bản KCS Word (.docx)"]
-        Out4["4. Thuyết minh Biện pháp thi công chi tiết (.docx/.md)"]
-        Out5["5. Báo cáo Thẩm tra Độc lập Điểm 100/100 (.md)"]
+    subgraph KET_QUA["BỘ SẢN PHẨM HOÀN CHỈNH BẮT BUỘC BÀN GIAO (2 GÓI CHUẨN)"]
+        subgraph GOI1["GÓI 01: VĨ MÔ / MASTER 14 SHEET"]
+            Out1["1. File Excel Master 14 Sheet liên kết động 100%"]
+            Out2["2. File Tiến độ MS Project (.xml / .mpp)"]
+            Out3["3. Báo cáo Thẩm tra Độc lập Audit 100/100 (.md)"]
+        end
+        subgraph GOI2["GÓI 02: VI MÔ / SẢN XUẤT CÔNG TRƯỜNG"]
+            Out4["4. Trọn bộ 14 file hồ sơ chuyên sâu độc lập (1-to-1)"]
+            Out5["5. Sơ đồ ra phôi cắt thép xưởng CNC (.csv/.xlsx)"]
+            Out6["6. Trọn bộ 43 Biên bản KCS Word (.docx) & Biểu mẫu in A4"]
+            Out7["7. Thuyết minh Biện pháp thi công chi tiết (.docx/.md)"]
+        end
     end
 
     S5 & S6 & S7 & S8 --> KET_QUA
@@ -38,13 +44,13 @@ flowchart TD
 | Bước | Tên quy trình | Căn cứ pháp lý & Tiêu chuẩn | Đầu ra kỹ thuật | Nguyên tắc cốt lõi |
 | :---: | :--- | :--- | :--- | :--- |
 | **01** | **Bóc tách Takeoff & WBS** | TCVN thiết kế, Chỉ dẫn kỹ thuật | Bảng diễn giải hình học | **Tuyệt đối cấm số chết**, dòng con $= E \times F \times G \times H \times I$, dòng cha $= \text{SUM}$. |
-| **02** | **Tổ hợp Cắt thép 1D** | TCVN 1651:2018 | Bảng cắt thép cây 11.7m | Thuật toán 1D Cutting Stock, ép phôi thừa đề-xê $< 1.5\%$. |
-| **03** | **Phân tích & Tổng hợp Vật tư (BOM)** | Thông tư 12/2021/TT-BXD | Bảng phân rã WBS & Tổng hợp vật tư toàn cầu | Hao phí xi măng, cát, đá, sắt thép từng loại $\varnothing$, cáp DƯL; 100% công thức động trỏ từ Sheet QS. |
-| **04** | **Dự toán tổng hợp $G_{XD}$** | Thông tư 11/2021/TT-BXD | Bảng tổng hợp chi phí $G_{XD}$ | Trỏ link trực tiếp từ Sheet QS: $GT = 7.3\% \times T$, $TL = 5.5\%$, $VAT = 8\%$. |
+| **02** | **Tổ hợp Cắt thép 1D** | TCVN 1651:2018 | Bảng cắt thép cây 11.7m | Thuật toán 1D Cutting Stock OR-Tools, ép phôi thừa đề-xê $< 1.85\%$, quản lý kho đề-xê tái sử dụng. |
+| **03** | **Phân tích & Cấp phối BOM** | Thông tư 12/2021/TT-BXD | Bảng phân rã WBS, Cấp phối C10-C40 & BOM 4 Phase | Hao phí xi măng, cát, đá, sắt thép từng loại $\varnothing$; 100% công thức động trỏ từ Sheet QS. |
+| **04** | **Dự toán tổng hợp $G_{XD}$** | Thông tư 11/2021/TT-BXD, Luật XD 135/2025 | Bảng tổng hợp chi phí $G_{XD}$ | Trỏ link trực tiếp từ Sheet QS: $GT = 7.3\% \times T$, $TL = 5.5\%$, $VAT = 10\%$. |
 | **05** | **Thanh toán kỳ (Phụ lục 03a)** | Nghị định 99/2021/NĐ-CP | Bảng xác định khối lượng kỳ | Lũy kế kỳ trước, thực hiện kỳ này, khấu trừ tạm ứng $20\%$, bảo hành $5\%$. |
-| **06** | **Tiến độ CPM & MS Project** | Thông tư 12/2021/TT-BXD | File tiến độ `.xml` / `.mpp` | Định mức ngày công, phân bổ tổ đội thợ, xác định đường găng Critical Path. |
-| **07** | **Hồ sơ KCS & Logic chéo** | Nghị định 207/2026/NĐ-CP | Trọn bộ biên bản Word `.docx` | Ma trận logic ngày tháng không đá ngày (Cọc $\rightarrow$ Thí nghiệm $\rightarrow$ Bệ $\rightarrow$ Thân $\rightarrow$ Dầm). |
-| **08** | **Thuyết minh BPTC & Audit** | QCVN 18:2021/BXD, TCVN | Thuyết minh 8 chương & Báo cáo Audit | RAG Hugging Face (`BAAI/bge-m3` + `Qwen2.5-7B`), Thẩm tra độc lập đạt điểm 100/100. |
+| **06** | **Tiến độ CPM & MS Project** | Thông tư 12/2021/TT-BXD | File tiến độ `.xml` / `.mpp` | Định mức ngày công, phân bổ tổ đội thợ, tính toán Forward/Backward Pass, đường găng Critical Path. |
+| **07** | **Hồ sơ KCS & Logic chéo** | Luật XD 135/2025, NĐ 207/2026/NĐ-CP | Trọn bộ 43 biên bản Word `.docx` & Biểu mẫu in A4 | Ma trận logic ngày tháng không đá ngày (Cọc $\rightarrow$ Thí nghiệm $\rightarrow$ Bệ $\rightarrow$ Thân $\rightarrow$ Dầm). |
+| **08** | **Đóng gói 2 Gói Hồ sơ & Audit** | QCVN 18:2021/BXD, TCVN | 2 Gói: Macro 14-Sheet & Micro 14-Bộ | Kịch bản tự động hóa `build_14_micro_standalone_dossiers.py`, Audit Verifier đạt 100/100. |
 
 ---
 

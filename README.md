@@ -259,26 +259,39 @@ python examples/run_pipeline.py
 
 ---
 
-## 🏆 6. Chi tiết 14 Sheet Bảng tính Mẫu Hoàn thiện (Master Workbook)
+## 🏆 6. Chuẩn Đóng Gói 2 Gói Hồ Sơ: Macro (Master 14 Sheet) & Micro (14 Bộ Chuyên Sâu Độc Lập)
 
-Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx)** gồm **14 Sheet** liên thông 100% công thức động (0 số chết, 0 link gãy, Audit Score **100/100**):
+Hệ thống thiết lập chuẩn đóng gói **2 Tầng hồ sơ song hành (Dual-Tier Deliverable Architecture)** đáp ứng đồng thời yêu cầu quản trị điều hành vĩ mô của Ban QLDA/Chủ đầu tư và nhu cầu sản xuất, gia công, nghiệm thu vi mô tại công trường:
 
-| STT | Tên Sheet Excel | Vai trò Kỹ thuật | Quy chuẩn / Cơ chế Công thức |
+### 📦 GÓI 01: VĨ MÔ / MASTER 14 SHEET LIÊN KẾT ĐỘNG TOÀN DIỆN
+- **Tệp Excel Master:** [`templates/Ho_So_KCS_QS_TienDo_Cau_Khai_Hoang_2_Km14+363.65.xlsx`](templates/Ho_So_KCS_QS_TienDo_Cau_Khai_Hoang_2_Km14+363.65.xlsx) gồm **14 Sheet** liên thông 100% công thức động (0 số chết, 0 link gãy, Audit Score **100/100**):
+- **Tệp Tiến độ MS Project:** [`templates/Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.xml`](templates/Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.xml) & [`templates/Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.mpp`](templates/Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.mpp)
+- **Báo cáo Thẩm tra Độc lập:** [`templates/BAO_CAO_THAM_TRA_AEC_AUDIT_KHAI_HOANG_2.md`](templates/BAO_CAO_THAM_TRA_AEC_AUDIT_KHAI_HOANG_2.md) (Điểm 100/100 tuyệt đối, 0 số chết)
+
+### 📦 GÓI 02: VI MÔ / 14 BỘ HỒ SƠ CHUYÊN SÂU ĐỘC LẬP (1-TO-1 MATCHING)
+Mỗi Sheet trong Master tương ứng 1-1 với một bộ hồ sơ chuyên sâu độc lập, chứa các tab dữ liệu nội bộ (`DATA_CONG_TAC`, `DATA_VAT_LIEU`, `DATA_NEN_MAU`) để **không bao giờ bị lỗi `#REF!` khi mở riêng lẻ**:
+
+| Mã | Tên Sheet Master | Tên Hồ sơ Vi mô Chuyên sâu | Chi tiết kỹ thuật & Quy chuẩn |
 |:---:|---|---|---|
-| **01** | `TO_HOP_CAT_THEP_11M7` | Tổ hợp cắt thép thanh 11.7m bài toán 1D Cutting Stock | Google OR-Tools CP-SAT, đề-xê hao hụt **1.44%** ($< 1.5\%$) |
-| **02** | `KHOI_LUONG_DAO_DAP` | Thể tích đào đắp mặt cắt ngang $V = \frac{F_1 + F_2}{2} \times L$ | Link trực tiếp sang `QS_DIEN_GIAI_CHI_TIET!J33` |
-| **03** | `QS_DIEN_GIAI_CHI_TIET` | Bóc tách hình học Dài x Rộng x Cao x Số lượng x Hệ số | 100% công thức động, SUMIFS trực tiếp từ Sheet BBS cốt thép |
-| **04** | `THONG_KE_THEP_CHI_TIET` | Bar Bending Schedule (BBS) 396 thanh thép chi tiết | TCVN 1651:2018, bóc tách toàn bộ mố, trụ, dầm Super-T, mặt cầu |
-| **05** | `CAP_PHOI_1M3_VA_TAN_SUAT`| Cấp phối 1m³ bê tông & Ma trận 809 phép thử KCS | Tự động tính số tổ mẫu thí nghiệm bằng `=ROUNDUP(G/H,0)` |
-| **06** | `PHAN_TICH_VAT_TU_WBS` | Phân tích định mức chi tiết vật liệu công tác WBS | Thông tư 12/2021/TT-BXD, chi tiết xi măng, cát, đá, sắt thép, cáp DƯL |
-| **07** | `TONG_HOP_VAT_TU_TOAN_BO`| Bảng tổng hợp toàn bộ nhu cầu vật tư (BOM toàn cầu) | Công thức `=SUMIF()` động, tính hao hụt & 4 giai đoạn cấp hàng |
-| **08** | `TONG_HOP_DU_TOAN_GXD` | Tổng hợp kinh phí xây dựng Thông tư 11/2021/TT-BXD | `G_xd = T + GT(7.3%) + TL(5.5%) + VAT(10%)` theo Luật XD 135/2025 |
-| **09** | `THANH_TOAN_KY_PHU_LUC_03A` | Xác định giá trị khối lượng hoàn thành đề nghị thanh toán | Nghị định 99/2021/NĐ-CP, trỏ trực tiếp đơn giá và khối lượng lũy kế |
-| **10** | `TIEN_DO_THI_CONG_WBS` | 36 công tác WBS, định mức nhân công TT 12, Gantt Chart | Mạng công việc CPM (Critical Path), xuất file MS Project XML/MPP |
-| **11** | `HOSO_KCS_NGHIEM_THU` | Danh mục 22 Biên bản nghiệm thu KCS theo phân đoạn | Nghị định 207/2026/NĐ-CP, đồng bộ logic ngày tháng với tiến độ CPM |
-| **12** | `MAU_BIEN_BAN_KCS` | Biểu mẫu nghiệm thu công việc in ấn A4 chuẩn | Chọn mã tại ô `C2` (1-22) tự động nhảy toàn bộ nội dung (thay thế Word) |
-| **13** | `MAU_BB_NGHIEM_THU_VAT_LIEU`| Biểu mẫu nghiệm thu vật liệu đầu vào A4 | Chọn mã tại ô `C2` (1-16) tự động cập nhật tiêu chuẩn và chứng chỉ |
-| **14** | `MAU_BB_LAY_MAU_HIEN_TRUONG`| Biểu mẫu lấy mẫu thí nghiệm hiện trường A4 | Chọn mã `C2` và ngày đúc `C3` $\rightarrow$ tự động tính ngày nén $R_7, R_{28}$ |
+| **01** | `TO_HOP_CAT_THEP_11M7` | `01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx` + `.csv` | Google OR-Tools CP-SAT, tối ưu cắt 3.236 cây 11.7m, hao hụt **1.85%**, quản lý đề-xê & xuất file CSV cắt máy. |
+| **02** | `KHOI_LUONG_DAO_DAP` | `02_Khoi_Luong_Dao_Dap_Trinh_Dien.xlsx` | Diễn giải kích thước hố móng M1, M2 ngàm đá gốc $\ge 0.5m$, mái taluy móng, đắp đất đầm cóc sau mố $\le 20cm$ (K95, K98). |
+| **03** | `QS_DIEN_GIAI_CHI_TIET` | `03_QS_Dien_Giai_Chi_Tiet_Takeoff.xlsx` | Bóc tách hình học Dài x Rộng x Cao x Số lượng x Hệ số cho bệ mố M1 (110m³), M2 (123.75m³), dầm T, dầm ngang, bản mặt cầu. |
+| **04** | `THONG_KE_THEP_CHI_TIET` | `04_Thong_Ke_Thep_Chi_Tiet_BBS_166_Dong.xlsx` | BBS trọn vẹn toàn bộ **166 dòng bản vẽ** (68.012 tấn thép CB400-V, 12.361 thanh thép), ma trận theo Ø và đối chiếu THKL. |
+| **05** | `CAP_PHOI_1M3_VA_TAN_SUAT`| `05_Cap_Phoi_1m3_Va_Tan_Suat_Thi_Nghiem.xlsx` | Cấp phối 1m³ bê tông C10..C40 (xi măng, cát, đá, phụ gia) & Kế hoạch tần suất KCS 72 tổ mẫu nén R7/R28, kéo uốn lô 50T. |
+| **06** | `PHAN_TICH_VAT_TU_WBS` | `06_Phan_Tich_Vat_Tu_Chi_Tiet_WBS.xlsx` | Phân tích hao phí chi tiết xi măng PCB40, cát vàng, đá 1x2, thép tròn các loại theo từng gói công việc WBS. |
+| **07** | `TONG_HOP_VAT_TU_TOAN_BO`| `07_Tong_Hop_Nhu_Cau_Vat_Tu_BOM_4_Giai_Doan.xlsx` | BOM toàn dự án có xét hao hụt thi công đặt hàng & Kế hoạch điều phối cung ứng 4 giai đoạn + quy định tồn kho an toàn vùng cao. |
+| **08** | `TONG_HOP_DU_TOAN_GXD` | `08_Du_Toan_GXD_Thong_Tu_11_2021.xlsx` | Dự toán 102 công tác có mã TT 12, chi phí trực tiếp $T$, $GT = 7.3\%$, $TL = 5.5\%$, thuế VAT $10\%$, Tổng $G_{XD} = 4.769.503.521$ đ. |
+| **09** | `THANH_TOAN_KY_PHU_LUC_03A` | `09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx` | Hồ sơ đề nghị thanh toán Đợt 1 mẫu 03.a NĐ 99/2021/NĐ-CP: Lũy kế hoàn thành, trừ tạm ứng 20%, trừ bảo hành 5%, đề nghị thực nhận. |
+| **10** | `TIEN_DO_THI_CONG_WBS` | `10_Tien_Do_Thi_Cong_CPM_Gantt_Chart.xlsx` + `.xml`/`.mpp` | 46 công tác WBS, tính toán đường găng CPM chi tiết (ES, EF, LS, LF, Float TF), nhận diện 23 công tác găng (Critical Path). |
+| **11** | `HOSO_KCS_NGHIEM_THU` | `11_Danh_Muc_KCS_43_Bien_Ban_Nghiem_Thu.xlsx` + `.docx` | Danh mục 43 biên bản nghiệm thu KCS theo Luật XD 135/2025 & NĐ 207/2026/NĐ-CP, kèm file Word trọn bộ 43 biên bản hoàn chỉnh. |
+| **12** | `MAU_BIEN_BAN_KCS` | `12_Mau_A4_Bien_Ban_Nghiem_Thu_Cong_Viec.xlsx` | Biểu mẫu nghiệm thu công việc in A4 Portrait: Ô chọn số BB (1-43) để VLOOKUP tự lấy nội dung từ tab nội bộ `DATA_CONG_TAC`. |
+| **13** | `MAU_BB_NGHIEM_THU_VAT_LIEU`| `13_Mau_A4_Bien_Ban_Nghiem_Thu_Vat_Lieu.xlsx` | Biểu mẫu nghiệm thu vật liệu in A4 Portrait: Ô chọn mã VL (1-10) để VLOOKUP tự hiển thị chứng chỉ CO/CQ từ tab `DATA_VAT_LIEU`. |
+| **14** | `MAU_BB_LAY_MAU_HIEN_TRUONG`| `14_Mau_A4_Bien_Ban_Lay_Mau_Thi_Nghiem_R7_R28.xlsx` | Biểu mẫu lấy mẫu & nén mẫu BT in A4: Ô chọn mã (1-10) để tự nhảy lực nén phá hoại, cường độ R7, R28 từ tab `DATA_NEN_MAU`. |
+
+> **Lệnh tự động dựng trọn bộ 2 gói hồ sơ từ số liệu gốc:**
+> ```powershell
+> python examples/build_14_micro_standalone_dossiers.py
+> ```
 
 ---
 
@@ -320,7 +333,7 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 │   └── lab_result_schema.py      # Schema Phiếu thí nghiệm phòng LAS-XD (R7/R28, kéo thép, PDA)
 │
 ├── aec_core/                     # 🔍 BỘ CÔNG CỤ KIỂM TOÁN VÀ XÁC THỰC ĐỘC LẬP
-│   ├── audit_verifier.py         # AECAuditVerifier: Quét 1,234 công thức, 0 số chết, 100/100
+│   ├── audit_verifier.py         # AECAuditVerifier: Quét toàn diện, 0 số chết, điểm 100/100
 │   └── project_state.py          # Trình quản lý trạng thái dự án cơ sở
 │
 ├── agents/                       # 🤖 CỤM TÁC TỬ THU NHẬN & HỢP NHẤT DỮ LIỆU ĐA PHƯƠNG THỨC
@@ -328,39 +341,43 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 │   ├── aec_office_extractor.py   # Bộ đọc dữ liệu bảng tính Excel dự toán / BoQ
 │   ├── aec_markdown_ingestor.py  # Bộ đọc hồ sơ thuyết minh kỹ thuật Markdown/Text
 │   ├── aec_data_aggregator.py    # Bộ hợp nhất đa luồng vào Single Source of Truth
-│   └── PROJECT_STATE.json        # Dữ liệu trạng thái dự án Cầu Km19+529.080
+│   ├── aec_audit_verifier.py     # Engine kiểm toán Red Teaming, kiểm tra liên kết động đa tầng
+│   └── PROJECT_STATE_KHAI_HOANG_2.json # Trạng thái thực tế dự án Cầu Khai Hoang 2
 │
 ├── workflows/                    # 📚 QUY TRÌNH KỸ THUẬT & TIÊU CHUẨN THI CÔNG
+│   ├── 00_TONG_QUAN_QUY_TRINH_KHEP_KIN_AEC.md
 │   ├── 01_QUY_TRINH_BOC_TACH_HINH_HOC_TAKEOFF.md
 │   ├── 02_QUY_TRINH_TO_HOP_CAT_THEP_1D.md
 │   ├── 03_QUY_TRINH_DU_TOAN_GXD_TT11.md
-│   ├── 04_QUY_TRINH_THANH_TOAN_03A_ND99.md
-│   ├── 05_QUY_TRINH_TIEN_DO_WBS_CPM_MS_PROJECT.md
-│   ├── 06_QUY_TRINH_HO_SO_KCS_WORD_ND207.md
+│   ├── 04_QUY_TRINH_THANH_TOAN_PHU_LUC_03A.md
+│   ├── 05_QUY_TRINH_TIEN_DO_CPM_MS_PROJECT.md
+│   ├── 06_QUY_TRINH_KCS_LOGIC_CHEO_XUAT_WORD.md
 │   ├── 07_QUY_TRINH_THUYET_MINH_BIEN_PHAP_HUGGINGFACE.md
 │   ├── 08_QUY_TRINH_PHAN_TICH_TONG_HOP_VAT_TU_DINH_MUC.md
 │   ├── 09_QUY_TRINH_THONG_KE_THEP_BBS_VA_TAN_SUAT_THI_NGHIEM.md
 │   ├── 10_QUY_TRINH_THU_NHAN_VA_HOP_NHAT_DU_LIEU_DA_PHUONG_THUC.md
 │   ├── 11_QUY_TRINH_VALIDATION_KIEM_TRA_CHEO.md
 │   ├── 12_SO_DO_DIEU_PHOI_MULTI_AGENT_TOAN_HE_THONG.md
-│   └── 13_KIEN_TRUC_STATE_GRAPH_V3_SUPERVISOR_PATTERN.md
+│   ├── 13_KIEN_TRUC_STATE_GRAPH_V3_SUPERVISOR_PATTERN.md
+│   └── 14_QUY_TRINH_DONG_GOI_2_GOI_HO_SO_MACRO_VA_MICRO_14_BO.md
 │
 ├── templates/                    # 📦 SẢN PHẨM MẪU SỐ HÓA HOÀN THIỆN
-│   ├── Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx  # Workbook Master 14 Sheet liên kết động
-│   ├── Tien_Do_Thi_Cong_Cau_Km19+529.080.xml      # Tiến độ MS Project XML (CPM, 36 công tác)
-│   ├── Tien_Do_Thi_Cong_Cau_Km19+529.080.mpp      # File Microsoft Project Native binary
-│   ├── Thuyet_Minh_Bien_Phap_Thi_Cong_Cau_Km19+529.080.md # Thuyết minh BPTC 8 chương TCVN
-│   └── BAO_CAO_THAM_TRA_AEC_AUDIT.md              # Báo cáo thẩm tra độc lập Audit 100/100
+│   ├── Ho_So_KCS_QS_TienDo_Cau_Khai_Hoang_2_Km14+363.65.xlsx # Master 14 Sheet liên kết động
+│   ├── Ho_So_Bien_Ban_Nghiem_Thu_KCS_Cau_Khai_Hoang_2.docx  # 43 Biên bản KCS Word chuẩn NĐ 207
+│   ├── Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.xml               # Tiến độ MS Project XML
+│   ├── Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.mpp               # Tiến độ MS Project MPP
+│   └── BAO_CAO_THAM_TRA_AEC_AUDIT_KHAI_HOANG_2.md          # Báo cáo thẩm tra Audit Score 100/100
 │
 ├── examples/                     # 🚀 SCRIPT THỰC THI & CHẠY THỬ NGHIỆM
-│   ├── run_pipeline.py                            # Runner kiểm tra toàn diện 14 Sheet Master
-│   ├── run_cad_diff_demo.py                       # Demo so sánh bản vẽ CAD Rev00 vs Rev01
-│   ├── run_data_ingestion_pipeline.py             # Pipeline thu nhận đa phương thức
-│   ├── update_full_cross_linked_workbook.py       # Script tái tạo 14 sheet liên kết động
-│   └── add_rebar_bbs_and_mix_sheets.py            # Trích xuất BBS & Tần suất thí nghiệm
+│   ├── build_14_micro_standalone_dossiers.py     # Generator 14 bộ hồ sơ vi mô chuyên sâu độc lập
+│   ├── apply_khai_hoang_2_full.py                # Áp giá TT 12, TT 11 và liên kết động 14 Sheet
+│   ├── build_khai_hoang_2_dossier.py             # Dựng hồ sơ từ dữ liệu gốc 166 dòng BBS
+│   ├── khai_hoang_2_source.py                    # Parser trích xuất bang_so_lieu.json & THKL
+│   ├── run_pipeline.py                           # Runner kiểm tra toàn diện 14 Sheet Master
+│   └── run_cad_diff_demo.py                      # Demo so sánh bản vẽ CAD Rev00 vs Rev01
 │
 ├── tests/                        # 🧪 Test tự động (python -m unittest discover tests)
-├── run_state_graph.py            # 🌟 ENTRY POINT MỚI: State Graph & Supervisor Runner v3.0
+├── run_state_graph.py            # 🌟 ENTRY POINT: State Graph & Supervisor Runner v3.0
 ├── requirements.txt              # Danh mục thư viện phụ thuộc (ortools, openpyxl, pandas...)
 ├── pyproject.toml                # Cấu hình đóng gói hệ thống chuẩn PEP 621
 ├── LICENSE                       # Giấy phép phần mềm mã nguồn mở MIT
