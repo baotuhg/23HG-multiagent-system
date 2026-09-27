@@ -1,0 +1,9 @@
+Mã phiếu;Loại thí nghiệm;Cấu kiện;Mã BBNT;Loại mẫu;Ngày đúc;Ngày thí nghiệm;Yêu cầu;Mẫu 1;Mẫu 2;Mẫu 3;Mác thép;Giới hạn chảy (MPa);Giới hạn bền (MPa);Độ giãn dài (%);Chỉ tiêu;Kết quả
+LAS188-BT-01;Nén bê tông;Cọc khoan nhồi T1-01;BBNT-04;Lập phương 150;2026-11-01;2026-11-29;C30/37;39.2;38.1;40.5;;;;;;
+LAS188-BT-02;Nén bê tông;Dầm Super-T D1;BBNT-14;Lập phương 150;2026-11-10;2026-12-08;C45/55;58.4;57.9;59.6;;;;;;
+LAS188-BT-03;Nén bê tông;Bản mặt cầu nhịp 1;BBNT-18;Lập phương 150;2027-01-05;2027-01-12;C35/45;29.8;31.2;30.4;;;;;;
+LAS188-BT-04;Nén bê tông;Bệ trụ T2;BBNT-10;Lập phương 150;2026-12-01;2026-12-29;C30/37;38.4;37.6;39.1;;;;;;
+LAS188-ST-01;Kéo thép;Thép Ø25 lô 991;BBNT-03;;;;;;;;CB400-V;452;618;17.5;;
+LAS188-PDA-01;Nén động PDA;Cọc T1-02;BBNT-08;;;;≥ 7800;;;;;;;;Sức chịu tải (kN);9434
+LAS188-SA-01;Siêu âm cọc;Cọc T1 (26 cọc);BBNT-07;;;;Loại 1;;;;;;;;Phân loại cọc;Loại 1
+LAS188-SL-01;Độ sụt bê tông;Cọc T1-01;BBNT-04;;;;18±2;;;;;;;;Độ sụt (cm);19
