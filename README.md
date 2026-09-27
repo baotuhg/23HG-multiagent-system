@@ -7,8 +7,8 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Standards: TCVN & BXD](https://img.shields.io/badge/Standards-TCVN%20%7C%20Lu%E1%BA%ADt%20XD%20135%2F2025-brightgreen)](workflows/)
-[![Optimization: Google OR-Tools](https://img.shields.io/badge/Optimization-Google%20OR--Tools%20CP--SAT-blue)](tools/cutting_stock_solver.py)
-[![Rebar Scrap < 1.5%](https://img.shields.io/badge/Rebar%20Scrap-%3C%201.5%25-success)](tools/cutting_stock_solver.py)
+[![Optimization: Google OR-Tools](https://img.shields.io/badge/Optimization-OR--Tools%20Column%20Generation%20%2B%20CP--SAT-blue)](tools/cutting_stock_solver.py)
+[![Rebar Cutting: proven lower bound](https://img.shields.io/badge/Rebar%20Cutting-C%E1%BA%ADn%20d%C6%B0%E1%BB%9Bi%20%2B%20t%E1%BB%91i%20%C6%B0u%20ch%E1%BB%A9ng%20minh-success)](tools/cutting_stock_solver.py)
 [![Zero Dead Numbers](https://img.shields.io/badge/Math-100%25%20Dynamic%20Formulas-red.svg)](templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx)
 
 ---
@@ -63,7 +63,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
     |  | CẮT THÉP 1D      +---------------+--------------------------------+
     |  | (OR-TOOLS SOLVER)|
     |  +------------------+
-    |  | * Google OR-Tools| ---> Tối ưu tổ hợp thanh 11.7m, đề-xê < 1.5%
+    |  | * Google OR-Tools| ---> Tối ưu số cây 11.7m theo từng Ø + mác thép
     |  | * CP-SAT / FFD   | ---> Kiểm tra chéo (Inter-Agent): REJECT nếu sai
     |  +--------+---------+
     |           |
@@ -110,7 +110,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
 | Thành phần | Định dạng Đầu vào (Input) | Định dạng Đầu ra (Output) | Công cụ & Đặc tả Kỹ thuật |
 |---|---|---|---|
 | **Bóc tách CAD/BIM** | Bản vẽ CAD `.dwg`, `.dxf`, mô hình `.ifc` | Bảng khối lượng hình học Bê tông, Ván khuôn, Đào đắp | `AutoCAD COM Interop`, `ezdxf`, Shoelace & Average-End-Area |
-| **Gia công Cốt thép** | Bảng Bar Bending Schedule (BBS 396 thanh) | Sơ đồ cắt chi tiết từng cây 11.7m, tỷ lệ hao hụt | `Google OR-Tools CP-SAT` & Greedy FFD (Đề-xê $< 1.5\%$) |
+| **Gia công Cốt thép** | File BBS thật `.xlsx` / `.csv` / `.json` (`--bbs`) | Phiếu cắt từng phương án cây 11.7m (CSV), số cây, cận dưới, đề-xê, mẩu thừa tận dụng | OR-Tools Column Generation (GLOP) + CP-SAT, tách nhóm Ø + mác thép, tính lưỡi cắt 3mm |
 | **Dự toán Chi phí** | Khối lượng trích xuất, Đơn giá định mức | Bảng dự toán tổng hợp chi phí xây dựng `G_xd` | Excel 100% công thức động (`G_xd = T + GT + TL + VAT 10%`) |
 | **Thanh toán Hợp đồng**| Khối lượng thiết kế vs Khối lượng hoàn công | Bảng xác định khối lượng hoàn thành Phụ lục 03a | Nghị định 99/2021/NĐ-CP, tính phát sinh tự động |
 | **Quản lý Tiến độ** | Danh mục công việc, thời lượng, liên kết FS/SS | Tệp tiến độ `MS Project (.xml, .mpp)` & Gantt Chart | Thuật toán CPM (Critical Path Method), Early/Late/Float |
@@ -126,7 +126,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
   Phase 1 (v1.x) [100% HOÀN THÀNH]
   ├── Tự động hóa tác vụ kỹ thuật cốt lõi (Core Engines)
   ├── Bóc tách hình học Takeoff 100% công thức động (0 số chết)
-  ├── Cắt thép 1D Cutting Stock đạt hao hụt đề-xê < 1.5%
+  ├── Cắt thép 1D Cutting Stock: tối ưu số cây theo từng Ø + mác thép, có cận dưới chứng minh
   ├── Bảng phân tích định mức & Tổng hợp vật tư toàn cầu BOM
   ├── Dự toán G_xd Thông tư 11/2021 & Thanh toán kỳ Phụ lục 03a
   └── Bộ 14 Sheet Master Excel đạt 100/100 điểm Audit Verifier
@@ -173,21 +173,35 @@ pip install -r requirements.txt
 
 ### 3. Các Lệnh Thực thi Chính
 
-#### a. Khởi chạy Hệ thống Đa tác tử State Graph v3.0 (Toàn bộ 7 Pha tự động):
-```powershell
-python run_state_graph.py
-```
-> Hệ thống sẽ tuần tự kích hoạt: `CAD Takeoff` $\rightarrow$ `OR-Tools Rebar Cut` $\rightarrow$ `QS G_xd` $\rightarrow$ `QA/QC Lab Link` $\rightarrow$ `Human Gate` $\rightarrow$ `CPM Schedule` $\rightarrow$ `As-Built Loop`.
+> ⚠ **Dữ liệu thật và dữ liệu mẫu:** mặc định hệ thống **chỉ dùng dữ liệu thật**. Pha nào thiếu dữ liệu sẽ dừng ngay và báo rõ cần cung cấp gì, không tự thay bằng số liệu mẫu. Dữ liệu mẫu (Cầu Km19+529.080) chỉ được dùng khi có cờ `--demo`, và mọi chỗ dùng đều được đánh dấu trong log, Quality Gate, Human Gate và báo cáo cuối.
+>
+> Hiện tại mới có **pha cắt thép** chạy được bằng dữ liệu thật (BBS). Các pha CAD, dự toán, QA/QC, tiến độ và hoàn công vẫn chỉ có dữ liệu mẫu trong code, nên sẽ dừng nếu không có `--demo`.
 
-#### b. Chạy với Cổng Phê duyệt Kỹ sư trưởng Trực tiếp (Human Gate CLI):
+#### a. Tối ưu cắt thép từ BBS thật (dùng được cho dự án):
 ```powershell
-python run_state_graph.py --human-gate cli
+python run_state_graph.py --phase rebar --bbs "BBS_du_an.xlsx" --cut-plan-out phieu_cat_thep.csv
 ```
-> Khi đến pha `HUMAN_GATE`, hệ thống hiển thị bảng phân tích clash/anomaly và dừng lại chờ Kỹ sư trưởng nhập phán quyết: `[A] Approve` / `[R] Reject` / `[S] Skip`.
+> - Đọc được Excel (tự tìm sheet có bảng BBS, hoặc chỉ định `--bbs-sheet`), CSV (`,` `;` hoặc tab) và JSON. Cột nhận diện theo tiêu đề tiếng Việt hoặc tiếng Anh: *Ký hiệu thanh*, *Đường kính Ø (mm)*, *Mác thép*, *Chiều dài 1 thanh (m)* hoặc `length_mm`, *Tổng số thanh* hoặc *Số thanh / cấu kiện* × *Số cấu kiện*. Cột chiều dài bắt buộc ghi đơn vị (m hoặc mm).
+> - Dòng BBS sai dữ liệu (đường kính không tiêu chuẩn, chiều dài quá ngắn, số lượng lẻ...) làm hệ thống **dừng và liệt kê từng dòng**. Nếu muốn loại các dòng đó và tiếp tục, thêm `--bbs-skip-invalid`; các dòng bị loại vẫn được cảnh báo.
+> - Solver chỉ ghép các đoạn **cùng đường kính và cùng mác thép**, trừ 3mm lưỡi cắt mỗi nhát, rồi báo **cận dưới** số cây. `OPTIMAL` nghĩa là đã chứng minh không thể dùng ít cây hơn. Nếu đề-xê vẫn > 1.5% thì đó là do chiều dài thanh trong BBS, không phải do cách ghép.
+> - Thanh dài hơn 11.7m (cần nối) và cáp DƯL **không** được đưa vào kế hoạch cắt và được cảnh báo riêng. Vị trí nối phải lấy từ bản vẽ; hiện chưa kiểm tra tự động (`NOT_RUN`).
+>
+> Ví dụ với BBS trong workbook mẫu: `python run_state_graph.py --phase rebar --bbs "templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx" --bbs-skip-invalid`
+
+#### b. Chạy thử toàn bộ 7 pha bằng dữ liệu mẫu (demo):
+```powershell
+python run_state_graph.py --demo
+```
+> Tuần tự: `CAD Takeoff` $\rightarrow$ `OR-Tools Rebar Cut` $\rightarrow$ `QS G_xd` $\rightarrow$ `QA/QC Lab Link` $\rightarrow$ `Human Gate` $\rightarrow$ `CPM Schedule` $\rightarrow$ `As-Built Loop`. Ở chế độ demo, Human Gate mặc định tự phê duyệt (`auto`). Khi chạy không có `--demo`, Human Gate mặc định là `cli`: hệ thống dừng lại chờ Kỹ sư trưởng nhập `[A] Approve` / `[R] Reject` / `[S] Skip`.
 
 #### c. Kiểm tra Solver Cắt thép OR-Tools & Bộ tính Tiến độ CPM:
 ```powershell
 python run_state_graph.py --solver-test
+```
+
+#### c2. Chạy bộ test tự động:
+```powershell
+python -m unittest discover tests
 ```
 
 #### d. Thử nghiệm So sánh Phiên bản Bản vẽ CAD (Incremental Diff Rev00 vs Rev01):
@@ -247,7 +261,8 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 │       └── human_gate.py         # Human-in-the-loop Gate (Ký duyệt Kỹ sư trưởng)
 │
 ├── tools/                        # ⚙️ CÔNG CỤ TÍNH TOÁN XÁC ĐỊNH (PURE PYTHON, ZERO LLM)
-│   ├── cutting_stock_solver.py   # Solver tổ hợp cắt thép 1D (Google OR-Tools CP-SAT + FFD)
+│   ├── cutting_stock_solver.py   # Solver cắt thép 1D (Column Generation GLOP + CP-SAT, tách nhóm Ø + mác thép)
+│   ├── bbs_loader.py             # Đọc BBS thật từ Excel / CSV / JSON, phát hiện dòng sai dữ liệu
 │   ├── cpm_calculator.py         # Bộ tính tiến độ CPM (Topological Sort, Forward/Backward)
 │   └── cad_diff_engine.py        # Động cơ so sánh phiên bản bản vẽ CAD Rev00 vs Rev01
 │
@@ -295,6 +310,7 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 │   ├── update_full_cross_linked_workbook.py       # Script tái tạo 14 sheet liên kết động
 │   └── add_rebar_bbs_and_mix_sheets.py            # Trích xuất BBS & Tần suất thí nghiệm
 │
+├── tests/                        # 🧪 Test tự động (python -m unittest discover tests)
 ├── run_state_graph.py            # 🌟 ENTRY POINT MỚI: State Graph & Supervisor Runner v3.0
 ├── requirements.txt              # Danh mục thư viện phụ thuộc (ortools, openpyxl, pandas...)
 ├── pyproject.toml                # Cấu hình đóng gói hệ thống chuẩn PEP 621

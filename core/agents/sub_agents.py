@@ -14,8 +14,10 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
-from core.supervisor.base_agent import BaseAgent
+from core.supervisor.base_agent import BaseAgent, MissingDataError
 from core.state.state_bus import StateBus
+
+DEMO_HINT = "Muốn chạy thử với dữ liệu mẫu Cầu Km19+529.080 thì thêm cờ --demo."
 
 
 class CADAgent(BaseAgent):
@@ -36,29 +38,42 @@ class CADAgent(BaseAgent):
         print("  [CADAgent] Bắt đầu quét bản vẽ CAD...")
 
         folder = self.drawings_folder or bus._state.drawings_folder
-        if not folder:
-            print("  [CADAgent] WARN: Không có drawings_folder — dùng dữ liệu mẫu")
-            return self._use_sample_data(bus)
-
-        try:
-            from agents.aec_cad_extractor import AECCadExtractor
-            extractor = AECCadExtractor()
-            results = extractor.scan_drawings_folder(folder)
-
-            total_concrete = sum(r.get("volume_m3", 0) for r in results)
-            bus.set_cad_data({
-                "concrete_components": results,
-                "total_concrete_m3": total_concrete,
-                "drawings_scanned": len(results),
-                "drawings_processed": len([r for r in results if r.get("volume_m3", 0) > 0]),
-                "source_dwg_files": [r.get("source_file", "") for r in results],
-            })
-            print(f"  [CADAgent] Đã xử lý {len(results)} cấu kiện, tổng BT: {total_concrete:.2f} m³")
+        problem = self._takeoff_from_drawings(bus, folder)
+        if problem is None:
             return True
 
-        except Exception as e:
-            print(f"  [CADAgent] WARN: {e} — fallback sang dữ liệu mẫu")
+        if bus.is_demo_mode():
+            print(f"  [CADAgent] {problem}")
             return self._use_sample_data(bus)
+        raise MissingDataError(f"{problem} {DEMO_HINT}")
+
+    def _takeoff_from_drawings(self, bus: StateBus, folder: str):
+        """Bóc tách từ thư mục bản vẽ thật. Trả về None nếu thành công, ngược lại là lý do thiếu dữ liệu."""
+        if not folder:
+            return "Chưa chỉ định thư mục bản vẽ CAD (--drawings)."
+        if not os.path.isdir(folder):
+            return f"Không tìm thấy thư mục bản vẽ: {folder}"
+
+        from agents.aec_cad_extractor import AECCadExtractor
+        scan = AECCadExtractor().scan_drawings_folder(folder)
+        drawings = scan.get("drawings", [])
+        components = [d for d in drawings if d.get("volume_m3", 0) > 0]
+        if not components:
+            return (
+                f"Đã quét {len(drawings)} bản vẽ trong {folder} nhưng bộ trích xuất CAD hiện chỉ "
+                f"phân loại hạng mục theo tên file, chưa bóc được khối lượng bê tông/ván khuôn."
+            )
+
+        total_concrete = sum(c["volume_m3"] for c in components)
+        bus.set_cad_data({
+            "concrete_components": components,
+            "total_concrete_m3": total_concrete,
+            "drawings_scanned": len(drawings),
+            "drawings_processed": len(components),
+            "source_dwg_files": [d.get("file_path", "") for d in drawings],
+        })
+        print(f"  [CADAgent] Đã xử lý {len(components)} cấu kiện, tổng BT: {total_concrete:.2f} m³")
+        return None
 
     def _use_sample_data(self, bus: StateBus) -> bool:
         """Dữ liệu mẫu kỹ thuật cho Cầu Km19+529.080."""
@@ -81,6 +96,7 @@ class CADAgent(BaseAgent):
              "volume_m3": 185.6, "formwork_m2": 420.0, "rebar_kg": 15800.0},
         ]
         total = sum(c["volume_m3"] for c in sample_components)
+        bus.mark_sample_data(self.agent_id, "8 cấu kiện mẫu Cầu Km19+529.080 viết sẵn trong code")
         bus.set_cad_data({
             "concrete_components": sample_components,
             "total_concrete_m3": total,
@@ -109,13 +125,15 @@ class QSAgent(BaseAgent):
     def run(self, bus: StateBus) -> bool:
         print("  [QSAgent] Tính dự toán G_XD...")
 
-        # Đọc từ state (thực tế: từ Excel QS_DIEN_GIAI_CHI_TIET!L101)
-        snap = bus.get_state_snapshot()
-        cad = snap.get("cad_data", {})
+        # Chưa có nguồn chi phí trực tiếp T thật (đơn giá × khối lượng) — chỉ có số mẫu
+        if not bus.is_demo_mode():
+            raise MissingDataError(
+                "Chưa có nguồn chi phí trực tiếp T thật (khối lượng × đơn giá). "
+                "T = 61,28 tỷ và tỷ lệ GT 7,3% / TL 5,5% trong code chỉ là số mẫu. " + DEMO_HINT
+            )
 
-        # T: Chi phí trực tiếp (đọc từ Excel master hoặc tính từ đơn giá)
-        # Ở đây dùng giá trị từ PROJECT_STATE.json
-        T = 61_280_000_000  # VNĐ — từ state manager
+        T = 61_280_000_000  # VNĐ — số mẫu Cầu Km19+529.080
+        bus.mark_sample_data(self.agent_id, "chi phí trực tiếp T = 61,28 tỷ và tỷ lệ GT/TL mẫu")
 
         GT = round(T * 0.073)            # Chi phí gián tiếp 7.3%
         TL = round((T + GT) * 0.055)     # Lợi nhuận 5.5%
@@ -153,6 +171,13 @@ class BPTCKCSAgent(BaseAgent):
     def run(self, bus: StateBus) -> bool:
         print("  [BPTCKCSAgent] Kiểm tra QA/QC, liên kết phiếu thí nghiệm Lab và lập biên bản...")
 
+        if not bus.is_demo_mode():
+            raise MissingDataError(
+                "Chưa có kết quả thí nghiệm thật (phiếu nén R7/R28, kéo thép, siêu âm cọc, PDA). "
+                "6 phiếu thí nghiệm và 4 điểm dừng kỹ thuật trong code chỉ là dữ liệu mẫu. " + DEMO_HINT
+            )
+        bus.mark_sample_data(self.agent_id, "6 phiếu thí nghiệm + 4 điểm dừng kỹ thuật mẫu (luôn PASS)")
+
         # ── BƯỚC 1: QA/QC Lab Link & Hold Points Check ────────────────────────
         lab_results, hold_points_cleared, lab_clashes = self._verify_lab_results_and_hold_points()
         print(f"  [BPTCKCSAgent] Đã liên kết {len(lab_results)} phiếu thí nghiệm vào hệ thống KCS")
@@ -161,22 +186,22 @@ class BPTCKCSAgent(BaseAgent):
 
         # ── BƯỚC 2: Thẩm tra logic chéo ngày tháng & kiểm toán file Excel ───────
         excel_path = bus._state.excel_master_path
+        if not excel_path or not os.path.exists(excel_path):
+            raise MissingDataError(
+                f"Không tìm thấy Excel master để kiểm toán: {excel_path or '(chưa chỉ định --excel)'}"
+            )
         audit_score = 0
         clashes = list(lab_clashes)
 
-        if excel_path and os.path.exists(excel_path):
-            try:
-                from aec_core.audit_verifier import AECAuditVerifier
-                auditor = AECAuditVerifier(excel_path)
-                auditor.audit_excel_workbook()
-                audit_score = auditor.score
-                if audit_score < 100:
-                    clashes.append(f"Audit score {audit_score}/100 — chưa đạt 100/100")
-            except Exception as e:
-                clashes.append(f"Lỗi audit: {e}")
-        else:
-            print("  [BPTCKCSAgent] WARN: Excel master không tìm thấy — bỏ qua audit")
-            audit_score = 100
+        try:
+            from aec_core.audit_verifier import AECAuditVerifier
+            auditor = AECAuditVerifier(excel_path)
+            auditor.audit_excel_workbook()
+            audit_score = auditor.score
+            if audit_score < 100:
+                clashes.append(f"Audit score {audit_score}/100 — chưa đạt 100/100")
+        except Exception as e:
+            clashes.append(f"Lỗi audit: {e}")
 
         # ── BƯỚC 3: Đồng bộ trạng thái vào StateBus ───────────────────────────
         bus.set_qaqc_data({
@@ -271,6 +296,13 @@ class SchedulerAgent(BaseAgent):
 
     def run(self, bus: StateBus) -> bool:
         print("  [SchedulerAgent] Tính CPM tiến độ...")
+
+        if not bus.is_demo_mode():
+            raise MissingDataError(
+                "Chưa có danh mục công việc tiến độ thật (thời lượng, quan hệ trước-sau). "
+                "11 công việc trong code chỉ là mẫu Cầu Km19+529.080. " + DEMO_HINT
+            )
+        bus.mark_sample_data(self.agent_id, "11 công việc tiến độ mẫu viết sẵn trong code")
 
         from tools.cpm_calculator import CPMCalculator
 

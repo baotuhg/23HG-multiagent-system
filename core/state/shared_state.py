@@ -283,6 +283,12 @@ class ProjectSharedState:
     drawings_folder: str = ""
     excel_master_path: str = ""
 
+    # ── Nguồn dữ liệu ─────────────────────────────────────────────────────────
+    # demo_mode=False: agent thiếu dữ liệu thật phải báo lỗi, KHÔNG dùng dữ liệu mẫu.
+    demo_mode: bool = False
+    # Ghi nhận mọi chỗ đã dùng dữ liệu mẫu: [{"agent_id": ..., "note": ...}]
+    sample_data_sources: List[Dict[str, str]] = field(default_factory=list)
+
     # ── Domain Data ───────────────────────────────────────────────────────────
     cad_data: CADTakeoffData = field(default_factory=CADTakeoffData)
     rebar_data: RebarData = field(default_factory=RebarData)

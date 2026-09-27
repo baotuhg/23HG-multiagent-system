@@ -4,10 +4,12 @@ REBAR AGENT — Sub-Agent Gia công & Cắt thép
 Minh họa hoàn chỉnh pattern: Tool Calling + Inter-Agent Validation Gate
 
 Vai trò:
-  1. Đọc BBS (Bảng Thống kê Cốt thép) từ SharedState (do CAD Agent ghi)
+  1. Đọc BBS (Bảng Thống kê Cốt thép) thật từ file (--bbs) hoặc từ SharedState
   2. Gọi CuttingStockSolver (OR-Tools) — PURE PYTHON, ZERO LLM
-  3. Gọi SpliceZoneValidator để kiểm tra vùng nối (TCVN 5574:2018)
+  3. Kiểm tra vùng nối (TCVN 5574:2018) khi có dữ liệu vị trí nối
   4. Ghi kết quả vào StateBus → Supervisor đọc để chạy Quality Gate
+
+Không có BBS thật → báo lỗi và dừng. BBS mẫu chỉ được dùng ở chế độ --demo.
 
 LLM Role (nếu tích hợp): CHỈ được dùng để:
   - Intent recognition (phân tích yêu cầu từ người dùng)
@@ -18,30 +20,39 @@ LLM Role (nếu tích hợp): CHỈ được dùng để:
 from __future__ import annotations
 import os
 import sys
+from typing import List, Optional, Tuple
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
-from core.supervisor.base_agent import BaseAgent
+from core.supervisor.base_agent import BaseAgent, DataInputError, MissingDataError
 from core.state.state_bus import StateBus
-from core.state.shared_state import NodeStatus
-from tools.cutting_stock_solver import CuttingStockSolver, CutDemand, SpliceZoneValidator
+from tools.bbs_loader import BBSLoadError, load_bbs
+from tools.cutting_stock_solver import (
+    SAW_KERF_MM, CuttingStockSolver, CutDemand, SpliceZoneValidator, write_cut_plan_csv,
+)
+
+MAX_LISTED = 10  # Số dòng lỗi/cảnh báo tối đa in ra
 
 
 class RebarAgent(BaseAgent):
     """
     Sub-Agent Gia công & Cắt thép — dùng OR-Tools Solver.
 
-    Input  (từ StateBus): cad_data.concrete_components (có rebar_kg per component)
-                          hoặc bbs_items trực tiếp nếu đã có BBS
+    Input  : file BBS thật (bbs_path) hoặc rebar_data.bbs_items trong StateBus
     Output (vào StateBus): rebar_data (cutting_result, splice_zone_check, splice_violations)
     """
 
     def __init__(
         self,
         bar_length_mm: int = 11_700,
-        span_length_mm: int = 38_200,  # Chiều dài nhịp dầm Super-T để kiểm tra splice
+        span_length_mm: int = 38_200,  # Chiều dài nhịp dầm Super-T để kiểm tra splice (demo)
+        bbs_path: Optional[str] = None,
+        bbs_sheet: Optional[str] = None,
+        skip_invalid_rows: bool = False,
+        cut_plan_out: Optional[str] = None,
+        kerf_mm: int = SAW_KERF_MM,
     ):
         super().__init__(
             agent_id="rebar_agent",
@@ -49,78 +60,106 @@ class RebarAgent(BaseAgent):
         )
         self.bar_length_mm = bar_length_mm
         self.span_length_mm = span_length_mm
-        self.solver = CuttingStockSolver(bar_length_mm=bar_length_mm)
+        self.bbs_path = bbs_path
+        self.bbs_sheet = bbs_sheet
+        self.skip_invalid_rows = skip_invalid_rows
+        self.cut_plan_out = cut_plan_out
+        self.solver = CuttingStockSolver(bar_length_mm=bar_length_mm, kerf_mm=kerf_mm)
         self.splice_validator = SpliceZoneValidator()
 
     def run(self, bus: StateBus) -> bool:
         """
         Luồng thực thi:
-        1. Lấy danh sách cắt từ BBS trong SharedState
-        2. Chạy OR-Tools Solver
-        3. Chạy Splice Zone Validator
+        1. Lấy danh sách cắt từ BBS thật (hoặc BBS mẫu nếu --demo)
+        2. Chạy OR-Tools Solver theo từng nhóm đường kính + mác thép
+        3. Kiểm tra vùng nối (chỉ khi có dữ liệu vị trí nối)
         4. Ghi kết quả vào StateBus
         """
         print("  [RebarAgent] Bắt đầu tính toán cắt thép...")
 
-        # ── BƯỚC 1: Lấy demands từ SharedState ───────────────────────────────
-        demands = self._extract_demands_from_state(bus)
-        if not demands:
-            print("  [RebarAgent] WARN: Không có dữ liệu BBS — dùng dữ liệu mẫu Cầu Km19")
-            demands = self._get_sample_demands()
+        # ── BƯỚC 1: Lấy demands ───────────────────────────────────────────────
+        demands, source, input_warnings, input_summary, is_sample = self._load_demands(bus)
+        print(f"  [RebarAgent] Nguồn BBS: {source}")
+        print(f"  [RebarAgent] Số dòng BBS: {len(demands)} — tổng số thanh: {sum(d.quantity for d in demands):,}")
+        for w in input_warnings[:MAX_LISTED]:
+            print(f"    ⚠ {w}")
+        if len(input_warnings) > MAX_LISTED:
+            print(f"    ... và {len(input_warnings) - MAX_LISTED} cảnh báo khác")
 
-        print(f"  [RebarAgent] Tổng số loại thanh cần cắt: {len(demands)}")
-        total_pieces = sum(d.quantity for d in demands)
-        print(f"  [RebarAgent] Tổng số thanh: {total_pieces}")
-
-        # ── BƯỚC 2: Lọc những thanh dài hơn cây thép (dầm đúc sẵn, cáp DUL → không cắt từ cây thường)
+        # ── BƯỚC 2: Tách thanh dài hơn cây thép — phải nối, không cắt trọn từ 1 cây
         valid_demands = [d for d in demands if d.length_mm <= self.bar_length_mm]
-        skipped = [(d.mark, d.length_mm) for d in demands if d.length_mm > self.bar_length_mm]
-        if skipped:
-            print(f"  [RebarAgent] Bỏ qua {len(skipped)} loại dài hơn {self.bar_length_mm}mm "
-                  f"(cáp DUL/dầm đúc sẵn): {skipped[:3]}")
+        oversize = [d for d in demands if d.length_mm > self.bar_length_mm]
+        oversize_items = [f"{d.mark} Ø{d.diameter_mm} L={d.length_mm}mm × {d.quantity}" for d in oversize]
+        if oversize:
+            input_summary.append(
+                f"{len(oversize)} dòng BBS ({sum(d.quantity for d in oversize):,} thanh) dài hơn cây "
+                f"{self.bar_length_mm}mm — phải tách đoạn nối theo bản vẽ, CHƯA có trong kế hoạch cắt"
+            )
+            print(f"  [RebarAgent] ⚠ {input_summary[-1]}: {oversize_items[:3]}")
 
         if not valid_demands:
-            print("  [RebarAgent] WARN: Không có thanh nào hợp lệ để cắt")
-            bus.set_rebar_data({
-                "splice_zone_check": "NOT_RUN",
-                "splice_violations": [],
-                "total_rebar_kg": 0.0,
-            })
-            return False
+            raise DataInputError(
+                f"Không có thanh nào ≤ {self.bar_length_mm}mm để lập kế hoạch cắt (nguồn: {source})"
+            )
 
         # ── BƯỚC 2b: Tool Calling — CuttingStockSolver ───────────────────────
-        print("  [RebarAgent] Gọi CuttingStockSolver (OR-Tools CP-SAT)...")
+        print("  [RebarAgent] Gọi CuttingStockSolver (OR-Tools, tách nhóm đường kính + mác thép)...")
         solution = self.solver.solve(valid_demands)
 
-        print(f"  [RebarAgent] Solver: {solution.status}")
-        print(f"  [RebarAgent] Số cây thép: {solution.total_bars_needed}")
-        print(f"  [RebarAgent] Đề-xê: {solution.waste_ratio_pct:.2f}%")
-        if solution.warning:
-            print(f"  [RebarAgent] ⚠ {solution.warning}")
+        print(f"  [RebarAgent] Solver: {solution.status} ({solution.solver_name})")
+        print(f"  [RebarAgent] Số cây thép: {solution.total_bars_needed:,} (cận dưới {solution.lower_bound_bars:,})")
+        print(f"  [RebarAgent] Đề-xê: {solution.waste_ratio_pct:.2f}% — "
+              f"KL thép mua {solution.total_weight_kg:,.1f} kg / KL thành phẩm {solution.net_weight_kg:,.1f} kg")
+        for g in solution.groups:
+            print(f"    Ø{g.diameter_mm:<3} {g.grade:<9} {g.total_pieces:>7,} đoạn → {g.total_bars_needed:>6,} cây "
+                  f"(cận dưới {g.lower_bound_bars:,}) đề-xê {g.waste_ratio_pct:5.2f}% [{g.status}]")
+        for w in solution.warnings:
+            print(f"  [RebarAgent] ⚠ {w}")
 
-        # ── BƯỚC 3: Tool Calling — SpliceZoneValidator ───────────────────────
-        # Tạo danh sách vị trí nối giả định (thực tế: lấy từ bản vẽ)
-        splice_positions = self._estimate_splice_positions(solution, demands)
-        splice_status, splice_violations = self.splice_validator.validate(
-            splice_positions, span_length_mm=self.span_length_mm
-        )
+        if self.cut_plan_out:
+            write_cut_plan_csv(solution, self.cut_plan_out)
+            print(f"  [RebarAgent] Đã xuất phiếu cắt thép: {self.cut_plan_out}")
 
-        print(f"  [RebarAgent] Splice check: {splice_status}")
-        if splice_violations:
-            for v in splice_violations:
-                print(f"    {v}")
+        # ── BƯỚC 3: Kiểm tra vùng nối ─────────────────────────────────────────
+        if is_sample:
+            # Chỉ ở demo: vị trí nối giả định 1/3 nhịp — không phải dữ liệu bản vẽ
+            splice_positions = self._estimate_splice_positions(demands)
+            splice_status, splice_violations = self.splice_validator.validate(
+                splice_positions, span_length_mm=self.span_length_mm
+            )
+            print(f"  [RebarAgent] Splice check (vị trí nối GIẢ ĐỊNH — demo): {splice_status}")
+        else:
+            splice_status, splice_violations = "NOT_RUN", []
+            print("  [RebarAgent] Splice check: NOT_RUN — chưa có dữ liệu vị trí nối từ bản vẽ")
+        for v in splice_violations:
+            print(f"    {v}")
 
         # ── BƯỚC 4: Ghi kết quả vào StateBus ─────────────────────────────────
+        pieces_demanded = sum(d.quantity for d in valid_demands)
+        pieces_cut = sum(len(a["cuts_mm"]) for a in solution.assignment)
         cutting_dict = {
             "status": solution.status,
+            "solver_name": solution.solver_name,
+            "data_source": source,
             "bar_length_mm": solution.bar_length_mm,
+            "kerf_mm": solution.kerf_mm,
             "total_bars_needed": solution.total_bars_needed,
+            "lower_bound_bars": solution.lower_bound_bars,
             "total_waste_mm": solution.total_waste_mm,
             "waste_ratio_pct": solution.waste_ratio_pct,
             "total_weight_kg": solution.total_weight_kg,
+            "net_weight_kg": solution.net_weight_kg,
+            "reusable_offcuts": solution.reusable_offcuts,
+            "pieces_demanded": pieces_demanded,
+            "pieces_cut": pieces_cut,
+            "input_warnings": input_warnings,
+            "input_summary": input_summary,
+            "oversize_items": oversize_items,
+            "groups": [g.__dict__ for g in solution.groups],
             "patterns": [
-                {"bar_id": idx + 1, "cuts": p.cuts, "waste_mm": p.waste_mm}
-                for idx, p in enumerate(solution.patterns[:50])  # Giới hạn 50 patterns
+                {"diameter_mm": p.diameter_mm, "grade": p.grade, "cuts": p.cuts,
+                 "marks": p.marks, "bars": p.bars_used, "waste_mm": p.waste_mm}
+                for p in solution.patterns[:50]  # Giới hạn 50 phương án
             ],
         }
 
@@ -141,7 +180,7 @@ class RebarAgent(BaseAgent):
             return False
 
         if solution.status not in ("OPTIMAL", "FEASIBLE"):
-            return False
+            raise DataInputError(f"Solver trả về {solution.status}: {solution.warning}")
 
         return True
 
@@ -149,30 +188,68 @@ class RebarAgent(BaseAgent):
     # HELPERS
     # ─────────────────────────────────────────────────────────────────────────
 
+    def _load_demands(self, bus: StateBus) -> Tuple[List[CutDemand], str, List[str], List[str], bool]:
+        """Trả về (demands, nguồn, cảnh báo chi tiết, tóm tắt cảnh báo, có phải dữ liệu mẫu)."""
+        if self.bbs_path:
+            try:
+                result = load_bbs(self.bbs_path, sheet=self.bbs_sheet)
+            except BBSLoadError as e:
+                raise DataInputError(str(e)) from e
+
+            warnings = list(result.skipped)
+            summary = [f"Bỏ qua {len(result.skipped)} dòng không phải thép thanh (cáp DƯL...)"] \
+                if result.skipped else []
+            if result.errors:
+                if not self.skip_invalid_rows:
+                    listed = "\n    ".join(result.errors[:MAX_LISTED])
+                    more = f"\n    ... và {len(result.errors) - MAX_LISTED} dòng khác" \
+                        if len(result.errors) > MAX_LISTED else ""
+                    raise DataInputError(
+                        f"BBS {result.source} có {len(result.errors)} dòng sai dữ liệu — sửa BBS "
+                        f"hoặc chạy với --bbs-skip-invalid để loại các dòng này:\n    {listed}{more}"
+                    )
+                warnings.extend(f"ĐÃ LOẠI (--bbs-skip-invalid): {e}" for e in result.errors)
+                summary.append(
+                    f"ĐÃ LOẠI {len(result.errors)} dòng BBS sai dữ liệu (--bbs-skip-invalid) — "
+                    f"khối lượng các dòng này CHƯA có trong kế hoạch cắt"
+                )
+            if not result.demands:
+                raise DataInputError(f"BBS {result.source} không còn dòng hợp lệ nào")
+            return result.demands, result.source, warnings, summary, False
+
+        demands = self._extract_demands_from_state(bus)
+        if demands:
+            return demands, "rebar_data.bbs_items (StateBus)", [], [], False
+
+        if not bus.is_demo_mode():
+            raise MissingDataError(
+                "Chưa có BBS thật — chỉ định file bằng --bbs <file.xlsx|.csv|.json>. "
+                "Muốn chạy thử với BBS mẫu Cầu Km19+529.080 thì thêm cờ --demo."
+            )
+        bus.mark_sample_data(self.agent_id, "BBS mẫu 10 loại thanh viết sẵn trong code")
+        return self._get_sample_demands(), "BBS mẫu Cầu Km19 (demo)", [], [], True
+
     def _extract_demands_from_state(self, bus: StateBus) -> list:
-        """Trích xuất danh sách cắt từ BBS trong SharedState."""
-        try:
-            rebar_data = bus.get_rebar_data()
-            bbs_items = getattr(rebar_data, "bbs_items", [])
-            if bbs_items:
-                demands = []
-                for item in bbs_items:
-                    if hasattr(item, "length_mm") and hasattr(item, "count"):
-                        demands.append(CutDemand(
-                            length_mm=item.length_mm,
-                            quantity=item.count,
-                            diameter_mm=item.diameter_mm,
-                            mark=item.mark,
-                        ))
-                return demands
-        except Exception:
-            pass
-        return []
+        """Trích xuất danh sách cắt từ BBS trong SharedState (object hoặc dict)."""
+        rebar_data = bus.get_rebar_data()
+        demands = []
+        for item in getattr(rebar_data, "bbs_items", []) or []:
+            get = item.get if isinstance(item, dict) else (lambda k, d=None, _i=item: getattr(_i, k, d))
+            length, count = get("length_mm"), get("count")
+            if length and count:
+                demands.append(CutDemand(
+                    length_mm=int(length),
+                    quantity=int(count),
+                    diameter_mm=int(get("diameter_mm", 0) or 0),
+                    mark=str(get("mark", "") or ""),
+                    grade=str(get("grade", "") or ""),
+                ))
+        return demands
 
     def _get_sample_demands(self) -> list:
         """
         Dữ liệu BBS mẫu cho Cầu Km19+529.080 — Dầm Super-T + Cọc nhồi.
-        Thực tế: lấy từ file Excel THONG_KE_THEP_CHI_TIET (396 thanh).
+        CHỈ dùng ở chế độ --demo.
         """
         return [
             # Cọc nhồi Ø1200 — thép dọc Ø25
@@ -193,24 +270,19 @@ class RebarAgent(BaseAgent):
             CutDemand(length_mm=4800, quantity=42, diameter_mm=18, mark="MO2"),
         ]
 
-    def _estimate_splice_positions(self, solution, demands: list) -> list:
+    def _estimate_splice_positions(self, demands: list) -> list:
         """
-        Ước tính vị trí nối thép dựa trên kết quả cắt.
-        Nối xảy ra khi đoạn cần > 11.7m (phải ghép nhiều đoạn).
-        Thực tế: đọc trực tiếp từ bản vẽ chi tiết.
+        Vị trí nối GIẢ ĐỊNH cho demo: thanh dài hơn cây thép được coi là nối tại 1/3 nhịp,
+        vùng nén. Không dùng cho dữ liệu thật — thực tế phải đọc từ bản vẽ chi tiết.
         """
         splice_positions = []
-        # Tìm các thanh dài > bar_length_mm (phải nối)
         long_pieces = [d for d in demands if d.length_mm > self.bar_length_mm * 0.95]
 
         for d in long_pieces:
-            # Giả định nối tại vị trí 1/3 nhịp (thực tế cần lấy từ bản vẽ)
-            splice_at = int(self.span_length_mm * 0.33)
-            zone = "COMPRESSION"  # Dầm Super-T: vùng 1/3 đầu là vùng nén
             splice_positions.append({
                 "mark": d.mark,
-                "splice_at_mm": splice_at,
-                "zone": zone,
+                "splice_at_mm": int(self.span_length_mm * 0.33),
+                "zone": "COMPRESSION",  # Dầm Super-T: vùng 1/3 đầu là vùng nén
             })
 
         return splice_positions

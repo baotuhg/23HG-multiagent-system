@@ -60,9 +60,11 @@ class AECSupervisor:
         project_root: str = _ROOT,
         excel_master_path: str = "",
         drawings_folder: str = "",
-        human_gate_mode: str = "auto",   # "cli" trong production
+        human_gate_mode: str = "cli",    # "auto" chỉ dùng cho demo/test
         max_retries: int = 3,
         persist_path: Optional[str] = None,
+        demo_mode: bool = False,
+        project_name: Optional[str] = None,
     ):
         self.project_root = project_root
         self.max_retries = max_retries
@@ -72,7 +74,12 @@ class AECSupervisor:
             max_retries=max_retries,
             excel_master_path=excel_master_path,
             drawings_folder=drawings_folder,
+            demo_mode=demo_mode,
         )
+        if project_name:
+            state.project_name = project_name
+        elif not demo_mode:
+            state.project_name = "(chưa đặt tên dự án — dùng --project-name)"
         persist = persist_path or os.path.join(project_root, "agents", "RUNTIME_STATE.json")
         self.bus = StateBus(state, persist_path=persist)
 
@@ -105,6 +112,10 @@ class AECSupervisor:
         print("  🏗  AEC SUPERVISOR — STATE GRAPH ORCHESTRATOR")
         print(f"  Dự án: {self.bus._state.project_name}")
         print(f"  Session: {self.bus._state.session_id}")
+        if self.bus.is_demo_mode():
+            print("  Chế độ : ⚠ DEMO — được phép dùng dữ liệu mẫu, KHÔNG dùng cho hồ sơ thật")
+        else:
+            print("  Chế độ : DỮ LIỆU THẬT — thiếu dữ liệu sẽ dừng, không thay bằng dữ liệu mẫu")
         print("═" * 65 + "\n")
 
         # Mặc định chạy tất cả phase
@@ -171,15 +182,20 @@ class AECSupervisor:
         passed, results = self.quality_gate.run_phase_gate(
             "CAD_TAKEOFF", {"cad_data": cad_dict}
         )
-        self._print_gate_results("GATE-1: CAD Takeoff", results)
+        self._print_gate_results("GATE-1: CAD Takeoff", results, agent_id="cad_agent")
 
         if not passed:
-            # Một lần retry toàn bộ CAD
+            # Một lần retry toàn bộ CAD — kết quả mới phải qua lại Gate-1
             print("  [Supervisor] Gate-1 FAIL → Retry cad_agent...")
             success = self._run_agent_with_retry("cad_agent", max_retries=1)
             if not success:
                 return False
-        return True
+            cad_dict = self.bus.get_cad_data().__dict__
+            passed, results = self.quality_gate.run_phase_gate(
+                "CAD_TAKEOFF", {"cad_data": cad_dict}
+            )
+            self._print_gate_results("GATE-1: CAD Takeoff (retry)", results, agent_id="cad_agent")
+        return passed
 
     def _phase_rebar_cut(self) -> bool:
         splice_violations: list = []  # Khởi tạo trước vòng lặp để tránh UnboundLocalError
@@ -187,6 +203,8 @@ class AECSupervisor:
             print(f"  [Supervisor] Rebar attempt {attempt}/{self.max_retries}")
             success = self._run_agent_with_retry("rebar_agent", max_retries=1)
             if not success:
+                if self._agent_fatal("rebar_agent"):
+                    return False  # Lỗi dữ liệu đầu vào: chạy lại cũng vậy
                 continue
 
             # Inter-agent negotiation: đọc kết quả từ StateBus
@@ -210,7 +228,8 @@ class AECSupervisor:
                     "splice_violations": splice_violations,
                 }
             )
-            self._print_gate_results(f"GATE-2: Rebar Cut (attempt {attempt})", results)
+            self._print_gate_results(f"GATE-2: Rebar Cut (attempt {attempt})", results,
+                                     agent_id="rebar_agent")
 
             if passed:
                 return True
@@ -242,7 +261,7 @@ class AECSupervisor:
         passed, results = self.quality_gate.run_phase_gate(
             "QS_ESTIMATE", {"qs_data": qs_dict}
         )
-        self._print_gate_results("GATE-3: QS Estimate", results)
+        self._print_gate_results("GATE-3: QS Estimate", results, agent_id="qs_agent")
         return passed
 
     def _phase_qaqc_review(self) -> bool:
@@ -254,11 +273,13 @@ class AECSupervisor:
         excel_path = self.bus._state.excel_master_path
         if excel_path and os.path.exists(excel_path):
             audit_result = self.quality_gate.check_excel_audit(excel_path)
-            self._print_gate_results("GATE-4: Excel Audit 100/100", [audit_result])
+            self._print_gate_results("GATE-4: Excel Audit 100/100", [audit_result],
+                                     agent_id="bptc_kcs_agent")
             return audit_result.passed
         else:
-            print("  [Supervisor] WARN: Excel master path không tìm thấy — bỏ qua Excel Audit")
-            return True
+            print(f"  [Supervisor] ✗ Không tìm thấy Excel master ({excel_path or 'chưa chỉ định --excel'}) "
+                  f"— không thể kiểm toán, dừng phase")
+            return False
 
     def _phase_human_gate(self) -> bool:
         """
@@ -270,7 +291,13 @@ class AECSupervisor:
         errors = self.bus.get_errors()
 
         qs = self.bus.get_qs_data()
+        sample_sources = self.bus.get_sample_data_sources()
         summary = {
+            "Nguồn dữ liệu": (
+                "⚠ CÓ DỮ LIỆU MẪU (demo) — không phải số liệu dự án: "
+                + ", ".join(dict.fromkeys(s["agent_id"] for s in sample_sources))
+                if sample_sources else "Dữ liệu thật"
+            ),
             "G_XD (VNĐ)": f"{getattr(qs, 'total_G_XD_vnd', 0):,.0f}",
             "VAT 10%": f"{getattr(qs, 'vat_vnd', 0):,.0f}",
             "Audit score": f"{getattr(qaqc, 'audit_score', 0)}/100",
@@ -341,6 +368,9 @@ class AECSupervisor:
             success = agent.execute(self.bus)
             if success:
                 return True
+            if agent.last_error_fatal:
+                print(f"  [Supervisor] {agent_id}: lỗi dữ liệu đầu vào — không retry")
+                return False
 
             status = self.bus.get_node_status(agent_id)
             if status == NodeStatus.FAILED and attempt < max_retries:
@@ -351,8 +381,14 @@ class AECSupervisor:
         print(f"  [Supervisor] {agent_id} FAILED sau {max_retries} lần thử")
         return False
 
-    def _print_gate_results(self, gate_label: str, results: list) -> None:
+    def _agent_fatal(self, agent_id: str) -> bool:
+        agent = self._agents.get(agent_id)
+        return bool(agent is not None and agent.last_error_fatal)
+
+    def _print_gate_results(self, gate_label: str, results: list, agent_id: Optional[str] = None) -> None:
         print(f"\n  {'─'*50}")
+        if agent_id and self.bus.uses_sample_data(agent_id):
+            gate_label += "  [⚠ DỮ LIỆU MẪU — điểm số không có giá trị cho hồ sơ thật]"
         print(f"  🔍 {gate_label}")
         for r in results:
             icon = "✓" if r.passed else "✗"
@@ -373,4 +409,6 @@ class AECSupervisor:
             "node_status": snap.get("node_status", {}),
             "errors_count": len(snap.get("global_errors", [])),
             "pending_approvals": len(self.bus.get_pending_gates()),
+            "demo_mode": snap.get("demo_mode", False),
+            "sample_data_sources": snap.get("sample_data_sources", []),
         }

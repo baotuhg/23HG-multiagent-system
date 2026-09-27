@@ -117,10 +117,12 @@ class QualityGate:
     ) -> GateCheckResult:
         """
         Kiểm tra kết quả cắt thép:
-          1. OR-Tools trả về OPTIMAL hoặc FEASIBLE
-          2. Waste ratio < 1.5%
-          3. Inter-agent splice check: PASS (không vi phạm TCVN 5574)
-          4. Tổng trọng lượng > 0
+          1. Solver trả về OPTIMAL hoặc FEASIBLE
+          2. Số cây thép so với cận dưới (OPTIMAL = đã chứng minh ít nhất có thể)
+          3. Inter-agent splice check: không vi phạm TCVN 5574 (NOT_RUN → cảnh báo)
+          4. Số đoạn đã cắt khớp đúng số đoạn yêu cầu trong BBS
+        Đề-xê > 1.5% chỉ là cảnh báo: với chiều dài thanh cho trước, có những BBS
+        không thể đạt 1.5% dù phương án cắt đã tối ưu.
         """
         result = GateCheckResult(gate_name="REBAR_CUTTING_GATE", passed=False)
         score = 0
@@ -129,35 +131,52 @@ class QualityGate:
         waste_pct = cutting_result.get("waste_ratio_pct", 999)
         weight_kg = cutting_result.get("total_weight_kg", 0)
         total_bars = cutting_result.get("total_bars_needed", 0)
+        lower_bound = cutting_result.get("lower_bound_bars", 0)
+        pieces_demanded = cutting_result.get("pieces_demanded")
+        pieces_cut = cutting_result.get("pieces_cut")
 
         # Check 1: Solver status
         if status == "OPTIMAL":
             score += 35
         elif status == "FEASIBLE":
-            score += 25  # FFD hoặc CP-SAT timeout — vẫn chấp nhận
+            score += 25
         else:
             result.issues.append(f"Solver status không hợp lệ: {status} — chưa chạy hoặc INFEASIBLE")
 
-        # Check 2: Waste ratio
-        # OPTIMAL: phải < 1.5%; FEASIBLE (FFD large batch): phải < 20% (chấp nhận)
-        if status == "OPTIMAL" and waste_pct < 1.5:
+        # Check 2: Khoảng cách tới cận dưới số cây thép
+        gap_bars = total_bars - lower_bound if lower_bound else None
+        if status == "OPTIMAL":
             score += 30
-        elif status == "FEASIBLE" and waste_pct < 20.0:
-            score += 20
-            if waste_pct > 3.0:
+        elif status == "FEASIBLE" and gap_bars is not None:
+            gap_pct = gap_bars / lower_bound * 100
+            if gap_pct <= 5.0:
+                score += 25
                 result.warnings.append(
-                    f"Waste {waste_pct:.2f}% — FFD mode (batch lớn > 200 thanh). "
-                    f"Tối ưu bằng OR-Tools từng nhóm đường kính để đạt < 3%"
+                    f"Chưa chứng minh tối ưu: dùng {total_bars} cây, cận dưới {lower_bound} cây "
+                    f"(dư tối đa {gap_bars} cây, {gap_pct:.1f}%)"
                 )
-        elif waste_pct >= 20.0:
-            result.issues.append(f"Waste {waste_pct:.2f}% — vượt ngưỡng 20%! Kiểm tra lại input")
+            else:
+                result.issues.append(
+                    f"Phương án cắt cách cận dưới {gap_bars} cây ({gap_pct:.1f}%) — cần tối ưu lại"
+                )
+        elif status == "FEASIBLE":
+            result.warnings.append("Không có cận dưới số cây — không đánh giá được mức tối ưu")
+
+        if status in ("OPTIMAL", "FEASIBLE") and waste_pct > 1.5:
+            result.warnings.append(
+                f"Đề-xê {waste_pct:.2f}% > 1.5%"
+                + (" — đã là mức thấp nhất với chiều dài thanh trong BBS" if status == "OPTIMAL" else "")
+            )
 
         # Check 3: Splice zone validation (INTER-AGENT NEGOTIATION)
         if splice_status == "PASS":
             score += 25
         elif splice_status == "NOT_RUN":
             score += 10
-            result.warnings.append("Chưa chạy kiểm tra vùng nối thép — khuyến nghị thực hiện")
+            result.warnings.append(
+                "Chưa kiểm tra vị trí nối (chưa có dữ liệu vị trí nối từ bản vẽ) — "
+                "KS phải tự kiểm tra theo TCVN 5574:2018"
+            )
         else:  # REJECT
             result.issues.append(
                 f"REJECT: Nối thép vi phạm TCVN 5574:2018 — {len(splice_violations)} điểm vi phạm"
@@ -165,11 +184,19 @@ class QualityGate:
             for v in splice_violations[:3]:
                 result.issues.append(f"  → {v}")
 
-        # Check 4: Số cây > 0
-        if total_bars > 0:
+        # Check 4: Đủ số đoạn cắt theo BBS
+        if pieces_demanded is not None and pieces_cut is not None:
+            if pieces_cut == pieces_demanded and total_bars > 0:
+                score += 10
+            else:
+                result.issues.append(
+                    f"Số đoạn đã cắt ({pieces_cut}) khác số đoạn yêu cầu trong BBS ({pieces_demanded})"
+                )
+        elif total_bars > 0:
             score += 10
-        elif status in ("OPTIMAL", "FEASIBLE"):
-            result.warnings.append("Số cây thép = 0 — kiểm tra lại input BBS")
+
+        for w in cutting_result.get("input_summary", []):
+            result.warnings.append(f"BBS: {w}")
 
         result.score = score
         result.passed = (score >= 70 and not result.issues)
@@ -177,6 +204,8 @@ class QualityGate:
             "solver_status": status,
             "waste_ratio_pct": waste_pct,
             "total_weight_kg": weight_kg,
+            "total_bars_needed": total_bars,
+            "lower_bound_bars": lower_bound,
             "splice_status": splice_status,
         }
         return result
