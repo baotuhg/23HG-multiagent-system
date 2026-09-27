@@ -135,9 +135,20 @@ class AECAuditVerifier:
         print(f"-> Đã xuất báo cáo thẩm tra: {report_path}")
 
 if __name__ == "__main__":
-    target = r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx"
-    out_rep_1 = r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\BAO_CAO_THAM_TRA_AEC_AUDIT.md"
-    out_rep_2 = r"d:\Code\DONG_GOI_HETHONG_AEC\templates\BAO_CAO_THAM_TRA_AEC_AUDIT.md"
+    import sys
+    if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
+        target = sys.argv[1]
+    else:
+        candidates = [
+            r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_01_MACRO_MASTER_14_SHEET\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx",
+            r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_01_MACRO_MASTER_14_SHEET\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx",
+            r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx",
+            r"d:\Code\23HG-multiagent-system\23HG-multiagent-system\templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx"
+        ]
+        target = next((p for p in candidates if os.path.exists(p)), candidates[0])
+
+    out_rep_1 = os.path.join(os.path.dirname(target), "BAO_CAO_THAM_TRA_AEC_AUDIT.md")
+    out_rep_2 = r"d:\Code\23HG-multiagent-system\23HG-multiagent-system\templates\BAO_CAO_THAM_TRA_AEC_AUDIT.md"
 
     auditor = AECAuditVerifier(target)
     auditor.audit_excel_workbook()
