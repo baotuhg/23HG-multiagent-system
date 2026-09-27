@@ -53,6 +53,7 @@ class ProjectPhase(str, Enum):
     HUMAN_GATE     = "HUMAN_GATE"
     SCHEDULE_CPM   = "SCHEDULE_CPM"
     ASBUILT_LOOP   = "ASBUILT_LOOP"
+    PAYMENT_03A    = "PAYMENT_03A"
     COMPLETED      = "COMPLETED"
     ERROR          = "ERROR"
 
@@ -152,14 +153,21 @@ class RebarData:
 class QSData:
     """Dự toán tổng hợp G_XD theo TT 11/2021/TT-BXD."""
     direct_cost_T_vnd: float = 0.0       # T — Chi phí trực tiếp
-    indirect_cost_GT_vnd: float = 0.0    # GT = T * 7.3%
-    tax_TL_vnd: float = 0.0              # TL = (T + GT) * 5.5%
+    indirect_cost_GT_vnd: float = 0.0    # GT = T × (tỷ lệ chi phí chung + nhà tạm + KXĐ)
+    tax_TL_vnd: float = 0.0              # TL = (T + GT) × tỷ lệ thu nhập chịu thuế tính trước
     subtotal_vnd: float = 0.0            # T + GT + TL
     vat_vnd: float = 0.0                 # VAT = subtotal * 10%
     total_G_XD_vnd: float = 0.0          # G_XD = subtotal + VAT
     payment_period_03a_vnd: float = 0.0  # Phụ lục 03a kỳ thanh toán
     unit_price_breakdown: Dict[str, float] = field(default_factory=dict)
     supplement_items: List[Dict[str, Any]] = field(default_factory=list)  # Phát sinh
+    gt_breakdown_vnd: Dict[str, float] = field(default_factory=dict)      # chung / nha_tam / kxd
+    rates: Dict[str, float] = field(default_factory=dict)                 # tỷ lệ đã dùng (0.051 = 5.1%)
+    rate_sources: Dict[str, str] = field(default_factory=dict)
+    items_count: int = 0
+    data_source: str = ""
+    warnings: List[str] = field(default_factory=list)
+    payment_summary: Dict[str, Any] = field(default_factory=dict)  # Mẫu 03a kỳ hiện tại
 
 
 @dataclass
@@ -271,6 +279,7 @@ class ProjectSharedState:
         "qs_agent":        NodeStatus.IDLE,
         "scheduler_agent": NodeStatus.IDLE,
         "asbuilt_agent":   NodeStatus.IDLE,
+        "payment_agent":   NodeStatus.IDLE,
         "supervisor":      NodeStatus.RUNNING,
     })
 
@@ -282,6 +291,12 @@ class ProjectSharedState:
     structure_id: str = "CAU-KM19-529"
     drawings_folder: str = ""
     excel_master_path: str = ""
+
+    # ── Nguồn dữ liệu ─────────────────────────────────────────────────────────
+    # demo_mode=False: agent thiếu dữ liệu thật phải báo lỗi, KHÔNG dùng dữ liệu mẫu.
+    demo_mode: bool = False
+    # Ghi nhận mọi chỗ đã dùng dữ liệu mẫu: [{"agent_id": ..., "note": ...}]
+    sample_data_sources: List[Dict[str, str]] = field(default_factory=list)
 
     # ── Domain Data ───────────────────────────────────────────────────────────
     cad_data: CADTakeoffData = field(default_factory=CADTakeoffData)

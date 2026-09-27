@@ -81,6 +81,18 @@ class StateBus:
         with self._lock:
             return list(self._state.global_errors)
 
+    def is_demo_mode(self) -> bool:
+        with self._lock:
+            return bool(self._state.demo_mode)
+
+    def get_sample_data_sources(self) -> list:
+        with self._lock:
+            return list(self._state.sample_data_sources)
+
+    def uses_sample_data(self, agent_id: str) -> bool:
+        with self._lock:
+            return any(s.get("agent_id") == agent_id for s in self._state.sample_data_sources)
+
     # ─────────────────────────────────────────────────────────────────────────
     # WRITE operations (thread-safe, chỉ Supervisor/Agent được phép gọi)
     # ─────────────────────────────────────────────────────────────────────────
@@ -174,6 +186,18 @@ class StateBus:
                 if hasattr(self._state.schedule_data, k):
                     setattr(self._state.schedule_data, k, v)
             self._state.updated_at = _now()
+        self._persist()
+
+    def mark_sample_data(self, agent_id: str, note: str) -> None:
+        """Ghi nhận agent đã dùng dữ liệu mẫu (chỉ hợp lệ ở chế độ demo)."""
+        with self._lock:
+            if not self._state.demo_mode:
+                raise RuntimeError(f"{agent_id} dùng dữ liệu mẫu khi không bật chế độ demo")
+            entry = {"agent_id": agent_id, "note": note}
+            if entry not in self._state.sample_data_sources:
+                self._state.sample_data_sources.append(entry)
+            self._state.updated_at = _now()
+        print(f"  [StateBus] ⚠ DỮ LIỆU MẪU — {agent_id}: {note}")
         self._persist()
 
     def push_error(self, error_msg: str) -> None:

@@ -7,8 +7,8 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Standards: TCVN & BXD](https://img.shields.io/badge/Standards-TCVN%20%7C%20Lu%E1%BA%ADt%20XD%20135%2F2025-brightgreen)](workflows/)
-[![Optimization: Google OR-Tools](https://img.shields.io/badge/Optimization-Google%20OR--Tools%20CP--SAT-blue)](tools/cutting_stock_solver.py)
-[![Rebar Scrap < 1.5%](https://img.shields.io/badge/Rebar%20Scrap-%3C%201.5%25-success)](tools/cutting_stock_solver.py)
+[![Optimization: Google OR-Tools](https://img.shields.io/badge/Optimization-OR--Tools%20Column%20Generation%20%2B%20CP--SAT-blue)](tools/cutting_stock_solver.py)
+[![Rebar Cutting: proven lower bound](https://img.shields.io/badge/Rebar%20Cutting-C%E1%BA%ADn%20d%C6%B0%E1%BB%9Bi%20%2B%20t%E1%BB%91i%20%C6%B0u%20ch%E1%BB%A9ng%20minh-success)](tools/cutting_stock_solver.py)
 [![Zero Dead Numbers](https://img.shields.io/badge/Math-100%25%20Dynamic%20Formulas-red.svg)](templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx)
 
 ---
@@ -63,7 +63,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
     |  | CẮT THÉP 1D      +---------------+--------------------------------+
     |  | (OR-TOOLS SOLVER)|
     |  +------------------+
-    |  | * Google OR-Tools| ---> Tối ưu tổ hợp thanh 11.7m, đề-xê < 1.5%
+    |  | * Google OR-Tools| ---> Tối ưu số cây 11.7m theo từng Ø + mác thép
     |  | * CP-SAT / FFD   | ---> Kiểm tra chéo (Inter-Agent): REJECT nếu sai
     |  +--------+---------+
     |           |
@@ -110,10 +110,10 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
 | Thành phần | Định dạng Đầu vào (Input) | Định dạng Đầu ra (Output) | Công cụ & Đặc tả Kỹ thuật |
 |---|---|---|---|
 | **Bóc tách CAD/BIM** | Bản vẽ CAD `.dwg`, `.dxf`, mô hình `.ifc` | Bảng khối lượng hình học Bê tông, Ván khuôn, Đào đắp | `AutoCAD COM Interop`, `ezdxf`, Shoelace & Average-End-Area |
-| **Gia công Cốt thép** | Bảng Bar Bending Schedule (BBS 396 thanh) | Sơ đồ cắt chi tiết từng cây 11.7m, tỷ lệ hao hụt | `Google OR-Tools CP-SAT` & Greedy FFD (Đề-xê $< 1.5\%$) |
+| **Gia công Cốt thép** | File BBS thật `.xlsx` / `.csv` / `.json` (`--bbs`) | Phiếu cắt từng phương án cây 11.7m (CSV), số cây, cận dưới, đề-xê, mẩu thừa tận dụng | OR-Tools Column Generation (GLOP) + CP-SAT, tách nhóm Ø + mác thép, tính lưỡi cắt 3mm |
 | **Dự toán Chi phí** | Khối lượng trích xuất, Đơn giá định mức | Bảng dự toán tổng hợp chi phí xây dựng `G_xd` | Excel 100% công thức động (`G_xd = T + GT + TL + VAT 10%`) |
 | **Thanh toán Hợp đồng**| Khối lượng thiết kế vs Khối lượng hoàn công | Bảng xác định khối lượng hoàn thành Phụ lục 03a | Nghị định 99/2021/NĐ-CP, tính phát sinh tự động |
-| **Quản lý Tiến độ** | Danh mục công việc, thời lượng, liên kết FS/SS | Tệp tiến độ `MS Project (.xml, .mpp)` & Gantt Chart | Thuật toán CPM (Critical Path Method), Early/Late/Float |
+| **Quản lý Tiến độ** | File tiến độ thật `MS Project .xml` / `.xlsx` / `.csv` (`--schedule`) | Bảng CPM (ES/EF/LS/LF, dự trữ, đường găng, ngày lịch) CSV; cảnh báo ngày trong file vi phạm quan hệ logic | CPM với quan hệ FS/SS/FF/SF + lag, lịch nghỉ (Chủ nhật, ngày lễ) |
 | **Quản lý Chất lượng**| Phiếu thí nghiệm nén R7/R28, kéo thép, PDA | 22 Biên bản nghiệm thu KCS in ấn A4 chuẩn | Excel A4 Form (`MAU_BIEN_BAN_KCS`, thay thế hoàn toàn Word) |
 | **Biện pháp Thi công** | Yêu cầu KTXD, điều kiện địa chất, thủy văn | Thuyết minh BPTC 8 chương TCVN | Markdown chuẩn kỹ thuật, tích hợp RAG Hugging Face |
 | **Đối soát Hiện trường**| Nhật ký thi công hàng ngày `DailySiteLog` | Báo cáo chênh lệch tiến độ & Chi phí phát sinh | As-Built Closed Loop, tự động cập nhật mạng CPM |
@@ -126,7 +126,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
   Phase 1 (v1.x) [100% HOÀN THÀNH]
   ├── Tự động hóa tác vụ kỹ thuật cốt lõi (Core Engines)
   ├── Bóc tách hình học Takeoff 100% công thức động (0 số chết)
-  ├── Cắt thép 1D Cutting Stock đạt hao hụt đề-xê < 1.5%
+  ├── Cắt thép 1D Cutting Stock: tối ưu số cây theo từng Ø + mác thép, có cận dưới chứng minh
   ├── Bảng phân tích định mức & Tổng hợp vật tư toàn cầu BOM
   ├── Dự toán G_xd Thông tư 11/2021 & Thanh toán kỳ Phụ lục 03a
   └── Bộ 14 Sheet Master Excel đạt 100/100 điểm Audit Verifier
@@ -173,21 +173,77 @@ pip install -r requirements.txt
 
 ### 3. Các Lệnh Thực thi Chính
 
-#### a. Khởi chạy Hệ thống Đa tác tử State Graph v3.0 (Toàn bộ 7 Pha tự động):
-```powershell
-python run_state_graph.py
-```
-> Hệ thống sẽ tuần tự kích hoạt: `CAD Takeoff` $\rightarrow$ `OR-Tools Rebar Cut` $\rightarrow$ `QS G_xd` $\rightarrow$ `QA/QC Lab Link` $\rightarrow$ `Human Gate` $\rightarrow$ `CPM Schedule` $\rightarrow$ `As-Built Loop`.
+> ⚠ **Dữ liệu thật và dữ liệu mẫu:** mặc định hệ thống **chỉ dùng dữ liệu thật**. Pha nào thiếu dữ liệu sẽ dừng ngay và báo rõ cần cung cấp gì, không tự thay bằng số liệu mẫu. Dữ liệu mẫu (Cầu Km19+529.080) chỉ được dùng khi có cờ `--demo`, và mọi chỗ dùng đều được đánh dấu trong log, Quality Gate, Human Gate và báo cáo cuối.
+>
+> Hiện tại có **pha cắt thép** (BBS), **pha tiến độ CPM** (MS Project XML / Excel / CSV), **pha dự toán G_XD** (bảng QS) và **pha thanh toán Mẫu 03a** chạy được bằng dữ liệu thật. Các pha CAD, QA/QC và hoàn công vẫn chỉ có dữ liệu mẫu trong code, nên sẽ dừng nếu không có `--demo`.
+>
+> File Excel chỉ có công thức mà chưa từng được Excel tính (ví dụ file do phần mềm tạo ra) vẫn đọc được: `tools/excel_eval.py` tự tính các hàm thông dụng (SUM, SUMIF(S), COUNTIF(S), ROUND/ROUNDUP, tham chiếu sang sheet khác…). Gặp hàm chưa hỗ trợ thì hệ thống báo rõ, không đoán.
 
-#### b. Chạy với Cổng Phê duyệt Kỹ sư trưởng Trực tiếp (Human Gate CLI):
+#### a. Tối ưu cắt thép từ BBS thật (dùng được cho dự án):
 ```powershell
-python run_state_graph.py --human-gate cli
+python run_state_graph.py --phase rebar --bbs "BBS_du_an.xlsx" --cut-plan-out phieu_cat_thep.csv
 ```
-> Khi đến pha `HUMAN_GATE`, hệ thống hiển thị bảng phân tích clash/anomaly và dừng lại chờ Kỹ sư trưởng nhập phán quyết: `[A] Approve` / `[R] Reject` / `[S] Skip`.
+> - Đọc được Excel (tự tìm sheet có bảng BBS, hoặc chỉ định `--bbs-sheet`), CSV (`,` `;` hoặc tab) và JSON. Cột nhận diện theo tiêu đề tiếng Việt hoặc tiếng Anh: *Ký hiệu thanh*, *Đường kính Ø (mm)*, *Mác thép*, *Chiều dài 1 thanh (m)* hoặc `length_mm`, *Tổng số thanh* hoặc *Số thanh / cấu kiện* × *Số cấu kiện*. Cột chiều dài bắt buộc ghi đơn vị (m hoặc mm).
+> - Dòng BBS sai dữ liệu (đường kính không tiêu chuẩn, chiều dài quá ngắn, số lượng lẻ...) làm hệ thống **dừng và liệt kê từng dòng**. Nếu muốn loại các dòng đó và tiếp tục, thêm `--bbs-skip-invalid`; các dòng bị loại vẫn được cảnh báo.
+> - Solver chỉ ghép các đoạn **cùng đường kính và cùng mác thép**, trừ 3mm lưỡi cắt mỗi nhát, rồi báo **cận dưới** số cây. `OPTIMAL` nghĩa là đã chứng minh không thể dùng ít cây hơn. Nếu đề-xê vẫn > 1.5% thì đó là do chiều dài thanh trong BBS, không phải do cách ghép.
+> - **Thanh dài hơn 11.7m** được tự tách thành k đoạn nối (vd 39.85m thành 4 đoạn, 3 mối nối), nếu có vùng cho phép nối (cột *Vùng cho phép nối* hoặc `--splice-zone`):
+>   - Mỗi đoạn ≤ cây thép và ≥ max(L nối, 20D). Mọi vùng chồng nối nằm trong vùng cho phép.
+>   - **Mối nối so le theo từng dòng BBS:** tâm các mối nối cách nhau < 1.3 × L_nối coi là cùng mặt cắt, và mỗi mặt cắt có tối đa `--max-splice-ratio` (mặc định 50%) số thanh có mối nối.
+>   - Cách tách được tối ưu cùng lúc với phần cắt các thanh khác, ưu tiên đoạn dài đúng 11.7m để dùng trọn cây.
+>   - Thanh không có vùng nối, hoặc không bố trí được mối nối trong vùng cho phép, được liệt kê là **CHƯA có trong kế hoạch cắt**.
+> - Cáp DƯL không cắt từ cây thép và được cảnh báo riêng. Vị trí nối phải đối chiếu với bản vẽ (`NOT_RUN` ở Gate-2).
+>
+> - **Giới hạn cho tổ cắt:** `--max-pieces-per-bar 4 --max-marks-per-bar 2`. **Cắt đầu cây:** `--end-trim-mm 50`. **Lưỡi cắt:** `--kerf-mm 3`. **Đầu thừa** được phân loại *Tái sử dụng* (≥ 100D, đổi bằng `--reuse-xd`), *Đầu thừa ngắn* (≥ 20D) hoặc *Phế*.
+> - **Phương án nối thép tận dụng đầu thừa** (`--splice`), đưa phép nối vào ngay mô hình tối ưu OR-Tools, chặt hơn PA4 của RebarCut:
+>   - Chỉ nối Bar Mark có *Cho nối? = Có* **và** có *Vùng cho phép nối* dạng số (vd `0-0.25; 0.75-1`, `0-25%`, hoặc `0-2.5m`). Có thể đặt vùng mặc định cho mọi thanh bằng `--splice-zone`.
+>   - Vùng chồng nối phải nằm trọn trong vùng cho phép. Mỗi đoạn ≥ max(L nối, 20D). Số thanh được nối không vượt *Max nối %* của từng Bar Mark.
+>   - Phiếu cắt chính thức vẫn là phương án không nối. Phương án nối được xuất riêng (`*_PA_noi.csv`, sheet `PA_NOI`, `MOI_NOI`) để kỹ thuật duyệt.
+> - **Xuất theo bố cục RebarCut Pro Excel:** `--rebarcut-out ket_qua.xlsx`, gồm các sheet INPUT, SO_SANH, PA_TOI_UU, PA_NOI, MOI_NOI, REMAIN, CHI_TIET. Sheet INPUT copy sang RebarCut được, và hệ thống cũng đọc được sheet INPUT của file RebarCut (`--bbs RebarCut_Pro_Excel_V5.xlsm`).
+>
+> Ví dụ với BBS trong workbook mẫu: `python run_state_graph.py --phase rebar --bbs "templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx" --bbs-skip-invalid`
+
+#### a2. Tính tiến độ CPM từ file tiến độ thật:
+```powershell
+python run_state_graph.py --phase schedule --schedule "TienDo.xml" --non-working-days cn --holidays 2027-02-05:2027-02-12 --schedule-out tien_do_cpm.csv
+```
+> - Đọc được **MS Project XML** (File → Save As → XML trong MS Project), Excel, CSV hoặc JSON. Cột nhận diện theo tiêu đề: *Mã WBS*, *Danh mục công tác*, *Thời gian (ngày)*, *Quan hệ logic* (vd `1.2FS; 1.3SS+3d`), *Ngày bắt đầu/hoàn thành* (tùy chọn, dùng để đối chiếu).
+> - Hỗ trợ quan hệ **FS / SS / FF / SF** có độ trễ (âm hoặc dương), ngày nghỉ trong tuần (`--non-working-days t7,cn`) và ngày lễ (`--holidays`). Ngày khởi công lấy từ file, hoặc chỉ định bằng `--start-date`.
+> - Liên kết tới công việc không tồn tại, vòng lặp logic, thời lượng sai: **dừng và liệt kê từng lỗi**. Ô Excel là công thức chưa được tính thì phải mở và lưu lại file bằng Excel trước.
+> - **Đối chiếu ngày ghi trong file:** cảnh báo khi ngày trong file vi phạm chính quan hệ logic của nó. Ví dụ file mẫu `Tien_Do_Thi_Cong_Cau_Km19+529.080.xml` có 4 công việc khai báo FS nhưng ngày lại chồng lấn, nên tính lại ra 187 ngày (hoàn thành 05/04/2027) thay vì 28/03/2027 như ghi trong file.
+
+#### a3. Tính dự toán G_XD từ bảng QS thật:
+```powershell
+python run_state_graph.py --phase qs --qs "Du_toan.xlsx" --qs-out du_toan_gxd.xlsx
+```
+> - Đọc bảng QS / BOQ (Excel, CSV hoặc JSON) theo các cột *STT*, *Mã hiệu*, *Nội dung công tác*, *ĐVT*, *Khối lượng*, *Đơn giá* (hoặc *Đơn giá vật liệu / nhân công / máy*), *Thành tiền*. Dòng bắt đầu bằng `-` hoặc `+` là dòng diễn giải.
+> - `T = Σ khối lượng × đơn giá` (tính lại, không lấy cột thành tiền). `GT = T × (chi phí chung + nhà tạm + công việc không xác định KL)`, `TL = (T + GT) × tỷ lệ`, `G = T + GT + TL`, `G_XD = G + VAT` (TT 11/2021/TT-BXD).
+> - **Tỷ lệ** được đọc từ sheet tổng hợp G_XD trong file, hoặc truyền bằng `--rate-chung --rate-nha-tam --rate-kxd --rate-tl --vat` (đơn vị %). **Không có tỷ lệ mặc định**: thiếu tỷ lệ nào hệ thống sẽ dừng và báo tên tỷ lệ đó.
+> - **Đối chiếu tự động:** công tác thiếu đơn giá hoặc khối lượng (dừng); thành tiền trong file ≠ KL × ĐG; khối lượng công tác khác tổng các dòng diễn giải; T và G_XD ghi trong file ≠ kết quả tính lại.
+
+#### a4. Lập Mẫu 03a — giá trị khối lượng hoàn thành đề nghị thanh toán (NĐ 99/2021):
+```powershell
+python run_state_graph.py --phase payment --qs "Du_toan.xlsx" --progress "KL_ky_01.xlsx" --price-basis direct --advance-recovery-pct 20 --retention-pct 5 --period 01 --payment-out Mau_03a_ky01.xlsx
+```
+> - **Hợp đồng** (khối lượng, đơn giá) lấy từ bảng QS. **Khối lượng thực hiện** lấy từ file `--progress` với các cột *Mã hiệu* / *STT* / *Nội dung*, *KL lũy kế kỳ trước* và *KL thực hiện kỳ này*. Kỳ sau dùng cột lũy kế hết kỳ của file 03a kỳ trước.
+> - `--price-basis direct`: đơn giá QS là chi phí trực tiếp, được nhân hệ số G/T (gồm GT và TL) để ra đơn giá hợp đồng trước thuế. `contract`: đơn giá QS đã là đơn giá hợp đồng.
+> - **Không có giá trị mặc định** cho cơ sở đơn giá, tỷ lệ thu hồi tạm ứng và tỷ lệ giữ lại (ghi 0 nếu không có). Khai báo `--advance-outstanding` thì số thu hồi không vượt số tạm ứng còn lại.
+> - **Khối lượng lũy kế vượt hợp đồng** không được thanh toán theo 03a. **Công việc ngoài hợp đồng** cũng không được thanh toán. Cả hai được liệt kê ở sheet `PHAT_SINH_CANH_BAO` để làm phụ lục hoặc phát sinh.
+> - Gate-5 kiểm tra số học: tổng các dòng, VAT, đề nghị thanh toán = tổng − thu hồi − giữ lại, lũy kế ≤ hợp đồng.
+
+#### b. Chạy thử toàn bộ 7 pha bằng dữ liệu mẫu (demo):
+```powershell
+python run_state_graph.py --demo
+```
+> Tuần tự: `CAD Takeoff` $\rightarrow$ `OR-Tools Rebar Cut` $\rightarrow$ `QS G_xd` $\rightarrow$ `QA/QC Lab Link` $\rightarrow$ `Human Gate` $\rightarrow$ `CPM Schedule` $\rightarrow$ `As-Built Loop`. Ở chế độ demo, Human Gate mặc định tự phê duyệt (`auto`). Khi chạy không có `--demo`, Human Gate mặc định là `cli`: hệ thống dừng lại chờ Kỹ sư trưởng nhập `[A] Approve` / `[R] Reject` / `[S] Skip`.
 
 #### c. Kiểm tra Solver Cắt thép OR-Tools & Bộ tính Tiến độ CPM:
 ```powershell
 python run_state_graph.py --solver-test
+```
+
+#### c2. Chạy bộ test tự động:
+```powershell
+python -m unittest discover tests
 ```
 
 #### d. Thử nghiệm So sánh Phiên bản Bản vẽ CAD (Incremental Diff Rev00 vs Rev01):
@@ -240,15 +296,23 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 │   │   └── base_agent.py         # Lớp cơ sở trừu tượng BaseAgent
 │   ├── agents/
 │   │   ├── rebar_agent.py        # Sub-Agent Cắt thép OR-Tools & Phản biện TCVN 5574
-│   │   ├── asbuilt_agent.py      # Sub-Agent Vòng lặp Hiện trường & Phụ lục 03a
+│   │   ├── asbuilt_agent.py      # Sub-Agent Vòng lặp Hiện trường (demo)
+│   │   ├── payment_agent.py      # Sub-Agent Thanh toán Mẫu 03a từ bảng QS + khối lượng thực hiện
 │   │   └── sub_agents.py         # CADAgent, QSAgent, BPTCKCSAgent (Lab Link), SchedulerAgent
 │   └── gates/
 │       ├── quality_gate.py       # 4 Cổng kiểm soát kỹ thuật số học xác định
 │       └── human_gate.py         # Human-in-the-loop Gate (Ký duyệt Kỹ sư trưởng)
 │
 ├── tools/                        # ⚙️ CÔNG CỤ TÍNH TOÁN XÁC ĐỊNH (PURE PYTHON, ZERO LLM)
-│   ├── cutting_stock_solver.py   # Solver tổ hợp cắt thép 1D (Google OR-Tools CP-SAT + FFD)
-│   ├── cpm_calculator.py         # Bộ tính tiến độ CPM (Topological Sort, Forward/Backward)
+│   ├── cutting_stock_solver.py   # Solver cắt thép 1D (Column Generation GLOP + CP-SAT, tách nhóm Ø + mác thép)
+│   ├── bbs_loader.py             # Đọc BBS thật từ Excel / CSV / JSON (cả sheet INPUT của RebarCut), cột nối thép
+│   ├── rebarcut_export.py        # Xuất kết quả cắt thép theo bố cục RebarCut Pro Excel (.xlsx)
+│   ├── schedule_loader.py        # Đọc tiến độ thật từ MS Project XML / Excel / CSV, đối chiếu ngày trong file
+│   ├── qs_loader.py              # Đọc bảng QS thật, tỷ lệ chi phí, tính G_XD TT 11/2021 + đối chiếu
+│   ├── qs_export.py              # Xuất bảng tổng hợp G_XD + chi tiết công tác (.xlsx)
+│   ├── payment.py                # Mẫu 03a NĐ 99/2021: KL thực hiện × đơn giá HĐ, tạm ứng, giữ lại, vượt HĐ
+│   ├── excel_eval.py             # Tính công thức Excel chưa có kết quả lưu sẵn (Pure Python)
+│   ├── cpm_calculator.py         # Bộ tính CPM: FS/SS/FF/SF + lag, lịch nghỉ, Forward/Backward Pass
 │   └── cad_diff_engine.py        # Động cơ so sánh phiên bản bản vẽ CAD Rev00 vs Rev01
 │
 ├── schemas/                      # 📋 ĐẶC TẢ SCHEMA DỮ LIỆU CHUYÊN NGÀNH
@@ -295,6 +359,7 @@ Tệp Excel Master: **[`templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx`](te
 │   ├── update_full_cross_linked_workbook.py       # Script tái tạo 14 sheet liên kết động
 │   └── add_rebar_bbs_and_mix_sheets.py            # Trích xuất BBS & Tần suất thí nghiệm
 │
+├── tests/                        # 🧪 Test tự động (python -m unittest discover tests)
 ├── run_state_graph.py            # 🌟 ENTRY POINT MỚI: State Graph & Supervisor Runner v3.0
 ├── requirements.txt              # Danh mục thư viện phụ thuộc (ortools, openpyxl, pandas...)
 ├── pyproject.toml                # Cấu hình đóng gói hệ thống chuẩn PEP 621

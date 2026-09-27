@@ -19,7 +19,7 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
-from core.supervisor.base_agent import BaseAgent
+from core.supervisor.base_agent import BaseAgent, MissingDataError
 from core.state.state_bus import StateBus
 from tools.cpm_calculator import CPMCalculator
 from schemas.site_log_schema import (
@@ -41,6 +41,20 @@ class AsBuiltAgent(BaseAgent):
 
     def run(self, bus: StateBus) -> bool:
         print("  [AsBuiltAgent] Khởi động vòng lặp đối soát hiện trường...")
+
+        # Khối lượng hợp đồng, đơn giá và tiến độ gốc để đối soát hiện đều viết sẵn trong code
+        if not bus.is_demo_mode():
+            raise MissingDataError(
+                "Chưa có dữ liệu đối soát hoàn công thật (nhật ký hiện trường, khối lượng hợp đồng, "
+                "đơn giá, tiến độ gốc). Các số liệu này trong code chỉ là mẫu Cầu Km19+529.080. "
+                "Muốn chạy thử với dữ liệu mẫu thì thêm cờ --demo."
+            )
+        bus.mark_sample_data(
+            self.agent_id,
+            "khối lượng hợp đồng, đơn giá, tiến độ gốc"
+            + ("" if self.site_logs_input else " và 4 nhật ký hiện trường")
+            + " mẫu viết sẵn trong code",
+        )
 
         # ── BƯỚC 1: Thu thập / giả lập nhật ký công trường thực tế ─────────────
         logs = self._collect_site_logs(bus)
