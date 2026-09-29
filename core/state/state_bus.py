@@ -266,10 +266,14 @@ class StateBus:
             return
         with self._lock:
             try:
-                os.makedirs(os.path.dirname(os.path.abspath(self._persist_path)), exist_ok=True)
-                with open(self._persist_path, "w", encoding="utf-8") as f:
+                target = os.path.abspath(self._persist_path)
+                os.makedirs(os.path.dirname(target), exist_ok=True)
+                # Ghi ra file tạm rồi đổi tên: nếu tiến trình chết giữa chừng, file cũ vẫn nguyên vẹn
+                tmp = f"{target}.{os.getpid()}.tmp"
+                with open(tmp, "w", encoding="utf-8") as f:
                     json.dump(self._state.to_dict(), f, ensure_ascii=False, indent=2,
                               default=lambda o: str(o))  # Fallback cho non-serializable objects
+                os.replace(tmp, target)
             except Exception as e:
                 print(f"  [StateBus] WARN: Không thể persist state: {e}")
 

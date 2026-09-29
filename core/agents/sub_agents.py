@@ -209,130 +209,98 @@ class QSAgent(BaseAgent):
 
 class BPTCKCSAgent(BaseAgent):
     """
-    Sub-Agent BPTC + KCS — lập biên bản nghiệm thu và kiểm soát chất lượng.
-    Tích hợp QA/QC Lab Link: Ánh xạ phiếu thí nghiệm R7/R28, kéo thép, siêu âm cọc, PDA
-    vào 22 biên bản nghiệm thu KCS (NĐ 207/2026/NĐ-CP, TT 32/2026/TT-BXD).
+    Sub-Agent BPTC + KCS — đánh giá phiếu thí nghiệm và điểm dừng kỹ thuật (Hold Point).
+
+    Input : file phiếu thí nghiệm thật (--lab: .xlsx/.csv/.json) — nén bê tông R7/R28,
+            kéo thép, siêu âm cọc, PDA, độ sụt... (đọc bằng tools/lab_qaqc.py)
+    Output: qaqc_data.lab_results, lab_summary, hold_point_status, clashes_detected;
+            báo cáo Excel (--lab-out)
+    Phiếu KHÔNG ĐẠT → điểm dừng liên quan bị CHẶN → phase dừng (trả về False).
+    Kiểm toán Excel master (GATE-4) do Supervisor chạy sau agent này, chỉ khi có --excel.
+    Thiếu file → dừng; --demo dùng templates/Phieu_thi_nghiem_mau.csv (đánh dấu mẫu).
     """
 
-    def __init__(self):
+    MAX_LISTED = 10
+
+    def __init__(
+        self,
+        lab_path: Optional[str] = None,
+        lab_sheet: Optional[str] = None,
+        lab_out: Optional[str] = None,
+        criteria=None,
+        sample_path: Optional[str] = None,
+    ):
         super().__init__(
             agent_id="bptc_kcs_agent",
-            description="BPTC + KCS & QA/QC Lab Link — NĐ 207/2026, TT 32/2026"
+            description="BPTC + KCS & QA/QC Lab Link — đánh giá phiếu thí nghiệm & điểm dừng kỹ thuật"
         )
+        self.lab_path = lab_path
+        self.lab_sheet = lab_sheet
+        self.lab_out = lab_out
+        self.criteria = criteria
+        self.sample_path = sample_path or os.path.join(_ROOT, "templates", "Phieu_thi_nghiem_mau.csv")
 
     def run(self, bus: StateBus) -> bool:
-        print("  [BPTCKCSAgent] Kiểm tra QA/QC, liên kết phiếu thí nghiệm Lab và lập biên bản...")
+        from tools.lab_qaqc import LabLoadError, evaluate, load_lab_results, write_lab_report
 
-        if not bus.is_demo_mode():
-            raise MissingDataError(
-                "Chưa có kết quả thí nghiệm thật (phiếu nén R7/R28, kéo thép, siêu âm cọc, PDA). "
-                "6 phiếu thí nghiệm và 4 điểm dừng kỹ thuật trong code chỉ là dữ liệu mẫu. " + DEMO_HINT
-            )
-        bus.mark_sample_data(self.agent_id, "6 phiếu thí nghiệm + 4 điểm dừng kỹ thuật mẫu (luôn PASS)")
-
-        # ── BƯỚC 1: QA/QC Lab Link & Hold Points Check ────────────────────────
-        lab_results, hold_points_cleared, lab_clashes = self._verify_lab_results_and_hold_points()
-        print(f"  [BPTCKCSAgent] Đã liên kết {len(lab_results)} phiếu thí nghiệm vào hệ thống KCS")
-        for hp in hold_points_cleared:
-            print(f"  [BPTCKCSAgent] ✓ Giải tỏa điểm dừng kỹ thuật (Hold Point): {hp}")
-
-        # ── BƯỚC 2: Thẩm tra logic chéo ngày tháng & kiểm toán file Excel ───────
-        excel_path = bus._state.excel_master_path
-        if not excel_path or not os.path.exists(excel_path):
-            raise MissingDataError(
-                f"Không tìm thấy Excel master để kiểm toán: {excel_path or '(chưa chỉ định --excel)'}"
-            )
-        audit_score = 0
-        clashes = list(lab_clashes)
+        print("  [BPTCKCSAgent] Đánh giá phiếu thí nghiệm và điểm dừng kỹ thuật...")
+        path = self.lab_path
+        if not path:
+            if not bus.is_demo_mode():
+                raise MissingDataError(
+                    "Chưa có file phiếu thí nghiệm (--lab .xlsx/.csv/.json: nén R7/R28, kéo thép, "
+                    "siêu âm cọc, PDA...). " + DEMO_HINT
+                )
+            path = self.sample_path
+            bus.mark_sample_data(self.agent_id, f"Phiếu thí nghiệm mẫu {os.path.basename(path)}")
+        elif not os.path.exists(path):
+            raise MissingDataError(f"Không tìm thấy file phiếu thí nghiệm: {path}")
 
         try:
-            from aec_core.audit_verifier import AECAuditVerifier
-            auditor = AECAuditVerifier(excel_path)
-            auditor.audit_excel_workbook()
-            audit_score = auditor.score
-            if audit_score < 100:
-                clashes.append(f"Audit score {audit_score}/100 — chưa đạt 100/100")
-        except Exception as e:
-            clashes.append(f"Lỗi audit: {e}")
+            rows = load_lab_results(path, sheet=self.lab_sheet)
+        except LabLoadError as e:
+            raise DataInputError(str(e)) from e
+        ev = evaluate(rows, path, self.criteria)
+        if ev.errors:
+            raise DataInputError(
+                f"File phiếu thí nghiệm {path} có {len(ev.errors)} lỗi dữ liệu:\n    "
+                + "\n    ".join(ev.errors[:self.MAX_LISTED])
+            )
 
-        # ── BƯỚC 3: Đồng bộ trạng thái vào StateBus ───────────────────────────
+        summary = {"total": len(ev.records), "pass": ev.count("PASS"),
+                   "fail": ev.count("FAIL"), "pending": ev.count("PENDING"), "source": path}
+        hold_points = [{"bbnt": h.bbnt, "status": h.status, "tests": list(h.tests),
+                        "reasons": list(h.reasons)} for h in ev.hold_points]
+        failed = [r for r in ev.records if r.status == "FAIL"]
+        clashes = [f"Phiếu {r.test_id} ({r.component}) KHÔNG ĐẠT: {r.detail}" for r in failed]
+
         bus.set_qaqc_data({
-            "audit_score": audit_score,
+            "lab_results": [{
+                "test_id": r.test_id, "kind": r.kind, "component": r.component, "bbnt": r.bbnt,
+                "status": r.status, "value": r.value, "required": r.required, "ratio": r.ratio,
+                "age_days": r.age_days, "detail": r.detail,
+            } for r in ev.records],
+            "lab_summary": summary,
+            "hold_point_status": hold_points,
+            "hold_points": [f"{h['bbnt']}: {h['status']}" for h in hold_points],
             "clashes_detected": clashes,
-            "date_cross_check_status": "PASSED" if not clashes else "FAILED",
-            "total_inspection_records": 22,
-            "hold_points": hold_points_cleared,
-            "lab_results": [
-                {
-                    "test_id": r["test_id"],
-                    "material_type": r["material_type"],
-                    "sample_code": r["sample_code"],
-                    "r7_mpa": r.get("r7_mpa", 0.0),
-                    "r28_mpa": r.get("r28_mpa", 0.0),
-                    "required_mpa": r.get("required_mpa", 0.0),
-                    "status": r["status"],
-                    "certificate_ref": r["certificate_ref"],
-                    "kcs_record_linked": r["kcs_record_linked"],
-                } for r in lab_results
-            ]
+            "date_cross_check_status": "FAILED" if failed else "PASSED",
+            "total_inspection_records": len({h["bbnt"] for h in hold_points}),
+            "warnings": list(ev.warnings),
         })
 
-        return audit_score >= 100 and len(lab_clashes) == 0
+        print(f"  [BPTCKCSAgent] {summary['total']} phiếu: {summary['pass']} đạt, "
+              f"{summary['fail']} không đạt, {summary['pending']} chờ kết quả")
+        for h in hold_points:
+            mark = {"GIẢI TỎA": "✓", "CHỜ": "…", "CHẶN": "✗"}.get(h["status"], "?")
+            print(f"  [BPTCKCSAgent] {mark} Điểm dừng {h['bbnt']}: {h['status']}")
+        for w in ev.warnings[:self.MAX_LISTED]:
+            print(f"  [BPTCKCSAgent] ⚠ {w}")
 
-    def _verify_lab_results_and_hold_points(self) -> tuple[list, list, list]:
-        """Xác thực kết quả thí nghiệm phòng LAS-XD và giải tỏa Hold Points."""
-        lab_results = [
-            {
-                "test_id": "LAS188-BT-01", "material_type": "CONCRETE", "sample_code": "M-COC-T1-01",
-                "r7_mpa": 25.2, "r28_mpa": 33.5, "required_mpa": 30.0, "status": "PASS",
-                "certificate_ref": "PTN-2026/088", "kcs_record_linked": "BBNT-04",
-                "desc": "Bê tông C30 cọc khoan nhồi trụ T1"
-            },
-            {
-                "test_id": "LAS188-BT-02", "material_type": "CONCRETE", "sample_code": "M-DAM-ST-01",
-                "r7_mpa": 42.0, "r28_mpa": 52.8, "required_mpa": 45.0, "status": "PASS",
-                "certificate_ref": "PTN-2026/102", "kcs_record_linked": "BBNT-14",
-                "desc": "Bê tông C45/55 dầm Super-T (R7 đạt 93.3% R28)"
-            },
-            {
-                "test_id": "LAS188-BT-03", "material_type": "CONCRETE", "sample_code": "M-BAN-MC-01",
-                "r7_mpa": 29.8, "r28_mpa": 38.6, "required_mpa": 35.0, "status": "PASS",
-                "certificate_ref": "PTN-2026/115", "kcs_record_linked": "BBNT-18",
-                "desc": "Bê tông C35 bản mặt cầu"
-            },
-            {
-                "test_id": "LAS188-STEEL-01", "material_type": "REBAR", "sample_code": "ST-D25-CB500",
-                "r7_mpa": 0.0, "r28_mpa": 0.0, "required_mpa": 500.0, "status": "PASS",
-                "certificate_ref": "CCXX-HP-2026-991", "kcs_record_linked": "BBNT-03",
-                "desc": "Chứng chỉ kéo uốn thép Ø25 CB500-V (fy=542MPa, fu=668MPa)"
-            },
-            {
-                "test_id": "LAS188-SONIC-01", "material_type": "PILE_INTEGRITY", "sample_code": "SONIC-156-SECTIONS",
-                "r7_mpa": 0.0, "r28_mpa": 0.0, "required_mpa": 1.0, "status": "PASS",
-                "certificate_ref": "BC-SA-2026/01", "kcs_record_linked": "BBNT-07",
-                "desc": "Siêu âm cọc khoan nhồi 156 mặt cắt: 100% đạt Loại 1"
-            },
-            {
-                "test_id": "LAS188-PDA-01", "material_type": "PDA_TEST", "sample_code": "PDA-COC-T1-02",
-                "r7_mpa": 0.0, "r28_mpa": 0.0, "required_mpa": 7800.0, "status": "PASS",
-                "certificate_ref": "BC-PDA-2026/02", "kcs_record_linked": "BBNT-08",
-                "desc": "Nén động PDA cọc T1-02 đạt 9,434 kN (Sức chịu tải thiết kế 7,800 kN)"
-            }
-        ]
-
-        hold_points = [
-            "Đã nghiệm thu dò Karst 26 lỗ đạt 5m vào đá liền khối (BBNT-06)",
-            "Đã siêu âm 156 mặt cắt cọc nhồi đạt 100% Loại 1 (BBNT-07)",
-            "Thí nghiệm nén động PDA cọc đạt 9,434 kN vượt tải thiết kế (BBNT-08)",
-            "Bê tông dầm Super-T đạt R28 = 52.8 MPa > 45 MPa, đủ điều kiện căng kéo cáp DƯL (BBNT-14)"
-        ]
-
-        clashes = []
-        for r in lab_results:
-            if r["status"] != "PASS":
-                clashes.append(f"Phiếu thí nghiệm {r['test_id']} ({r['desc']}) KHÔNG ĐẠT chuẩn!")
-
-        return lab_results, hold_points, clashes
+        if self.lab_out:
+            write_lab_report(self.lab_out, ev, self.criteria)
+            print(f"  [BPTCKCSAgent] Đã xuất báo cáo thí nghiệm: {self.lab_out}")
+        return not failed
 
 
 class SchedulerAgent(BaseAgent):
