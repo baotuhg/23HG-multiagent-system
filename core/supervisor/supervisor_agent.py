@@ -13,7 +13,7 @@ Kiến trúc State Graph:
     ↓ Quality Gate 2
   QS_ESTIMATE   ← qs_agent.execute()
     ↓ Quality Gate 3
-  QAQC_REVIEW   ← bptc_kcs_agent.execute() + Excel Audit 100/100
+  QAQC_REVIEW   ← bptc_kcs_agent.execute() (phiếu thí nghiệm) + Excel Audit 100/100 (khi có --excel)
     ↓ Human Gate (AWAITING_APPROVAL)
   SCHEDULE_CPM  ← scheduler_agent.execute()
     ↓
@@ -80,7 +80,8 @@ class AECSupervisor:
             state.project_name = project_name
         elif not demo_mode:
             state.project_name = "(chưa đặt tên dự án — dùng --project-name)"
-        persist = persist_path or os.path.join(project_root, "agents", "RUNTIME_STATE.json")
+        persist = persist_path or os.path.join(
+            os.environ.get("AEC_STATE_DIR") or os.path.join(project_root, ".aec_state"), "RUNTIME_STATE.json")
         self.bus = StateBus(state, persist_path=persist)
 
         # Gates
@@ -272,17 +273,20 @@ class AECSupervisor:
         if not success:
             return False
 
-        # Excel Audit — chỉ chạy EXCEL_AUDIT_GATE (không cần QS check lại)
+        # Excel Audit (GATE-4) — chỉ khi người dùng chỉ định Excel master (--excel)
         excel_path = self.bus._state.excel_master_path
-        if excel_path and os.path.exists(excel_path):
-            audit_result = self.quality_gate.check_excel_audit(excel_path)
-            self._print_gate_results("GATE-4: Excel Audit 100/100", [audit_result],
-                                     agent_id="bptc_kcs_agent")
-            return audit_result.passed
-        else:
-            print(f"  [Supervisor] ✗ Không tìm thấy Excel master ({excel_path or 'chưa chỉ định --excel'}) "
-                  f"— không thể kiểm toán, dừng phase")
+        if not excel_path:
+            print("  [Supervisor] ℹ Chưa chỉ định Excel master (--excel) — bỏ qua GATE-4 kiểm toán Excel; "
+                  "Human Gate sẽ ghi 'chưa kiểm toán'")
+            return True
+        if not os.path.exists(excel_path):
+            print(f"  [Supervisor] ✗ Không tìm thấy Excel master {excel_path} — không thể kiểm toán, dừng phase")
             return False
+        audit_result = self.quality_gate.check_excel_audit(excel_path)
+        self.bus.set_qaqc_data({"audit_score": audit_result.score, "audit_run": True})
+        self._print_gate_results("GATE-4: Excel Audit 100/100", [audit_result],
+                                 agent_id="bptc_kcs_agent")
+        return audit_result.passed
 
     def _phase_human_gate(self) -> bool:
         """
@@ -303,7 +307,11 @@ class AECSupervisor:
             ),
             "G_XD (VNĐ)": f"{getattr(qs, 'total_G_XD_vnd', 0):,.0f}",
             "VAT 10%": f"{getattr(qs, 'vat_vnd', 0):,.0f}",
-            "Audit score": f"{getattr(qaqc, 'audit_score', 0)}/100",
+            "Audit score": (f"{getattr(qaqc, 'audit_score', 0)}/100" if getattr(qaqc, "audit_run", False)
+                            else "Chưa kiểm toán Excel master (không có --excel)"),
+            "Phiếu thí nghiệm": (
+                "{total} phiếu — {pass} đạt / {fail} không đạt / {pending} chờ".format(**qaqc.lab_summary)
+                if getattr(qaqc, "lab_summary", None) else "Chưa đánh giá"),
             "Số lỗi hệ thống": len(errors),
         }
 

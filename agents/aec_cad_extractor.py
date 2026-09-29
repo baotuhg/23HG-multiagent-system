@@ -148,6 +148,140 @@ class AutoCADCOMConnector:
         return entities_summary
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# ĐỌC ĐA TUYẾN KHÉP KÍN TỪ FILE DXF (không cần AutoCAD)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Mã $INSUNITS của DXF → tên đơn vị (chỉ các đơn vị hay gặp trong hồ sơ xây dựng)
+DXF_UNITS = {0: "không khai báo", 1: "inch", 2: "feet", 4: "mm", 5: "cm", 6: "m"}
+
+
+def _shoelace(vertices: List[Tuple[float, float]]) -> float:
+    n = len(vertices)
+    if n < 3:
+        return 0.0
+    total = 0.0
+    for i in range(n):
+        x1, y1 = vertices[i]
+        x2, y2 = vertices[(i + 1) % n]
+        total += x1 * y2 - x2 * y1
+    return abs(total) / 2.0
+
+
+def _read_dxf_ascii(path: str) -> Tuple[int, List[Dict[str, Any]]]:
+    """Bộ đọc DXF ASCII tối giản: LWPOLYLINE và POLYLINE/VERTEX (2D) trong mục ENTITIES."""
+    with open(path, "r", encoding="utf-8", errors="replace") as f:
+        lines = [ln.rstrip("\r\n") for ln in f]
+    if len(lines) % 2:
+        lines.append("")
+    pairs = [(lines[i].strip(), lines[i + 1]) for i in range(0, len(lines), 2)]
+
+    insunits, polylines = 0, []
+    section, current, in_polyline = None, None, None
+    for idx, (code, value) in enumerate(pairs):
+        if code == "0" and value.strip() == "SECTION" and idx + 1 < len(pairs):
+            section = pairs[idx + 1][1].strip()
+            continue
+        if section == "HEADER" and code == "9" and value.strip() == "$INSUNITS" and idx + 1 < len(pairs):
+            try:
+                insunits = int(pairs[idx + 1][1].strip())
+            except ValueError:
+                pass
+            continue
+        if section != "ENTITIES":
+            continue
+        if code == "0":
+            kind = value.strip()
+            if current is not None and current["type"] == "LWPOLYLINE":
+                polylines.append(current)
+            current = None
+            if kind == "LWPOLYLINE":
+                current = {"type": "LWPOLYLINE", "layer": "0", "closed": False, "vertices": []}
+            elif kind == "POLYLINE":
+                in_polyline = {"type": "POLYLINE", "layer": "0", "closed": False, "vertices": []}
+            elif kind == "VERTEX" and in_polyline is not None:
+                current = {"type": "VERTEX", "target": in_polyline}
+            elif kind == "SEQEND" and in_polyline is not None:
+                polylines.append(in_polyline)
+                in_polyline = None
+            elif kind == "ENDSEC":
+                section = None
+            continue
+        target = current if current is not None and current["type"] == "LWPOLYLINE" else None
+        if current is None and in_polyline is not None:
+            target = in_polyline
+        if current is not None and current["type"] == "VERTEX":
+            v = current["target"]["vertices"]
+            if code == "10":
+                v.append([float(value), 0.0])
+            elif code == "20" and v:
+                v[-1][1] = float(value)
+            continue
+        if target is None:
+            continue
+        if code == "8":
+            target["layer"] = value.strip()
+        elif code == "70":
+            target["closed"] = bool(int(value.strip() or 0) & 1)
+        elif code == "10" and target["type"] == "LWPOLYLINE":
+            target["vertices"].append([float(value), 0.0])
+        elif code == "20" and target["type"] == "LWPOLYLINE" and target["vertices"]:
+            target["vertices"][-1][1] = float(value)
+    if current is not None and current["type"] == "LWPOLYLINE":
+        polylines.append(current)
+    return insunits, [{"layer": p["layer"], "closed": p["closed"],
+                       "vertices": [tuple(v) for v in p["vertices"]]} for p in polylines]
+
+
+def _read_dxf_ezdxf(path: str) -> Tuple[int, List[Dict[str, Any]]]:
+    doc = ezdxf.readfile(path)
+    insunits = int(doc.header.get("$INSUNITS", 0) or 0)
+    polylines = []
+    for e in doc.modelspace().query("LWPOLYLINE POLYLINE"):
+        if e.dxftype() == "LWPOLYLINE":
+            pts = [(float(x), float(y)) for x, y in e.get_points("xy")]
+        else:
+            pts = [(float(v.dxf.location.x), float(v.dxf.location.y)) for v in e.vertices]
+        polylines.append({"layer": e.dxf.layer, "closed": bool(e.is_closed), "vertices": pts})
+    return insunits, polylines
+
+
+def read_dxf_closed_areas(path: str) -> Dict[str, Any]:
+    """
+    Đọc mọi đa tuyến KHÉP KÍN trong file DXF và tính diện tích (Shoelace), gom theo layer.
+    Dùng ezdxf nếu đã cài, ngược lại dùng bộ đọc DXF ASCII tích hợp (không đọc được DXF nhị phân / DWG).
+
+    Diện tích tính theo ĐƠN VỊ BẢN VẼ bình phương — xem 'units' ($INSUNITS) để quy đổi.
+    Đa tuyến có cung tròn (bulge) được tính theo dây cung → sai số nhỏ; đa tuyến hở bị bỏ qua.
+    """
+    if not path.lower().endswith(".dxf"):
+        raise ValueError(f"Chỉ đọc được file .dxf (DWG cần AutoCAD COM hoặc chuyển sang DXF): {path}")
+    reader = "ezdxf" if HAS_EZDXF else "ascii"
+    insunits, polylines = (_read_dxf_ezdxf if HAS_EZDXF else _read_dxf_ascii)(path)
+
+    by_layer: Dict[str, Dict[str, Any]] = {}
+    open_count = 0
+    for pl in polylines:
+        if not pl["closed"]:
+            open_count += 1
+            continue
+        area = _shoelace(pl["vertices"])
+        entry = by_layer.setdefault(pl["layer"], {"count": 0, "total_area": 0.0, "areas": []})
+        entry["count"] += 1
+        entry["total_area"] += area
+        entry["areas"].append(round(area, 6))
+    for entry in by_layer.values():
+        entry["total_area"] = round(entry["total_area"], 6)
+    return {
+        "file_path": path,
+        "reader": reader,
+        "units": DXF_UNITS.get(insunits, f"mã {insunits}"),
+        "closed_polylines": sum(e["count"] for e in by_layer.values()),
+        "open_polylines_skipped": open_count,
+        "layers": by_layer,
+    }
+
+
 class AECCadExtractor:
     """
     TÁC TỬ AEC CAD EXTRACTOR
@@ -328,49 +462,60 @@ class AECCadExtractor:
 
     def reconcile_with_design_documents(self, cad_summary: Dict[str, Any], excel_data: Dict[str, Any], md_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
-        Thực hiện Đối soát 2 chiều:
-        [ Bản vẽ DWG trong AutoCAD ] <---> [ Hồ sơ thiết kế (Excel/PDF) ]
-        Kiểm tra tính nhất quán giữa bản vẽ kỹ thuật và hồ sơ tiên lượng.
+        Đối soát 2 chiều [ Bản vẽ CAD ] <---> [ Hồ sơ thiết kế (Excel / Markdown) ].
+
+        Chỉ so sánh những chỉ tiêu mà CẢ HAI phía đều có số liệu thật:
+          MATCHED     — hai phía khớp
+          MISMATCH    — hai phía lệch nhau (cần kỹ sư xem lại)
+          NOT_CHECKED — một phía chưa có dữ liệu → KHÔNG được coi là khớp
         """
-        reconciliations = []
+        specs = (md_data or {}).get("technical_specs", {}) or {}
+        excel_data = excel_data or {}
+        cad_summary = cad_summary or {}
 
-        total_cad_drawings = cad_summary.get("total_drawings", 0)
-        reconciliations.append({
-            "check_item": "Số lượng bản vẽ thiết kế DWG",
-            "cad_value": f"{total_cad_drawings} bản vẽ",
-            "excel_value": "Khớp danh mục bản vẽ thi công",
-            "status": "MATCHED"
-        })
+        def as_set(values):
+            if not values:
+                return None
+            return {str(v).strip().upper().replace(" ", "") for v in values if str(v).strip()}
 
-        # Đối chiếu kết cấu nhịp Super-T
-        reconciliations.append({
-            "check_item": "Chiều dài nhịp dầm chủ Super-T",
-            "cad_value": "38.20 m",
-            "excel_value": "38.20 m (QS dòng 61)",
-            "status": "MATCHED"
-        })
+        def check(item, cad_value, doc_value, doc_label):
+            if cad_value is None or doc_value is None:
+                missing = "bản vẽ CAD" if cad_value is None else doc_label
+                return {"check_item": item,
+                        "cad_value": "—" if cad_value is None else self._fmt(cad_value),
+                        "excel_value": "—" if doc_value is None else self._fmt(doc_value),
+                        "status": "NOT_CHECKED",
+                        "note": f"Chưa có dữ liệu từ {missing} — chưa đối soát"}
+            return {"check_item": item, "cad_value": self._fmt(cad_value), "excel_value": self._fmt(doc_value),
+                    "status": "MATCHED" if cad_value == doc_value else "MISMATCH", "note": ""}
 
-        # Đối chiếu cọc khoan nhồi
-        reconciliations.append({
-            "check_item": "Đường kính cọc khoan nhồi",
-            "cad_value": "D = 1200 mm (26 cọc)",
-            "excel_value": "D = 1200 mm (QS dòng 18)",
-            "status": "MATCHED"
-        })
+        return [
+            check("Số lượng bản vẽ thiết kế",
+                  cad_summary.get("total_drawings") if cad_summary.get("total_drawings") else None,
+                  excel_data.get("drawing_list_count"), "danh mục bản vẽ trong Excel"),
+            check("Mác bê tông", as_set(cad_summary.get("concrete_grades")),
+                  as_set(specs.get("concrete_grades")), "thuyết minh (Markdown)"),
+            check("Mác thép", as_set(cad_summary.get("steel_grades")),
+                  as_set(specs.get("steel_grades")), "thuyết minh (Markdown)"),
+        ]
 
-        # Đối chiếu mác bê tông dầm
-        reconciliations.append({
-            "check_item": "Mác bê tông dầm Super-T",
-            "cad_value": "C45 (Mác 500)",
-            "excel_value": "C45 (Cấp phối hàng 16)",
-            "status": "MATCHED"
-        })
-
-        return reconciliations
+    @staticmethod
+    def _fmt(value) -> str:
+        if isinstance(value, (set, list, tuple)):
+            return ", ".join(sorted(str(v) for v in value))
+        return str(value)
 
     def process_drawing(self, file_path: str) -> Dict[str, Any]:
-        """Xử lý và bóc tách dữ liệu từ một tệp bản vẽ CAD cụ thể."""
+        """
+        Xử lý một tệp bản vẽ: phân loại WBS theo tên file; với .dxf đọc thêm diện tích
+        các đa tuyến khép kín theo layer (read_dxf_closed_areas). DWG cần AutoCAD (COM).
+        """
         print(f"[{self.name}] Đang phân tích chi tiết bản vẽ CAD: {os.path.basename(file_path)}")
         cls_info = self.classify_drawing_component(file_path)
+        if file_path.lower().endswith(".dxf"):
+            try:
+                cls_info["dxf_areas"] = read_dxf_closed_areas(file_path)
+            except Exception as e:  # file hỏng / DXF nhị phân — vẫn trả phân loại
+                cls_info["dxf_error"] = str(e)
         cls_info["status"] = "PROCESSED"
         return cls_info

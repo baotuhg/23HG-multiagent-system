@@ -135,22 +135,19 @@ class AECAuditVerifier:
         print(f"-> Đã xuất báo cáo thẩm tra: {report_path}")
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
-        target = sys.argv[1]
-    else:
-        candidates = [
-            r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_01_MACRO_MASTER_14_SHEET\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx",
-            r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_01_MACRO_MASTER_14_SHEET\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx",
-            r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx",
-            r"d:\Code\23HG-multiagent-system\23HG-multiagent-system\templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx"
-        ]
-        target = next((p for p in candidates if os.path.exists(p)), candidates[0])
+    import argparse
+    _root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    parser = argparse.ArgumentParser(description="Thẩm tra workbook Excel master (100/100 điểm)")
+    parser.add_argument("excel", nargs="?",
+                        default=os.path.join(_root, "templates", "Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx"),
+                        help="File Excel master cần thẩm tra (mặc định: workbook mẫu trong templates/)")
+    parser.add_argument("--report", default=None,
+                        help="File báo cáo .md (mặc định: BAO_CAO_THAM_TRA_AEC_AUDIT.md cạnh file Excel)")
+    args = parser.parse_args()
+    if not os.path.exists(args.excel):
+        parser.error(f"Không tìm thấy file Excel: {args.excel}")
 
-    out_rep_1 = os.path.join(os.path.dirname(target), "BAO_CAO_THAM_TRA_AEC_AUDIT.md")
-    out_rep_2 = r"d:\Code\23HG-multiagent-system\23HG-multiagent-system\templates\BAO_CAO_THAM_TRA_AEC_AUDIT.md"
-
-    auditor = AECAuditVerifier(target)
+    auditor = AECAuditVerifier(args.excel)
     auditor.audit_excel_workbook()
-    auditor.export_audit_report(out_rep_1)
-    auditor.export_audit_report(out_rep_2)
+    auditor.export_audit_report(args.report or os.path.join(os.path.dirname(os.path.abspath(args.excel)),
+                                                            "BAO_CAO_THAM_TRA_AEC_AUDIT.md"))

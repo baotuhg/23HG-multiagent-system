@@ -2,7 +2,7 @@
 openpyxl>=3.1.5
 python-docx>=1.2.0
 
-# CAD & Drawing processing
+# CAD & Drawing processing (ezdxf: đọc DXF; thiếu ezdxf vẫn đọc được DXF ASCII bằng bộ đọc tích hợp)
 ezdxf>=1.4.0
 numpy>=1.26.0
 
@@ -23,7 +23,6 @@ ortools>=9.0.0
 pandas>=2.0.0
 python-dateutil>=2.9.0
 
-# Optional: Hugging Face & RAG modules
-# sentence-transformers>=3.0.0
-# huggingface-hub>=0.24.0
-# transformers>=4.40.0
+# Hugging Face / RAG: CHƯA cần. agents/rag_method_statement_huggingface.py hiện chỉ xuất
+# bản thuyết minh BPTC mẫu viết sẵn, chưa gọi model nào. Khi triển khai RAG thật sẽ bổ sung
+# sentence-transformers / huggingface-hub vào file requirements riêng.

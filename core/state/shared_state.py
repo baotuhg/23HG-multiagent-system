@@ -19,12 +19,18 @@ Cấu trúc: ProjectSharedState
 
 from __future__ import annotations
 from enum import Enum
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, fields, is_dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 import json
 import os
 import threading
+
+
+def _dataclass_from_dict(cls, data: Dict[str, Any]):
+    """Dựng lại dataclass lồng nhau từ dict (khi khôi phục state từ JSON); bỏ qua khóa lạ."""
+    known = {f.name for f in fields(cls)}
+    return cls(**{k: v for k, v in data.items() if k in known})
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -191,11 +197,15 @@ class QAQCData:
     """Quản lý chất lượng và kiểm soát chất lượng."""
     total_inspection_records: int = 0
     records: List[Dict[str, Any]] = field(default_factory=list)
-    lab_results: List[LabTestResult] = field(default_factory=list)
+    lab_results: List[Dict[str, Any]] = field(default_factory=list)   # từ tools/lab_qaqc.LabRecord
     hold_points: List[str] = field(default_factory=list)
     date_cross_check_status: str = "NOT_RUN"  # PASSED / FAILED / NOT_RUN
     audit_score: int = 0
+    audit_run: bool = False                   # True khi GATE-4 đã kiểm toán Excel master
     clashes_detected: List[str] = field(default_factory=list)
+    lab_summary: Dict[str, Any] = field(default_factory=dict)          # total / pass / fail / pending
+    hold_point_status: List[Dict[str, Any]] = field(default_factory=list)  # bbnt / status / tests / reasons
+    warnings: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -323,8 +333,11 @@ class ProjectSharedState:
     def from_dict(cls, data: Dict[str, Any]) -> "ProjectSharedState":
         """Deserialize từ dict (khi load từ file JSON)."""
         state = cls()
-        # Simple field mapping — nested dataclasses cần reconstruct
         for k, v in data.items():
-            if hasattr(state, k):
-                setattr(state, k, v)
+            if not hasattr(state, k):
+                continue
+            current = getattr(state, k)
+            if is_dataclass(current) and isinstance(v, dict):
+                v = _dataclass_from_dict(type(current), v)
+            setattr(state, k, v)
         return state

@@ -55,3 +55,8 @@ venv.bak/
 scratch/
 tmp/
 .cache/
+
+# Runtime state của State Graph (khôi phục sau crash) — sinh ra khi chạy, không đưa vào git
+.aec_state/
+agents/RUNTIME_STATE.json
+*.tmp

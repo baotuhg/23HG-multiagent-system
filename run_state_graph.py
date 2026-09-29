@@ -9,6 +9,8 @@ Dùng lệnh:
   python run_state_graph.py --phase schedule --schedule TienDo.xml --non-working-days cn
                                                           # Tính CPM từ MS Project XML / Excel thật
   python run_state_graph.py --solver-test                 # Chỉ test OR-Tools solver
+  python run_state_graph.py --check-inputs --bbs BBS.xlsx --lab PTN.csv
+                                                          # Chỉ kiểm tra file đầu vào, không tính toán
 
 Dữ liệu thật vs dữ liệu mẫu:
   Mặc định hệ thống CHỈ dùng dữ liệu thật: phase nào thiếu dữ liệu sẽ dừng và báo rõ
@@ -37,7 +39,9 @@ from core.state.shared_state import ProjectPhase
 # ── CONFIG ───────────────────────────────────────────────────────────────────
 
 SAMPLE_EXCEL_MASTER = os.path.join(ROOT, "templates", "Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx")
-RUNTIME_STATE = os.path.join(ROOT, "agents", "RUNTIME_STATE.json")
+# State runtime (khôi phục sau crash) — KHÔNG đưa vào git. Đổi thư mục bằng biến môi trường AEC_STATE_DIR.
+STATE_DIR = os.environ.get("AEC_STATE_DIR") or os.path.join(ROOT, ".aec_state")
+RUNTIME_STATE = os.path.join(STATE_DIR, "RUNTIME_STATE.json")
 
 
 PHASE_MAP = {
@@ -141,6 +145,79 @@ def run_solver_test():
     print("\n  ✅ Tất cả tools hoạt động bình thường!\n")
 
 
+def check_inputs(args) -> bool:
+    """
+    --check-inputs: chỉ đọc và kiểm tra các file đầu vào đã khai báo (không chạy solver,
+    không ghi file). Trả về True nếu mọi file đọc được và không có dòng lỗi.
+    """
+    from tools.bbs_loader import load_bbs
+    from tools.lab_qaqc import evaluate, load_lab_results
+    from tools.payment import load_progress
+    from tools.qs_loader import load_qs
+    from tools.schedule_loader import load_schedule
+
+    def bbs(path, sheet):
+        r = load_bbs(path, sheet=sheet)
+        return f"{len(r.demands)} Bar Mark, {r.total_pieces} thanh", r.errors
+
+    def qs(path, sheet):
+        r = load_qs(path, sheet=sheet)
+        return f"{len(r.items)} công tác", r.errors
+
+    def schedule(path, sheet):
+        r = load_schedule(path, sheet=sheet)
+        return f"{len(r.tasks)} công việc", r.errors
+
+    def progress(path, sheet):
+        return f"{len(load_progress(path, sheet=sheet))} dòng khối lượng", []
+
+    def lab(path, sheet):
+        ev = evaluate(load_lab_results(path, sheet=sheet), path)
+        return (f"{len(ev.records)} phiếu ({ev.count('PASS')} đạt / {ev.count('FAIL')} không đạt / "
+                f"{ev.count('PENDING')} chờ)"), ev.errors
+
+    checks = [
+        ("BBS cắt thép", "--bbs", args.bbs, args.bbs_sheet, bbs),
+        ("Bảng QS / BOQ", "--qs", args.qs, args.qs_sheet, qs),
+        ("Tiến độ", "--schedule", args.schedule, args.schedule_sheet, schedule),
+        ("Khối lượng thực hiện", "--progress", args.progress, args.progress_sheet, progress),
+        ("Phiếu thí nghiệm", "--lab", args.lab, args.lab_sheet, lab),
+    ]
+    print("\n  KIỂM TRA DỮ LIỆU ĐẦU VÀO (không chạy tính toán, không ghi file)\n")
+    ok, any_given = True, False
+    for label, flag, path, sheet, loader in checks:
+        if not path:
+            continue
+        any_given = True
+        try:
+            info, errors = loader(path, sheet)
+        except (ValueError, OSError) as e:      # các *LoadError đều kế thừa ValueError
+            ok = False
+            print(f"  ✗ {label} ({flag} {path}): {e}")
+            continue
+        mark = "✓" if not errors else "✗"
+        print(f"  {mark} {label} ({flag} {path}): {info}"
+              + (f" — {len(errors)} dòng lỗi" if errors else ""))
+        for err in errors[:10]:
+            print(f"      • {err}")
+        if len(errors) > 10:
+            print(f"      … và {len(errors) - 10} lỗi khác")
+        ok = ok and not errors
+    for label, flag, path, is_dir in (("Excel master", "--excel", args.excel, False),
+                                      ("Thư mục bản vẽ", "--drawings", args.drawings, True)):
+        if not path:
+            continue
+        any_given = True
+        exists = os.path.isdir(path) if is_dir else os.path.isfile(path)
+        ok = ok and exists
+        print(f"  {'✓' if exists else '✗'} {label} ({flag} {path})" + ("" if exists else ": không tìm thấy"))
+    if not any_given:
+        print("  Chưa khai báo file nào để kiểm tra (--bbs, --qs, --schedule, --progress, --lab, --excel, --drawings).\n")
+        return False
+    print(f"\n  {'✅ Dữ liệu đầu vào hợp lệ' if ok else '❌ Cần sửa dữ liệu trước khi chạy'}\n")
+    return ok
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="23HG MultiAgent System v3.0 — State Graph + Supervisor"
@@ -159,6 +236,10 @@ def main():
         "--human-gate", choices=["cli", "auto", "file"],
         default=None,
         help="Chế độ Human Gate (mặc định: cli; auto chỉ là mặc định khi --demo)"
+    )
+    parser.add_argument(
+        "--check-inputs", action="store_true",
+        help="Chỉ đọc và kiểm tra các file đầu vào đã khai báo (không tính toán, không ghi file)"
     )
     parser.add_argument(
         "--solver-test", action="store_true",
@@ -235,6 +316,11 @@ def main():
                      help="Tỷ lệ giữ lại (bảo hành / bảo đảm), %% giá trị gồm thuế (ghi 0 nếu không có)")
     pay.add_argument("--period", default="", help="Kỳ thanh toán, vd 01")
     pay.add_argument("--payment-out", default=None, help="Xuất Mẫu 03a (.xlsx)")
+    lab = parser.add_argument_group("Phiếu thí nghiệm & điểm dừng kỹ thuật (phase qaqc)")
+    lab.add_argument("--lab", default=None,
+                     help="File phiếu thí nghiệm thật (.xlsx/.csv/.json): nén R7/R28, kéo thép, siêu âm, PDA...")
+    lab.add_argument("--lab-sheet", default=None, help="Tên sheet phiếu thí nghiệm (mặc định: tự tìm)")
+    lab.add_argument("--lab-out", default=None, help="Xuất báo cáo đánh giá thí nghiệm & Hold Point (.xlsx)")
     fleet = parser.add_argument_group("Điều phối Ca xe, Ca máy & Nhiên liệu Dầu (phase fleet / dispatch)")
     fleet.add_argument("--fleet-out", default=None, help="Xuất file Master Ca máy Excel (.xlsx)")
     fleet.add_argument("--dispatch-out", default=None, help="Thư mục xuất các gói Hub & Spoke")
@@ -273,6 +359,9 @@ def main():
     if args.solver_test:
         run_solver_test()
         return
+
+    if args.check_inputs:
+        sys.exit(0 if check_inputs(args) else 1)
 
     human_gate_mode = args.human_gate or ("auto" if args.demo else "cli")
     if human_gate_mode == "auto" and not args.demo:
@@ -325,7 +414,7 @@ def main():
                         "tl": args.rate_tl, "vat": args.vat},
         qs_out=args.qs_out,
     ))
-    supervisor.register_agent(BPTCKCSAgent())
+    supervisor.register_agent(BPTCKCSAgent(lab_path=args.lab, lab_sheet=args.lab_sheet, lab_out=args.lab_out))
     supervisor.register_agent(SchedulerAgent(
         schedule_path=args.schedule,
         schedule_sheet=args.schedule_sheet,
@@ -379,6 +468,7 @@ def main():
             print("         tối ưu cắt thép từ BBS thật:         python run_state_graph.py --phase rebar --bbs <file>")
             print("         tính tiến độ CPM từ file thật:       python run_state_graph.py --phase schedule --schedule <file>")
             print("         tính dự toán G_XD từ bảng QS thật:   python run_state_graph.py --phase qs --qs <file>")
+            print("         đánh giá phiếu thí nghiệm thật:      python run_state_graph.py --phase qaqc --lab <file>")
             print("         lập Mẫu 03a:                         python run_state_graph.py --phase payment --qs <file> "
                   "--progress <file> --price-basis direct --advance-recovery-pct 20 --retention-pct 5")
 
