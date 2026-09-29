@@ -10,6 +10,12 @@ SỬ DỤNG HUGGING FACE EMBEDDING MODEL & LLM LÀM LÕI SINH NỘI DUNG RAG
 2. LLM Model từ Hugging Face:
    - 'Qwen/Qwen2.5-7B-Instruct' (Mô hình suy luận và viết kỹ thuật tiếng Việt xuất sắc nhất)
    - Hoặc tích hợp qua Ollama local: 'ollama run qwen2.5:7b'
+
+TRẠNG THÁI HIỆN TẠI (cần biết trước khi dùng):
+  Mô-đun này CHƯA gọi Hugging Face / LLM / vector store nào. Các tên model ở trên chỉ là
+  cấu hình dự kiến. generate_method_statement_document() xuất một bản thuyết minh MẪU
+  viết sẵn cho Cầu Km19+529.080 — phải biên tập lại cho từng công trình.
+  RAG thật (embedding + truy xuất + sinh nội dung) nằm trong lộ trình, chưa triển khai.
 """
 
 import os
@@ -125,11 +131,11 @@ class MethodStatementAgent:
         print(f"-> Đã xuất tài liệu Thuyết minh Biện pháp thi công: {output_path}")
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Xuất mẫu Thuyết minh BPTC 8 chương (nội dung tĩnh, chưa dùng RAG)")
+    parser.add_argument("output", nargs="?", default="Thuyet_Minh_Bien_Phap_Thi_Cong_Cau_Km19+529.080.md",
+                        help="File Markdown đầu ra")
+    args = parser.parse_args()
     agent = MethodStatementAgent()
     agent.load_tcvn_standards()
-    
-    out_1 = r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\Thuyet_Minh_Bien_Phap_Thi_Cong_Cau_Km19+529.080.md"
-    out_2 = r"d:\Code\DONG_GOI_HETHONG_AEC\templates\Thuyet_Minh_Bien_Phap_Thi_Cong_Cau_Km19+529.080.md"
-    
-    agent.generate_method_statement_document(out_1)
-    agent.generate_method_statement_document(out_2)
+    agent.generate_method_statement_document(args.output)

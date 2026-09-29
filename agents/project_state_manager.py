@@ -133,12 +133,13 @@ class ProjectStateManager:
         print(f"[*] Đã cập nhật Single Source of Truth: {self.state_file_path}")
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Ghi PROJECT_STATE.json (Single Source of Truth) ra các đường dẫn chỉ định")
+    parser.add_argument("targets", nargs="*", help="Đường dẫn file PROJECT_STATE.json cần ghi (mặc định: agents/PROJECT_STATE.json)")
+    args = parser.parse_args()
     p_mgr = ProjectStateManager()
-    # Save to both project folder and template folder
-    f1 = r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\PROJECT_STATE.json"
-    f2 = r"d:\Code\DONG_GOI_HETHONG_AEC\templates\PROJECT_STATE.json"
-    
-    p_mgr.state_file_path = f1
-    p_mgr.save_state()
-    p_mgr.state_file_path = f2
-    p_mgr.save_state()
+    for target in args.targets:
+        p_mgr.state_file_path = target
+        p_mgr.save_state()
+    if not args.targets:
+        p_mgr.save_state()

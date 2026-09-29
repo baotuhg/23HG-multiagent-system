@@ -85,7 +85,9 @@ def main():
     print("\n--- BƯỚC 4: ĐỐI SOÁT 2 CHIỀU [BẢN VẼ DWG] <---> [HỒ SƠ THIẾT KẾ] ---")
     reconciliations = cad_agent.reconcile_with_design_documents(cad_scan, wb_res, md_res)
     for rec in reconciliations:
-        print(f"  [V] {rec['check_item']}: CAD={rec['cad_value']} <---> Hồ sơ={rec['excel_value']} ({rec['status']})")
+        mark = {"MATCHED": "[V]", "MISMATCH": "[X]"}.get(rec["status"], "[?]")
+        note = f" — {rec['note']}" if rec.get("note") else ""
+        print(f"  {mark} {rec['check_item']}: CAD={rec['cad_value']} <---> Hồ sơ={rec['excel_value']} ({rec['status']}){note}")
 
     # --- BƯỚC 5: TỔNG HỢP VÀO BLACKBOARD STATE (PROJECT_STATE.JSON) ---
     print("\n--- BƯỚC 5: TỔNG HỢP VÀO BLACKBOARD ARCHITECTURE (PROJECT_STATE.JSON) ---")
