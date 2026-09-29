@@ -49,6 +49,8 @@ PHASE_MAP = {
     "schedule": ProjectPhase.SCHEDULE_CPM,
     "asbuilt":  ProjectPhase.ASBUILT_LOOP,
     "payment":  ProjectPhase.PAYMENT_03A,
+    "fleet":    ProjectPhase.FLEET_DISPATCH,
+    "dispatch": ProjectPhase.FLEET_DISPATCH,
 }
 
 
@@ -233,6 +235,10 @@ def main():
                      help="Tỷ lệ giữ lại (bảo hành / bảo đảm), %% giá trị gồm thuế (ghi 0 nếu không có)")
     pay.add_argument("--period", default="", help="Kỳ thanh toán, vd 01")
     pay.add_argument("--payment-out", default=None, help="Xuất Mẫu 03a (.xlsx)")
+    fleet = parser.add_argument_group("Điều phối Ca xe, Ca máy & Nhiên liệu Dầu (phase fleet / dispatch)")
+    fleet.add_argument("--fleet-out", default=None, help="Xuất file Master Ca máy Excel (.xlsx)")
+    fleet.add_argument("--dispatch-out", default=None, help="Thư mục xuất các gói Hub & Spoke")
+    fleet.add_argument("--shifts", type=int, default=2, help="Số ca làm việc / ngày (mặc định 2)")
     parser.add_argument(
         "--project-name", default=None,
         help="Tên dự án hiển thị trong báo cáo"

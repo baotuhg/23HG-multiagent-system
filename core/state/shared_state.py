@@ -54,6 +54,7 @@ class ProjectPhase(str, Enum):
     SCHEDULE_CPM   = "SCHEDULE_CPM"
     ASBUILT_LOOP   = "ASBUILT_LOOP"
     PAYMENT_03A    = "PAYMENT_03A"
+    FLEET_DISPATCH = "FLEET_DISPATCH"
     COMPLETED      = "COMPLETED"
     ERROR          = "ERROR"
 

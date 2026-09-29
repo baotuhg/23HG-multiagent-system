@@ -1,0 +1,13 @@
+{
+  "project_name": "Cong_Hop_Tuyen_A5",
+  "mode": "site_operation",
+  "packages": [
+    "GOI_A_CO_GIOI_VA_DAU_DIEZEL",
+    "GOI_B_XUONG_TIEN_CHE_COT_THEP",
+    "GOI_C_HIEN_TRUONG_QLCL_KCS",
+    "GOI_D_QS_DU_TOAN_THANH_TOAN",
+    "GOI_E_EXECUTIVE_DASHBOARD"
+  ],
+  "total_files": 16,
+  "timestamp": "1790689927.9841554"
+}
