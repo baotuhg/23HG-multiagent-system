@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest,  python: "3.10" }
+          - { os: ubuntu-latest,  python: "3.12" }
+          - { os: windows-latest, python: "3.11" }
+    env:
+      PYTHONUTF8: "1"          # log tiếng Việt / ký hiệu trên console Windows
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Cài thư viện
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Kiểm thử đơn vị
+        run: python -m unittest discover -s tests -t . -v
+      - name: Tự kiểm tra OR-Tools solver + CPM
+        run: python run_state_graph.py --solver-test

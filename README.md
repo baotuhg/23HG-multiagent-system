@@ -4,6 +4,7 @@
 
 ---
 
+[![CI](https://github.com/baotuhg/23HG-multiagent-system/actions/workflows/ci.yml/badge.svg)](https://github.com/baotuhg/23HG-multiagent-system/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Standards: TCVN & BXD](https://img.shields.io/badge/Standards-TCVN%20%7C%20Lu%E1%BA%ADt%20XD%20135%2F2025-brightgreen)](workflows/)
@@ -136,7 +137,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
 | **Quản lý Tiến độ** | File tiến độ thật `MS Project .xml` / `.xlsx` / `.csv` (`--schedule`) | Bảng CPM (ES/EF/LS/LF, dự trữ, đường găng, ngày lịch) CSV; cảnh báo ngày trong file vi phạm quan hệ logic | CPM với quan hệ FS/SS/FF/SF + lag, lịch nghỉ (Chủ nhật, ngày lễ) |
 | **Ca xe & Dầu Diezel** | Tiến độ CPM (`.xml`/`.xlsx`), Khối lượng hình học, Định mức ca máy | Bảng tiến độ ca máy theo ngày/tuần (`.xlsx` + `.xml`), Biểu đồ phụ tải, Kế hoạch cấp dầu Diezel (Lít) | `EquipmentFleetScheduler`, định mức Vincons / TT 13, tính ca/ngày và nhiên liệu chi tiết |
 | **Quản lý Chất lượng**| Phiếu thí nghiệm nén R7/R28, kéo thép, PDA | 22 Biên bản nghiệm thu KCS in ấn A4 chuẩn | Excel A4 Form (`MAU_BIEN_BAN_KCS`, thay thế hoàn toàn Word) |
-| **Biện pháp Thi công** | Yêu cầu KTXD, điều kiện địa chất, thủy văn | Thuyết minh BPTC 8 chương TCVN | Markdown chuẩn kỹ thuật, tích hợp RAG Hugging Face |
+| **Biện pháp Thi công** | Yêu cầu KTXD, điều kiện địa chất, thủy văn | Thuyết minh BPTC 8 chương TCVN | Markdown mẫu viết sẵn (Cầu Km19+529.080) — **RAG Hugging Face chưa triển khai**, xem lộ trình |
 | **Đối soát Hiện trường**| Nhật ký thi công hàng ngày `DailySiteLog` | Báo cáo chênh lệch tiến độ & Chi phí phát sinh | As-Built Closed Loop, tự động cập nhật mạng CPM |
 | **Đóng gói Hub & Spoke**| Toàn bộ dữ liệu & sản phẩm đầu ra dự án | 5 Gói vệ tinh độc lập (`GOI_A` đến `GOI_E`) kèm `DISPATCH_MANIFEST.json` | `AECPackageDispatcher`, phân quyền theo vai trò (RBAC), bảo mật giá thầu, chống khóa file |
 
@@ -165,7 +166,9 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
   ├── [100% HOÀN THÀNH] Tác tử Điều phối Ca xe, Ca máy & Kế hoạch Nhiên liệu Dầu Diezel (AEC Equipment & Fleet Engine)
   ├── [100% HOÀN THÀNH] Mô hình Đóng gói Phân quyền Thực chiến Hub & Spoke 5 Gói Vệ tinh (Role-Based Dispatcher)
   ├── [100% HOÀN THÀNH] Mở rộng bộ hồ sơ mẫu thực chiến: Cống hộp Tuyến A5 & Cụm B9 San lấp Olympic Thường Tín
-  ├── Động cơ so sánh phiên bản CAD/BIM Versioning (Incremental Diff Rev00 vs Rev01)
+  ├── Động cơ so sánh phiên bản CAD/BIM Versioning (Incremental Diff Rev00 vs Rev01) — đã so sánh được dữ liệu cấu kiện;
+  │   còn thiếu bước tự bóc khối lượng từ bản vẽ (hiện đọc được diện tích đa tuyến khép kín trong DXF)
+  ├── RAG thật cho Thuyết minh BPTC (embedding + truy xuất TCVN + sinh nội dung) — hiện là bản mẫu viết sẵn
   ├── Tích hợp Ký số điện tử (E-Signatures / PKI) trực tiếp trên Web Dashboard
   ├── Mở rộng Multi-Project State Graph quản trị đồng thời nhiều phân đoạn cao tốc
   └── Giao diện WebUI / Mobile App cho Kỹ sư hiện trường nhập Daily Log trực tiếp
@@ -244,6 +247,20 @@ python run_state_graph.py --phase payment --qs "Du_toan.xlsx" --progress "KL_ky_
 > - **Hợp đồng** (khối lượng, đơn giá) lấy từ bảng QS. **Khối lượng thực hiện** lấy từ file `--progress`.
 > - Tự động tính khấu trừ thu hồi tạm ứng, khấu trừ bảo hành, phát hiện và cảnh báo khối lượng vượt hợp đồng tại sheet `PHAT_SINH_CANH_BAO`.
 
+#### a4b. Đánh giá phiếu thí nghiệm & điểm dừng kỹ thuật (Hold Point) từ file thật:
+```powershell
+python run_state_graph.py --phase qaqc --lab "Phieu_thi_nghiem.xlsx" --lab-out danh_gia_thi_nghiem.xlsx
+```
+> - Đọc phiếu thí nghiệm (Excel, CSV hoặc JSON; mẫu cột: `templates/Phieu_thi_nghiem_mau.csv`): nén bê tông R7/R28, kéo thép, PDA, siêu âm cọc, độ sụt...
+> - Mỗi phiếu được đánh giá **ĐẠT / KHÔNG ĐẠT / CHỜ**; mỗi biên bản nghiệm thu (BBNT) liên kết được xếp **GIẢI TỎA / CHỜ / CHẶN**. Có phiếu KHÔNG ĐẠT thì phase dừng.
+> - Kiểm toán Excel master (GATE-4, 100/100) chỉ chạy khi có `--excel`; không có thì Human Gate ghi rõ "chưa kiểm toán".
+
+#### a4c. Kiểm tra file đầu vào trước khi chạy (không tính toán, không ghi file):
+```powershell
+python run_state_graph.py --check-inputs --bbs "BBS.xlsx" --qs "Du_toan.xlsx" --schedule "TienDo.xml" --lab "Phieu_thi_nghiem.xlsx"
+```
+> Đọc từng file bằng đúng bộ đọc của hệ thống, liệt kê dòng lỗi, trả mã thoát 1 nếu có lỗi — dùng được trong script / CI.
+
 #### a5. Điều phối Ca xe, Ca máy & Kế hoạch Nhiên liệu Dầu Diezel:
 ```powershell
 python run_state_graph.py --phase fleet --fleet-out ca_xe_ca_may.xlsx --shifts 2
@@ -272,6 +289,8 @@ python run_state_graph.py --demo
 ```powershell
 python run_state_graph.py --solver-test
 ```
+
+> **Trạng thái runtime** (khôi phục sau khi dừng giữa chừng) được ghi vào `.aec_state/RUNTIME_STATE.json` — thư mục này không đưa vào git. Đổi vị trí bằng biến môi trường `AEC_STATE_DIR`.
 
 #### c2. Chạy bộ kiểm thử tự động toàn diện (Unit Tests):
 ```powershell

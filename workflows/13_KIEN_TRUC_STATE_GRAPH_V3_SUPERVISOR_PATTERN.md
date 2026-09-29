@@ -121,7 +121,7 @@ D:\Code\DONG_GOI_HETHONG_AEC\
 ├── templates/
 │   └── Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx  # Excel 14 Sheet Master
 │
-└── agents/RUNTIME_STATE.json   ← MỚI: State Graph runtime persistence
+└── .aec_state/RUNTIME_STATE.json   ← State Graph runtime persistence (không đưa vào git; đổi bằng AEC_STATE_DIR)
 ```
 
 ---
