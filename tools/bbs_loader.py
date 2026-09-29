@@ -106,7 +106,7 @@ def _load_excel(path: str, sheet: Optional[str]) -> BBSLoadResult:
 
 def _read_csv(path: str) -> List[List[Any]]:
     with open(path, "r", encoding="utf-8-sig", newline="") as f:
-        text = f.read()
+        text = f.read().replace("\r\n", "\n")
     try:
         dialect = csv.Sniffer().sniff(text[:4096], delimiters=",;\t")
     except csv.Error:

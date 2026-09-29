@@ -44,8 +44,17 @@ class DxfReaderTest(unittest.TestCase):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         self.path = os.path.join(tmp.name, "mat_cat.dxf")
-        with open(self.path, "w", encoding="utf-8") as f:
-            f.write(DXF)
+        if cad.HAS_EZDXF:
+            doc = cad.ezdxf.new("R2000")
+            doc.header["$INSUNITS"] = 6
+            msp = doc.modelspace()
+            msp.add_lwpolyline([(0, 0), (10, 0), (10, 5), (0, 5)], close=True, dxfattribs={"layer": "BT_BE"})
+            msp.add_lwpolyline([(0, 0), (3, 3)], close=False, dxfattribs={"layer": "BT_BE"})
+            msp.add_polyline2d([(0, 0), (4, 0), (0, 3)], close=True, dxfattribs={"layer": "DAO_DAT"})
+            doc.saveas(self.path)
+        else:
+            with open(self.path, "w", encoding="utf-8") as f:
+                f.write(DXF)
 
     def test_ascii_reader(self):
         with mock.patch.object(cad, "HAS_EZDXF", False):

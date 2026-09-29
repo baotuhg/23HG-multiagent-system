@@ -173,7 +173,7 @@ def load_lab_results(path: str, sheet: Optional[str] = None) -> List[Tuple[int, 
                            f"Kết quả / Mẫu 1..n / Giới hạn chảy")
     if ext in (".csv", ".txt"):
         with open(path, "r", encoding="utf-8-sig", newline="") as f:
-            text = f.read()
+            text = f.read().replace("\r\n", "\n")
         try:
             dialect = csv.Sniffer().sniff(text[:4096], delimiters=",;\t")
         except csv.Error:

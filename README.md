@@ -388,6 +388,9 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 ```text
 23HG-multiagent-system/
 │
+├── .github/                      # 🤖 CI/CD WORKFLOWS
+│   └── workflows/ci.yml          # GitHub Actions (Python 3.10, 3.11, 3.12 trên Ubuntu & Windows)
+│
 ├── core/                         # 🧠 BỘ ĐIỀU PHỐI ĐỒ THỊ TRẠNG THÁI (STATE GRAPH v3.0)
 │   ├── state/
 │   │   ├── shared_state.py       # Pydantic/Dataclass SharedState (SSOT 9 miền, bổ sung FLEET_DISPATCH)
@@ -466,6 +469,7 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 │   └── run_cad_diff_demo.py                      # Demo so sánh bản vẽ CAD Rev00 vs Rev01
 │
 ├── tests/                        # 🧪 TEST TỰ ĐỘNG (python -m unittest discover tests)
+│   ├── test_cad_and_state.py                     # Test đọc DXF hình học & lưu/khôi phục State
 │   ├── test_equipment_fleet_scheduler.py         # Test động cơ ca xe, ca máy & nhiên liệu dầu
 │   ├── test_package_dispatcher.py                # Test bộ đóng gói phân quyền Hub & Spoke
 │   ├── test_cutting_stock_solver.py              # Test solver cắt thép 1D CP-SAT
@@ -475,6 +479,7 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 ├── run_state_graph.py            # 🌟 ENTRY POINT: State Graph & Supervisor Runner v3.0
 ├── requirements.txt              # Danh mục thư viện phụ thuộc (ortools, openpyxl, pandas...)
 ├── pyproject.toml                # Cấu hình đóng gói hệ thống chuẩn PEP 621
+├── CONTRIBUTING.md               # Quy chuẩn đóng góp mã nguồn (Zero LLM Math, Real Data)
 ├── LICENSE                       # Giấy phép phần mềm mã nguồn mở MIT
 └── README.md                     # Tài liệu hướng dẫn chính thức của dự án
 ```

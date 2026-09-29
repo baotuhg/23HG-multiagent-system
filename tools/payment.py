@@ -136,7 +136,7 @@ def load_progress(path: str, sheet: Optional[str] = None) -> List[ProgressRow]:
                            f"cần cột 'Khối lượng thực hiện kỳ này' và Mã hiệu / STT / Nội dung")
     if ext in (".csv", ".txt"):
         with open(path, "r", encoding="utf-8-sig", newline="") as f:
-            text = f.read()
+            text = f.read().replace("\r\n", "\n")
         try:
             dialect = csv.Sniffer().sniff(text[:4096], delimiters=",;\t")
         except csv.Error:
