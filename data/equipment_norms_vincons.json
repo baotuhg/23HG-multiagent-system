@@ -1,0 +1,174 @@
+{
+  "standard": "Vincons_ĐMGK_02-01 Hạ tầng giao thông & San lấp",
+  "source": "Tập đoàn Vingroup / Vincons MMTB Norms",
+  "shift_duration_hours": 10,
+  "default_shifts_per_day": 2,
+  "tasks": {
+    "dao_khuon_duong": {
+      "name": "Đào nền đường, khuôn đường, bóc hữu cơ",
+      "unit": "m3",
+      "machines": {
+        "PC200": { "code": "M1", "name": "Máy xúc PC200 - PC300", "productivity_per_shift": 872.0 },
+        "D3_D5": { "code": "M3", "name": "Máy ủi D3 - D5", "productivity_per_shift": 1093.0 }
+      },
+      "labor_per_shift": 4.0
+    },
+    "dao_mong_cong": {
+      "name": "Đào hố móng cống hộp, cống tròn",
+      "unit": "m3",
+      "machines": {
+        "PC200": { "code": "M1", "name": "Máy xúc PC200 - PC300", "productivity_per_shift": 401.07 }
+      },
+      "labor_per_shift": 4.0
+    },
+    "dao_mong_ga": {
+      "name": "Đào hố móng hố ga thu nước, ga đấu nối",
+      "unit": "m3",
+      "machines": {
+        "PC200": { "code": "M1", "name": "Máy xúc PC200 - PC300", "productivity_per_shift": 313.55 }
+      },
+      "labor_per_shift": 4.0
+    },
+    "van_chuyen_dat_5km": {
+      "name": "Vận chuyển đất đào cự ly <5km (bãi thải / bãi đắp)",
+      "unit": "m3",
+      "machines": {
+        "AUTO18": { "code": "M7", "name": "Ô tô tự đổ loại 16 - 18 tấn", "productivity_per_shift": 571.43 }
+      },
+      "labor_per_shift": 2.0
+    },
+    "dap_cat_k90_san_nen": {
+      "name": "Đắp cát/đất K90 san lấp mặt bằng",
+      "unit": "m3",
+      "machines": {
+        "PC200": { "code": "M1", "name": "Máy xúc PC200 - PC300", "productivity_per_shift": 797.87 },
+        "D3_D5": { "code": "M3", "name": "Máy ủi D3 - D5", "productivity_per_shift": 833.33 },
+        "LU14T": { "code": "M5", "name": "Máy lu rung 12T - 16T", "productivity_per_shift": 2388.0 }
+      },
+      "labor_per_shift": 2.0
+    },
+    "dap_cat_k90_duong": {
+      "name": "Đắp cát nền đường độ chặt K=0.90",
+      "unit": "m3",
+      "machines": {
+        "D3_D5": { "code": "M3", "name": "Máy ủi D3 - D5", "productivity_per_shift": 900.9 },
+        "LU14T": { "code": "M5", "name": "Máy lu rung 12T - 16T", "productivity_per_shift": 448.43 }
+      },
+      "labor_per_shift": 2.0
+    },
+    "dap_cat_k95": {
+      "name": "Đắp cát nền đường / mang cống độ chặt K=0.95",
+      "unit": "m3",
+      "machines": {
+        "D3_D5": { "code": "M3", "name": "Máy ủi D3 - D5", "productivity_per_shift": 1428.0 },
+        "LU14T": { "code": "M5", "name": "Máy lu rung 12T - 16T", "productivity_per_shift": 255.0 }
+      },
+      "labor_per_shift": 2.0
+    },
+    "dap_cat_k98": {
+      "name": "Đắp cát nền đường độ chặt K=0.98",
+      "unit": "m3",
+      "machines": {
+        "D3_D5": { "code": "M3", "name": "Máy ủi D3 - D5", "productivity_per_shift": 2087.0 },
+        "LU14T": { "code": "M5", "name": "Máy lu rung 12T - 16T", "productivity_per_shift": 234.0 },
+        "SAN": { "code": "M6", "name": "Máy san tự hành 140CV", "productivity_per_shift": 378.0 }
+      },
+      "labor_per_shift": 2.0
+    },
+    "cpdd2_base_b": {
+      "name": "Móng cấp phối đá dăm loại 2 (Base B)",
+      "unit": "m3",
+      "machines": {
+        "PC200": { "code": "M1", "name": "Máy xúc PC200 - PC300", "productivity_per_shift": 823.0 },
+        "D3_D5": { "code": "M3", "name": "Máy ủi D3 - D5", "productivity_per_shift": 643.0 },
+        "LU14T": { "code": "M5", "name": "Máy lu rung 12T - 16T", "productivity_per_shift": 120.0 },
+        "SAN": { "code": "M6", "name": "Máy san tự hành 140CV", "productivity_per_shift": 560.0 },
+        "AUTO18": { "code": "M7", "name": "Ô tô tự đổ 18 m3", "productivity_per_shift": 378.0 },
+        "TEC": { "code": "M9", "name": "Xe téc nước 9 m3", "productivity_per_shift": 384.6 }
+      },
+      "labor_per_shift": 2.0
+    },
+    "cpdd1_base_a": {
+      "name": "Móng cấp phối đá dăm loại 1 (Base A)",
+      "unit": "m3",
+      "machines": {
+        "PC200": { "code": "M1", "name": "Máy xúc PC200 - PC300", "productivity_per_shift": 914.0 },
+        "D3_D5": { "code": "M3", "name": "Máy ủi D3 - D5", "productivity_per_shift": 643.0 },
+        "LU14T": { "code": "M5", "name": "Máy lu rung 12T - 16T", "productivity_per_shift": 120.0 },
+        "SAN": { "code": "M6", "name": "Máy san tự hành 140CV", "productivity_per_shift": 560.0 },
+        "AUTO18": { "code": "M7", "name": "Ô tô tự đổ 18 m3", "productivity_per_shift": 378.0 },
+        "TEC": { "code": "M9", "name": "Xe téc nước 9 m3", "productivity_per_shift": 476.2 }
+      },
+      "labor_per_shift": 2.0
+    },
+    "tuoi_tham_bam": {
+      "name": "Tưới nhựa dính/thấm bám tiêu chuẩn 1.0 kg/m2",
+      "unit": "m2",
+      "machines": {
+        "TEC_NHUA": { "code": "M9", "name": "Xe téc phun nhựa chuyên dụng", "productivity_per_shift": 434.8 }
+      },
+      "labor_per_shift": 2.0
+    },
+    "tham_btn_c19": {
+      "name": "Thảm bê tông nhựa hạt thô/chặt C19 dày 6-7cm",
+      "unit": "m2",
+      "machines": {
+        "MAY_RAI": { "code": "MR", "name": "Máy rải chuyên dụng Vogele Super 1800", "productivity_per_shift": 10000.0 },
+        "LU_BTN": { "code": "M5", "name": "Tổ hợp lu rung & lu bánh lốp thảm nhựa", "productivity_per_shift": 5000.0 },
+        "AUTO18": { "code": "M7", "name": "Xe ben vận chuyển BTN nóng", "productivity_per_shift": 1500.0 }
+      },
+      "labor_per_shift": 18.0
+    },
+    "lap_cong_tnm": {
+      "name": "Lắp đặt cống tròn BTCT D300-D1800 (TNM)",
+      "unit": "md",
+      "machines": {
+        "PC140": { "code": "M8", "name": "Máy xúc bánh lốp PC140 cẩu lắp", "productivity_per_shift": 100.0 }
+      },
+      "labor_per_shift": 5.0
+    },
+    "lap_ong_hdpe_tnt": {
+      "name": "Lắp đặt cống HDPE D300, D400 (TNT)",
+      "unit": "md",
+      "machines": {
+        "PC140": { "code": "M8", "name": "Máy xúc bánh lốp PC140 cẩu lắp", "productivity_per_shift": 149.0 }
+      },
+      "labor_per_shift": 5.0
+    },
+    "do_be_tong_than_cong": {
+      "name": "Đổ bê tông thân cống B20 (M250#)",
+      "unit": "m3",
+      "machines": {
+        "BOM_BT": { "code": "MB", "name": "Máy bơm bê tông cần 37-43m", "productivity_per_shift": 180.0 },
+        "XE_BON": { "code": "XB", "name": "Xe bồn vận chuyển bê tông 8-10m3", "productivity_per_shift": 45.0 }
+      },
+      "labor_per_shift": 12.0
+    },
+    "cot_thep_cong_hop": {
+      "name": "Gia công & lắp dựng cốt thép cống hộp CB300/CB400",
+      "unit": "tan",
+      "machines": {
+        "CAU_25T": { "code": "MC", "name": "Cần cẩu 25T & Cẩu tự hành 15T", "productivity_per_shift": 12.0 }
+      },
+      "labor_per_shift": 15.0
+    },
+    "van_khuon_cong_hop": {
+      "name": "Lắp dựng & tháo dỡ ván khuôn thép/phủ phim cống hộp",
+      "unit": "m2",
+      "machines": {
+        "CAU_25T": { "code": "MC", "name": "Cần cẩu 25T & Cẩu tự hành 15T", "productivity_per_shift": 450.0 }
+      },
+      "labor_per_shift": 20.0
+    },
+    "dap_mang_cong_k95": {
+      "name": "Đắp cát/đất K95 hoàn trả mang cống & đỉnh cống",
+      "unit": "m3",
+      "machines": {
+        "PC200": { "code": "M1", "name": "Máy xúc PC200 - PC300", "productivity_per_shift": 372.0 },
+        "D3_D5": { "code": "M3", "name": "Máy ủi D3 - D5", "productivity_per_shift": 1428.0 },
+        "LU14T": { "code": "M5", "name": "Máy lu rung 12T - 16T", "productivity_per_shift": 255.0 }
+      },
+      "labor_per_shift": 4.0
+    }
+  }
+}

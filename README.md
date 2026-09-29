@@ -140,6 +140,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
   └── Cổng phê duyệt Kỹ sư trưởng Human-in-the-loop (Awaiting Approval)
 
   Phase 3 (v3.x) [ĐANG TRIỂN KHAI & MỞ RỘNG]
+  ├── Tác tử Điều phối Ca xe, Ca máy & Kế hoạch Nhiên liệu Dầu Diezel (AEC Equipment & Fleet Engine)
   ├── Động cơ so sánh phiên bản CAD/BIM Versioning (Incremental Diff Rev00 vs Rev01)
   ├── Tích hợp Ký số điện tử (E-Signatures / PKI) trực tiếp trên Web Dashboard
   ├── Mở rộng Multi-Project State Graph quản trị đồng thời nhiều phân đoạn cao tốc

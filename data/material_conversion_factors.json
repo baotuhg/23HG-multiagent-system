@@ -1,0 +1,16 @@
+{
+  "standard": "Hệ số vật tư & hao hụt thường dùng trong thi công hạ tầng giao thông & san lấp",
+  "factors": {
+    "cat_san_lap": { "name": "Cát san lấp", "code": "VAP00052", "factor": 1.30, "unit": "m3/m3" },
+    "dat_san_lap": { "name": "Đất san lấp", "code": "VAP00053", "factor": 1.30, "unit": "m3/m3" },
+    "cat_xay": { "name": "Cát xây", "code": "VAP00051", "factor": 1.30, "unit": "m3/m3" },
+    "da_base_b": { "name": "Đá Base B (CPĐD loại 2)", "code": "VAP00054", "factor": 1.42, "unit": "m3/m3" },
+    "da_base_a": { "name": "Đá Base A (CPĐD loại 1)", "code": "VAP00055", "factor": 1.42, "unit": "m3/m3" },
+    "cong_btct": { "name": "Cống tròn BTCT & cống hộp", "code": "TNM", "factor": 1.043, "unit": "m/m" },
+    "ong_hdpe": { "name": "Ống HDPE thoát nước thải", "code": "TNT", "factor": 1.043, "unit": "m/m" },
+    "be_tong_nhua": { "name": "Bê tông nhựa nóng (BTN)", "code": "BTN", "density_ton_per_m3": 2.45, "wastage_m2": 1.05 },
+    "be_tong_xi_mang": { "name": "Bê tông xi măng thương phẩm", "code": "BTXM", "factor": 1.05, "unit": "m3/m3" },
+    "dau_diezel": { "name": "Dầu Diezel DO 0.05S", "code": "VAP00001", "factor": 1.05, "unit": "lít/lít" },
+    "nap_ga": { "name": "Nắp ga thu nước gang/composite", "factor": 1.05, "unit": "bộ/bộ" }
+  }
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Project xmlns="http://schemas.microsoft.com/project">
+    <Name>Tien_Do_Thi_Cong_Cong_Hop_Tuyen_A5</Name>
+    <Title>Tiến độ thi công Cống hộp Tuyến A5 - KĐT Thể thao Quốc tế Hà Nội</Title>
+    <Company>Vincons</Company>
+    <Author>AEC MultiAgent System</Author>
+    <StartDate>2026-10-01T08:00:00</StartDate>
+    <FinishDate>2027-03-15T17:00:00</FinishDate>
+    <Tasks>
+        <Task>
+            <UID>1</UID><ID>1</ID><Name>Bàn giao mặt bằng &amp; Tim mốc trắc đạc</Name>
+            <Duration>PT40H</Duration><Start>2026-10-01T08:00:00</Start><Finish>2026-10-05T17:00:00</Finish>
+            <Critical>1</Critical>
+        </Task>
+        <Task>
+            <UID>2</UID><ID>2</ID><Name>Đào hố móng phân đoạn 1 (Cống 2x2)</Name>
+            <Duration>PT120H</Duration><Start>2026-10-06T08:00:00</Start><Finish>2026-10-20T17:00:00</Finish>
+            <Critical>1</Critical>
+        </Task>
+        <Task>
+            <UID>3</UID><ID>3</ID><Name>Đóng cọc tre &amp; Đệm cát đầu cọc phân đoạn 1</Name>
+            <Duration>PT80H</Duration><Start>2026-10-21T08:00:00</Start><Finish>2026-10-30T17:00:00</Finish>
+            <Critical>1</Critical>
+        </Task>
+        <Task>
+            <UID>4</UID><ID>4</ID><Name>Bê tông lót móng M100</Name>
+            <Duration>PT40H</Duration><Start>2026-10-31T08:00:00</Start><Finish>2026-11-04T17:00:00</Finish>
+            <Critical>1</Critical>
+        </Task>
+        <Task>
+            <UID>5</UID><ID>5</ID><Name>Lắp dựng cốt thép &amp; Ván khuôn cống 2x2</Name>
+            <Duration>PT160H</Duration><Start>2026-11-05T08:00:00</Start><Finish>2026-11-25T17:00:00</Finish>
+            <Critical>1</Critical>
+        </Task>
+        <Task>
+            <UID>6</UID><ID>6</ID><Name>Đổ bê tông thân cống B20 &amp; Bảo dưỡng</Name>
+            <Duration>PT80H</Duration><Start>2026-11-26T08:00:00</Start><Finish>2026-12-05T17:00:00</Finish>
+            <Critical>1</Critical>
+        </Task>
+        <Task>
+            <UID>7</UID><ID>7</ID><Name>Chống thấm, chèn khe co giãn bitum &amp; Lấp cát K98</Name>
+            <Duration>PT120H</Duration><Start>2026-12-06T08:00:00</Start><Finish>2026-12-20T17:00:00</Finish>
+            <Critical>1</Critical>
+        </Task>
+    </Tasks>
+</Project>

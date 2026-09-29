@@ -1,0 +1,31 @@
+{
+  "standard": "Định mức tiêu hao dầu Diezel MMTB công trường (Vincons / Đèo Cả / Bộ Xây Dựng)",
+  "unit": "lít/ca",
+  "shift_hours": 10,
+  "default_safety_wastage_factor": 1.05,
+  "equipment_rates": {
+    "M1": { "name": "Máy xúc bánh xích PC200 - PC300", "fuel_rate_l_per_shift": 89.6 },
+    "M2": { "name": "Máy xúc bánh xích PC350 - PC450", "fuel_rate_l_per_shift": 106.4 },
+    "M3": { "name": "Máy ủi bánh xích D3 - D5", "fuel_rate_l_per_shift": 124.0 },
+    "M4": { "name": "Máy ủi bánh xích CS 230CV (D7)", "fuel_rate_l_per_shift": 165.0 },
+    "M5": { "name": "Máy lu rung 12T - 16T", "fuel_rate_l_per_shift": 44.0 },
+    "M6": { "name": "Máy san tự hành 120 - 170 CV", "fuel_rate_l_per_shift": 69.0 },
+    "M7": { "name": "Ô tô tự đổ 16 - 18 tấn", "fuel_rate_l_per_shift": 26.0 },
+    "M8": { "name": "Máy xúc bánh lốp PC140 - PC150", "fuel_rate_l_per_shift": 64.0 },
+    "M9": { "name": "Xe téc nước 9 - 10 m3", "fuel_rate_l_per_shift": 42.0 },
+    "MR": { "name": "Máy rải bê tông nhựa chuyên dụng", "fuel_rate_l_per_shift": 56.0 },
+    "MC": { "name": "Cần cẩu 25T & Cẩu tự hành 15T", "fuel_rate_l_per_shift": 28.0 },
+    "MB": { "name": "Máy bơm bê tông cần 37 - 43m", "fuel_rate_l_per_shift": 65.0 },
+    "XB": { "name": "Xe bồn vận chuyển bê tông thương phẩm", "fuel_rate_l_per_shift": 42.0 },
+    "BP": { "name": "Máy bơm nước hố móng d80 - d100", "fuel_rate_l_per_shift": 14.0 },
+    "MP1": { "name": "Xe téc cấp dầu lưu động 9m3", "fuel_rate_l_per_shift": 44.0 },
+    "MP2": { "name": "Máy phát điện 3 pha 25 - 45 kVA", "fuel_rate_l_per_shift": 28.0 },
+    "MP3": { "name": "Máy xúc lốp phục vụ trung chuyển", "fuel_rate_l_per_shift": 64.0 },
+    "PC55": { "name": "Máy xúc bánh xích mini PC55", "fuel_rate_l_per_shift": 31.0 },
+    "PC650": { "name": "Máy xúc đào lớn PC650", "fuel_rate_l_per_shift": 189.0 },
+    "PC800": { "name": "Máy xúc đào mỏ PC800", "fuel_rate_l_per_shift": 259.0 },
+    "AUTO70": { "name": "Xe ben mỏ tải trọng 70 tấn", "fuel_rate_l_per_shift": 35.0 },
+    "GEN_1P_5KW": { "name": "Máy phát điện 1 pha 5 - 9 kW", "fuel_rate_l_per_shift": 14.0 },
+    "GEN_3P_100KVA": { "name": "Máy phát điện 3 pha 100 - 145 kVA", "fuel_rate_l_per_shift": 56.0 }
+  }
+}
