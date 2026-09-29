@@ -129,6 +129,10 @@ class LabAgentTest(unittest.TestCase):
             ok, sup = self.run_phase(False, lab_path=path)
         self.assertFalse(ok)
         self.assertEqual(sup.bus.get_qaqc_data().hold_point_status[0]["status"], "CHẶN")
+        # Phiếu không đạt không thay đổi khi chạy lại → chỉ chạy 1 lần, không retry / chờ
+        runs = [r for r in sup.bus._state.run_history if r.get("agent_id") == "bptc_kcs_agent"]
+        self.assertEqual(len(runs), 1)
+        self.assertTrue(any("KHÔNG ĐẠT" in e and "BB-1" in e for e in sup.bus.get_errors()))
 
     def test_missing_file_and_demo(self):
         self.assertFalse(self.run_phase(False)[0])
