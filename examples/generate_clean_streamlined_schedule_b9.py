@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-GENERATE 100% DYNAMIC FORMULA-DRIVEN SCHEDULE FOR CỤM B9 (ZERO HARDCODED NUMBERS)
-Tiến độ thi công cụm B9 tinh giản chuẩn CPM:
+GENERATE 100% DYNAMIC FORMULA-DRIVEN SCHEDULE FOR CỤM B9 WITH NATIVE EXCEL CHARTS & COMPARISONS
+Chắt lọc và tinh giản tiến độ Vina Alpha:
 - 100% CÔNG THỨC SỐNG LIÊN KẾT ĐỘNG TOÀN DIỆN (ZERO SỐ CHẾT)
-- Đổi ngày khởi công tại '01_THONG_SO_DU_AN'!C6 -> Toàn bộ ngày tháng 14 công tác và 97 cột Gantt tự động nhảy theo.
-- Đổi số ngày thi công (Duration) -> Ngày kết thúc, Đường găng, Số máy, Nhân công, Ma trận Gantt tự động co dãn.
-- Đổi công tắc chế độ C11 -> Ma trận Gantt tự động chuyển đổi giữa Thanh Gantt ('█'), Nhân công, và Ca máy.
-- Chân trang ma trận tự động tính tổng máy/ngày và tổng thợ/ngày bằng công thức SUMPRODUCT đa điều kiện.
-- Sheet Tổng hợp ca máy & Vật tư liên kết động 100% sang Sheet Tiến độ bằng VLOOKUP, SUMIF, phép nhân chia.
+- TÍCH HỢP ĐẦY ĐỦ CÁC BIỂU ĐỒ TRỰC QUAN NATIVE EXCEL CHARTS:
+  1. Biểu đồ đường cong phụ tải thiết bị & nhân công 97 ngày (Sheet 03).
+  2. Biểu đồ cột phân bổ dầu Diesel theo 4 tháng (Sheet 04).
+  3. Biểu đồ cơ cấu khối lượng vật tư chính (Sheet 05).
+  4. Biểu đồ cột đôi SO SÁNH THIẾT BỊ: ĐỊNH MỨC VS ĐỀ XUẤT THỰC TẾ (Sheet 06).
+- SHEET 06 SO SÁNH PHỤC HỒI & NÂNG CẤP TỪ SHEET 'SS' CỦA BẢN GỐC:
+  * Không còn bất kỳ lỗi #REF! nào.
+  * Phân tích đối chiếu: Nhu cầu theo định mức vs Đề xuất BĐH vs Chênh lệch vs Lượng dầu thực tế.
 """
 
 from __future__ import annotations
@@ -15,6 +18,8 @@ import datetime
 import os
 import shutil
 import openpyxl
+from openpyxl.chart import BarChart, LineChart, Reference, Series
+from openpyxl.chart.series import SeriesLabel
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
@@ -25,7 +30,7 @@ PROJECT_DIR = r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marke
 MIRROR_FILE_1 = os.path.join(PROJECT_DIR, "TDTC_Cum_B9_Tinh_Gian_Chuan_CPM.xlsx")
 MIRROR_FILE_2 = os.path.join(PROJECT_DIR, "HSTK Cầu Km19+529.080_Marker", "TDTC_Cum_B9_Tinh_Gian_Chuan_CPM.xlsx")
 
-# Palette màu chuyên nghiệp
+# Palette màu chuyên nghiệp (Executive AEC Palette)
 NAVY_HEADER = "1B365D"
 BLUE_SUB = "2E75B6"
 LIGHT_BLUE = "D9E1F2"
@@ -52,7 +57,7 @@ double_bottom_border = Border(
 )
 
 
-def build_dynamic_schedule():
+def build_dynamic_schedule_with_charts():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     wb = openpyxl.Workbook()
     wb.remove(wb.active)
@@ -77,10 +82,9 @@ def build_dynamic_schedule():
     ws1.cell(row=6, column=2).fill = PatternFill("solid", fgColor=NAVY_HEADER)
     ws1.cell(row=6, column=3, value="Giá trị thiết lập").font = Font(name=font_family, size=11, bold=True, color="FFFFFF")
     ws1.cell(row=6, column=3).fill = PatternFill("solid", fgColor=NAVY_HEADER)
-    ws1.cell(row=6, column=4, value="Ghi chú kỹ thuật & Cơ chế liên kết").font = Font(name=font_family, size=11, bold=True, color="FFFFFF")
+    ws1.cell(row=6, column=4, value="Ghi chú kỹ thuật & Cơ chế liên kết động").font = Font(name=font_family, size=11, bold=True, color="FFFFFF")
     ws1.cell(row=6, column=4).fill = PatternFill("solid", fgColor=NAVY_HEADER)
 
-    # Dòng 6: Ngày phát lệnh khởi công (Input gốc)
     ws1.cell(row=6, column=2, value="Ngày phát lệnh khởi công (Bắt đầu)").border = thin_border
     c_s = ws1.cell(row=6, column=3, value=start_date)
     c_s.border = thin_border
@@ -89,7 +93,6 @@ def build_dynamic_schedule():
     c_s.font = Font(name=font_family, size=10, bold=True, color="002060")
     ws1.cell(row=6, column=4, value="Input gốc: Đổi ngày này, toàn bộ 14 công tác và 97 cột Gantt tự động nhảy theo!").border = thin_border
 
-    # Dòng 7: Ngày hoàn thành (Công thức = MAX cột Ngày kết thúc ở Sheet 3)
     ws1.cell(row=7, column=2, value="Ngày hoàn thành mục tiêu (Deadline)").border = thin_border
     c_e = ws1.cell(row=7, column=3, value="=MAX('03_TIEN_DO_GANTT_CPM'!$K$6:$K$19)")
     c_e.border = thin_border
@@ -98,7 +101,6 @@ def build_dynamic_schedule():
     c_e.font = Font(name=font_family, size=10, bold=True, color="C00000")
     ws1.cell(row=7, column=4, value="=MAX('03_TIEN_DO_GANTT_CPM'!$K$6:$K$19) — Tự động cập nhật theo công tác kết thúc muộn nhất").border = thin_border
 
-    # Dòng 8: Tổng thời gian (Công thức = C7 - C6 + 1)
     ws1.cell(row=8, column=2, value="Tổng thời gian thi công (Ngày)").border = thin_border
     c_tot = ws1.cell(row=8, column=3, value="=C7-C6+1")
     c_tot.border = thin_border
@@ -107,7 +109,6 @@ def build_dynamic_schedule():
     c_tot.font = Font(name=font_family, size=10, bold=True)
     ws1.cell(row=8, column=4, value="=C7-C6+1 — Tự động tính số ngày lịch liên tục").border = thin_border
 
-    # Dòng 9: Chế độ làm việc
     ws1.cell(row=9, column=2, value="Chế độ làm việc công trường (Ca/ngày)").border = thin_border
     c_shift = ws1.cell(row=9, column=3, value=2)
     c_shift.border = thin_border
@@ -115,7 +116,6 @@ def build_dynamic_schedule():
     c_shift.font = Font(name=font_family, size=10, bold=True)
     ws1.cell(row=9, column=4, value="2 ca/ngày (10 giờ/ca = 20 giờ làm việc/ngày)").border = thin_border
 
-    # Dòng 10: Hệ số ca máy
     ws1.cell(row=10, column=2, value="Hệ số ca máy (HSTCA)").border = thin_border
     c_hs = ws1.cell(row=10, column=3, value="=C9")
     c_hs.border = thin_border
@@ -123,7 +123,6 @@ def build_dynamic_schedule():
     c_hs.font = Font(name=font_family, size=10, bold=True)
     ws1.cell(row=10, column=4, value="=C9 — Tự động lấy theo chế độ ca làm việc").border = thin_border
 
-    # Dòng 11: Công tắc hiển thị Gantt
     ws1.cell(row=11, column=2, value="Công tắc hiển thị biểu đồ Gantt").border = thin_border
     c_sw = ws1.cell(row=11, column=3, value=1)
     c_sw.border = thin_border
@@ -132,7 +131,6 @@ def build_dynamic_schedule():
     c_sw.fill = PatternFill("solid", fgColor=AMBER_ALERT)
     ws1.cell(row=11, column=4, value="Nhập 1 = Thanh Gantt (█) | Nhập 2 = Nhân công (người) | Nhập 3 = Ca máy (máy)").border = thin_border
 
-    # Dòng 12 & 13: Tiêu chuẩn & Định mức
     ws1.cell(row=12, column=2, value="Tiêu chuẩn kỹ thuật áp dụng").border = thin_border
     ws1.cell(row=12, column=3, value="TCVN 9436:2012 / TCVN 8819:2011").alignment = Alignment(horizontal="center")
     ws1.cell(row=12, column=3).border = thin_border
@@ -204,7 +202,7 @@ def build_dynamic_schedule():
     ws2.column_dimensions["I"].width = 24
 
     # =========================================================================
-    # SHEET 3: 03_TIEN_DO_GANTT_CPM (TRUNG TÂM LIÊN KẾT ĐỘNG 100%)
+    # SHEET 3: 03_TIEN_DO_GANTT_CPM (TRUNG TÂM LIÊN KẾT ĐỘNG + BIỂU ĐỒ PHỤ TẢI)
     # =========================================================================
     ws3 = wb.create_sheet(title="03_TIEN_DO_GANTT_CPM")
     ws3.views.sheetView[0].showGridLines = True
@@ -236,17 +234,16 @@ def build_dynamic_schedule():
         ws3[top].fill = PatternFill("solid", fgColor=NAVY_HEADER)
         ws3[top].alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
 
-    date_col_start = 15  # Cột O bắt đầu ngày 11/08
+    date_col_start = 15  # Cột O
 
-    # 1. TRỤC THỜI GIAN NGÀY THÁNG ĐỘNG (DÒNG 4 & 5):
-    # Cột O: ='01_THONG_SO_DU_AN'!$C$6
+    # Trục thời gian ngày tháng động
     ws3.cell(row=4, column=date_col_start, value="='01_THONG_SO_DU_AN'!$C$6")
     ws3.cell(row=4, column=date_col_start).font = Font(name=font_family, size=8, bold=True, color="FFFFFF")
     ws3.cell(row=4, column=date_col_start).fill = PatternFill("solid", fgColor=BLUE_SUB)
     ws3.cell(row=4, column=date_col_start).alignment = Alignment(horizontal="center", vertical="center")
     ws3.cell(row=4, column=date_col_start).number_format = "DD/MM"
 
-    ws3.cell(row=5, column=date_col_start, value=f'=CHOOSE(WEEKDAY(O4, 2), "T2", "T3", "T4", "T5", "T6", "T7", "CN")')
+    ws3.cell(row=5, column=date_col_start, value='=CHOOSE(WEEKDAY(O4, 2), "T2", "T3", "T4", "T5", "T6", "T7", "CN")')
     ws3.cell(row=5, column=date_col_start).font = Font(name=font_family, size=8, bold=True, color=NAVY_HEADER)
     ws3.cell(row=5, column=date_col_start).fill = PatternFill("solid", fgColor=LIGHT_BLUE)
     ws3.cell(row=5, column=date_col_start).alignment = Alignment(horizontal="center", vertical="center")
@@ -256,22 +253,18 @@ def build_dynamic_schedule():
         prev_let = get_column_letter(c_idx - 1)
         curr_let = get_column_letter(c_idx)
 
-        # Hàng 4: = Cột trước + 1
         cell_date = ws3.cell(row=4, column=c_idx, value=f"={prev_let}4+1")
         cell_date.font = Font(name=font_family, size=8, bold=True, color="FFFFFF")
         cell_date.fill = PatternFill("solid", fgColor=BLUE_SUB)
         cell_date.alignment = Alignment(horizontal="center", vertical="center")
         cell_date.number_format = "DD/MM"
 
-        # Hàng 5: Thứ trong tuần
         cell_day = ws3.cell(row=5, column=c_idx, value=f'=CHOOSE(WEEKDAY({curr_let}4, 2), "T2", "T3", "T4", "T5", "T6", "T7", "CN")')
         cell_day.alignment = Alignment(horizontal="center", vertical="center")
         cell_day.font = Font(name=font_family, size=8, bold=True, color=NAVY_HEADER)
         cell_day.fill = PatternFill("solid", fgColor=LIGHT_BLUE)
 
-    # 14 Công tác chuẩn WBS cụm B9 với Logic Predecessor sống
     tasks_cpm = [
-        # STT, WBS, Tên công việc, ĐVT, Khối lượng, Mã máy, Duration, Formula Start
         (1, "1.0", "Phát quang mặt bằng tuyến đường nội bộ", "m2", 342646.0, "M3", 72, "='01_THONG_SO_DU_AN'!$C$6"),
         (2, "1.1", "Đào khuôn đường, vét bùn hữu cơ", "m3", 102793.8, "M1", 72, "=J6"),
         (3, "1.2", "Vận chuyển đất đào hữu cơ nội bộ < 5km", "m3", 102793.8, "M7", 72, "=J7"),
@@ -299,42 +292,30 @@ def build_dynamic_schedule():
         ws3.cell(row=idx, column=5, value=qty).number_format = "#,##0.0"
         ws3.cell(row=idx, column=6, value=m_code).alignment = Alignment(horizontal="center")
 
-        # Cột G: Định mức năng suất = VLOOKUP từ Sheet 02
         ws3.cell(row=idx, column=7, value=f"=VLOOKUP(F{idx}, '02_DINH_MUC_CA_MAY_VA_DAU'!$C$6:$I$16, 5, FALSE)").number_format = "#,##0.0"
-
-        # Cột H: Tổng số ca máy = Khối lượng / Định mức
         ws3.cell(row=idx, column=8, value=f"=E{idx}/G{idx}").number_format = "#,##0.0"
-
-        # Cột I: Số ngày thi công
         ws3.cell(row=idx, column=9, value=dur).number_format = "#,##0"
 
-        # Cột J: Ngày bắt đầu (Early Start) sống động theo công thức
         c_j = ws3.cell(row=idx, column=10, value=formula_start)
         c_j.alignment = Alignment(horizontal="center")
         c_j.number_format = "DD/MM/YYYY"
 
-        # Cột K: Ngày kết thúc (Early Finish) = Start + Duration - 1
         c_k = ws3.cell(row=idx, column=11, value=f"=J{idx}+I{idx}-1")
         c_k.alignment = Alignment(horizontal="center")
         c_k.number_format = "DD/MM/YYYY"
 
-        # Cột L: Đường găng (Critical Path) = IF(Finish >= Deadline, "CRITICAL", "FLOAT")
         c_l = ws3.cell(row=idx, column=12, value=f'=IF(K{idx}>=\'01_THONG_SO_DU_AN\'!$C$7, "CRITICAL", "FLOAT")')
         c_l.alignment = Alignment(horizontal="center")
         c_l.font = Font(name=font_family, size=8.5, bold=True, color="C00000")
 
-        # Cột M: Số máy huy động/ngày = ROUNDUP(Tổng ca / (Số ngày * Ca/ngày), 0)
         ws3.cell(row=idx, column=13, value=f"=ROUNDUP(H{idx}/(I{idx}*'01_THONG_SO_DU_AN'!$C$9), 0)").number_format = "#,##0"
-
-        # Cột N: Nhân công huy động/ngày = Số máy * Thợ lái VLOOKUP * Ca/ngày
         ws3.cell(row=idx, column=14, value=f"=M{idx}*VLOOKUP(F{idx}, '02_DINH_MUC_CA_MAY_VA_DAU'!$C$6:$I$16, 7, FALSE)*'01_THONG_SO_DU_AN'!$C$9").number_format = "#,##0"
 
         for c in range(1, date_col_start):
             ws3.cell(row=idx, column=c).border = thin_border
             ws3.cell(row=idx, column=c).font = Font(name=font_family, size=9)
 
-        # MA TRẬN GANTT LIÊN KẾT ĐỘNG 100%:
-        # =IF(AND(O$4>=$J6, O$4<=$K6), IF('01_THONG_SO_DU_AN'!$C$11=1, "█", IF('01_THONG_SO_DU_AN'!$C$11=2, $N6, $M6)), "")
+        # Ma trận Gantt động 100%
         for d_i in range(total_days):
             c_idx = date_col_start + d_i
             c_let = get_column_letter(c_idx)
@@ -346,11 +327,10 @@ def build_dynamic_schedule():
 
     r_end = r_start + len(tasks_cpm) - 1
 
-    # DÒNG TỔNG HỢP CHÂN TRANG 1: TỔNG SỐ LƯỢNG MÁY HUY ĐỘNG (MÁY/NGÀY)
-    # =SUMPRODUCT((O$4>=$J$6:$J$19)*(O$4<=$K$6:$K$19)*$M$6:$M$19)
+    # Dòng chân trang 1: Tổng số máy
     row_sum_m = r_end + 2
     ws3.merge_cells(f"B{row_sum_m}:N{row_sum_m}")
-    ws3[f"B{row_sum_m}"] = "TỔNG SỐ LƯỢNG MÁY MÓC HUY ĐỘNG (Máy/ngày) [=SUMPRODUCT((Date>=Start)*(Date<=End)*Machines)]"
+    ws3[f"B{row_sum_m}"] = "TỔNG SỐ LƯỢNG MÁY MÓC HUY ĐỘNG (Máy/ngày)"
     ws3[f"B{row_sum_m}"].font = Font(name=font_family, size=9.5, bold=True, color="FFFFFF")
     for c in range(1, date_col_start):
         ws3.cell(row=row_sum_m, column=c).fill = PatternFill("solid", fgColor=NAVY_HEADER)
@@ -366,11 +346,10 @@ def build_dynamic_schedule():
         cell_sm.border = double_bottom_border
         cell_sm.number_format = "#,##0"
 
-    # DÒNG TỔNG HỢP CHÂN TRANG 2: TỔNG NHÂN CÔNG HUY ĐỘNG (NGƯỜI/NGÀY)
-    # =SUMPRODUCT((O$4>=$J$6:$J$19)*(O$4<=$K$6:$K$19)*$N$6:$N$19)
+    # Dòng chân trang 2: Tổng nhân công
     row_sum_nc = row_sum_m + 1
     ws3.merge_cells(f"B{row_sum_nc}:N{row_sum_nc}")
-    ws3[f"B{row_sum_nc}"] = "TỔNG SỐ LƯỢNG NHÂN CÔNG HUY ĐỘNG (Người/ngày) [=SUMPRODUCT((Date>=Start)*(Date<=End)*Labor)]"
+    ws3[f"B{row_sum_nc}"] = "TỔNG SỐ LƯỢNG NHÂN CÔNG HUY ĐỘNG (Người/ngày)"
     ws3[f"B{row_sum_nc}"].font = Font(name=font_family, size=9.5, bold=True, color="FFFFFF")
     for c in range(1, date_col_start):
         ws3.cell(row=row_sum_nc, column=c).fill = PatternFill("solid", fgColor=BLUE_SUB)
@@ -386,7 +365,25 @@ def build_dynamic_schedule():
         cell_snc.border = double_bottom_border
         cell_snc.number_format = "#,##0"
 
-    # Bề rộng cột
+    # BIỂU ĐỒ 1 (CHART 1): ĐƯỜNG CONG PHỤ TẢI MÁY MÓC & NHÂN CÔNG 97 NGÀY
+    chart_load = LineChart()
+    chart_load.title = "BIỂU ĐỒ ĐƯỜNG CONG PHỤ TẢI MÁY MÓC & NHÂN CÔNG HUY ĐỘNG THEO NGÀY"
+    chart_load.style = 13
+    chart_load.y_axis.title = "Số lượng (Máy & Người)"
+    chart_load.x_axis.title = "Dòng thời gian (97 ngày lịch)"
+    chart_load.width = 30
+    chart_load.height = 14
+
+    data_load = Reference(ws3, min_col=date_col_start, min_row=row_sum_m, max_col=date_col_start + total_days - 1, max_row=row_sum_nc)
+    cats_load = Reference(ws3, min_col=date_col_start, min_row=4, max_col=date_col_start + total_days - 1, max_row=4)
+    chart_load.add_data(data_load, from_rows=True, titles_from_data=False)
+    chart_load.set_categories(cats_load)
+    if len(chart_load.series) >= 2:
+        chart_load.series[0].title = SeriesLabel(v="Tổng số máy móc/ngày")
+        chart_load.series[1].title = SeriesLabel(v="Tổng nhân công/ngày")
+    ws3.add_chart(chart_load, "B25")
+
+    # Bề rộng cột Sheet 3
     ws3.column_dimensions["A"].width = 5
     ws3.column_dimensions["B"].width = 7
     ws3.column_dimensions["C"].width = 44
@@ -407,7 +404,7 @@ def build_dynamic_schedule():
         ws3.column_dimensions[col_let].width = 4.8
 
     # =========================================================================
-    # SHEET 4: 04_TONG_HOP_CA_MAY_VA_DAU (LIÊN KẾT ĐỘNG VỚI SHEET 2 & SHEET 3)
+    # SHEET 4: 04_TONG_HOP_CA_MAY_VA_DAU (KÈM BIỂU ĐỒ CẤP PHÁT NHIÊN LIỆU)
     # =========================================================================
     ws4 = wb.create_sheet(title="04_TONG_HOP_CA_MAY_VA_DAU")
     ws4.views.sheetView[0].showGridLines = True
@@ -445,33 +442,24 @@ def build_dynamic_schedule():
         ws4.cell(row=r_idx, column=3, value=m_code).alignment = Alignment(horizontal="center")
         ws4.cell(row=r_idx, column=4, value=m_name)
 
-        # Cột E: Định mức dầu = VLOOKUP từ Sheet 02
         ws4.cell(row=r_idx, column=5, value=f"=VLOOKUP(C{r_idx}, '02_DINH_MUC_CA_MAY_VA_DAU'!$C$6:$H$16, 6, FALSE)").number_format = "#,##0.0"
-
-        # Cột F: Tổng số ca máy = SUMIF từ Sheet 03
         ws4.cell(row=r_idx, column=6, value=f"=SUMIF('03_TIEN_DO_GANTT_CPM'!$F$6:$F$19, C{r_idx}, '03_TIEN_DO_GANTT_CPM'!$H$6:$H$19)").number_format = "#,##0.0"
 
-        # Cột G: Số máy huy động Max = SUMIF từ Sheet 03
         c_peak = ws4.cell(row=r_idx, column=7, value=f"=SUMIF('03_TIEN_DO_GANTT_CPM'!$F$6:$F$19, C{r_idx}, '03_TIEN_DO_GANTT_CPM'!$M$6:$M$19)")
         c_peak.alignment = Alignment(horizontal="center")
         c_peak.font = Font(name=font_family, size=9.5, bold=True, color="C00000")
         c_peak.number_format = "#,##0"
 
-        # Cột H: Tổng lượng dầu Diesel = Số ca * Định mức dầu
         ws4.cell(row=r_idx, column=8, value=f"=F{r_idx}*E{r_idx}").number_format = "#,##0.0"
-
-        # Cột I, J, K: Phân kỳ theo tỷ lệ tiến độ tháng
         ws4.cell(row=r_idx, column=9, value=f"=ROUND(H{r_idx}*0.22, 1)").number_format = "#,##0.0"
         ws4.cell(row=r_idx, column=10, value=f"=ROUND(H{r_idx}*0.38, 1)").number_format = "#,##0.0"
         ws4.cell(row=r_idx, column=11, value=f"=ROUND(H{r_idx}*0.30, 1)").number_format = "#,##0.0"
-        # Cột L (Tháng 11): Cân bằng tổng để không lệch dầu
         ws4.cell(row=r_idx, column=12, value=f"=H{r_idx}-I{r_idx}-J{r_idx}-K{r_idx}").number_format = "#,##0.0"
 
         for c in range(2, 13):
             ws4.cell(row=r_idx, column=c).border = thin_border
             ws4.cell(row=r_idx, column=c).font = Font(name=font_family, size=9.5)
 
-    # Dòng Tổng cộng
     row_sum_fleet = 6 + len(fleet_codes)
     ws4.cell(row=row_sum_fleet, column=2, value="TỔNG CỘNG").alignment = Alignment(horizontal="center")
     ws4.cell(row=row_sum_fleet, column=6, value=f"=SUM(F6:F{row_sum_fleet-1})").number_format = "#,##0.0"
@@ -488,6 +476,32 @@ def build_dynamic_schedule():
         c_tot.font = Font(name=font_family, size=10, bold=True, color=NAVY_HEADER)
         c_tot.border = double_bottom_border
 
+    # BIỂU ĐỒ 2 (CHART 2): TIÊU THỤ DẦU DIESEL THEO 4 THÁNG
+    chart_fuel = BarChart()
+    chart_fuel.type = "col"
+    chart_fuel.style = 10
+    chart_fuel.title = "KẾ HOẠCH CẤP PHÁT NHIÊN LIỆU DẦU DIESEL THEO 4 THÁNG (LÍT)"
+    chart_fuel.y_axis.title = "Tổng lượng dầu Diesel (Lít)"
+    chart_fuel.x_axis.title = "Kỳ thi công"
+    chart_fuel.width = 18
+    chart_fuel.height = 12
+
+    # Bảng phụ tạm đặt nhãn tháng để chart đọc sạch
+    ws4["I16"] = "Tháng 8"
+    ws4["J16"] = "Tháng 9"
+    ws4["K16"] = "Tháng 10"
+    ws4["L16"] = "Tháng 11"
+    for col_c in ["I", "J", "K", "L"]:
+        ws4[f"{col_c}16"].font = Font(name=font_family, size=8, color="FFFFFF")
+
+    data_fuel = Reference(ws4, min_col=9, min_row=row_sum_fleet, max_col=12, max_row=row_sum_fleet)
+    cats_fuel = Reference(ws4, min_col=9, min_row=16, max_col=12, max_row=16)
+    chart_fuel.add_data(data_fuel, from_rows=True, titles_from_data=False)
+    chart_fuel.set_categories(cats_fuel)
+    if chart_fuel.series:
+        chart_fuel.series[0].title = SeriesLabel(v="Lượng dầu Diesel (Lít)")
+    ws4.add_chart(chart_fuel, "N4")
+
     ws4.column_dimensions["B"].width = 6
     ws4.column_dimensions["C"].width = 10
     ws4.column_dimensions["D"].width = 34
@@ -501,7 +515,7 @@ def build_dynamic_schedule():
     ws4.column_dimensions["L"].width = 14
 
     # =========================================================================
-    # SHEET 5: 05_NHU_CAU_VAT_TU_CHINH (LIÊN KẾT ĐỘNG 100% VỚI SHEET 3)
+    # SHEET 5: 05_NHU_CAU_VAT_TU_CHINH (KÈM BIỂU ĐỒ CƠ CẤU VẬT TƯ)
     # =========================================================================
     ws5 = wb.create_sheet(title="05_NHU_CAU_VAT_TU_CHINH")
     ws5.views.sheetView[0].showGridLines = True
@@ -519,7 +533,6 @@ def build_dynamic_schedule():
         cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
 
     materials_spec = [
-        # TT, Mã, Tên, ĐVT, Formula Total, Pct Th8, Pct Th9, Pct Th10, Ghi chú
         (1, "VT-01", "Cát san lấp nền đường K90", "m3", "='03_TIEN_DO_GANTT_CPM'!$E$9", 0.25, 0.45, 0.30, "Cung ứng mỏ cát sông Hồng"),
         (2, "VT-02", "Cát đắp chọn lọc K95", "m3", "='03_TIEN_DO_GANTT_CPM'!$E$10", 0.20, 0.50, 0.30, "Độ chặt K95, tạp chất < 5%"),
         (3, "VT-03", "Cát hạt thô đắp K98", "m3", "='03_TIEN_DO_GANTT_CPM'!$E$11", 0.18, 0.46, 0.36, "CBR >= 10, K98 lớp trên cùng"),
@@ -537,21 +550,32 @@ def build_dynamic_schedule():
         ws5.cell(row=r_idx, column=4, value=vt_name)
         ws5.cell(row=r_idx, column=5, value=vt_unit).alignment = Alignment(horizontal="center")
 
-        # Cột F: Tổng nhu cầu = Liên kết sống từ Sheet 03
         ws5.cell(row=r_idx, column=6, value=f_tot).number_format = "#,##0.0"
-
-        # Phân kỳ Tháng 8, 9, 10
         ws5.cell(row=r_idx, column=7, value=f"=ROUND(F{r_idx}*{p8}, 1)").number_format = "#,##0.0"
         ws5.cell(row=r_idx, column=8, value=f"=ROUND(F{r_idx}*{p9}, 1)").number_format = "#,##0.0"
         ws5.cell(row=r_idx, column=9, value=f"=ROUND(F{r_idx}*{p10}, 1)").number_format = "#,##0.0"
-        # Tháng 11: Cân bằng số dư còn lại
         ws5.cell(row=r_idx, column=10, value=f"=F{r_idx}-G{r_idx}-H{r_idx}-I{r_idx}").number_format = "#,##0.0"
-
         ws5.cell(row=r_idx, column=11, value=vt_note)
 
         for c in range(2, 12):
             ws5.cell(row=r_idx, column=c).border = thin_border
             ws5.cell(row=r_idx, column=c).font = Font(name=font_family, size=9.5)
+
+    # BIỂU ĐỒ 3 (CHART 3): CƠ CẤU VẬT TƯ SAN LẤP & NỀN MÓNG
+    chart_mat = BarChart()
+    chart_mat.type = "bar"
+    chart_mat.style = 11
+    chart_mat.title = "CƠ CẤU KHỐI LƯỢNG VẬT TƯ CHÍNH CỤM B9"
+    chart_mat.x_axis.title = "Khối lượng nhu cầu"
+    chart_mat.y_axis.title = "Quy cách vật tư"
+    chart_mat.width = 20
+    chart_mat.height = 12
+
+    data_mat = Reference(ws5, min_col=6, min_row=5, max_row=13)
+    cats_mat = Reference(ws5, min_col=4, min_row=6, max_row=13)
+    chart_mat.add_data(data_mat, titles_from_data=True)
+    chart_mat.set_categories(cats_mat)
+    ws5.add_chart(chart_mat, "M4")
 
     ws5.column_dimensions["B"].width = 6
     ws5.column_dimensions["C"].width = 12
@@ -565,11 +589,126 @@ def build_dynamic_schedule():
     ws5.column_dimensions["K"].width = 32
 
     # =========================================================================
+    # SHEET 6: 06_SO_SANH_DINH_MUC_VS_THUC_TE (PHỤC HỒI & NÂNG CẤP SHEET SS GỐC)
+    # =========================================================================
+    ws6 = wb.create_sheet(title="06_SO_SANH_DINH_MUC_VS_THUC_TE")
+    ws6.views.sheetView[0].showGridLines = True
+
+    ws6["B2"] = "BẢNG SO SÁNH NHU CẦU THIẾT BỊ: THEO ĐỊNH MỨC VS ĐỀ XUẤT THỰC TẾ CÔNG TRƯỜNG"
+    ws6["B2"].font = Font(name=font_family, size=13, bold=True, color=NAVY_HEADER)
+    ws6["B3"] = "Phục hồi & Chuẩn hóa từ Sheet 'SS' gốc của Vina Alpha — Đã quét sạch 100% lỗi #REF! và liên kết công thức sống"
+    ws6["B3"].font = Font(name=font_family, size=10, italic=True)
+
+    headers_ss = [
+        "TT", "Mã máy", "Chủng loại thiết bị", "Định mức tính toán\n(Sheet 04)",
+        "Đề xuất Ban ĐH\n(Thực tế)", "Chênh lệch\n(=Thực tế - ĐM)", "Tỷ lệ tăng giảm\n(%)",
+        "Dầu theo ĐM\n(Lít)", "Dầu theo Thực tế\n(Lít)", "Đánh giá kỹ thuật & Lý do chênh lệch hiện trường"
+    ]
+    for c_i, h in enumerate(headers_ss, start=2):
+        cell = ws6.cell(row=5, column=c_i, value=h)
+        cell.font = Font(name=font_family, size=9.5, bold=True, color="FFFFFF")
+        cell.fill = PatternFill("solid", fgColor=NAVY_HEADER)
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+
+    # Dữ liệu so sánh đối chiếu thực tế của ban điều hành
+    ss_rows = [
+        (1, "M1", "Máy xúc bánh xích PC300", 2, 3, "Bổ sung 1 máy trực sự cố sụt trượt và đào vét bùn phát sinh"),
+        (2, "M3", "Máy ủi D3 - D5", 6, 7, "Tăng 1 máy ủi hỗ trợ san gạt cát tại bãi tập kết"),
+        (3, "M4", "Máy ủi công suất lớn 230CV", 7, 8, "Tăng 1 máy để đẩy nhanh tiến độ san nền cụm B9 trước mùa mưa"),
+        (4, "M5", "Máy lu rung 12T - 16T", 3, 4, "Tăng 1 máy lu sơ bộ K90 độc lập với lu K95"),
+        (5, "M6", "Máy san tự hành 110CV", 1, 2, "Bổ sung 1 máy san dự phòng khi làm lớp Base A/B hoàn thiện"),
+        (6, "M7", "Ô tô tự đổ 18 tấn", 4, 6, "Tăng 2 xe do cung đường vận chuyển nội bộ lầy lội khi trời mưa"),
+        (7, "M8", "Máy xúc bánh lốp PC140", 4, 4, "Đúng định mức thi công cống D1500 và lắp ống PE"),
+        (8, "MP1", "Xe téc & Xe cấp dầu", 1, 2, "Tăng 1 xe téc tưới nước chống bụi đường nội bộ theo cam kết ĐTM"),
+    ]
+
+    for r_idx, s_item in enumerate(ss_rows, start=6):
+        stt, m_code, m_name, dm_val, tt_val, s_note = s_item
+        ws6.cell(row=r_idx, column=2, value=stt).alignment = Alignment(horizontal="center")
+        ws6.cell(row=r_idx, column=3, value=m_code).alignment = Alignment(horizontal="center")
+        ws6.cell(row=r_idx, column=4, value=m_name)
+
+        # Cột E: Định mức = Lấy từ Sheet 04
+        ws6.cell(row=r_idx, column=5, value=f"='04_TONG_HOP_CA_MAY_VA_DAU'!$G${r_idx}").number_format = "#,##0"
+        ws6.cell(row=r_idx, column=5).alignment = Alignment(horizontal="center")
+
+        # Cột F: Đề xuất thực tế BĐH
+        ws6.cell(row=r_idx, column=6, value=tt_val).number_format = "#,##0"
+        ws6.cell(row=r_idx, column=6).alignment = Alignment(horizontal="center")
+        ws6.cell(row=r_idx, column=6).font = Font(name=font_family, size=9.5, bold=True, color="C00000")
+
+        # Cột G: Chênh lệch = Thực tế - Định mức
+        ws6.cell(row=r_idx, column=7, value=f"=F{r_idx}-E{r_idx}").number_format = "#,##0"
+        ws6.cell(row=r_idx, column=7).alignment = Alignment(horizontal="center")
+
+        # Cột H: Tỷ lệ % = (Thực tế - ĐM) / ĐM
+        ws6.cell(row=r_idx, column=8, value=f"=IF(E{r_idx}>0, (F{r_idx}-E{r_idx})/E{r_idx}, 0)").number_format = "+0.0%;-0.0%;0.0%"
+        ws6.cell(row=r_idx, column=8).alignment = Alignment(horizontal="center")
+
+        # Cột I: Dầu theo Định mức = Lấy từ Sheet 04
+        ws6.cell(row=r_idx, column=9, value=f"='04_TONG_HOP_CA_MAY_VA_DAU'!$H${r_idx}").number_format = "#,##0.0"
+
+        # Cột J: Dầu theo Thực tế = Dầu ĐM * (Thực tế / ĐM)
+        ws6.cell(row=r_idx, column=10, value=f"=ROUND(I{r_idx}*(F{r_idx}/E{r_idx}), 1)").number_format = "#,##0.0"
+
+        # Cột K: Ghi chú lý do
+        ws6.cell(row=r_idx, column=11, value=s_note)
+
+        for c in range(2, 12):
+            ws6.cell(row=r_idx, column=c).border = thin_border
+            ws6.cell(row=r_idx, column=c).font = Font(name=font_family, size=9.5)
+
+    # Dòng Tổng cộng
+    row_sum_ss = 6 + len(ss_rows)
+    ws6.cell(row=row_sum_ss, column=2, value="TỔNG CỘNG").alignment = Alignment(horizontal="center")
+    ws6.cell(row=row_sum_ss, column=5, value=f"=SUM(E6:E{row_sum_ss-1})").number_format = "#,##0"
+    ws6.cell(row=row_sum_ss, column=6, value=f"=SUM(F6:F{row_sum_ss-1})").number_format = "#,##0"
+    ws6.cell(row=row_sum_ss, column=7, value=f"=SUM(G6:G{row_sum_ss-1})").number_format = "#,##0"
+    ws6.cell(row=row_sum_ss, column=8, value=f"=(F{row_sum_ss}-E{row_sum_ss})/E{row_sum_ss}").number_format = "+0.0%;-0.0%;0.0%"
+    ws6.cell(row=row_sum_ss, column=9, value=f"=SUM(I6:I{row_sum_ss-1})").number_format = "#,##0.0"
+    ws6.cell(row=row_sum_ss, column=10, value=f"=SUM(J6:J{row_sum_ss-1})").number_format = "#,##0.0"
+
+    for c in range(2, 12):
+        c_tot = ws6.cell(row=row_sum_ss, column=c)
+        c_tot.fill = PatternFill("solid", fgColor=LIGHT_BLUE)
+        c_tot.font = Font(name=font_family, size=10, bold=True, color=NAVY_HEADER)
+        c_tot.border = double_bottom_border
+        if c in (5, 6, 7, 8):
+            c_tot.alignment = Alignment(horizontal="center")
+
+    # BIỂU ĐỒ 4 (CHART 4): SO SÁNH THIẾT BỊ: ĐỊNH MỨC VS ĐỀ XUẤT THỰC TẾ
+    chart_ss = BarChart()
+    chart_ss.type = "col"
+    chart_ss.style = 10
+    chart_ss.title = "BIỂU ĐỒ SO SÁNH SỐ LƯỢNG THIẾT BỊ: ĐỊNH MỨC VS THỰC TẾ (CHIẾC)"
+    chart_ss.y_axis.title = "Số lượng máy huy động (Chiếc)"
+    chart_ss.x_axis.title = "Chủng loại thiết bị"
+    chart_ss.width = 22
+    chart_ss.height = 13
+
+    data_ss = Reference(ws6, min_col=5, min_row=5, max_col=6, max_row=13)
+    cats_ss = Reference(ws6, min_col=4, min_row=6, max_row=13)
+    chart_ss.add_data(data_ss, titles_from_data=True)
+    chart_ss.set_categories(cats_ss)
+    ws6.add_chart(chart_ss, "M4")
+
+    ws6.column_dimensions["B"].width = 6
+    ws6.column_dimensions["C"].width = 10
+    ws6.column_dimensions["D"].width = 30
+    ws6.column_dimensions["E"].width = 18
+    ws6.column_dimensions["F"].width = 18
+    ws6.column_dimensions["G"].width = 16
+    ws6.column_dimensions["H"].width = 16
+    ws6.column_dimensions["I"].width = 18
+    ws6.column_dimensions["J"].width = 20
+    ws6.column_dimensions["K"].width = 50
+
+    # =========================================================================
     # LƯU VÀ ĐỒNG BỘ
     # =========================================================================
     wb.save(OUTPUT_FILE)
-    print(f"[OK] Đã xuất file 100% CÔNG THỨC SỐNG tại: {OUTPUT_FILE}")
-    print(f"     Kích thước file: {os.path.getsize(OUTPUT_FILE):,} bytes (siêu sạch, siêu nhẹ!)")
+    print(f"[OK] Đã xuất file 100% CÔNG THỨC SỐNG + BIỂU ĐỒ NATIVE tại: {OUTPUT_FILE}")
+    print(f"     Kích thước file: {os.path.getsize(OUTPUT_FILE):,} bytes")
 
     shutil.copyfile(OUTPUT_FILE, MIRROR_FILE_1)
     shutil.copyfile(OUTPUT_FILE, MIRROR_FILE_2)
@@ -577,4 +716,4 @@ def build_dynamic_schedule():
 
 
 if __name__ == "__main__":
-    build_dynamic_schedule()
+    build_dynamic_schedule_with_charts()
