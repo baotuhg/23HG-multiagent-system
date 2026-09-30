@@ -12,6 +12,12 @@ from tools.package_dispatcher import (
     DispatchManifest,
 )
 from tools.dynamic_schedule_builder import DynamicScheduleBuilder
+from tools.ifc_loader import (
+    IFCLoader,
+    IFCTakeoffResult,
+    IFCConcreteElement,
+    IFCRebarElement,
+)
 
 __all__ = [
     "EquipmentFleetScheduler",
@@ -21,4 +27,8 @@ __all__ = [
     "AECPackageDispatcher",
     "DispatchManifest",
     "DynamicScheduleBuilder",
+    "IFCLoader",
+    "IFCTakeoffResult",
+    "IFCConcreteElement",
+    "IFCRebarElement",
 ]

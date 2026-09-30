@@ -2,8 +2,9 @@
 openpyxl>=3.1.5
 python-docx>=1.2.0
 
-# CAD & Drawing processing (ezdxf: đọc DXF; thiếu ezdxf vẫn đọc được DXF ASCII bằng bộ đọc tích hợp)
+# CAD & BIM processing (ezdxf: đọc 2D DXF; ifcopenshell: đọc & bóc tách 3D OpenBIM IFC)
 ezdxf>=1.4.0
+ifcopenshell>=0.9.0
 numpy>=1.26.0
 
 # Environment & configuration

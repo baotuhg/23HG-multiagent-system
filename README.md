@@ -17,6 +17,7 @@
 [![Optimization: Google OR-Tools](https://img.shields.io/badge/Optimization-OR--Tools%20Column%20Generation%20%2B%20CP--SAT-blue)](tools/cutting_stock_solver.py)
 [![Fleet Scheduling: Vincons & TT13](https://img.shields.io/badge/Fleet%20Scheduling-Vincons%20%7C%20TT13%2F2021-orange)](tools/equipment_fleet_scheduler.py)
 [![Packaging: Hub & Spoke 5 Packages](https://img.shields.io/badge/Packaging-Hub%20%26%20Spoke%20Role--Based-purple)](workflows/15_QUY_TRINH_DONG_GOI_HUB_AND_SPOKE_PHAN_QUYEN_THUC_CHIEN.md)
+[![OpenBIM: IfcOpenShell ISO 16739](https://img.shields.io/badge/OpenBIM-IfcOpenShell%20ISO%2016739-darkblue)](tools/ifc_loader.py)
 [![Zero Dead Numbers](https://img.shields.io/badge/Math-100%25%20Dynamic%20Formulas-red.svg)](templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx)
 
 ---
@@ -136,7 +137,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
 
 | Thành phần | Định dạng Đầu vào (Input) | Định dạng Đầu ra (Output) | Công cụ & Đặc tả Kỹ thuật |
 |---|---|---|---|
-| **Bóc tách CAD/BIM** | Bản vẽ CAD `.dwg`, `.dxf`, mô hình `.ifc` | Bảng khối lượng hình học Bê tông, Ván khuôn, Đào đắp | `AutoCAD COM Interop`, `ezdxf`, Shoelace & Average-End-Area |
+| **Bóc tách CAD/BIM** | Bản vẽ CAD `.dwg`, `.dxf`, mô hình OpenBIM `.ifc` | Bảng khối lượng Bê tông, Ván khuôn, Cốt thép 3D, Đào đắp | `ifcopenshell` (ISO 16739), `ezdxf`, `AutoCAD COM`, Shoelace & IFC Qto |
 | **Gia công Cốt thép** | File BBS thật `.xlsx` / `.csv` / `.json` (`--bbs`) | Phiếu cắt từng phương án cây 11.7m (CSV), số cây, cận dưới, đề-xê, mẩu thừa tận dụng | OR-Tools Column Generation (GLOP) + CP-SAT, tách nhóm Ø + mác thép, tính lưỡi cắt 3mm |
 | **Dự toán Chi phí** | Khối lượng trích xuất, Đơn giá định mức | Bảng dự toán tổng hợp chi phí xây dựng `G_xd` | Excel 100% công thức động (`G_xd = T + GT + TL + VAT 10%`) |
 | **Thanh toán Hợp đồng**| Khối lượng thiết kế vs Khối lượng hoàn công | Bảng xác định khối lượng hoàn thành Phụ lục 03a | Nghị định 254/2025/NĐ-CP, tính phát sinh tự động |
@@ -482,6 +483,7 @@ flowchart TD
 │
 ├── tools/                        # ⚙️ CÔNG CỤ TÍNH TOÁN XÁC ĐỊNH (PURE PYTHON, ZERO LLM)
 │   ├── cutting_stock_solver.py   # Solver cắt thép 1D (Column Generation GLOP + CP-SAT, tách nhóm Ø + mác)
+│   ├── ifc_loader.py             # Bóc tách cấu kiện Bê tông & Cốt thép 3D từ mô hình OpenBIM IFC (ISO 16739)
 │   ├── dynamic_schedule_builder.py # Khởi tạo Tiến độ CPM 100% công thức sống & 4 Biểu đồ Native Excel
 │   ├── equipment_fleet_scheduler.py # Động cơ lập tiến độ Ca xe, Ca máy & Kế hoạch Dầu Diezel Vincons/TT 37/2026
 │   ├── package_dispatcher.py     # Bộ điều phối đóng gói phân quyền Hub & Spoke 5 gói vệ tinh công trường
@@ -545,6 +547,7 @@ flowchart TD
 │   └── run_cad_diff_demo.py                      # Demo so sánh bản vẽ CAD Rev00 vs Rev01
 │
 ├── tests/                        # 🧪 TEST TỰ ĐỘNG (python -m unittest discover tests)
+│   ├── test_ifc_loader.py                        # Test bóc tách OpenBIM IFC & nạp trực tiếp vào OR-Tools
 │   ├── test_dynamic_cpm_schedule.py              # Test tiến độ CPM 100% công thức sống & biểu đồ native
 │   ├── test_cad_and_state.py                     # Test đọc DXF hình học & lưu/khôi phục State
 │   ├── test_equipment_fleet_scheduler.py         # Test động cơ ca xe, ca máy & nhiên liệu dầu
