@@ -415,6 +415,7 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 │
 ├── tools/                        # ⚙️ CÔNG CỤ TÍNH TOÁN XÁC ĐỊNH (PURE PYTHON, ZERO LLM)
 │   ├── cutting_stock_solver.py   # Solver cắt thép 1D (Column Generation GLOP + CP-SAT, tách nhóm Ø + mác)
+│   ├── dynamic_schedule_builder.py # Khởi tạo Tiến độ CPM 100% công thức sống & 4 Biểu đồ Native Excel
 │   ├── equipment_fleet_scheduler.py # Động cơ lập tiến độ Ca xe, Ca máy & Kế hoạch Dầu Diezel Vincons/TT 37/2026
 │   ├── package_dispatcher.py     # Bộ điều phối đóng gói phân quyền Hub & Spoke 5 gói vệ tinh công trường
 │   ├── bbs_loader.py             # Đọc BBS thật từ Excel / CSV / JSON, nhận diện mối nối
@@ -466,8 +467,10 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 │   │   ├── BANG_BOC_TACH_KHOI_LUONG_CONG_HOP_TUYEN_A5.xlsx
 │   │   └── HO_SO_THUC_CHIEN_HUB_AND_SPOKE_CONG_A5/ (GOI_A đến GOI_E + MANIFEST)
 │   ├── TIEN_DO_THI_CONG_CUM_B9_OLYMPIC/ # 📁 Hồ sơ mẫu Tiến độ & Ca máy Cụm B9 Olympic
+│   │   ├── 260820_TDTC_Cum_B9_TINH_GIAN_CHUAN_CPM.xlsx # Master Excel 100% công thức sống + 4 biểu đồ Native
 │   │   ├── 260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx
 │   │   └── 260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml
+│   ├── generate_clean_streamlined_schedule_b9.py # Generator tiến độ Cụm B9 tinh giản chuẩn CPM
 │   ├── build_14_micro_standalone_dossiers.py     # Generator 14 bộ hồ sơ vi mô chuyên sâu độc lập
 │   ├── apply_khai_hoang_2_full.py                # Áp giá TT 38/2026, TT 36/2026 và liên kết động 14 Sheet
 │   ├── build_khai_hoang_2_dossier.py             # Dựng hồ sơ từ dữ liệu gốc 166 dòng BBS
@@ -475,6 +478,7 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 │   └── run_cad_diff_demo.py                      # Demo so sánh bản vẽ CAD Rev00 vs Rev01
 │
 ├── tests/                        # 🧪 TEST TỰ ĐỘNG (python -m unittest discover tests)
+│   ├── test_dynamic_cpm_schedule.py              # Test tiến độ CPM 100% công thức sống & biểu đồ native
 │   ├── test_cad_and_state.py                     # Test đọc DXF hình học & lưu/khôi phục State
 │   ├── test_equipment_fleet_scheduler.py         # Test động cơ ca xe, ca máy & nhiên liệu dầu
 │   ├── test_package_dispatcher.py                # Test bộ đóng gói phân quyền Hub & Spoke

@@ -11,6 +11,7 @@ from tools.package_dispatcher import (
     AECPackageDispatcher,
     DispatchManifest,
 )
+from tools.dynamic_schedule_builder import DynamicScheduleBuilder
 
 __all__ = [
     "EquipmentFleetScheduler",
@@ -19,4 +20,5 @@ __all__ = [
     "DailyFleetMatrix",
     "AECPackageDispatcher",
     "DispatchManifest",
+    "DynamicScheduleBuilder",
 ]
