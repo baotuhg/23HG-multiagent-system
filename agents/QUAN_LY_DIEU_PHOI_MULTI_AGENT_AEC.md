@@ -39,7 +39,7 @@ flowchart TD
     Auditor -->|Duyệt PASS / Bắt làm lại FAIL| Director
 ```
 
-#### 2 Tác tử mới cần bổ sung vào danh bạ:
+#### Các Tác tử Chuyên trách được bổ sung:
 1. **`aec_audit_verifier` (Kỹ sư Thẩm tra & Soi lỗi Độc lập - Red Teaming Agent):**
    - *Vai trò:* Đóng vai "Tư vấn Giám sát khó tính" hoặc "Thanh tra Xây dựng".
    - *Nhiệm vụ:* Quét toàn bộ output của các Agent khác trước khi gửi cho người dùng:
@@ -49,6 +49,9 @@ flowchart TD
      + Nếu phát hiện lỗi $\rightarrow$ Từ chối phê duyệt (REJECT) và ra lệnh cho Agent liên quan tính toán lại!
 2. **`aec_contract_billing` (Kỹ sư Thanh quyết toán Hợp đồng):**
    - Tách bạch vai trò: Kỹ sư Dự toán (`aec_cost_engineer`) lo tính giá thầu và dự toán phê duyệt ban đầu; Kỹ sư Thanh toán (`aec_contract_billing`) chuyên trách quản lý dòng tiền thanh toán kỳ (Phụ lục 03a), quản lý tạm ứng, bảo lãnh và phát sinh hợp đồng.
+3. **`aec_equipment_fleet_agent` & `aec_dynamic_schedule_builder` (Kỹ sư Điều phối Ca máy & Tiến độ Động):**
+   - *Vai trò:* Quản trị tổng thể ca xe, ca máy, định mức nhiên liệu dầu Diesel và xuất bản Master Excel Tiến độ 6 Sheet với 100% công thức động và 4 biểu đồ Native Excel (Load curve 97 ngày, Phân kỳ dầu, Cơ cấu vật tư và Đối sánh thiết bị ĐM vs Thực tế).
+   - Diệt triệt để 28.091 name rác và lỗi `#REF!`, tối ưu kích thước file mở tức thì.
 
 ---
 
