@@ -88,6 +88,7 @@ class EquipmentFleetScheduler:
         norms_path: Optional[str] = None,
         fuel_norms_path: Optional[str] = None,
         material_factors_path: Optional[str] = None,
+        experience_store: Optional[Any] = None,
     ):
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         data_dir = os.path.join(base_dir, "data")
@@ -95,10 +96,15 @@ class EquipmentFleetScheduler:
         self.norms_path = norms_path or os.path.join(data_dir, "equipment_norms_vincons.json")
         self.fuel_norms_path = fuel_norms_path or os.path.join(data_dir, "fuel_consumption_norms.json")
         self.material_factors_path = material_factors_path or os.path.join(data_dir, "material_conversion_factors.json")
+        self.experience_store = experience_store
 
         self.norms_data = self._load_json(self.norms_path)
         self.fuel_data = self._load_json(self.fuel_norms_path)
         self.material_factors = self._load_json(self.material_factors_path)
+
+    def set_experience_store(self, store: Any) -> None:
+        """Thiết lập ProjectExperienceStore để tự động hiệu chuẩn định mức."""
+        self.experience_store = store
 
     @staticmethod
     def _load_json(path: str) -> Dict[str, Any]:
@@ -129,8 +135,12 @@ class EquipmentFleetScheduler:
                 m_code = m_info.get("code", "M1")
                 m_name = m_info.get("name", m_k)
                 prod_shift = float(m_info.get("productivity_per_shift", 100.0))
+                if self.experience_store and hasattr(self.experience_store, "get_calibration_factor"):
+                    alpha = self.experience_store.get_calibration_factor(task_key)
+                    if alpha > 0 and alpha != 1.0:
+                        prod_shift = round(prod_shift * alpha, 2)
 
-                shifts_req = round(task.quantity / prod_shift, 2)
+                shifts_req = round(task.quantity / max(0.01, prod_shift), 2)
                 daily_m = round(shifts_req / (task.duration_days * task.shifts_per_day), 2)
                 fuel_rate = self.get_fuel_rate(m_code)
                 tot_fuel = round(shifts_req * fuel_rate, 1)

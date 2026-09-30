@@ -457,7 +457,80 @@ flowchart TD
 
 ---
 
-## 📁 8. Cấu trúc Cây Thư mục Dự án
+## 🧠 8. Động cơ Tự Tiến Hóa & Tích Lũy Kinh Nghiệm Thực Chiến (Self-Evolving & Continuous Learning Engine)
+
+Một trong những câu hỏi cốt lõi của kỹ sư khi ứng dụng AI vào xây dựng: **"Hệ thống sau khi đi qua hàng chục công trình thực tế có tự thông minh lên, tự nâng cấp kỹ năng (Level-Up) hay mãi dậm chân tại chỗ?"**
+
+Hệ thống **23HG-AEC-MultiAgent-System** giải quyết triệt để vấn đề này bằng **Động cơ Tiến hóa Thực chiến (`aec_core/experience_store.py` & `agents/aec_experience_agent.py`)** vận hành theo **4 Cấp độ Tự Tiến Hóa Khép Kín**:
+
+```mermaid
+flowchart TD
+    subgraph DUA_AN["CÁC CÔNG TRÌNH THỰC TẾ ĐÃ THI CÔNG"]
+        P1["Dự án Cầu Khai Hoang 2"]
+        P2["Dự án Cụm B9 Olympic"]
+        P3["Dự án Tuyến Cống Hộp A5"]
+    end
+
+    DUA_AN --> STORE["ProjectExperienceStore (Kho Tri Thức & Kinh Nghiệm Tích Lũy)"]
+
+    subgraph BON_CAP_DO["4 CẤP ĐỘ TIẾN HÓA (4 EVOLUTION LEVELS)"]
+        L1["Level 1: Field Productivity Calibration<br/>(Hiệu chuẩn định mức máy & nhân công từ As-Built)"]
+        L2["Level 2: Golden Rebar Cutting Patterns<br/>(Thư viện mẫu cắt thép vàng < 1.5% đề-xê, tra cứu O(1))"]
+        L3["Level 3: Reflexion & Error Immunity<br/>(Miễn dịch lỗi tự động, mở rộng bộ quy tắc kiểm toán)"]
+        L4["Level 4: Autonomous Skill Packaging<br/>(Đóng gói Skill mới với Human Gate Kỹ sư trưởng)"]
+    end
+
+    STORE --> L1 & L2 & L3 & L4
+    L1 --> FLEET["EquipmentFleetScheduler (Tự điều chỉnh số ca máy)"]
+    L2 --> SOLVER["CuttingStockSolver (Tự tái sử dụng mẫu tối ưu 0ms)"]
+    L3 --> VERIFIER["AECAuditVerifier (Bảo vệ file trước lỗi XML/Số chết)"]
+    L4 --> GATE["HumanGate (Kỹ sư trưởng ký duyệt -> Active Skill)"]
+```
+
+### 4 Cấp độ Tự Tiến hóa Kỹ thuật Chi tiết:
+1. **Level 1 — Field Productivity Calibration (Hiệu chuẩn Năng suất Thi công Thực tế)**:
+   - Khi công trình triển khai, `AsBuiltAgent` thu thập nhật ký thi công thực tế (`DailySiteLog`) và đối chiếu với định mức thiết kế.
+   - Hệ thống tự động tính toán tỷ lệ $r = \text{Thực tế} / \text{Kế hoạch}$, áp dụng thuật toán lọc nhiễu ngoại lai ($0.35 \le r \le 2.80$) và tính toán hệ số hiệu chuẩn có trọng số tuyến tính $\alpha$.
+   - Khi lập kế hoạch cho dự án tiếp theo, `EquipmentFleetScheduler` tự động áp dụng $\alpha$ để điều chỉnh số ca máy và máy móc cần huy động, phản ánh đúng năng lực nhà thầu và thời tiết địa phương.
+2. **Level 2 — Golden Rebar Cutting Pattern Library (Thư viện Mẫu Cắt Thép Vàng)**:
+   - Các cấu kiện chuẩn hóa như cọc khoan nhồi D1000/D1200, dầm Super-T 33m, mố cầu M1 sau khi được Google OR-Tools CP-SAT tối ưu đạt tỷ lệ đề-xê $< 1.5\%$ sẽ được tự động gắn mã băm định danh (Hash Demand Signature) và lưu vào Thư viện Mẫu Vàng.
+   - Các dự án sau nếu gặp cấu kiện tương tự có thể tra cứu tức thì trong **0 ms**, bỏ qua thời gian giải toán Column Generation.
+3. **Level 3 — Reflexion & Error Immunity Engine (Cơ chế Miễn dịch Lỗi & Kiểm toán Tự Động)**:
+   - Hệ thống ghi nhớ các bài học sự cố: ví dụ lỗi ô text bắt đầu bằng dấu `=` gây sập XML Excel (`RULE-EXCEL-001`), lỗi số chết trong thanh toán (`RULE-MATH-002`), lỗi nối thép tại vùng kéo căng (`RULE-REBAR-003`).
+   - Bộ quy tắc kiểm toán của `AECAuditVerifier` tự động mở rộng và cảnh báo sớm trong các lần chạy tiếp theo.
+4. **Level 4 — Autonomous Skill Packaging with Human-in-the-Loop Gate (Tự Đóng gói Kỹ năng Mới)**:
+   - Khi phát hiện một chuỗi thao tác kỹ thuật lặp lại qua nhiều dự án, hệ thống tự động soạn thảo `CandidateSkill` ở trạng thái `PENDING_APPROVAL`.
+   - Cổng `HumanGate` hiển thị thông tin để Kỹ sư trưởng phê duyệt trước khi kỹ năng được kích hoạt chính thức (`APPROVED`) và xuất ra tài liệu chuẩn `SKILL.md`.
+
+### Lệnh Tra cứu Cấp độ & Điểm Kinh nghiệm (Level-Up CLI):
+```bash
+# Xem Báo cáo Cấp độ (Level) & Thành tựu Tích lũy của Hệ thống AI
+python run_state_graph.py --evolution-report
+# hoặc viết tắt:
+python run_state_graph.py --level
+```
+```text
+# =====================================================================
+# 🏆 BÁO CÁO TIẾN HÓA & CẤP ĐỘ HỆ THỐNG AEC MULTI-AGENT (LEVEL-UP)
+# =====================================================================
+  ⭐ CẤP ĐỘ HIỆN TẠI (LEVEL)      : LEVEL 3
+  🎖️ DANH HIỆU NGHỆP VỤ          : Kỹ sư Tập sự (Novice Assistant)
+  ⚡ TỔNG ĐIỂM KINH NGHIỆM (XP)   : 250 XP
+  📈 TIẾN ĐỘ LÊN LEVEL 4       : 45.0% (250 / 360 XP)
+---------------------------------------------------------------------
+  📊 THỐNG KÊ TÍCH LŨY KINH NGHIỆM THỰC CHIẾN:
+     - Số dự án đã hoàn thành          : 2 dự án (+200 XP)
+     - Quan trắc năng suất hiện trường : 0 mẫu (+0 XP)
+     - Mẫu cắt thép vàng tối ưu        : 0 mẫu (+0 XP)
+     - Số lần tái sử dụng mẫu vàng     : 0 lần
+     - Bộ quy tắc miễn dịch lỗi active : 5 quy tắc (+50 XP)
+     - Kỹ năng mới đã phê duyệt (Skills): 0 kỹ năng (+0 XP)
+=====================================================================
+```
+
+---
+
+## 📁 9. Cấu trúc Cây Thư mục Dự án
 
 ```text
 23HG-multiagent-system/
@@ -504,7 +577,13 @@ flowchart TD
 │
 ├── aec_core/                     # 🔍 BỘ CÔNG CỤ KIỂM TOÁN VÀ XÁC THỰC ĐỘC LẬP
 │   ├── audit_verifier.py         # AECAuditVerifier: Quét toàn diện, 0 số chết, điểm 100/100
+│   ├── experience_store.py       # ProjectExperienceStore: Kho tri thức 4 cấp độ tự nâng cấp (Level-Up)
 │   └── project_state.py          # Trình quản lý trạng thái dự án cơ sở
+│
+├── agents/                       # 🤖 CÁC TÁC TỬ CHUYÊN BIỆT (STANDALONE AGENTS)
+│   ├── aec_experience_agent.py   # Quản trị tích lũy kinh nghiệm, tính điểm XP và cấp độ hệ thống
+│   ├── aec_equipment_fleet_agent.py # Quản trị ca xe, ca máy & nhiên liệu dầu Diezel
+│   └── aec_audit_verifier.py     # Thẩm tra độc lập file tính toán kỹ thuật
 │
 ├── workflows/                    # 📚 QUY TRÌNH KỸ THUẬT & TIÊU CHUẨN THI CÔNG
 │   ├── 00_TONG_QUAN_QUY_TRINH_KHEP_KIN_AEC.md
@@ -547,6 +626,7 @@ flowchart TD
 │   └── run_cad_diff_demo.py                      # Demo so sánh bản vẽ CAD Rev00 vs Rev01
 │
 ├── tests/                        # 🧪 TEST TỰ ĐỘNG (python -m unittest discover tests)
+│   ├── test_experience_store.py                  # Test 4 cấp độ tự nâng cấp kinh nghiệm & Human Gate
 │   ├── test_ifc_loader.py                        # Test bóc tách OpenBIM IFC & nạp trực tiếp vào OR-Tools
 │   ├── test_dynamic_cpm_schedule.py              # Test tiến độ CPM 100% công thức sống & biểu đồ native
 │   ├── test_cad_and_state.py                     # Test đọc DXF hình học & lưu/khôi phục State
@@ -566,7 +646,7 @@ flowchart TD
 
 ---
 
-## ⚖️ 9. Giấy phép Bản quyền (License & Authorship)
+## ⚖️ 10. Giấy phép Bản quyền (License & Authorship)
 
 - **Tác giả & Bản quyền trí tuệ**: **Nguyễn Bảo Tú** ([@baotuhg](https://github.com/baotuhg))
 - **Kho lưu trữ chính thức**: [https://github.com/baotuhg/23HG-multiagent-system](https://github.com/baotuhg/23HG-multiagent-system)

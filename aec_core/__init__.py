@@ -7,6 +7,21 @@ Tuân thủ Luật Xây dựng 135/2025/QH15, NĐ 207/2026/NĐ-CP, NĐ 254/2025/
 
 from .audit_verifier import AECAuditVerifier
 from .project_state import ProjectStateManager
+from .experience_store import (
+    ProjectExperienceStore,
+    ProductivityObservation,
+    GoldenRebarPattern,
+    ImmunityRule,
+    CandidateSkill,
+)
 
-__version__ = "2.0.0"
-__all__ = ["AECAuditVerifier", "ProjectStateManager"]
+__version__ = "2.1.0"
+__all__ = [
+    "AECAuditVerifier",
+    "ProjectStateManager",
+    "ProjectExperienceStore",
+    "ProductivityObservation",
+    "GoldenRebarPattern",
+    "ImmunityRule",
+    "CandidateSkill",
+]

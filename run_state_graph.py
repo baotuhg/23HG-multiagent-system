@@ -353,8 +353,18 @@ def main():
         "--schedule-out", default=None,
         help="Xuất bảng tiến độ CPM (ES/EF/LS/LF/dự trữ/ngày) ra file CSV"
     )
+    parser.add_argument(
+        "--evolution-report", "--level", action="store_true",
+        help="Hiển thị Báo cáo Cấp độ (Level-Up) & Điểm kinh nghiệm tích lũy của Hệ thống AI"
+    )
 
     args = parser.parse_args()
+
+    if args.evolution_report:
+        from agents.aec_experience_agent import AECExperienceAgent
+        agent = AECExperienceAgent()
+        print(agent.generate_evolution_report())
+        return
 
     if args.solver_test:
         run_solver_test()

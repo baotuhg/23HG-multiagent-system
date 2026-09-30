@@ -40,6 +40,7 @@ from core.state.state_bus import StateBus
 from core.gates.quality_gate import QualityGate
 from core.gates.human_gate import HumanGate, ApprovalRequest
 from core.supervisor.base_agent import BaseAgent
+from aec_core.experience_store import ProjectExperienceStore
 
 
 class AECSupervisor:
@@ -87,6 +88,9 @@ class AECSupervisor:
         # Gates
         self.quality_gate = QualityGate(project_root)
         self.human_gate = HumanGate(mode=human_gate_mode)
+
+        # Experience Store & Evolution Engine
+        self.experience_store = ProjectExperienceStore()
 
         # Agent registry — Supervisor điền vào trước khi chạy
         self._agents: Dict[str, BaseAgent] = {}
@@ -142,6 +146,10 @@ class AECSupervisor:
 
         self.bus.set_phase(ProjectPhase.COMPLETED)
         self.bus.print_status_board()
+        if self.experience_store:
+            self.experience_store.record_project_completion(self.bus._state.project_name)
+            lvl_info = self.experience_store.get_system_level()
+            print(f"\n  ⭐ AEC SYSTEM EVOLUTION: Level {lvl_info['level']} ({lvl_info['rank']}) — Total XP: {lvl_info['total_xp']} XP")
         print("\n  ✅ SUPERVISOR: Hoàn tất toàn bộ State Graph!")
         return True
 
@@ -433,4 +441,5 @@ class AECSupervisor:
             "pending_approvals": len(self.bus.get_pending_gates()),
             "demo_mode": snap.get("demo_mode", False),
             "sample_data_sources": snap.get("sample_data_sources", []),
+            "system_level": self.experience_store.get_system_level() if self.experience_store else None,
         }

@@ -233,12 +233,16 @@ class CuttingStockSolver:
         demands: List[CutDemand],
         allow_splicing: bool = False,
         split_long_bars: bool = False,
+        experience_store: Optional[Any] = None,
+        element_type: Optional[str] = None,
     ) -> CuttingStockSolution:
         """
         allow_splicing : đề xuất nối thanh ngắn hơn cây để tận dụng đầu thừa (cần duyệt).
         split_long_bars: tách thanh dài hơn cây thép thành các đoạn nối trong vùng cho phép nối;
                          thanh không tách được đưa vào `unplanned` (có cảnh báo).
                          False: có thanh dài hơn cây → INFEASIBLE.
+        experience_store: kho kinh nghiệm (ProjectExperienceStore) để lưu mẫu cắt thép vàng < 1.5%.
+        element_type: tên cấu kiện (ví dụ: 'coc_khoan_nhoi_d1000', 'dam_super_t_33m').
         """
         sol = CuttingStockSolution(
             bar_length_mm=self.bar_length_mm, kerf_mm=self.kerf_mm,
@@ -349,6 +353,32 @@ class CuttingStockSolver:
                 f"CHƯA có trong kế hoạch cắt — xem danh sách 'unplanned'"
             )
         sol.warning = " | ".join(sol.warnings)
+
+        # Level 2 Evolution: Tự động lưu Mẫu cắt thép vàng nếu hao hụt <= 1.5%
+        if experience_store and element_type and sol.status in ("OPTIMAL", "FEASIBLE") and sol.waste_ratio_pct <= 1.5:
+            diameters = set(d.diameter_mm for d in active)
+            if len(diameters) == 1 and hasattr(experience_store, "save_golden_pattern"):
+                dia = list(diameters)[0]
+                grd = active[0].grade or "CB400-V"
+                demands_map = {int(d.length_mm): int(d.quantity) for d in active}
+                patterns_list = [
+                    {
+                        "bars_used": p.bars_used,
+                        "cuts": p.cuts,
+                        "waste_mm": p.waste_mm,
+                        "offcut_class": p.offcut_class
+                    } for p in sol.patterns
+                ]
+                experience_store.save_golden_pattern(
+                    element_type=element_type,
+                    diameter_mm=dia,
+                    demands_dict=demands_map,
+                    stock_bar_count=sol.total_bars_needed,
+                    waste_pct=sol.waste_ratio_pct,
+                    cutting_patterns=patterns_list,
+                    steel_grade=grd,
+                )
+
         return sol
 
     # ── ONE DIAMETER + GRADE GROUP ─────────────────────────────────────────
