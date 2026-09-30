@@ -259,6 +259,39 @@ def main():
         print(f"  * Ø{dia:02d} [{cfg['name']}]: {len(sub_demands)} marks, {sum(d.quantity for d in sub_demands):,} thanh "
               f"--> {sol.total_bars_needed} cây 11.7m | Đề-xê: {sol.waste_ratio_pct:.2f}% | Status: {sol.status} ({dt:.2f}s)")
 
+    # 4.1. Tạo hồ sơ Cáp Dự ứng lực 15.2mm dầm Super-T
+    print(f"  * Cáp DƯL [15.2mm]: 660 tao cáp L=38.2m --> Xuất hồ sơ riêng Trạm căng kéo...")
+    wb_cable = openpyxl.Workbook()
+    ws_c = wb_cable.active
+    ws_c.title = "CAP_DUL_15.2MM"
+    ws_c["B2"] = "DỰ ÁN: CAO TỐC TUYÊN QUANG - HÀ GIANG (GIAI ĐOẠN 1) - CẦU KM19+529.080"
+    ws_c["B2"].font = Font(name="Times New Roman", size=14, bold=True, color="1F3A5E")
+    ws_c["B3"] = "BẢNG THỐNG KÊ VÀ LẬP KẾ HOẠCH CĂNG KÉO CÁP DỰ ỨNG LỰC DẦM SUPER-T 38.2M"
+    ws_c["B3"].font = Font(name="Times New Roman", size=13, bold=True)
+    ws_c["B4"] = "Tiêu chuẩn: ASTM A416 Gr270 | fpu = 1860 MPa | Tao cáp 7 sợi xoắn phi 15.2mm (0.6 inch)"
+    ws_c["B4"].font = Font(name="Times New Roman", size=10, italic=True)
+    headers_c = ["TT", "Hạng mục", "Cấu kiện", "Ký hiệu cáp", "Quy cách tao cáp", "Mác thép / Tiêu chuẩn", "Chiều dài 1 tao (m)", "Số tao / dầm", "Số phiến dầm", "Tổng số tao cáp", "Tổng chiều dài (m)", "Trọng lượng đơn vị (kg/m)", "Tổng khối lượng (kg)", "Quy cách cung ứng", "Ghi chú"]
+    for c_idx, h in enumerate(headers_c, start=2):
+        cell = ws_c.cell(6, c_idx, h)
+        cell.font = Font(name="Times New Roman", size=11, bold=True, color="FFFFFF")
+        cell.fill = PatternFill("solid", fgColor="1F3A5E")
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    thin_c = Side(style="thin", color="CCCCCC")
+    border_c = Border(left=thin_c, right=thin_c, top=thin_c, bottom=thin_c)
+    row_data_c = [(1, "Kết cấu nhịp Super-T", "15 phiến dầm Super-T L=38.2m", "CABLE-15.2", "Tao cáp 7 sợi xoắn phi 15.2mm", "ASTM A416 Gr270 (fpu=1860MPa)", 38.200, 44, 15, 660, 25212.0, 1.102, 27783.6, "Cuộn 2.5 - 3.0 tấn", "Căng kéo trước/sau theo quy trình")]
+    for r_idx, d_row in enumerate(row_data_c, start=7):
+        for col_idx, val in enumerate(d_row, start=2):
+            cell = ws_c.cell(r_idx, col_idx, val)
+            cell.border = border_c
+            if isinstance(val, (int, float)):
+                cell.alignment = Alignment(horizontal="right")
+                if isinstance(val, float): cell.number_format = "#,##0.00"
+                else: cell.number_format = "#,##0"
+            else:
+                if col_idx in (2, 5, 7): cell.alignment = Alignment(horizontal="center")
+    cable_file = os.path.join(SUB_FOLDER_DIAS, "12_Cap_Du_Ung_Luc_15.2mm_SuperT.xlsx")
+    wb_cable.save(cable_file)
+
     # 5. Xuất Dashboard tổng hợp và File Master Toàn cầu
     print(f"\n[4/5] Đang tạo Dashboard Tổng Hợp và File Master Toàn Cầu 5 Sheet...")
     dashboard_path = os.path.join(TARGET_FOLDER, "00_BANG_TONG_HOP_CAT_THEP_THEO_PHI.xlsx")
