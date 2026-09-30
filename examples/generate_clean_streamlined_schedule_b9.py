@@ -26,10 +26,6 @@ from openpyxl.utils import get_column_letter
 OUTPUT_DIR = r"C:\Users\baotu\Downloads\TĐTC vina alpha"
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "260820_TDTC_Cum_B9_TINH_GIAN_CHUAN_CPM.xlsx")
 
-PROJECT_DIR = r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker"
-MIRROR_FILE_1 = os.path.join(PROJECT_DIR, "TDTC_Cum_B9_Tinh_Gian_Chuan_CPM.xlsx")
-MIRROR_FILE_2 = os.path.join(PROJECT_DIR, "HSTK Cầu Km19+529.080_Marker", "TDTC_Cum_B9_Tinh_Gian_Chuan_CPM.xlsx")
-
 # Palette màu chuyên nghiệp (Executive AEC Palette)
 NAVY_HEADER = "1B365D"
 BLUE_SUB = "2E75B6"
@@ -78,12 +74,12 @@ def build_dynamic_schedule_with_charts():
     ws1["B4"] = "BẢNG THIẾT LẬP THÔNG SỐ ĐIỀU HÀNH TIẾN ĐỘ & CA MÁY (100% CÔNG THỨC SỐNG)"
     ws1["B4"].font = Font(name=font_family, size=11, italic=True)
 
-    ws1.cell(row=6, column=2, value="Thông số quản trị dự án").font = Font(name=font_family, size=11, bold=True, color="FFFFFF")
-    ws1.cell(row=6, column=2).fill = PatternFill("solid", fgColor=NAVY_HEADER)
-    ws1.cell(row=6, column=3, value="Giá trị thiết lập").font = Font(name=font_family, size=11, bold=True, color="FFFFFF")
-    ws1.cell(row=6, column=3).fill = PatternFill("solid", fgColor=NAVY_HEADER)
-    ws1.cell(row=6, column=4, value="Ghi chú kỹ thuật & Cơ chế liên kết động").font = Font(name=font_family, size=11, bold=True, color="FFFFFF")
-    ws1.cell(row=6, column=4).fill = PatternFill("solid", fgColor=NAVY_HEADER)
+    ws1.cell(row=5, column=2, value="Thông số quản trị dự án").font = Font(name=font_family, size=11, bold=True, color="FFFFFF")
+    ws1.cell(row=5, column=2).fill = PatternFill("solid", fgColor=NAVY_HEADER)
+    ws1.cell(row=5, column=3, value="Giá trị thiết lập").font = Font(name=font_family, size=11, bold=True, color="FFFFFF")
+    ws1.cell(row=5, column=3).fill = PatternFill("solid", fgColor=NAVY_HEADER)
+    ws1.cell(row=5, column=4, value="Ghi chú kỹ thuật & Cơ chế liên kết động").font = Font(name=font_family, size=11, bold=True, color="FFFFFF")
+    ws1.cell(row=5, column=4).fill = PatternFill("solid", fgColor=NAVY_HEADER)
 
     ws1.cell(row=6, column=2, value="Ngày phát lệnh khởi công (Bắt đầu)").border = thin_border
     c_s = ws1.cell(row=6, column=3, value=start_date)
@@ -99,7 +95,7 @@ def build_dynamic_schedule_with_charts():
     c_e.alignment = Alignment(horizontal="center")
     c_e.number_format = "DD/MM/YYYY"
     c_e.font = Font(name=font_family, size=10, bold=True, color="C00000")
-    ws1.cell(row=7, column=4, value="=MAX('03_TIEN_DO_GANTT_CPM'!$K$6:$K$19) — Tự động cập nhật theo công tác kết thúc muộn nhất").border = thin_border
+    ws1.cell(row=7, column=4, value="Công thức: MAX('03_TIEN_DO_GANTT_CPM'!$K$6:$K$19) — Tự động cập nhật theo công tác kết thúc muộn nhất").border = thin_border
 
     ws1.cell(row=8, column=2, value="Tổng thời gian thi công (Ngày)").border = thin_border
     c_tot = ws1.cell(row=8, column=3, value="=C7-C6+1")
@@ -107,7 +103,7 @@ def build_dynamic_schedule_with_charts():
     c_tot.alignment = Alignment(horizontal="center")
     c_tot.number_format = "#,##0"
     c_tot.font = Font(name=font_family, size=10, bold=True)
-    ws1.cell(row=8, column=4, value="=C7-C6+1 — Tự động tính số ngày lịch liên tục").border = thin_border
+    ws1.cell(row=8, column=4, value="Công thức: C7-C6+1 — Tự động tính số ngày lịch liên tục").border = thin_border
 
     ws1.cell(row=9, column=2, value="Chế độ làm việc công trường (Ca/ngày)").border = thin_border
     c_shift = ws1.cell(row=9, column=3, value=2)
@@ -121,7 +117,7 @@ def build_dynamic_schedule_with_charts():
     c_hs.border = thin_border
     c_hs.alignment = Alignment(horizontal="center")
     c_hs.font = Font(name=font_family, size=10, bold=True)
-    ws1.cell(row=10, column=4, value="=C9 — Tự động lấy theo chế độ ca làm việc").border = thin_border
+    ws1.cell(row=10, column=4, value="Công thức: C9 — Tự động lấy theo chế độ ca làm việc").border = thin_border
 
     ws1.cell(row=11, column=2, value="Công tắc hiển thị biểu đồ Gantt").border = thin_border
     c_sw = ws1.cell(row=11, column=3, value=1)
@@ -709,10 +705,6 @@ def build_dynamic_schedule_with_charts():
     wb.save(OUTPUT_FILE)
     print(f"[OK] Đã xuất file 100% CÔNG THỨC SỐNG + BIỂU ĐỒ NATIVE tại: {OUTPUT_FILE}")
     print(f"     Kích thước file: {os.path.getsize(OUTPUT_FILE):,} bytes")
-
-    shutil.copyfile(OUTPUT_FILE, MIRROR_FILE_1)
-    shutil.copyfile(OUTPUT_FILE, MIRROR_FILE_2)
-    print(f"[OK] Đã đồng bộ sang 2 tầng thư mục dự án!")
 
 
 if __name__ == "__main__":
