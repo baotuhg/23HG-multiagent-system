@@ -300,7 +300,14 @@ class BPTCKCSAgent(BaseAgent):
         if self.lab_out:
             write_lab_report(self.lab_out, ev, self.criteria)
             print(f"  [BPTCKCSAgent] Đã xuất báo cáo thí nghiệm: {self.lab_out}")
-        return not failed
+        if failed:
+            # Kết quả thí nghiệm không đổi khi chạy lại → báo Supervisor KHÔNG retry, dừng ngay
+            blocked = [h["bbnt"] for h in hold_points if h["status"] == "CHẶN"]
+            bus.push_error(f"[{self.agent_id}] {len(failed)} phiếu thí nghiệm KHÔNG ĐẠT — "
+                           f"điểm dừng bị CHẶN: {', '.join(blocked)}")
+            self.last_error_fatal = True
+            return False
+        return True
 
 
 class SchedulerAgent(BaseAgent):
