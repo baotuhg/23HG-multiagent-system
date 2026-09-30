@@ -2,6 +2,12 @@
 ### Nền tảng Đa tác tử Kỹ thuật số hóa & Quản lý Dự án Xây dựng (Closed-Loop ConTech System)
 **Kỹ sư Trưởng Số hóa: Bóc tách Hình học • Cắt thép 1D OR-Tools • Dự toán G_xd • Thanh toán 03a • Tiến độ CPM MS Project • Ca xe Ca máy & Dầu Diezel • Phân quyền Hub & Spoke 5 Gói • Hồ sơ KCS & BPTC • Vòng lặp Hiện trường As-Built**
 
+> [!IMPORTANT]
+> **THÔNG CÁO BẢN QUYỀN VÀ NGUỒN GỐC CHÍNH THỨC (OFFICIAL AUTHORSHIP & COPYRIGHT NOTICE)**
+> - **Tác giả sáng lập & Duy trì**: **Nguyễn Bảo Tú** ([@baotuhg](https://github.com/baotuhg))
+> - **Kho lưu trữ chính thức duy nhất**: [https://github.com/baotuhg/23HG-multiagent-system](https://github.com/baotuhg/23HG-multiagent-system)
+> - **Cảnh báo bản quyền & Đạo nhái**: Toàn bộ kiến trúc Đa tác tử AEC, thuật toán tối ưu hóa cắt thép 1D Column Generation (Google OR-Tools CP-SAT), công cụ giải mã bản vẽ CAD, engine thanh toán Phụ lục 03a và bộ biểu mẫu Master Excel liên kết động thuộc bản quyền trí tuệ của **Nguyễn Bảo Tú (@baotuhg)**. Mọi hành vi clone/tải về re-upload dưới tên tổ chức/cá nhân khác, xóa lịch sử commit (commit history), nhận vơ sản phẩm mà không Fork chính thức từ repo gốc đều là hành vi xâm phạm quyền tác giả và bị xử lý theo quy định bảo vệ bản quyền phần mềm (DMCA Takedown).
+
 ---
 
 [![CI](https://github.com/baotuhg/23HG-multiagent-system/actions/workflows/ci.yml/badge.svg)](https://github.com/baotuhg/23HG-multiagent-system/actions/workflows/ci.yml)
@@ -486,8 +492,9 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 
 ---
 
-## ⚖️ 8. Giấy phép Bản quyền (License)
+## ⚖️ 8. Giấy phép Bản quyền (License & Authorship)
 
-Dự án được phân phối dưới giấy phép mã nguồn mở **[MIT License](LICENSE)**.
-
-*Hệ thống được nghiên cứu, phát triển và đóng gói bởi Cộng đồng Kỹ sư Xây dựng Số hóa Việt Nam.*
+- **Tác giả & Bản quyền trí tuệ**: **Nguyễn Bảo Tú** ([@baotuhg](https://github.com/baotuhg))
+- **Kho lưu trữ chính thức**: [https://github.com/baotuhg/23HG-multiagent-system](https://github.com/baotuhg/23HG-multiagent-system)
+- Dự án được phân phối dưới giấy phép mã nguồn mở **[MIT License](LICENSE)**.
+- **Quy định bắt buộc**: Mọi cá nhân, tổ chức sử dụng, sao chép, trích xuất mã nguồn hoặc kế thừa hệ thống **BẮT BUỘC** phải giữ nguyên thông báo bản quyền của tác giả **Nguyễn Bảo Tú** và dẫn liên kết đầy đủ về kho lưu trữ gốc theo đúng điều khoản pháp lý của MIT License. Nghiêm cấm mọi hành vi re-upload xóa nguồn hoặc mạo danh tác giả gốc.

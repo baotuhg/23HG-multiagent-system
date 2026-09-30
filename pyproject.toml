@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "23hg-multiagent-system"
 version = "3.0.0"
 authors = [
-  { name="Bao Tu & AEC Digital Engineers", email="contact@baotu.me" },
+  { name="Nguyễn Bảo Tú (@baotuhg)", email="137134098+baotuhg@users.noreply.github.com" },
 ]
 description = "Autonomous Closed-Loop Multi-Agent System for Civil Engineering (State Graph, AI Supervisor, OR-Tools Rebar, CPM, QA/QC Lab Link & As-Built Loop)"
 readme = "README.md"
