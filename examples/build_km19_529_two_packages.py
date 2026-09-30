@@ -39,6 +39,8 @@ from openpyxl.utils import get_column_letter
 
 # Đường dẫn nguồn và đích
 REPO_DIR = r"d:\Code\23HG-multiagent-system\23HG-multiagent-system"
+if REPO_DIR not in sys.path:
+    sys.path.insert(0, REPO_DIR)
 TEMPLATES_DIR = os.path.join(REPO_DIR, "templates")
 
 TARGET_PARENT = r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker"
@@ -179,69 +181,27 @@ def build_package_macro(dest_dir):
 # =============================================================================
 
 def build_dossier_01(wb_master, dest_dir):
-    print("  [01/14] Xây dựng Dossier 01: Tổ hợp cắt thép 11.7m (RebarCut & CNC Cutting Plan)...")
+    print("  [01/14] Xây dựng Dossier 01: Tổ hợp cắt thép 11.7m chuẩn RebarCut Pro (OR-Tools CP-SAT)...")
     dst_xlsx = os.path.join(dest_dir, "01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx")
-    wb = openpyxl.Workbook()
     
-    # Sheet 1: TO_HOP_CAT_THEP_11M7
-    clone_worksheet(wb_master["TO_HOP_CAT_THEP_11M7"], wb.active)
-    wb.active.title = "TO_HOP_CAT_THEP_11M7"
+    from tools.bbs_loader import load_bbs
+    from tools.cutting_stock_solver import CuttingStockSolver
+    from tools.rebarcut_export import write_rebarcut_workbook
     
-    # Sheet 2: SO_DO_CAT_11M7_CNC
-    ws2 = wb.create_sheet(title="SO_DO_CAT_11M7_CNC")
-    ws2.views.sheetView[0].showGridLines = True
-    headers2 = ["STT", "Chủng loại thép", "Đường kính Ø (mm)", "Chiều dài cắt L (m)", "Quy cách cắt từ cây 11.7m", "Số đoạn cắt / cây", "Tổng chiều dài hữu dụng (m)", "Đề-xê thừa (m)", "Tỷ lệ hao hụt (%)", "Phương án tận dụng đề-xê", "Mã CNC Xưởng"]
-    title_block(ws2, "SƠ ĐỒ CẮT THÉP CÂY NGUYÊN 11.7M TỐI ƯU HÓA CHO MÁY CẮT CNC — CẦU KM19+529.080",
-                "Thuật toán 1D Cutting Stock: Kiểm soát chặt chẽ tỷ lệ hao hụt trung bình < 1.5%", len(headers2))
-    header_row(ws2, 5, headers2, [6, 32, 16, 16, 28, 16, 22, 16, 16, 28, 16])
-    
-    cnc_patterns = [
-        (1, "Thép chủ cọc khoan nhồi D1200", 25, 11.20, "1 đoạn x 11.20m", 1, 11.20, 0.50, "=(H6/11.7)*100", "Làm móc cẩu cấu kiện / neo bệ", "CNC-D25-01"),
-        (2, "Thép đai tăng cường cọc D1200", 16, 3.85, "3 đoạn x 3.85m", 3, 11.55, 0.15, "=(H7/11.7)*100", "Mối nối chồng lồng thép", "CNC-D16-01"),
-        (3, "Thép đai xoắn liên tục cọc", 10, 2.90, "4 đoạn x 2.90m", 4, 11.60, 0.10, "=(H8/11.7)*100", "Con kê đệm cốt thép", "CNC-D10-01"),
-        (4, "Thép đáy bệ móng mố trụ", 32, 5.75, "2 đoạn x 5.75m", 2, 11.50, 0.20, "=(H9/11.7)*100", "Thanh gia cường cục bộ", "CNC-D32-01"),
-        (5, "Thép phân bố bệ móng mố trụ", 20, 8.40, "1 đoạn 8.40m + 1 đoạn 3.20m", 2, 11.60, 0.10, "=(H10/11.7)*100", "Thép đai bệ móng", "CNC-D20-01"),
-        (6, "Thép đứng thân mố M1, M2", 28, 7.80, "1 đoạn 7.80m + 1 đoạn 3.80m", 2, 11.60, 0.10, "=(H11/11.7)*100", "Thép neo tường đỉnh mố", "CNC-D28-01"),
-        (7, "Thép đứng thân đặc trụ T1, T2", 32, 9.60, "1 đoạn 9.60m + 1 đoạn 2.00m", 2, 11.60, 0.10, "=(H12/11.7)*100", "Thép giằng móng mố trụ", "CNC-D32-02"),
-        (8, "Thép xà mũ trụ T1, T2", 28, 10.50, "1 đoạn 10.50m + 1 đoạn 1.10m", 2, 11.60, 0.10, "=(H13/11.7)*100", "Thép đai cổ xà mũ", "CNC-D28-02"),
-        (9, "Thép sườn dầm Super-T L=38.2m", 16, 7.85, "1 đoạn 7.85m + 1 đoạn 3.80m", 2, 11.65, 0.05, "=(H14/11.7)*100", "Thép neo dầm ngang", "CNC-D16-02"),
-        (10, "Thép bản cánh Super-T", 14, 3.80, "3 đoạn x 3.80m", 3, 11.40, 0.30, "=(H15/11.7)*100", "Thép gia cường góc dầm", "CNC-D14-01"),
-        (11, "Thép dầm ngang mố & trụ", 16, 5.60, "2 đoạn x 5.60m", 2, 11.20, 0.50, "=(H16/11.7)*100", "Thép giằng chống xoắn", "CNC-D16-03"),
-        (12, "Thép lưới dưới bản mặt cầu", 16, 3.85, "3 đoạn x 3.85m", 3, 11.55, 0.15, "=(H17/11.7)*100", "Thép gờ lan can", "CNC-D16-04"),
-        (13, "Thép lưới trên bản mặt cầu", 14, 3.85, "3 đoạn x 3.85m", 3, 11.55, 0.15, "=(H18/11.7)*100", "Thép gờ thoát nước", "CNC-D14-02"),
-        (14, "Thép bản quá độ 2 đầu mố", 16, 7.85, "1 đoạn 7.85m + 1 đoạn 3.80m", 2, 11.65, 0.05, "=(H19/11.7)*100", "Thép neo bản quá độ", "CNC-D16-05"),
-    ]
-    r = 6
-    for p in cnc_patterns:
-        put(ws2, r, 1, p[0], align=ALIGN_CENTER)
-        put(ws2, r, 2, p[1])
-        put(ws2, r, 3, p[2], "0", align=ALIGN_CENTER)
-        put(ws2, r, 4, p[3], "#,##0.00")
-        put(ws2, r, 5, p[4])
-        put(ws2, r, 6, p[5], "0", align=ALIGN_CENTER)
-        put(ws2, r, 7, p[6], "#,##0.00")
-        put(ws2, r, 8, p[7], "#,##0.00")
-        put(ws2, r, 9, p[8], "0.00%", font=FONT_BOLD)
-        put(ws2, r, 10, p[9])
-        put(ws2, r, 11, p[10], align=ALIGN_CENTER)
-        r += 1
-    put(ws2, r, 2, "TRUNG BÌNH TOÀN CÔNG TRÌNH", font=FONT_BOLD)
-    put(ws2, r, 9, f"=AVERAGE(I6:I{r-1})", "0.00%", font=FONT_BOLD, border=DOUBLE_BOTTOM_BORDER)
-    
-    # Sheet 3: Nhúng THONG_KE_THEP_CHI_TIET để công thức COUNTIFS chạy trơn tru nội bộ
-    ws3 = wb.create_sheet(title="THONG_KE_THEP_CHI_TIET")
-    clone_worksheet(wb_master["THONG_KE_THEP_CHI_TIET"], ws3)
-    
-    wb.save(dst_xlsx)
+    res = load_bbs(MASTER_SOURCE, sheet="THONG_KE_THEP_CHI_TIET")
+    solver = CuttingStockSolver(bar_length_mm=11700, kerf_mm=5, end_trim_mm=0, time_limit_s=10.0)
+    sol_master = solver.solve(res.demands, split_long_bars=True)
+    write_rebarcut_workbook(dst_xlsx, res.demands, sol_master)
     
     # Xuất file CSV lệnh cắt thép CNC kèm theo
     dst_csv = os.path.join(dest_dir, "01_Phieu_Cat_Thep_Cau_Km19+529.080.csv")
     with open(dst_csv, mode="w", encoding="utf-8-sig", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["STT", "Cau_Kien", "Duong_Kinh_mm", "Dai_Cat_m", "So_Doan_Tren_Cay_11m7", "De_Xe_m", "Ti_Le_Hao_Hut_Phan_Tram", "Phuong_An_Tai_Su_Dung", "Ma_CNC"])
-        for p in cnc_patterns:
-            pct_val = round((p[7] / 11.7) * 100, 2)
-            writer.writerow([p[0], p[1], p[2], p[3], p[5], p[7], pct_val, p[9], p[10]])
+        writer.writerow(["Ma_Cay", "Duong_Kinh_mm", "Bar_Mark", "Dai_Cat_m", "De_Xe_m", "Cay_Goc_m"])
+        for a in sol_master.assignment:
+            bar_name = f"C{a['bar_id']}"
+            for length, mark in zip(a["cuts_mm"], a["marks"]):
+                writer.writerow([bar_name, a["diameter_mm"], mark, length / 1000.0, a["waste_mm"] / 1000.0, 11.7])
     return dst_xlsx
 
 def build_dossier_02(wb_master, dest_dir):
@@ -706,6 +666,12 @@ def main():
     # 4. Đồng bộ sang thư mục con Nested để đảm bảo mở ở đâu cũng thấy
     sync_folders(DIR_MACRO_P, DIR_MACRO_N)
     sync_folders(DIR_MICRO_P, DIR_MICRO_N)
+    
+    # 5. Đồng bộ Thư mục Hệ thống cắt thép độc lập 01_HE_THONG_CAT_THEP_REBARCUT
+    src_rebar = os.path.join(TARGET_PARENT, "01_HE_THONG_CAT_THEP_REBARCUT")
+    dst_rebar_n = os.path.join(TARGET_NESTED, "01_HE_THONG_CAT_THEP_REBARCUT")
+    if os.path.exists(src_rebar):
+        sync_folders(src_rebar, dst_rebar_n)
     
     print("\n" + "=" * 80)
     print("XUẤT HỒ SƠ 2 GÓI CẦU KM19+529.080 THÀNH CÔNG 100%!")
