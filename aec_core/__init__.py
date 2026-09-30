@@ -2,7 +2,7 @@
 """
 AEC Master Core Engine
 Hệ thống lõi tự động hóa tính toán Kỹ thuật, Dự toán, Tiến độ và Pháp lý Xây dựng.
-Tuân thủ Luật Xây dựng 135/2025/QH15, NĐ 207/2026/NĐ-CP, NĐ 99/2021/NĐ-CP & TT 11/2021/TT-BXD.
+Tuân thủ Luật Xây dựng 135/2025/QH15, NĐ 207/2026/NĐ-CP, NĐ 254/2025/NĐ-CP & TT 36/2026/TT-BXD.
 """
 
 from .audit_verifier import AECAuditVerifier

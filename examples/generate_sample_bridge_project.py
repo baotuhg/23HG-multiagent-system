@@ -8,7 +8,7 @@ DỰ ÁN CAO TỐC TUYÊN QUANG - HÀ GIANG (GIAI ĐOẠN 1)
    - TO_HOP_CAT_THEP_11M7: Tối ưu cắt thép 11.7m theo 1D Cutting Stock, đề-xê < 1.5%
    - KHOI_LUONG_DAO_DAP: Bảng tính thể tích đào đắp trắc ngang V = ((F1+F2)/2)*L
    - QS_DIEN_GIAI_CHI_TIET: 100% công thức động Dài x Rộng x Cao x Số lượng x Hệ số
-   - TONG_HOP_DU_TOAN_GXD: Bảng tổng hợp kinh phí xây dựng TT 11/2021/TT-BXD
+   - TONG_HOP_DU_TOAN_GXD: Bảng tổng hợp kinh phí xây dựng TT 36/2026/TT-BXD
    - TIEN_DO_THI_CONG_WBS: Bảng WBS tiến độ nhân công, thời gian và biểu đồ Gantt Chart CPM
    - HOSO_KCS_NGHIEM_THU: 22 Biên bản nghiệm thu KCS theo Nghị định 207/2026/NĐ-CP
 
@@ -507,7 +507,7 @@ def create_full_package():
         ws3.column_dimensions[get_column_letter(col_idx)].width = width
 
     # =============================================================
-    # SHEET 4: TONG_HOP_DU_TOAN_GXD (THÔNG TƯ 11/2021/TT-BXD)
+    # SHEET 4: TONG_HOP_DU_TOAN_GXD (THÔNG TƯ 36/2026/TT-BXD)
     # =============================================================
     ws4 = wb.create_sheet(title="TONG_HOP_DU_TOAN_GXD")
     ws4.views.sheetView[0].showGridLines = True
@@ -516,7 +516,7 @@ def create_full_package():
     ws4["B2"].font = font_title
     ws4["B3"] = "BẢNG TỔNG HỢP KINH PHÍ DỰ TOÁN XÂY DỰNG (G_XD) - CẦU KM19+529.080"
     ws4["B3"].font = font_section
-    ws4["B4"] = "Căn cứ Thông tư 11/2021/TT-BXD, Thông tư 12/2021/TT-BXD, Luật Xây dựng số 135/2025/QH15 & NĐ 207/2026/NĐ-CP"
+    ws4["B4"] = "Căn cứ Thông tư 36/2026/TT-BXD, Thông tư 38/2026/TT-BXD, Luật Xây dựng số 135/2025/QH15 & NĐ 207/2026/NĐ-CP"
     ws4["B4"].font = font_subtitle
 
     h4 = ["TT", "Khoản mục chi phí", "Cách tính / Căn cứ định mức", "Ký hiệu", "Giá trị (VNĐ)", "Ghi chú"]
@@ -530,11 +530,11 @@ def create_full_package():
 
     gxd_rows = [
         ("1", "Chi phí trực tiếp (Vật liệu, Nhân công, Máy thi công)", f"Link từ Sheet QS (Ô L{total_direct_cost_row})", "T", f"=QS_DIEN_GIAI_CHI_TIET!L{total_direct_cost_row}", "100% công thức động"),
-        ("2", "Chi phí gián tiếp", "GT = T x 7,30% (Công trình giao thông theo tuyến)", "GT", "=E6*0.073", "Thông tư 11/2021/TT-BXD"),
+        ("2", "Chi phí gián tiếp", "GT = T x 7,30% (Công trình giao thông theo tuyến)", "GT", "=E6*0.073", "Thông tư 36/2026/TT-BXD"),
         ("", "  - Chi phí chung", "5,10% x T", "T_chung", "=E6*0.051", "Định mức công trình cầu lớn"),
         ("", "  - Chi phí xây dựng nhà tạm để ở và điều hành thi công", "1,20% x T", "T_tam", "=E6*0.012", "Lán trại vùng cao Hà Giang"),
         ("", "  - Chi phí một số công việc không xác định được KL từ TK", "1,00% x T", "T_kxd", "=E6*0.010", "Thí nghiệm, an toàn giao thông"),
-        ("3", "Thu nhập chịu thuế tính trước", "TL = (T + GT) x 5,50%", "TL", "=(E6+E7)*0.055", "Thông tư 11/2021/TT-BXD"),
+        ("3", "Thu nhập chịu thuế tính trước", "TL = (T + GT) x 5,50%", "TL", "=(E6+E7)*0.055", "Thông tư 36/2026/TT-BXD"),
         ("4", "Chi phí xây dựng trước thuế", "G = T + GT + TL", "G", "=E6+E7+E11", "Tổng chi phí chưa VAT"),
         ("5", "Thuế giá trị gia tăng (VAT)", "VAT = G x 8,00%", "VAT", "=E12*0.08", "Chính sách thuế hiện hành"),
         ("6", "TỔNG CỘNG KINH PHÍ DỰ TOÁN XÂY DỰNG (G_XD)", "G_XD = G + VAT", "G_XD", "=E12+E13", "Giá trị gói thầu hoàn chỉnh"),
@@ -588,7 +588,7 @@ def create_full_package():
     ws5["B2"].font = font_title
     ws5["B3"] = "BẢNG KẾ HOẠCH TIẾN ĐỘ WBS, ĐIỀU PHỐI NHÂN CÔNG & BIỂU ĐỒ GANTT CPM - CẦU KM19+529.080"
     ws5["B3"].font = font_section
-    ws5["B4"] = "Định mức ngày công TT 12/2021/TT-BXD, Luật Xây dựng số 135/2025/QH15 & NĐ 207/2026/NĐ-CP (Cột đỏ: Đường găng CPM)"
+    ws5["B4"] = "Định mức ngày công TT 38/2026/TT-BXD, Luật Xây dựng số 135/2025/QH15 & NĐ 207/2026/NĐ-CP (Cột đỏ: Đường găng CPM)"
     ws5["B4"].font = font_subtitle
 
     left_headers = [

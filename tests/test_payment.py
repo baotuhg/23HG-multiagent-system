@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Kiểm thử Mẫu 03a (NĐ 99/2021) — python -m unittest discover tests"""
+"""Kiểm thử Mẫu 03.a/TT (NĐ 254/2025) — python -m unittest discover tests"""
 
 import contextlib
 import io

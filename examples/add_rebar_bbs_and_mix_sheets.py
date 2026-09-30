@@ -297,7 +297,7 @@ def add_detailed_rebar_and_mix_sheets(excel_path):
     ws_mix["B2"].font = font_title
     ws_mix["B3"] = "PHÂN TÍCH ĐỊNH MỨC CẤP PHỐI 1M³ BÊ TÔNG & MA TRẬN TẦN SUẤT THÍ NGHIỆM KCS"
     ws_mix["B3"].font = font_sec_title
-    ws_mix["B4"] = "Căn cứ: Định mức Thông tư 12/2021/TT-BXD, TCVN 4453:1995, TCVN 1651:2018, TCVN 6260:2020, TCVN 7570:2006, Nghị định 207/2026/NĐ-CP"
+    ws_mix["B4"] = "Căn cứ: Định mức Thông tư 38/2026/TT-BXD, TCVN 4453:1995, TCVN 1651:2018, TCVN 6260:2020, TCVN 7570:2006, Nghị định 207/2026/NĐ-CP"
     ws_mix["B4"].font = font_subtitle
 
     # -------------------------------------------------------------------------

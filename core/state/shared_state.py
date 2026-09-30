@@ -158,7 +158,7 @@ class RebarData:
 
 @dataclass
 class QSData:
-    """Dự toán tổng hợp G_XD theo TT 11/2021/TT-BXD."""
+    """Dự toán tổng hợp G_XD theo TT 36/2026/TT-BXD."""
     direct_cost_T_vnd: float = 0.0       # T — Chi phí trực tiếp
     indirect_cost_GT_vnd: float = 0.0    # GT = T × (tỷ lệ chi phí chung + nhà tạm + KXĐ)
     tax_TL_vnd: float = 0.0              # TL = (T + GT) × tỷ lệ thu nhập chịu thuế tính trước

@@ -4,9 +4,9 @@ AEC MASTER PIPELINE RUNNER (CLI RUNNER)
 Ví dụ thực thi trọn vẹn chuỗi 7 bước kỹ thuật cho Cầu Km19+529.080:
 1. Bóc tách Takeoff 100% công thức động
 2. Cắt thép 1D Cutting Stock (< 1.5% đề-xê)
-3. Dự toán tổng hợp G_XD (TT 11/2021)
-4. Bảng thanh toán kỳ Phụ lục 03a (NĐ 99/2021)
-5. Tiến độ WBS nhân công TT 12 & MS Project XML
+3. Dự toán tổng hợp G_XD (TT 36/2026)
+4. Bảng thanh toán kỳ Phụ lục 03a (NĐ 254/2025)
+5. Tiến độ WBS nhân công TT 38/2026 & MS Project XML
 6. KCS Word & Ma trận logic ngày chéo (NĐ 207/2026)
 7. Thuyết minh Biện pháp thi công RAG Hugging Face & Kiểm toán Audit 100/100
 """
@@ -25,7 +25,7 @@ from aec_core.project_state import ProjectStateManager
 def main():
     print("=" * 70)
     print("  AEC MASTER MULTI-AGENT AUTONOMOUS PIPELINE RUNNER")
-    print("  Tuân thủ: Luật XD 135/2025, NĐ 207/2026, NĐ 99/2021 & TT 11/2021")
+    print("  Tuân thủ: Luật XD 135/2025, NĐ 207/2026, NĐ 254/2025 & TT 36/2026")
     print("=" * 70)
 
     excel_target = os.path.join(root_dir, "templates", "Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx")

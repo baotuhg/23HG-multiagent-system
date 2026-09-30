@@ -1,6 +1,6 @@
 # QUY TRÌNH 14: ĐÓNG GÓI 2 GÓI HỒ SƠ SONG HÀNH — MACRO (MASTER 14 SHEET) VÀ MICRO (14 BỘ CHUYÊN SÂU ĐỘC LẬP)
 ## CHUẨN ĐÓNG GÓI QUẢN TRỊ ĐIỀU HÀNH VÀ SẢN XUẤT CÔNG TRƯỜNG HỆ THỐNG AEC MULTI-AGENT
-### Tuân thủ: Luật Xây dựng 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Nghị định 99/2021/NĐ-CP, Thông tư 11/2021 & 12/2021/TT-BXD
+### Tuân thủ: Luật Xây dựng 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Nghị định 254/2025/NĐ-CP, Thông tư 36/2026 & 12/2021/TT-BXD
 
 ---
 
@@ -43,7 +43,7 @@ Trong quản lý dự án xây dựng và công trình giao thông (cầu đư�
     ├── 06_Phan_Tich_Vat_Tu_Chi_Tiet_WBS.xlsx     (phân tích hao phí xi măng, cát, đá theo WBS)
     ├── 07_Tong_Hop_Nhu_Cau_Vat_Tu_BOM_4_Giai_Doan.xlsx (BOM đặt hàng & kế hoạch cung ứng 4 đợt)
     ├── 08_Du_Toan_GXD_Thong_Tu_11_2021.xlsx      (dự toán chi tiết 102 công tác, G_XD)
-    ├── 09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx (thanh toán kỳ mẫu 03.a NĐ 99/2021)
+    ├── 09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx (thanh toán kỳ mẫu 03.a NĐ 254/2025)
     ├── 10_Tien_Do_Thi_Cong_CPM_Gantt_Chart.xlsx  (tiến độ CPM, kèm XML, MPP và CSV)
     ├── 11_Danh_Muc_KCS_43_Bien_Ban_Nghiem_Thu.xlsx (danh mục 43 BBNT, kèm Word .docx trọn bộ)
     ├── 12_Mau_A4_Bien_Ban_Nghiem_Thu_Cong_Viec.xlsx (file Excel độc lập in A4 nghiệm thu CV)
@@ -64,8 +64,8 @@ Trong quản lý dự án xây dựng và công trình giao thông (cầu đư�
 | **05** | `CAP_PHOI_1M3_VA_TAN_SUAT` | `05_Cap_Phoi_1m3_Va_Tan_Suat_Thi_Nghiem.xlsx` | 2 tab: CAP_PHOI_1M3_BE_TONG, TAN_SUAT_THI_NGHIEM_KCS. Định mức cấp phối C10-C40 & kế hoạch thí nghiệm 72 tổ mẫu nén R7/R28, kéo uốn cơ lý thép theo lô 50T. |
 | **06** | `PHAN_TICH_VAT_TU_WBS` | `06_Phan_Tich_Vat_Tu_Chi_Tiet_WBS.xlsx` | Phân tích chi tiết nhu cầu xi măng (tấn), cát vàng (m3), đá dăm 1x2 (m3), thép tròn (kg), ván khuôn phủ phim (m2) theo từng gói công việc WBS. |
 | **07** | `TONG_HOP_VAT_TU_TOAN_BO` | `07_Tong_Hop_Nhu_Cau_Vat_Tu_BOM_4_Giai_Doan.xlsx` | 2 tab: BOM_TONG_THE, CUNG_UNG_4_GIAI_DOAN. Tổng hợp BOM toàn dự án có xét hao hụt đặt hàng & phân kỳ 4 đợt cung ứng kèm định mức tồn kho an toàn vùng cao. |
-| **08** | `TONG_HOP_DU_TOAN_GXD` | `08_Du_Toan_GXD_Thong_Tu_11_2021.xlsx` | 2 tab: BOQ_CHI_TIET, TONG_HOP_GXD. Dự toán chi tiết 102 công tác đầy đủ mã định mức TT 12, chi phí trực tiếp $T$, chi phí gián tiếp $GT = 7.3\%$, thu nhập chịu thuế $TL = 5.5\%$, thuế VAT $10\%$, Tổng $G_{XD} = 4.769$ tỷ đồng. |
-| **09** | `THANH_TOAN_KY_PHU_LUC_03A` | `09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx` | Hồ sơ đề nghị thanh toán Đợt 1 chuẩn Mẫu 03.a NĐ 99/2021/NĐ-CP: Lũy kế hoàn thành, giảm trừ thu hồi tạm ứng 20%, giảm trừ bảo hành 5%, giá trị thanh toán thực nhận. |
+| **08** | `TONG_HOP_DU_TOAN_GXD` | `08_Du_Toan_GXD_Thong_Tu_11_2021.xlsx` | 2 tab: BOQ_CHI_TIET, TONG_HOP_GXD. Dự toán chi tiết 102 công tác đầy đủ mã định mức TT 38/2026, chi phí trực tiếp $T$, chi phí gián tiếp $GT = 7.3\%$, thu nhập chịu thuế $TL = 5.5\%$, thuế VAT $10\%$, Tổng $G_{XD} = 4.769$ tỷ đồng. |
+| **09** | `THANH_TOAN_KY_PHU_LUC_03A` | `09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx` | Hồ sơ đề nghị thanh toán Đợt 1 chuẩn Mẫu 03.a NĐ 254/2025/NĐ-CP: Lũy kế hoàn thành, giảm trừ thu hồi tạm ứng 20%, giảm trừ bảo hành 5%, giá trị thanh toán thực nhận. |
 | **10** | `TIEN_DO_THI_CONG_WBS` | `10_Tien_Do_Thi_Cong_CPM_Gantt_Chart.xlsx`<br>+ `.xml` + `.mpp` + `.csv` | 46 công tác WBS, tính toán đường găng Critical Path Method chi tiết: ES, EF, LS, LF, Total Float TF, nhận diện 23 công tác găng. Kèm file MS Project XML/MPP. |
 | **11** | `HOSO_KCS_NGHIEM_THU` | `11_Danh_Muc_KCS_43_Bien_Ban_Nghiem_Thu.xlsx`<br>+ `Ho_So_...docx` | Danh mục 43 biên bản nghiệm thu KCS theo NĐ 207/2026/NĐ-CP & TT 32/2026/TT-BXD, kèm file Word đầy đủ văn bản ký tá pháp lý. |
 | **12** | `MAU_BIEN_BAN_KCS` | `12_Mau_A4_Bien_Ban_Nghiem_Thu_Cong_Viec.xlsx` | File Excel in A4 Portrait: Ô chọn số biên bản (1 - 43) để hàm VLOOKUP tự động lấy dữ liệu từ tab `DATA_CONG_TAC` ngay trong file, không lỗi link ngoài. |

@@ -221,7 +221,7 @@ class QualityGate:
 
     def check_qs_estimate(self, qs_data: Dict[str, Any]) -> GateCheckResult:
         """
-        Kiểm tra dự toán G_XD (TT 11/2021/TT-BXD) theo đúng tỷ lệ đã dùng (qs_data.rates):
+        Kiểm tra dự toán G_XD (TT 36/2026/TT-BXD) theo đúng tỷ lệ đã dùng (qs_data.rates):
           1. Có công tác và G_XD > 0
           2. GT = T × (chi phí chung + nhà tạm + KXĐ)
           3. TL = (T + GT) × tỷ lệ thu nhập chịu thuế tính trước

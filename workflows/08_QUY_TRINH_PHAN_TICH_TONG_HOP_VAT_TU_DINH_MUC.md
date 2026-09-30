@@ -1,6 +1,6 @@
 # QUY TRÌNH 08: PHÂN TÍCH ĐỊNH MỨC & TỔNG HỢP VẬT LIỆU TOÀN CÔNG TRÌNH (BOM)
 ## HỆ THỐNG QUẢN TRỊ KỸ THUẬT & CUNG ỨNG VẬT TƯ: SẮT THÉP TỪNG Ø - XI MĂNG - CÁT - ĐÁ - PHỤ GIA
-### Tuân thủ: Thông tư số 12/2021/TT-BXD, Thông tư số 11/2021/TT-BXD & TCVN hiện hành
+### Tuân thủ: Thông tư số 38/2026/TT-BXD, Thông tư số 36/2026/TT-BXD & TCVN hiện hành
 
 ---
 
@@ -13,13 +13,13 @@ Trong quản lý dự án xây dựng và công trường, việc chỉ có tổ
 
 ### NGUYÊN TẮC BẮT BUỘC: 100% CÔNG THỨC ĐỘNG
 - **Khối lượng hạng mục:** Lấy trực tiếp bằng công thức liên kết `=QS_DIEN_GIAI_CHI_TIET!J...` (CẤM GÕ SỐ CHẾT).
-- **Hao phí vật tư từng cấu kiện:** `=Khối lượng hạng mục * Định mức hao phí TT 12/2021`.
+- **Hao phí vật tư từng cấu kiện:** `=Khối lượng hạng mục * Định mức hao phí TT 38/2026`.
 - **Tổng hợp toàn công trình:** Dùng hàm `=SUMIF(Vùng_Tên_Vật_Tư, Tên_Vật_Tư, Vùng_Khối_Lượng)`.
 - **Dự trù cung ứng có hao hụt:** `=Tổng_Hao_Phí_Định_Mức * (1 + % Hao_Hụt_Thi_Công_TT12)`.
 
 ---
 
-## 2. BẢNG TIÊU CHUẨN ĐỊNH MỨC CẤP PHỐI BÊ TÔNG & HAO PHÍ VẬT LIỆU (TT 12/2021/TT-BXD)
+## 2. BẢNG TIÊU CHUẨN ĐỊNH MỨC CẤP PHỐI BÊ TÔNG & HAO PHÍ VẬT LIỆU (TT 38/2026/TT-BXD)
 
 ### A. Cấp phối vật liệu cho 1 $m^3$ Bê tông các loại (Xi măng PCB40, Đá 1x2):
 | Loại bê tông / Kết cấu | Xi măng PCB40 (kg) | Cát vàng ($m^3$) | Đá dăm 1x2 ($m^3$) | Nước ($lít$) | Phụ gia siêu dẻo / hóa dẻo (kg/lít) |
@@ -47,7 +47,7 @@ Trong quản lý dự án xây dựng và công trường, việc chỉ có tổ
 ### SHEET 1: `PHAN_TICH_VAT_TU_WBS`
 Bảng phân rã chi tiết vật liệu cấu thành cho từng công tác trong WBS:
 - Cột A: STT
-- Cột B: Mã hiệu định mức TT12 (AF.21111, AF.12111, AF.61111...)
+- Cột B: Mã hiệu định mức TT 38/2026 (AF.21111, AF.12111, AF.61111...)
 - Cột C: Tên hạng mục công tác
 - Cột D: Khối lượng công tác (`=QS_DIEN_GIAI_CHI_TIET!J...`)
 - Cột E: Đơn vị tính công tác ($m^3$, Tấn, m...)
@@ -113,7 +113,7 @@ Bảng gom vật tư toàn bộ công trình và phân kỳ cấp hàng:
                    │
                    ├──────────────────────────────┬──────────────────────────────┐
                    ▼                              ▼                              ▼
-      [Dự toán G_XD TT 11]           [Kế hoạch Cung ứng Vật tư]     [Tiến độ WBS CPM]
+      [Dự toán G_XD TT 36/2026]           [Kế hoạch Cung ứng Vật tư]     [Tiến độ WBS CPM]
       Tính chi phí Vật liệu          Gọi hàng theo mẻ thi công      Kiểm soát chuỗi cung ứng
 ```
 

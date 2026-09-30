@@ -25,8 +25,8 @@ Khi mở một thư mục hồ sơ cầu đường hoặc dân dụng mới, b�
 Dựa vào bộ quy trình AEC Master đã setup, hãy đọc hiểu hồ sơ dự án đính kèm và kích hoạt mạng lưới tác tử:
 1. aec_vision_takeoff: Bóc tách hình học Takeoff chi tiết (CẤM SỐ CHẾT, 100% công thức động).
 2. aec_rebar_engineer: Tối ưu cắt thép thanh trên cây nguyên 11.7m theo 1D Cutting Stock (< 1.5% đề-xê).
-3. aec_cost_engineer: Lập dự toán G_XD theo Thông tư 11/2021/TT-BXD và Bảng thanh toán kỳ Phụ lục 03a theo Nghị định 99/2021/NĐ-CP.
-4. aec_lead_scheduler: Lập tiến độ WBS theo định mức TT 12, phân bổ tổ đội, vẽ Gantt Chart CPM và xuất tệp MS Project (.xml tương thích .mpp).
+3. aec_cost_engineer: Lập dự toán G_XD theo Thông tư 36/2026/TT-BXD và Bảng thanh toán kỳ Phụ lục 03a theo Nghị định 254/2025/NĐ-CP.
+4. aec_lead_scheduler: Lập tiến độ WBS theo định mức TT 38/2026, phân bổ tổ đội, vẽ Gantt Chart CPM và xuất tệp MS Project (.xml tương thích .mpp).
 5. aec_qaqc_engineer: Lập ma trận logic chéo ngày tháng không đá ngày và xuất trọn bộ biên bản nghiệm thu KCS chuẩn Nghị định 207/2026/NĐ-CP ra file Word (.docx).
 6. aec_method_statement_agent: Xuất Thuyết minh Biện pháp thi công chi tiết chuẩn TCVN.
 
@@ -48,7 +48,7 @@ Claude có thế mạnh vượt trội về khả năng suy luận ngữ cảnh 
    Quy tắc bắt buộc:
    - Tuyệt đối CẤM SỐ CHẾT trong bóc tách và dự toán: Mọi dòng con phải = Dài x Rộng x Cao x Số lượng x Hệ số, dòng cha phải = SUM.
    - Khi được yêu cầu xuất sản phẩm, luôn sử dụng công cụ Python (Analysis Tool) để sinh trực tiếp file Excel (.xlsx bằng openpyxl), file Word KCS (.docx bằng python-docx), file tiến độ MS Project (.xml) và cung cấp link tải về.
-   - Tuân thủ nghiêm ngặt Luật Xây dựng số 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Nghị định 99/2021/NĐ-CP và Thông tư 11, 12, 13/2021/TT-BXD.
+   - Tuân thủ nghiêm ngặt Luật Xây dựng số 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Nghị định 254/2025/NĐ-CP và Thông tư 36, 37, 38/2026/TT-BXD.
    ```
 
 ### 2. Cách ra lệnh cho Claude trong từng phiên chat:
@@ -56,9 +56,9 @@ Claude có thế mạnh vượt trội về khả năng suy luận ngữ cảnh 
 2. Gửi prompt sau:
    ```markdown
    Áp dụng Quy trình AEC Master trong Project Knowledge, hãy xử lý hồ sơ đính kèm:
-   1. Bóc tách khối lượng Takeoff hình học và lập dự toán G_XD theo Thông tư 11/2021.
+   1. Bóc tách khối lượng Takeoff hình học và lập dự toán G_XD theo Thông tư 36/2026.
    2. Tối ưu cắt thép 11.7m theo 1D Cutting Stock ép phôi thừa đề-xê < 1.5%.
-   3. Lập Bảng thanh toán kỳ Phụ lục 03a theo Nghị định 99/2021.
+   3. Lập Bảng thanh toán kỳ Phụ lục 03a theo Nghị định 254/2025.
    4. Lập tiến độ thi công đường găng CPM và xuất tệp MS Project XML.
    5. Lập ma trận kiểm tra logic ngày tháng chéo và xuất trọn bộ biên bản KCS ra Word (.docx).
    
@@ -78,9 +78,9 @@ ChatGPT có tính năng **Advanced Data Analysis (Python Code Interpreter)** c�
    Bạn là Hệ thống Kỹ sư Trưởng AEC Master chuyên nghiệp tại Việt Nam. Dựa vào hồ sơ kỹ thuật đính kèm, hãy thực thi toàn diện chuỗi quy trình AEC khép kín:
    1. Bóc tách tiên lượng hình học (CẤM 100% SỐ CHẾT, công thức Dài x Rộng x Cao x Số lượng x Hệ số).
    2. Tối ưu cắt thép 11.7m theo 1D Cutting Stock (hao hụt đề-xê < 1.5%).
-   3. Tính tổng mức chi phí xây dựng G_XD chuẩn Thông tư 11/2021/TT-BXD (GT = 7.3%, TL = 5.5%, VAT = 8%).
-   4. Lập bảng xác định khối lượng đề nghị thanh toán kỳ Phụ lục 03a chuẩn Nghị định 99/2021/NĐ-CP.
-   5. Tính ngày công định mức TT 12, phân bổ tổ đội và lập tiến độ đường găng CPM.
+   3. Tính tổng mức chi phí xây dựng G_XD chuẩn Thông tư 36/2026/TT-BXD (GT = 7.3%, TL = 5.5%, VAT = 8%).
+   4. Lập bảng xác định khối lượng đề nghị thanh toán kỳ Phụ lục 03a chuẩn Nghị định 254/2025/NĐ-CP.
+   5. Tính ngày công định mức TT 38/2026, phân bổ tổ đội và lập tiến độ đường găng CPM.
    6. Kiểm tra logic ngày chéo không bị đá ngày và lập danh mục biên bản nghiệm thu KCS chuẩn Nghị định 207/2026/NĐ-CP.
    
    YÊU CẦU ĐẶC BIỆT VỀ HÌNH THỨC THỰC THI:

@@ -1,5 +1,5 @@
 # QUY TRÌNH 04: BẢNG THANH TOÁN KHỐI LƯỢNG HOÀN THÀNH KỲ (PHỤ LỤC 03A)
-## CĂN CỨ PHÁP LÝ: NGHỊ ĐỊNH SỐ 99/2021/NĐ-CP CỦA CHÍNH PHỦ VỀ QUẢN LÝ, THANH TOÁN VỐN ĐẦU TƯ CÔNG
+## CĂN CỨ PHÁP LÝ: NGHỊ ĐỊNH SỐ 254/2025/NĐ-CP CỦA CHÍNH PHỦ VỀ QUẢN LÝ, THANH TOÁN VỐN ĐẦU TƯ CÔNG
 
 ---
 

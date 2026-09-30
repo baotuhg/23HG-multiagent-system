@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-PAYMENT AGENT — Sub-Agent Thanh toán khối lượng hoàn thành (Mẫu 03a, NĐ 99/2021/NĐ-CP)
+PAYMENT AGENT — Sub-Agent Thanh toán khối lượng hoàn thành (Mẫu 03a, NĐ 254/2025/NĐ-CP)
 
 Input : bảng QS hợp đồng (--qs) + file khối lượng thực hiện (--progress)
         + cơ sở đơn giá (--price-basis) + tỷ lệ thu hồi tạm ứng / giữ lại (bắt buộc khai báo)
@@ -42,7 +42,7 @@ class PaymentAgent(BaseAgent):
         sample_path: Optional[str] = None,
     ):
         super().__init__(agent_id="payment_agent",
-                         description="Thanh toán khối lượng hoàn thành — Mẫu 03a NĐ 99/2021")
+                         description="Thanh toán khối lượng hoàn thành — Mẫu 03a NĐ 254/2025")
         self.qs_path = qs_path
         self.qs_sheet = qs_sheet
         self.rate_overrides = rate_overrides or {}

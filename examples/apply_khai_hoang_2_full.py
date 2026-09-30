@@ -4,9 +4,9 @@ HỆ THỐNG MULTI-AGENT AEC — ÁP DỤNG TRỌN VẸN VÀO HỒ SƠ CẦU TH�
 KM14+363.65 (DỰ ÁN ĐƯỜNG ĐỒNG VĂN - MỐC 450/456, GÓI THẦU SỐ 9, HÀ GIANG)
 
 Các mục tiêu hoàn thiện:
-1. Áp giá dự toán chuẩn TT 12 & TT 11/2021/TT-BXD cho 105 công tác tiên lượng THKL.
+1. Áp giá dự toán chuẩn TT 38/2026 & TT 36/2026/TT-BXD cho 105 công tác tiên lượng THKL.
 2. Hoàn thiện bảng tổng hợp chi phí xây dựng G_XD (T + GT + TL + VAT) 100% công thức sống.
-3. Xuất bảng đề nghị thanh toán kỳ Phụ lục 03a (Nghị định 99/2021/NĐ-CP).
+3. Xuất bảng đề nghị thanh toán kỳ Phụ lục 03a (Nghị định 254/2025/NĐ-CP).
 4. Xuất trọn bộ 43 biên bản nghiệm thu KCS ra Word (.docx) chuẩn Nghị định 207/2026/NĐ-CP.
 5. Khởi tạo Master Workbook 14 Sheet liên kết động toàn diện từ dữ liệu thật 166 dòng BBS.
 6. Thẩm tra độc lập bằng aec_audit_verifier đạt chuẩn 100/100 (CẤM SỐ CHẾT).
@@ -35,7 +35,7 @@ OUT_DIR = os.path.join(SOURCE_WS, "HO_SO_THIET_LAP")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # -----------------------------------------------------------------------------
-# 1. BẢNG MÃ ĐỊNH MỨC VÀ ĐƠN GIÁ DỰ TOÁN THAM CHIẾU (TT 12/2021 & HÀ GIANG)
+# 1. BẢNG MÃ ĐỊNH MỨC VÀ ĐƠN GIÁ DỰ TOÁN THAM CHIẾU (TT 38/2026 & HÀ GIANG)
 # -----------------------------------------------------------------------------
 UNIT_PRICES = {
     "I-1": ("AB.11413", 32500, "Đào nền đất C3 máy đào <=1.25m3"),
@@ -183,7 +183,7 @@ def update_boq_and_gxd(excel_path: str):
         ws_gxd = wb["TONG_HOP_GXD"]
         ws_gxd.views.sheetView[0].showGridLines = True
         
-        # Bảng tính chuẩn TT 11/2021/TT-BXD
+        # Bảng tính chuẩn TT 36/2026/TT-BXD
         # R5: T
         ws_gxd["D5"] = f"=QS!G{row_t}"
         ws_gxd["D5"].number_format = "#,##0"
@@ -230,7 +230,7 @@ def update_boq_and_gxd(excel_path: str):
 
 
 # -----------------------------------------------------------------------------
-# 2. XUẤT BẢNG THANH TOÁN KỲ PHỤ LỤC 03A (NGHỊ ĐỊNH 99/2021/NĐ-CP)
+# 2. XUẤT BẢNG THANH TOÁN KỲ PHỤ LỤC 03A (NGHỊ ĐỊNH 254/2025/NĐ-CP)
 # -----------------------------------------------------------------------------
 def generate_payment_03a(boq_path: str, payment_out_path: str):
     print(f"[*] Tạo bảng thanh toán kỳ Phụ lục 03a: {payment_out_path}")
@@ -259,7 +259,7 @@ def generate_payment_03a(boq_path: str, payment_out_path: str):
     ws["A1"].font = font_title
     ws["A2"] = "Kèm theo Biên bản xác nhận khối lượng hoàn thành ngày ... tháng ... năm ... (Giai đoạn móng mố hoàn thành - Kỳ 01)"
     ws["A2"].font = Font(name="Times New Roman", size=10, italic=True)
-    ws["A3"] = "Căn cứ Nghị định số 99/2021/NĐ-CP của Chính phủ | Cầu thôn Khai Hoang 2, Km14+363.65"
+    ws["A3"] = "Căn cứ Nghị định số 254/2025/NĐ-CP của Chính phủ | Cầu thôn Khai Hoang 2, Km14+363.65"
     ws["A3"].font = font_sec
 
     headers = [

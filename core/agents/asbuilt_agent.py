@@ -5,7 +5,7 @@ Nhiệm vụ:
   1. Thu nhận dữ liệu nhật ký thi công hàng ngày (Daily Site Logs)
   2. Đối chiếu Khối lượng Hoàn công vs Khối lượng Thiết kế (Actual vs Planned)
   3. Cập nhật lại đường găng tiến độ CPM và độ trễ công trường (Schedule Delay Tracking)
-  4. Lập bảng xác định khối lượng phát sinh phục vụ Phụ lục 03a (Nghị định 99/2021/NĐ-CP)
+  4. Lập bảng xác định khối lượng phát sinh phục vụ Phụ lục 03a (Nghị định 254/2025/NĐ-CP)
   5. Đồng bộ trạng thái vào Shared State Bus
 """
 

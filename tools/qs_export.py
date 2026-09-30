@@ -23,7 +23,7 @@ def write_gxd_workbook(path: str, est: QSEstimate) -> None:
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "TONG_HOP_GXD"
-    ws["A1"] = "BẢNG TỔNG HỢP KINH PHÍ DỰ TOÁN XÂY DỰNG (G_XD) — TT 11/2021/TT-BXD"
+    ws["A1"] = "BẢNG TỔNG HỢP KINH PHÍ DỰ TOÁN XÂY DỰNG (G_XD) — TT 36/2026/TT-BXD"
     ws["A2"] = f"Nguồn bảng QS: {est.source} — {len(est.items)} công tác"
     header(ws, 4, ["TT", "Khoản mục chi phí", "Cách tính", "Ký hiệu", "Giá trị (VNĐ)", "Nguồn tỷ lệ"])
     r = est.rates

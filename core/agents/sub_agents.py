@@ -114,7 +114,7 @@ class CADAgent(BaseAgent):
 
 class QSAgent(BaseAgent):
     """
-    Sub-Agent Dự toán — tính G_XD theo TT 11/2021/TT-BXD từ bảng QS THẬT.
+    Sub-Agent Dự toán — tính G_XD theo TT 36/2026/TT-BXD từ bảng QS THẬT.
     Input : file QS/BOQ (qs_path): khối lượng × đơn giá từng công tác; tỷ lệ chi phí lấy từ
             sheet tổng hợp G_XD trong file hoặc tham số (rate_overrides, đơn vị %)
     Output (vào StateBus): qs_data (T, GT, TL, G, VAT, G_XD, tỷ lệ, số công tác)
@@ -133,7 +133,7 @@ class QSAgent(BaseAgent):
     ):
         super().__init__(
             agent_id="qs_agent",
-            description="Dự toán G_XD — TT 11/2021/TT-BXD từ bảng QS"
+            description="Dự toán G_XD — TT 36/2026/TT-BXD từ bảng QS"
         )
         self.qs_path = qs_path
         self.qs_sheet = qs_sheet

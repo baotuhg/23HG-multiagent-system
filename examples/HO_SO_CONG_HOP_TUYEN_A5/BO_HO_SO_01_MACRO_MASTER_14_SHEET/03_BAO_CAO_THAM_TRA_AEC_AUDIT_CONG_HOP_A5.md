@@ -16,8 +16,8 @@
    - Tỷ lệ phôi thừa đề-xê đạt mức xuất sắc: **$1.18\%$** (nhỏ hơn chỉ tiêu khống chế $1.85\%$).
 
 3. **Trụ cột 3: Dự toán $G_{XD}$ và Tuân thủ Pháp lý Chi phí — 20/20 Điểm**
-   - Áp dụng chuẩn xác Thông tư số 11/2021/TT-BXD: $GT = 8.5\% \times T$, $TL = 5.5\% \times (T + GT)$, $VAT = 10\%$.
-   - Bảng thanh toán kỳ Mẫu 03a tuân thủ Nghị định 99/2021/NĐ-CP với khấu trừ tạm ứng 20% và bảo hành 5%.
+   - Áp dụng chuẩn xác Thông tư số 36/2026/TT-BXD: $GT = 8.5\% \times T$, $TL = 5.5\% \times (T + GT)$, $VAT = 10\%$.
+   - Bảng thanh toán kỳ Mẫu 03a tuân thủ Nghị định 254/2025/NĐ-CP với khấu trừ tạm ứng 20% và bảo hành 5%.
 
 4. **Trụ cột 4: Tiến độ Thi công CPM & Phân tích Đường găng — 20/20 Điểm**
    - Xác định chính xác 8 công tác găng (Critical Chain) từ Tim mốc đến Bàn giao.

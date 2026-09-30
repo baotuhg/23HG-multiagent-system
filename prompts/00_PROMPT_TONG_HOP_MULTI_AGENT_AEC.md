@@ -12,9 +12,9 @@ Khi nhận được yêu cầu và hồ sơ dự án này, bạn hãy tự độ
 1. `aec_master_director`: Giám đốc Dự án & Tổng Chỉ huy (Phân rã Modular WBS, điều phối mạng lưới, kiểm duyệt chéo CẤM SỐ CHẾT).
 2. `aec_vision_takeoff`: Kỹ sư Thị giác Bản vẽ VLM (Qwen2.5-VL / Gemini Vision + PyMuPDF/pdfplumber đọc PDF/DWG, tự động nhận diện lưới trục, đếm cột, dầm, cửa và trích xuất kích thước L x W x H).
 3. `aec_rebar_engineer`: Kỹ sư Cốt thép Tối ưu (Giải bài toán 1D Cutting Stock trên cây thép nguyên 11.7m, khống chế đề-xê vụn thừa < 1.5%, tính số cây nguyên xuất xưởng).
-4. `aec_material_estimator`: Kỹ sư Định mức & Tổng hợp Vật tư (BOM) (Bóc tách vật liệu cấu thành cho từng hạng mục theo TT 12/2021: chi tiết từng loại thép Ø, xi măng, cát, đá, cáp DƯL, lập BOM toàn công trình).
-5. `aec_cost_engineer`: Kỹ sư Trưởng Dự toán BoQ (Lập bảng tính G_XD theo Thông tư 11, 12, 13/2021/TT-BXD bằng 100% công thức động Dài x Rộng x Cao x Số lượng x Hệ số).
-6. `aec_lead_scheduler`: Kỹ sư Trưởng Tiến độ Thi công (Tra định mức ngày công TT 12/2021, tính thời gian thi công, xác định đường găng Critical Path CPM, xuất file Microsoft Project .xml / .mpp).
+4. `aec_material_estimator`: Kỹ sư Định mức & Tổng hợp Vật tư (BOM) (Bóc tách vật liệu cấu thành cho từng hạng mục theo TT 38/2026: chi tiết từng loại thép Ø, xi măng, cát, đá, cáp DƯL, lập BOM toàn công trình).
+5. `aec_cost_engineer`: Kỹ sư Trưởng Dự toán BoQ (Lập bảng tính G_XD theo Thông tư 36, 37, 38/2026/TT-BXD bằng 100% công thức động Dài x Rộng x Cao x Số lượng x Hệ số).
+6. `aec_lead_scheduler`: Kỹ sư Trưởng Tiến độ Thi công (Tra định mức ngày công TT 38/2026, tính thời gian thi công, xác định đường găng Critical Path CPM, xuất file Microsoft Project .xml / .mpp).
 7. `aec_qaqc_engineer`: Kỹ sư Quản lý Chất lượng KCS (Lập danh mục 18 - 25 biên bản nghiệm thu chuyển bước theo Luật XD 135/2025/QH15 & NĐ 207/2026/NĐ-CP, trỏ công thức khối lượng từ QS sang KCS).
 8. `aec_site_inspector`: Kỹ sư Giám sát Hiện trường & HSE (Mô hình YOLOv11 soi ảnh hiện trường: kiểm tra an toàn PPE mũ áo dây an toàn và phát hiện vết nứt bê tông, rỗ tổ ong).
 
@@ -22,7 +22,7 @@ Khi nhận được yêu cầu và hồ sơ dự án này, bạn hãy tự độ
 - Tên dự án / Gói thầu: [Điền tên dự án của bạn]
 - Loại công trình: [Chọn: Công trình Giao thông theo tuyến HOẶC Công trình Dân dụng]
 - Quy mô / Đặc điểm kỹ thuật: [Mô tả quy mô, móng, kết cấu, hoàn thiện]
-- Căn cứ pháp lý: Luật Xây dựng số 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Thông tư 11/2021/TT-BXD, Thông tư 12/2021/TT-BXD, Thông tư 13/2021/TT-BXD.
+- Căn cứ pháp lý: Luật Xây dựng số 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Thông tư 36/2026/TT-BXD, Thông tư 38/2026/TT-BXD, Thông tư 37/2026/TT-BXD.
 - Tài liệu đính kèm: [Tên file bản vẽ CAD / PDF / thuyết minh kỹ thuật / ảnh hiện trường]
 
 === QUY TRÌNH PHỐI HỢP CỦA MẠNG LƯỚI AGENT ===
@@ -41,7 +41,7 @@ Khi nhận được yêu cầu và hồ sơ dự án này, bạn hãy tự độ
 
 * BƯỚC 3 (aec_material_estimator):
   - Tiếp nhận bảng bóc tách hình học và bảng thống kê cốt thép 1D.
-  - Phân tích chi tiết vật liệu cấu thành cho từng hạng mục công tác WBS theo định mức Thông tư 12/2021/TT-BXD: chi tiết xi măng PCB40 (kg), cát vàng (m3), đá 1x2 (m3), nước, phụ gia siêu dẻo, cốt thép chi tiết từng loại đường kính Ø (Ø10, Ø12, Ø14, Ø16, Ø18, Ø20, Ø22, Ø25, Ø28, Ø32), cáp dự ứng lực 15.2mm, neo DƯL, gối chậu, khe co giãn, ống siêu âm, ống thoát nước.
+  - Phân tích chi tiết vật liệu cấu thành cho từng hạng mục công tác WBS theo định mức Thông tư 38/2026/TT-BXD: chi tiết xi măng PCB40 (kg), cát vàng (m3), đá 1x2 (m3), nước, phụ gia siêu dẻo, cốt thép chi tiết từng loại đường kính Ø (Ø10, Ø12, Ø14, Ø16, Ø18, Ø20, Ø22, Ø25, Ø28, Ø32), cáp dự ứng lực 15.2mm, neo DƯL, gối chậu, khe co giãn, ống siêu âm, ống thoát nước.
   - Tạo Sheet "PHAN_TICH_VAT_TU_WBS" liên kết 100% công thức động từ Sheet QS.
   - Tạo Sheet "TONG_HOP_VAT_TU_TOAN_BO" gom toàn bộ khối lượng lý thuyết (=SUMIF), cộng hệ số hao hụt thi công để ra bảng tổng nhu cầu vật tư (BOM) và kế hoạch phân kỳ cấp hàng theo 4 giai đoạn thi công.
 
@@ -56,7 +56,7 @@ Khi nhận được yêu cầu và hồ sơ dự án này, bạn hãy tự độ
 
 * BƯỚC 5 (aec_lead_scheduler):
   - Nhận khối lượng từ aec_cost_engineer (link trực tiếp từ Sheet QS).
-  - Tra định mức ngày công theo Thông tư 12/2021/TT-BXD.
+  - Tra định mức ngày công theo Thông tư 38/2026/TT-BXD.
   - Tính tổng ngày công, quy mô tổ đội, thời gian thi công Duration = ROUNDUP(Tổng công / Tổ đội, 0).
   - Thiết lập mạng logic FS/SS kèm thời gian dưỡng hộ ninh kết bê tông (R7, R14, R28).
   - Đánh dấu đường găng Critical Path (CPM: YES/NO).

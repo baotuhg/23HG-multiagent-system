@@ -9,8 +9,8 @@ GÓI THẦU SỐ 9: KM12 - KM24+862.93
 Tuân thủ:
 - Luật Xây dựng số 135/2025/QH15 (VAT = 10%)
 - Nghị định 207/2026/NĐ-CP & Thông tư 32/2026/TT-BXD (Quản lý chất lượng & Biểu mẫu nghiệm thu)
-- Thông tư 11/2021/TT-BXD, Thông tư 12/2021/TT-BXD (Dự toán chi phí & Định mức xây dựng)
-- Nghị định 99/2021/NĐ-CP (Thanh toán khối lượng hoàn thành Phụ lục 03a)
+- Thông tư 36/2026/TT-BXD, Thông tư 38/2026/TT-BXD (Dự toán chi phí & Định mức xây dựng)
+- Nghị định 254/2025/NĐ-CP (Thanh toán khối lượng hoàn thành Phụ lục 03a)
 - Tiêu chuẩn thiết kế cầu TCVN 11823:2017 & Cốt thép TCVN 1651:2018
 - 100% CÔNG THỨC SỐNG - ZERO DEAD NUMBERS - KIỂM TOÁN AUDIT 100/100
 """
@@ -604,7 +604,7 @@ def generate_khai_hoang_2_master_package(output_excel_path, output_xml_path):
     ws_gxd["B2"].font = font_title
     ws_gxd["B3"] = "BẢNG TỔNG HỢP DỰ TOÁN KINH PHÍ XÂY DỰNG (G_XD) - CẦU THÔN KHAI HOANG 2, KM14+363.65"
     ws_gxd["B3"].font = font_sec
-    ws_gxd["B4"] = "Căn cứ: TT 11/2021/TT-BXD, NĐ 207/2026/NĐ-CP & Luật Xây dựng số 135/2025/QH15"
+    ws_gxd["B4"] = "Căn cứ: TT 36/2026/TT-BXD, NĐ 207/2026/NĐ-CP & Luật Xây dựng số 135/2025/QH15"
     ws_gxd["B4"].font = font_subtitle
 
     h_gxd = ["STT", "Khoản mục chi phí", "Ký hiệu", "Cách tính", "Giá trị trước thuế (VNĐ)", "Thuế VAT (VNĐ)", "Giá trị sau thuế (VNĐ)"]
@@ -673,7 +673,7 @@ def generate_khai_hoang_2_master_package(output_excel_path, output_xml_path):
 
     ws_pay["B2"] = "DỰ ÁN: ĐƯỜNG TỪ TRUNG TÂM HUYỆN ĐỒNG VĂN ĐI MỐC 450/456, HUYỆN MÈO VẠC, HÀ GIANG"
     ws_pay["B2"].font = font_title
-    ws_pay["B3"] = "BẢNG XÁC ĐỊNH GIÁ TRỊ KHỐI LƯỢNG CÔNG VIỆC HOÀN THÀNH THEO HỢP ĐỒNG (PHỤ LỤC 03a - NĐ 99/2021)"
+    ws_pay["B3"] = "BẢNG XÁC ĐỊNH GIÁ TRỊ KHỐI LƯỢNG CÔNG VIỆC HOÀN THÀNH THEO HỢP ĐỒNG (PHỤ LỤC 03a - NĐ 254/2025)"
     ws_pay["B3"].font = font_sec
     ws_pay["B4"] = "Kỳ thanh toán: Đợt 1 | Cầu thôn Khai Hoang 2, Km14+363.65 | Hợp đồng số: 09/2026/HĐ-XL"
     ws_pay["B4"].font = font_subtitle
@@ -876,7 +876,7 @@ def generate_khai_hoang_2_master_package(output_excel_path, output_xml_path):
 
     ws_mat["B2"] = "DỰ ÁN: ĐƯỜNG TỪ TRUNG TÂM HUYỆN ĐỒNG VĂN ĐI MỐC 450/456, HUYỆN MÈO VẠC, HÀ GIANG"
     ws_mat["B2"].font = font_title
-    ws_mat["B3"] = "BẢNG PHÂN TÍCH NHU CẦU VẬT TƯ THEO CÔNG TÁC WBS (ĐỊNH MỨC BỘ XÂY DỰNG TT 12/2021/TT-BXD)"
+    ws_mat["B3"] = "BẢNG PHÂN TÍCH NHU CẦU VẬT TƯ THEO CÔNG TÁC WBS (ĐỊNH MỨC BỘ XÂY DỰNG TT 38/2026/TT-BXD)"
     ws_mat["B3"].font = font_sec
     ws_mat["B4"] = "Phân tích cấp phối vật liệu thành phần: Xi măng, cát, đá, nước, phụ gia, cốt thép, ván khuôn"
     ws_mat["B4"].font = font_subtitle
@@ -932,7 +932,7 @@ def generate_khai_hoang_2_master_package(output_excel_path, output_xml_path):
         ws_mat.cell(r_m, 8).number_format = "#,##0.00"
         ws_mat.cell(r_m, 9, value=f"=D{r_m}*H{r_m}").alignment = align_right
         ws_mat.cell(r_m, 9).number_format = "#,##0.00"
-        ws_mat.cell(r_m, 10, value="Định mức TT 12").alignment = align_left
+        ws_mat.cell(r_m, 10, value="Định mức TT 38/2026").alignment = align_left
 
         for c in range(1, 11):
             ws_mat.cell(r_m, c).font = font_reg

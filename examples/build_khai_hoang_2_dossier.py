@@ -281,7 +281,7 @@ def build_boq(thkl):
     headers = ["STT", "Mã hiệu", "Nội dung công tác", "ĐVT", "Khối lượng", "Đơn giá", "Thành tiền",
                "Mã dòng THKL", "Ghi chú kiểm tra"]
     title_block(ws, f"BẢNG TIÊN LƯỢNG (BOQ) — {BRIDGE}",
-                "Khối lượng lấy nguyên từ THKL G9 - CHUẨN.xlsx / sheet 'Cau 15m'. Cột Mã hiệu (mã định mức TT12/2021) "
+                "Khối lượng lấy nguyên từ THKL G9 - CHUẨN.xlsx / sheet 'Cau 15m'. Cột Mã hiệu (mã định mức TT 38/2026/2021) "
                 "và Đơn giá (ô vàng) CHƯA CÓ dữ liệu — cần bộ đơn giá địa phương Hà Giang để tính G_XD.", len(headers))
     HR = 5
     header_row(ws, HR, headers, [8, 12, 55, 7, 12, 13, 15, 10, 70])
@@ -317,7 +317,7 @@ def build_boq(thkl):
     put(ws, r, 7, f"=SUM(G{first_item_row}:G{r-1})", "#,##0", font=F_BOLD)
 
     ws2 = wb.create_sheet("TONG_HOP_GXD")
-    title_block(ws2, "TỔNG HỢP CHI PHÍ XÂY DỰNG G_XD (TT 11/2021/TT-BXD)",
+    title_block(ws2, "TỔNG HỢP CHI PHÍ XÂY DỰNG G_XD (TT 36/2026/TT-BXD)",
                 "Tỷ lệ (ô vàng) CHƯA NHẬP — theo quy định hệ thống, không dùng tỷ lệ mặc định", 4)
     header_row(ws2, 5, ["Khoản mục", "Tỷ lệ (%)", "Cách tính", "Giá trị (đồng)"], [60, 12, 30, 20])
     lines = [
@@ -504,7 +504,7 @@ ACCEPTANCES = [
     ("3.7", "Công việc xây dựng", "Cốt thép + ván khuôn thân mố, tường cánh M2", "TCVN 4453:1995"),
     ("3.8", "Công việc xây dựng", "Bê tông thân mố, tường cánh M2", "TCVN 4453:1995"),
     ("3.9", "Công việc xây dựng", "Bệ kê gối mố M2 (cao độ, vị trí tấm đệm)", "Bản vẽ PD-04"),
-    ("3.9", "Giai đoạn", "Hoàn thành kết cấu phần dưới (mố M1, M2)", "NĐ 06/2021/NĐ-CP"),
+    ("3.9", "Giai đoạn", "Hoàn thành kết cấu phần dưới (mố M1, M2)", "NĐ 207/2026/NĐ-CP"),
     ("1.5", "Công việc xây dựng", "Bệ đúc dầm T15m", "Bản vẽ tr.37"),
     ("4.2", "Công việc xây dựng", "Cốt thép + ván khuôn + bê tông dầm T đợt 1 (2 dầm)", "TCVN 4453:1995; PT-02..07"),
     ("4.3", "Công việc xây dựng", "Cốt thép + ván khuôn + bê tông dầm T đợt 2 (2 dầm)", "TCVN 4453:1995; PT-02..07"),
@@ -516,7 +516,7 @@ ACCEPTANCES = [
     ("4.11", "Công việc xây dựng", "Gờ lan can + ống thoát nước", "Bản vẽ PT-10"),
     ("4.12", "Công việc xây dựng", "Lan can thép", "Bản vẽ PT-11"),
     ("4.13", "Công việc xây dựng", "Lớp phòng nước + BTNC mặt cầu", "TCVN 8819:2011"),
-    ("4.13", "Giai đoạn", "Hoàn thành kết cấu phần trên", "NĐ 06/2021/NĐ-CP"),
+    ("4.13", "Giai đoạn", "Hoàn thành kết cấu phần trên", "NĐ 207/2026/NĐ-CP"),
     ("5.1", "Công việc xây dựng", "Tường chắn đầu cầu (móng, thân)", "Bản vẽ TC-01..10"),
     ("5.3", "Công việc xây dựng", "Đắp đất sau mố, tứ nón (từng lớp ≤20cm, K≥0,95; lòng mố K≥0,98)", "TCVN 9436:2012; QĐ 3095"),
     ("5.4", "Công việc xây dựng", "Bản quá độ", "Bản vẽ PD-08"),
@@ -524,7 +524,7 @@ ACCEPTANCES = [
     ("5.6", "Công việc xây dựng", "Nền, móng, mặt đường hai đầu cầu", "TCVN 9436:2012; TCVN 8863:2011"),
     ("5.7", "Công việc xây dựng", "Rãnh, gia cố lề, tường hộ lan", "THKL mục I"),
     ("5.8", "Công việc xây dựng", "Sơn vạch, biển tên cầu", "QCVN 41:2019/BGTVT"),
-    ("6.2", "Hoàn thành", "Nghiệm thu hoàn thành công trình đưa vào sử dụng", "NĐ 06/2021/NĐ-CP"),
+    ("6.2", "Hoàn thành", "Nghiệm thu hoàn thành công trình đưa vào sử dụng", "NĐ 207/2026/NĐ-CP"),
 ]
 
 # Bê tông để tính số tổ mẫu: (cấu kiện, cấp BT, V m3, nguồn, số lần đổ tối thiểu, V một tổ mẫu, căn cứ tần suất)
@@ -552,7 +552,7 @@ def build_kcs(rows):
                "Ngày dự kiến", "Số biên bản", "Ghi chú"]
     title_block(ws, f"DANH MỤC BIÊN BẢN NGHIỆM THU — {BRIDGE}",
                 "Ngày dự kiến điền sau khi có ngày khởi công và chạy CPM (lấy ngày hoàn thành EF của mã WBS). "
-                "Biểu mẫu theo NĐ 06/2021/NĐ-CP và quy định hiện hành của CĐT.", len(headers))
+                "Biểu mẫu theo NĐ 207/2026/NĐ-CP và quy định hiện hành của CĐT.", len(headers))
     header_row(ws, 5, headers, [5, 10, 18, 70, 28, 13, 13, 25])
     for i, (code, kind, content, basis) in enumerate(ACCEPTANCES, start=1):
         r = 5 + i

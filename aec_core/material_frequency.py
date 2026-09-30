@@ -4,7 +4,7 @@ MÔ-ĐUN AEC-CORE: PHÂN TÍCH ĐỊNH MỨC CẤP PHỐI 1M3 VÀ MA TRẬN TẦ
 Căn cứ pháp lý & tiêu chuẩn áp dụng:
 - Luật Xây dựng số 135/2025/QH15
 - Nghị định số 207/2026/NĐ-CP về Quản lý chất lượng và thi công xây dựng
-- Thông tư 12/2021/TT-BXD về Định mức dự toán xây dựng công trình
+- Thông tư 38/2026/TT-BXD về Định mức dự toán xây dựng công trình
 - TCVN 4453:1995: Kết cấu bê tông và bê tông cốt thép toàn khối - Quy phạm thi công và nghiệm thu
 - TCVN 1651:2018: Thép cốt bê tông (Thép tròn trơn & thép thanh vằn)
 - TCVN 6260:2020: Xi măng poóc lăng hỗn hợp
@@ -19,7 +19,7 @@ import math
 class ConcreteMixDesigner:
     """Quản lý định mức cấp phối vật liệu cho 1 m3 bê tông từng kết cấu."""
     
-    # Định mức chuẩn cho 1 m3 bê tông theo TCVN & TT 12/2021/TT-BXD
+    # Định mức chuẩn cho 1 m3 bê tông theo TCVN & TT 38/2026/TT-BXD
     MIX_STANDARDS = {
         "C10": {
             "name": "Bê tông đệm móng mố, bệ trụ, bản quá độ (Mác 150)",

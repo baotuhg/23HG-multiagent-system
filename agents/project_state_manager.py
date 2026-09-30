@@ -21,7 +21,7 @@ class ProjectStateManager:
                 "version": "2.0.0",
                 "system": "AEC Master Multi-Agent Architecture",
                 "last_updated": "2026-09-25T19:45:00+07:00",
-                "governance_standard": "Luat Xay dung 135/2025/QH15, ND 207/2026/ND-CP, TT 11/2021/TT-BXD"
+                "governance_standard": "Luat Xay dung 135/2025/QH15, ND 207/2026/ND-CP, TT 36/2026/TT-BXD"
             },
             "project_identity": {
                 "project_name": "Cao tốc Tuyên Quang - Hà Giang (Giai đoạn 1) - Đoạn qua tỉnh Hà Giang",

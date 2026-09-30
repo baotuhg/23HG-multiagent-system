@@ -3,7 +3,7 @@
 > **Trục pháp lý và Tiêu chuẩn áp dụng:**
 > - **Luật Xây dựng số 135/2025/QH15**
 > - **Nghị định số 207/2026/NĐ-CP** về Quản lý chất lượng, thi công xây dựng và bảo trì công trình xây dựng
-> - **Thông tư số 12/2021/TT-BXD** về Định mức dự toán xây dựng công trình (Ban hành kèm theo Định mức dự toán xây dựng)
+> - **Thông tư số 38/2026/TT-BXD** về Định mức dự toán xây dựng công trình (Ban hành kèm theo Định mức dự toán xây dựng)
 > - **TCVN 4453:1995**: Kết cấu bê tông và bê tông cốt thép toàn khối - Quy phạm thi công và nghiệm thu
 > - **TCVN 1651:2018**: Thép cốt bê tông (Thép tròn trơn & thép thanh vằn)
 > - **TCVN 6260:2020** & **TCVN 2682:2020**: Xi măng Poóc lăng hỗn hợp và Xi măng Poóc lăng

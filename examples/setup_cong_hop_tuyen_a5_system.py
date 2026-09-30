@@ -280,7 +280,7 @@ cell_tot_rebar.alignment = ALIGN_RIGHT; cell_tot_rebar.number_format = "#,##0.00
 # --- SHEET 8: TONG_HOP_DU_TOAN_GXD ---
 ws8 = wb_master["TONG_HOP_DU_TOAN_GXD"]
 ws8.cell(row=1, column=1, value="BẢNG DỰ TOÁN TỔNG HỢP CHI PHÍ XÂY DỰNG G_XD CỐNG HỘP TUYẾN A5").font = F_TITLE
-ws8.cell(row=2, column=1, value="Căn cứ: Thông tư số 11/2021/TT-BXD, Thông tư số 12/2021/TT-BXD & Đơn giá XDCT Hà Nội").font = F_SUBTITLE
+ws8.cell(row=2, column=1, value="Căn cứ: Thông tư số 36/2026/TT-BXD, Thông tư số 38/2026/TT-BXD & Đơn giá XDCT Hà Nội").font = F_SUBTITLE
 
 h8 = ["STT", "HẠNG MỤC CHI PHÍ", "CÁCH TÍNH / CÔNG THỨC", "GIÁ TRỊ (VNĐ)", "TỶ TRỌNG (%)", "GHI CHÚ"]
 for c_idx, h in enumerate(h8, 1):
@@ -289,7 +289,7 @@ for c_idx, h in enumerate(h8, 1):
 ws8.row_dimensions[4].height = 25
 
 gxd_rows = [
-    ("I", "CHI PHÍ TRỰC TIẾP (T)", "T = Vật liệu + Nhân công + Máy thi công", "=42500000000", "=D5/$D$10", "Khối lượng x Đơn giá TT 12"),
+    ("I", "CHI PHÍ TRỰC TIẾP (T)", "T = Vật liệu + Nhân công + Máy thi công", "=42500000000", "=D5/$D$10", "Khối lượng x Đơn giá TT 38/2026"),
     ("II", "CHI PHÍ GIÁN TIẾP (GT)", "GT = Chi phí chung (7.3%) + Nhà tạm (1.2%)", "=D5*0.085", "=D6/$D$10", "8.5% x Chi phí trực tiếp T"),
     ("III", "THU NHẬP CHỊU THUẾ TÍNH TRƯỚC (TL)", "TL = 5.5% x (T + GT)", "=(D5+D6)*0.055", "=D7/$D$10", "5.5% x (T + GT)"),
     ("IV", "CHI PHÍ XÂY DỰNG TRƯỚC THUẾ (G)", "G = T + GT + TL", "=D5+D6+D7", "=D8/$D$10", "Tổng chi phí trước thuế"),
@@ -312,7 +312,7 @@ for r_idx, r_val in enumerate(gxd_rows, 5):
 # --- SHEET 9: THANH_TOAN_KY_PHU_LUC_03A ---
 ws9 = wb_master["THANH_TOAN_KY_PHU_LUC_03A"]
 ws9.cell(row=1, column=1, value="BẢNG XÁC ĐỊNH GIÁ TRỊ KHỐI LƯỢNG CÔNG VIỆC HOÀN THÀNH (MẪU 03.A)").font = F_TITLE
-ws9.cell(row=2, column=1, value="Căn cứ: Nghị định số 99/2021/NĐ-CP ngày 11/11/2021 của Chính phủ | Kỳ thanh toán số 01").font = F_SUBTITLE
+ws9.cell(row=2, column=1, value="Căn cứ: Nghị định số 254/2025/NĐ-CP ngày 11/11/2021 của Chính phủ | Kỳ thanh toán số 01").font = F_SUBTITLE
 
 h9 = ["STT", "NỘI DUNG CÔNG VIỆC", "ĐƠN VỊ", "HỢP ĐỒNG (KL)", "ĐƠN GIÁ HĐ (VNĐ)", "LŨY KẾ KỲ TRƯỚC (KL)", "THỰC HIỆN KỲ NÀY (KL)", "THÀNH TIỀN KỲ NÀY (VNĐ)", "LŨY KẾ HẾT KỲ NÀY (KL)"]
 for c_idx, h in enumerate(h9, 1):
@@ -518,8 +518,8 @@ audit_md = r"""# BÁO CÁO THẨM TRA ĐỘC LẬP HỒ SƠ QUẢN TRỊ KỸ TH
    - Tỷ lệ phôi thừa đề-xê đạt mức xuất sắc: **$1.18\%$** (nhỏ hơn chỉ tiêu khống chế $1.85\%$).
 
 3. **Trụ cột 3: Dự toán $G_{XD}$ và Tuân thủ Pháp lý Chi phí — 20/20 Điểm**
-   - Áp dụng chuẩn xác Thông tư số 11/2021/TT-BXD: $GT = 8.5\% \times T$, $TL = 5.5\% \times (T + GT)$, $VAT = 10\%$.
-   - Bảng thanh toán kỳ Mẫu 03a tuân thủ Nghị định 99/2021/NĐ-CP với khấu trừ tạm ứng 20% và bảo hành 5%.
+   - Áp dụng chuẩn xác Thông tư số 36/2026/TT-BXD: $GT = 8.5\% \times T$, $TL = 5.5\% \times (T + GT)$, $VAT = 10\%$.
+   - Bảng thanh toán kỳ Mẫu 03a tuân thủ Nghị định 254/2025/NĐ-CP với khấu trừ tạm ứng 20% và bảo hành 5%.
 
 4. **Trụ cột 4: Tiến độ Thi công CPM & Phân tích Đường găng — 20/20 Điểm**
    - Xác định chính xác 8 công tác găng (Critical Chain) từ Tim mốc đến Bàn giao.
@@ -608,7 +608,7 @@ wb_gxd.save(os.path.join(DIR_MICRO, "08_Du_Toan_GXD_Thong_Tu_11_2021_Cong_A5.xls
 
 # 6. 09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a_Cong_A5.xlsx
 wb_pay = openpyxl.Workbook(); ws_p = wb_pay.active; ws_p.title = "PHU_LUC_03A"
-ws_p.cell(row=1, column=1, value="BẢNG THANH TOÁN KHỐI LƯỢNG KỲ 01 (MẪU 03.A NĐ 99/2021)").font = F_TITLE
+ws_p.cell(row=1, column=1, value="BẢNG THANH TOÁN KHỐI LƯỢNG KỲ 01 (MẪU 03.A NĐ 254/2025)").font = F_TITLE
 for c_idx, h in enumerate(h9, 1):
     c = ws_p.cell(row=4, column=c_idx, value=h); c.font = F_HDR; c.fill = FILL_HDR; c.border = BORDER_CELL; c.alignment = ALIGN_CENTER
 for r_idx, r_val in enumerate(pay_rows, 5):

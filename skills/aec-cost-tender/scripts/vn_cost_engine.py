@@ -2,10 +2,10 @@
 """Vietnamese Construction Cost Estimation Engine (Dự toán Xây dựng Việt Nam).
 
 Conforms to:
-- Luật Xây dựng số 135/2025/QH15 & Nghị định 10/2021/NĐ-CP (NĐ 207/2026/NĐ-CP).
-- Thông tư 11/2021/TT-BXD: Hướng dẫn xác định và quản lý chi phí đầu tư xây dựng.
-- Thông tư 12/2021/TT-BXD: Ban hành định mức xây dựng (Mã hiệu AB, AC, AD, AE, AF, AG, AK...).
-- Thông tư 13/2021/TT-BXD: Phương pháp xác định chỉ tiêu kinh tế kỹ thuật và đo bóc khối lượng.
+- Luật Xây dựng số 135/2025/QH15 & Nghị định 206/2026/NĐ-CP (NĐ 207/2026/NĐ-CP).
+- Thông tư 36/2026/TT-BXD: Hướng dẫn xác định và quản lý chi phí đầu tư xây dựng.
+- Thông tư 38/2026/TT-BXD: Ban hành định mức xây dựng (Mã hiệu AB, AC, AD, AE, AF, AG, AK...).
+- Thông tư 37/2026/TT-BXD: Phương pháp xác định chỉ tiêu kinh tế kỹ thuật và đo bóc khối lượng.
 
 Calculates:
 G_XD = T + GT + TL + VAT
@@ -22,7 +22,7 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
-# Định mức tỷ lệ % theo Thông tư 11/2021/TT-BXD cho các loại công trình
+# Định mức tỷ lệ % theo Thông tư 36/2026/TT-BXD cho các loại công trình
 # Tỷ lệ chi phí chung (C_C) tính trên chi phí trực tiếp (T <= 100 tỷ)
 PROJECT_RATES = {
     "DAN_DUNG": {
@@ -59,7 +59,7 @@ PROJECT_RATES = {
     }
 }
 
-# Tiền tố mã định mức Thông tư 12/2021/TT-BXD
+# Tiền tố mã định mức Thông tư 38/2026/TT-BXD
 NORM_PREFIX_MAP = {
     "AA": "Công tác chuẩn bị mặt bằng",
     "AB": "Công tác đào, đắp đất, đá, cát (San nền, móng, nền đường)",
@@ -175,7 +175,7 @@ def export_vietnam_estimate_excel(
     items: List[CostItem],
     output_path: str
 ):
-    """Xuất file Excel Dự toán chuẩn Thông tư 11/2021/TT-BXD (2 Sheets)."""
+    """Xuất file Excel Dự toán chuẩn Thông tư 36/2026/TT-BXD (2 Sheets)."""
     wb = openpyxl.Workbook()
 
     # Sheet 1: Tổng hợp chi phí xây dựng
@@ -212,7 +212,7 @@ def export_vietnam_estimate_excel(
     ws1["A2"].alignment = Alignment(horizontal="center")
 
     ws1.merge_cells("A3:G3")
-    ws1["A3"] = "Căn cứ Thông tư số 11/2021/TT-BXD của Bộ Xây dựng (Đơn vị tính: VNĐ)"
+    ws1["A3"] = "Căn cứ Thông tư số 36/2026/TT-BXD của Bộ Xây dựng (Đơn vị tính: VNĐ)"
     ws1["A3"].font = Font(name="Times New Roman", size=10, italic=True)
     ws1["A3"].alignment = Alignment(horizontal="center")
 
@@ -233,7 +233,7 @@ def export_vietnam_estimate_excel(
         ("2", "- Chi phí nhân công", "Bảng dự toán chi tiết", "", "NC", summary.chi_phi_nhan_cong, ""),
         ("3", "- Chi phí máy thi công", "Bảng dự toán chi tiết", "", "M", summary.chi_phi_may, ""),
         ("II", "Chi phí gián tiếp", "", "", "GT", summary.tong_chi_phi_gian_tiep, "C_C + C_NT + C_KXD"),
-        ("1", "- Chi phí chung", "T x Tỷ lệ %", f"{PROJECT_RATES[summary.project_type]['rate_chi_phi_chung']*100:.1f}%", "C_C", summary.chi_phi_chung, "Thông tư 11/2021/TT-BXD"),
+        ("1", "- Chi phí chung", "T x Tỷ lệ %", f"{PROJECT_RATES[summary.project_type]['rate_chi_phi_chung']*100:.1f}%", "C_C", summary.chi_phi_chung, "Thông tư 36/2026/TT-BXD"),
         ("2", "- Chi phí nhà tạm để ở và điều hành", "T x Tỷ lệ %", f"{PROJECT_RATES[summary.project_type]['rate_nha_tam']*100:.1f}%", "C_NT", summary.chi_phi_nha_tam, "Công trình xây dựng"),
         ("3", "- Chi phí một số công việc KXD từ thiết kế", "T x Tỷ lệ %", f"{PROJECT_RATES[summary.project_type]['rate_khong_xac_dinh']*100:.1f}%", "C_KXD", summary.chi_phi_kxd, ""),
         ("III", "Thu nhập chịu thuế tính trước", "(T + GT) x Tỷ lệ %", f"{PROJECT_RATES[summary.project_type]['rate_thu_nhap_tinh_truoc']*100:.1f}%", "TL", summary.thu_nhap_chiu_thue_tinh_truoc, "5.5% x (T + GT)"),

@@ -18,8 +18,8 @@ flowchart TD
         
         subgraph Group2["NHÓM KỸ THUẬT & TOÁN HỌC XÁC ĐỊNH"]
             Rebar["3. aec_rebar_engineer\n(1D Cutting Stock < 1.5%)"]
-            Cost["4. aec_cost_engineer\n(QS BoQ & Dự toán G_XD TT 11)"]
-            Billing["5. aec_contract_billing\n(Thanh toán Phụ lục 03a NĐ 99) [MỚI]"]
+            Cost["4. aec_cost_engineer\n(QS BoQ & Dự toán G_XD TT 36/2026)"]
+            Billing["5. aec_contract_billing\n(Thanh toán Mẫu 03.a/TT NĐ 254/2025) [MỚI]"]
             Scheduler["6. aec_lead_scheduler\n(Tiến độ CPM & MS Project .xml)"]
         end
 

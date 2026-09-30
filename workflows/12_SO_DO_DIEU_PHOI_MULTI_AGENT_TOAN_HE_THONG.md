@@ -1,6 +1,6 @@
 # SƠ ĐỒ ĐIỀU PHỐI MULTI-AGENT AEC MASTER TOÀN HỆ THỐNG
 > **Phiên bản:** 2.5 (Chuẩn hóa Độc quyền AEC Digital Project Office)  
-> **Căn cứ Pháp lý & Tiêu chuẩn:** Luật Xây dựng 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Nghị định 99/2021/NĐ-CP, Thông tư 11, 12, 13/2021/TT-BXD, TCVN 11823:2017, TCVN 1651:2018.
+> **Căn cứ Pháp lý & Tiêu chuẩn:** Luật Xây dựng 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Nghị định 254/2025/NĐ-CP, Thông tư 36, 37, 38/2026/TT-BXD, TCVN 11823:2017, TCVN 1651:2018.
 
 ---
 
@@ -93,7 +93,7 @@ Hệ thống **ĐÃ HOÀN TOÀN VẬN HÀNH THỰC TẾ** theo đúng 100% sơ �
 | **3. TRẮC ĐẠC & BÓC TÁCH CAD** | `agents/aec_cad_extractor.py` & `skills/aec-cad-automation/scripts/cad_takeoff_engine.py` (Shoelace, COM Interop, giải mã font TCVN3) | ✅ Hoạt động |
 | **4. GIA CÔNG & VẬT TƯ** | `skills/aec-rebar-optimizer/scripts/optimize_rebar.py` (Cắt thép 1D <1.5%), `examples/update_material_sheets.py` (BBS 396 thanh & BOM) | ✅ Hoạt động |
 | **5. AGENT KỸ THUẬT & BPTC/KCS** | `agents/rag_method_statement_huggingface.py` (BPTC 8 chương), `examples/update_full_cross_linked_workbook.py` (3 Mẫu KCS A4) | ✅ Hoạt động |
-| **6. AGENT QS & DỰ TOÁN** | `skills/aec-cost-tender/scripts/vn_cost_engine.py` & Sheet `QS_DIEN_GIAI_CHI_TIET`, `TONG_HOP_DU_TOAN_GXD` (TT 11/2021, VAT 10%) | ✅ Hoạt động |
+| **6. AGENT QS & DỰ TOÁN** | `skills/aec-cost-tender/scripts/vn_cost_engine.py` & Sheet `QS_DIEN_GIAI_CHI_TIET`, `TONG_HOP_DU_TOAN_GXD` (TT 36/2026, VAT 10%) | ✅ Hoạt động |
 | **7. KẾ HOẠCH & TIẾN ĐỘ** | `examples/generate_sample_bridge_project.py` (Mạng CPM 36 công tác, tệp MS Project `.xml` & `.mpp`) | ✅ Hoạt động |
 | **8. SHARED STATE BUS** | `agents/PROJECT_STATE.json` & `aec_core/project_state.py` (Single Source of Truth) | ✅ Hoạt động |
 | **9. QUALITY GATE (AUDIT)** | `aec_core/audit_verifier.py` & `examples/run_pipeline.py` (Chấm điểm 100/100, quét 0 số chết, kiểm tra logic chéo) | ✅ Hoạt động |

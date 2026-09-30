@@ -23,10 +23,10 @@ Nền tảng tích hợp trọn gói chu trình vòng đời dự án: từ bóc
 
 ### Cơ sở Pháp lý & Tiêu chuẩn Kỹ thuật:
 - **Luật Xây dựng số 135/2025/QH15** & **Nghị định số 207/2026/NĐ-CP**: Quản lý chất lượng thi công, nhật ký thi công, giám sát và nghiệm thu KCS.
-- **Nghị định số 99/2021/NĐ-CP**: Quản lý, thanh toán, quyết toán dự án vốn đầu tư công (Bảng thanh toán khối lượng hoàn thành Phụ lục 03a).
-- **Thông tư số 11/2021/TT-BXD**: Phương pháp xác định và quản lý chi phí đầu tư xây dựng (Dự toán chi phí xây dựng `G_xd = T + GT + TL + VAT 10%`).
-- **Thông tư số 12/2021/TT-BXD**: Định mức dự toán xây dựng công trình, định mức hao phí vật tư (xi măng, cát, đá, cốt thép, cáp DƯL), nhân công và ca máy.
-- **Thông tư số 13/2021/TT-BXD**: Phương pháp xác định các chỉ tiêu kinh tế kỹ thuật và đo bóc khối lượng xây dựng (Đơn giá nhân công, giá ca máy và thiết bị thi công).
+- **Nghị định số 254/2025/NĐ-CP**: Quản lý, thanh toán, quyết toán dự án vốn đầu tư công (Bảng thanh toán khối lượng hoàn thành Phụ lục 03a).
+- **Thông tư số 36/2026/TT-BXD**: Phương pháp xác định và quản lý chi phí đầu tư xây dựng (Dự toán chi phí xây dựng `G_xd = T + GT + TL + VAT 10%`).
+- **Thông tư số 38/2026/TT-BXD**: Định mức dự toán xây dựng công trình, định mức hao phí vật tư (xi măng, cát, đá, cốt thép, cáp DƯL), nhân công và ca máy.
+- **Thông tư số 37/2026/TT-BXD**: Phương pháp xác định các chỉ tiêu kinh tế kỹ thuật và đo bóc khối lượng xây dựng (Đơn giá nhân công, giá ca máy và thiết bị thi công).
 - **Tiêu chuẩn Định mức Cơ giới Thực chiến**: Bộ định mức ca máy, năng suất thiết bị thi công và định mức tiêu hao nhiên liệu dầu Diezel theo chuẩn Vincons / Vinhomes và các Tổng công ty xây dựng hạ tầng lớn.
 - **Tiêu chuẩn thiết kế & thi công**: **TCVN 11823:2017** (Cầu đường bộ), **TCVN 5574:2018** (Kết cấu BTCT - Quy chuẩn nối cốt thép), **TCVN 1651:2018** (Thép thanh vằn cốt bê tông), **TCVN 9395:2012** (Cọc khoan nhồi), **TCVN 4453:1995** (Toàn khối).
 
@@ -57,7 +57,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
 | CAD/BIM PARSER   |             | KỸ THUẬT BPTC    |             | QS DỰ TOÁN G_XD  |
 | (Trắc đạc CAD)   |             | & KCS LAB LINK   |             | & PHỤ LỤC 03A    |
 +--------+---------+             +--------+---------+             +--------+---------+
-| * Đọc DWG/DXF    |             | * Kiểm soát BPTC |             | * Đơn giá TT 12  |
+| * Đọc DWG/DXF    |             | * Kiểm soát BPTC |             | * Đơn giá TT 38/2026  |
 | * Shoelace diện  |             | * Lab Link R7/R28|             | * Tính G_xd      |
 |   tích, thể tích |             | * 22 BBNT chuẩn  |             | * 100% công thức |
 | * Average-End    |             | * Hold Points NT |             | * Phụ lục 03a    |
@@ -85,7 +85,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
                                      v
 +---------------------------------------------------------------------------+
 |             ĐIỀU PHỐI CA XE, CA MÁY & NHIÊN LIỆU DẦU DIEZEL               |
-| * Tác tử Equipment Fleet Engine: Tính ca máy từ định mức Vincons / TT13   |
+| * Tác tử Equipment Fleet Engine: Tính ca máy từ định mức Vincons / TT 37/2026   |
 | * Phân bổ máy theo ngày/tuần, biểu đồ phụ tải & kế hoạch cấp phát dầu (L) |
 +------------------------------------+--------------------------------------+
                                      |
@@ -133,9 +133,9 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
 | **Bóc tách CAD/BIM** | Bản vẽ CAD `.dwg`, `.dxf`, mô hình `.ifc` | Bảng khối lượng hình học Bê tông, Ván khuôn, Đào đắp | `AutoCAD COM Interop`, `ezdxf`, Shoelace & Average-End-Area |
 | **Gia công Cốt thép** | File BBS thật `.xlsx` / `.csv` / `.json` (`--bbs`) | Phiếu cắt từng phương án cây 11.7m (CSV), số cây, cận dưới, đề-xê, mẩu thừa tận dụng | OR-Tools Column Generation (GLOP) + CP-SAT, tách nhóm Ø + mác thép, tính lưỡi cắt 3mm |
 | **Dự toán Chi phí** | Khối lượng trích xuất, Đơn giá định mức | Bảng dự toán tổng hợp chi phí xây dựng `G_xd` | Excel 100% công thức động (`G_xd = T + GT + TL + VAT 10%`) |
-| **Thanh toán Hợp đồng**| Khối lượng thiết kế vs Khối lượng hoàn công | Bảng xác định khối lượng hoàn thành Phụ lục 03a | Nghị định 99/2021/NĐ-CP, tính phát sinh tự động |
+| **Thanh toán Hợp đồng**| Khối lượng thiết kế vs Khối lượng hoàn công | Bảng xác định khối lượng hoàn thành Phụ lục 03a | Nghị định 254/2025/NĐ-CP, tính phát sinh tự động |
 | **Quản lý Tiến độ** | File tiến độ thật `MS Project .xml` / `.xlsx` / `.csv` (`--schedule`) | Bảng CPM (ES/EF/LS/LF, dự trữ, đường găng, ngày lịch) CSV; cảnh báo ngày trong file vi phạm quan hệ logic | CPM với quan hệ FS/SS/FF/SF + lag, lịch nghỉ (Chủ nhật, ngày lễ) |
-| **Ca xe & Dầu Diezel** | Tiến độ CPM (`.xml`/`.xlsx`), Khối lượng hình học, Định mức ca máy | Bảng tiến độ ca máy theo ngày/tuần (`.xlsx` + `.xml`), Biểu đồ phụ tải, Kế hoạch cấp dầu Diezel (Lít) | `EquipmentFleetScheduler`, định mức Vincons / TT 13, tính ca/ngày và nhiên liệu chi tiết |
+| **Ca xe & Dầu Diezel** | Tiến độ CPM (`.xml`/`.xlsx`), Khối lượng hình học, Định mức ca máy | Bảng tiến độ ca máy theo ngày/tuần (`.xlsx` + `.xml`), Biểu đồ phụ tải, Kế hoạch cấp dầu Diezel (Lít) | `EquipmentFleetScheduler`, định mức Vincons / TT 37/2026, tính ca/ngày và nhiên liệu chi tiết |
 | **Quản lý Chất lượng**| Phiếu thí nghiệm nén R7/R28, kéo thép, PDA | 22 Biên bản nghiệm thu KCS in ấn A4 chuẩn | Excel A4 Form (`MAU_BIEN_BAN_KCS`, thay thế hoàn toàn Word) |
 | **Biện pháp Thi công** | Yêu cầu KTXD, điều kiện địa chất, thủy văn | Thuyết minh BPTC 8 chương TCVN | Markdown mẫu viết sẵn (Cầu Km19+529.080) — **RAG Hugging Face chưa triển khai**, xem lộ trình |
 | **Đối soát Hiện trường**| Nhật ký thi công hàng ngày `DailySiteLog` | Báo cáo chênh lệch tiến độ & Chi phí phát sinh | As-Built Closed Loop, tự động cập nhật mạng CPM |
@@ -151,7 +151,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
   ├── Bóc tách hình học Takeoff 100% công thức động (0 số chết)
   ├── Cắt thép 1D Cutting Stock: tối ưu số cây theo từng Ø + mác thép, có cận dưới chứng minh
   ├── Bảng phân tích định mức & Tổng hợp vật tư toàn cầu BOM
-  ├── Dự toán G_xd Thông tư 11/2021 & Thanh toán kỳ Phụ lục 03a
+  ├── Dự toán G_xd Thông tư 36/2026 & Thanh toán kỳ Phụ lục 03a
   └── Bộ 14 Sheet Master Excel đạt 100/100 điểm Audit Verifier
 
   Phase 2 (v2.x) [100% HOÀN THÀNH - State Graph v3.0]
@@ -237,10 +237,10 @@ python run_state_graph.py --phase schedule --schedule "TienDo.xml" --non-working
 python run_state_graph.py --phase qs --qs "Du_toan.xlsx" --qs-out du_toan_gxd.xlsx
 ```
 > - Đọc bảng QS / BOQ (Excel, CSV hoặc JSON) theo các cột *STT*, *Mã hiệu*, *Nội dung công tác*, *ĐVT*, *Khối lượng*, *Đơn giá* (hoặc *Đơn giá vật liệu / nhân công / máy*), *Thành tiền*.
-> - `T = Σ khối lượng × đơn giá`. `GT = T × (chi phí chung + nhà tạm + công việc không xác định KL)`, `TL = (T + GT) × tỷ lệ`, `G = T + GT + TL`, `G_XD = G + VAT` (TT 11/2021/TT-BXD).
+> - `T = Σ khối lượng × đơn giá`. `GT = T × (chi phí chung + nhà tạm + công việc không xác định KL)`, `TL = (T + GT) × tỷ lệ`, `G = T + GT + TL`, `G_XD = G + VAT` (TT 36/2026/TT-BXD).
 > - **Tỷ lệ** được đọc từ sheet tổng hợp G_XD trong file, hoặc truyền bằng `--rate-chung --rate-nha-tam --rate-kxd --rate-tl --vat` (đơn vị %).
 
-#### a4. Lập Mẫu 03a — giá trị khối lượng hoàn thành đề nghị thanh toán (NĐ 99/2021):
+#### a4. Lập Mẫu 03a — giá trị khối lượng hoàn thành đề nghị thanh toán (NĐ 254/2025):
 ```powershell
 python run_state_graph.py --phase payment --qs "Du_toan.xlsx" --progress "KL_ky_01.xlsx" --price-basis direct --advance-recovery-pct 20 --retention-pct 5 --period 01 --payment-out Mau_03a_ky01.xlsx
 ```
@@ -265,7 +265,7 @@ python run_state_graph.py --check-inputs --bbs "BBS.xlsx" --qs "Du_toan.xlsx" --
 ```powershell
 python run_state_graph.py --phase fleet --fleet-out ca_xe_ca_may.xlsx --shifts 2
 ```
-> - Tự động bóc tách ca máy từ khối lượng công tác và tiến độ CPM theo định mức ca máy Vincons / Thông tư 13/2021/TT-BXD.
+> - Tự động bóc tách ca máy từ khối lượng công tác và tiến độ CPM theo định mức ca máy Vincons / Thông tư 37/2026/TT-BXD.
 > - Xuất bảng tiến độ ca máy chi tiết theo ngày/tuần, biểu đồ phụ tải máy móc và bảng dự trù cấp phát nhiên liệu dầu Diezel (Lít) theo từng ca làm việc.
 
 #### a6. Đóng gói & Phân quyền Công trường Hub & Spoke (5 Gói vệ tinh):
@@ -409,14 +409,14 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 │
 ├── tools/                        # ⚙️ CÔNG CỤ TÍNH TOÁN XÁC ĐỊNH (PURE PYTHON, ZERO LLM)
 │   ├── cutting_stock_solver.py   # Solver cắt thép 1D (Column Generation GLOP + CP-SAT, tách nhóm Ø + mác)
-│   ├── equipment_fleet_scheduler.py # Động cơ lập tiến độ Ca xe, Ca máy & Kế hoạch Dầu Diezel Vincons/TT13
+│   ├── equipment_fleet_scheduler.py # Động cơ lập tiến độ Ca xe, Ca máy & Kế hoạch Dầu Diezel Vincons/TT 37/2026
 │   ├── package_dispatcher.py     # Bộ điều phối đóng gói phân quyền Hub & Spoke 5 gói vệ tinh công trường
 │   ├── bbs_loader.py             # Đọc BBS thật từ Excel / CSV / JSON, nhận diện mối nối
 │   ├── rebarcut_export.py        # Xuất kết quả cắt thép theo bố cục RebarCut Pro Excel (.xlsx)
 │   ├── schedule_loader.py        # Đọc tiến độ thật từ MS Project XML / Excel / CSV, đối chiếu ngày logic
-│   ├── qs_loader.py              # Đọc bảng QS thật, tỷ lệ chi phí, tính G_XD TT 11/2021 + đối chiếu
+│   ├── qs_loader.py              # Đọc bảng QS thật, tỷ lệ chi phí, tính G_XD TT 36/2026 + đối chiếu
 │   ├── qs_export.py              # Xuất bảng tổng hợp G_XD + chi tiết công tác (.xlsx)
-│   ├── payment.py                # Mẫu 03a NĐ 99/2021: KL thực hiện × đơn giá HĐ, tạm ứng, giữ lại
+│   ├── payment.py                # Mẫu 03a NĐ 254/2025: KL thực hiện × đơn giá HĐ, tạm ứng, giữ lại
 │   ├── lab_qaqc.py               # Xử lý kết quả thí nghiệm nén mẫu R7/R28 & liên kết QLCL
 │   ├── excel_eval.py             # Tính công thức Excel chưa có kết quả lưu sẵn (Pure Python)
 │   ├── cpm_calculator.py         # Bộ tính CPM: FS/SS/FF/SF + lag, lịch nghỉ, Forward/Backward Pass
@@ -463,7 +463,7 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 │   │   ├── 260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx
 │   │   └── 260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml
 │   ├── build_14_micro_standalone_dossiers.py     # Generator 14 bộ hồ sơ vi mô chuyên sâu độc lập
-│   ├── apply_khai_hoang_2_full.py                # Áp giá TT 12, TT 11 và liên kết động 14 Sheet
+│   ├── apply_khai_hoang_2_full.py                # Áp giá TT 38/2026, TT 36/2026 và liên kết động 14 Sheet
 │   ├── build_khai_hoang_2_dossier.py             # Dựng hồ sơ từ dữ liệu gốc 166 dòng BBS
 │   ├── run_pipeline.py                           # Runner kiểm tra toàn diện 14 Sheet Master
 │   └── run_cad_diff_demo.py                      # Demo so sánh bản vẽ CAD Rev00 vs Rev01

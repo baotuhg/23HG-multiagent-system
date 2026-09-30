@@ -4,14 +4,14 @@ MÔ-ĐUN MỞ RỘNG: BỔ SUNG 2 SHEET PHÂN TÍCH ĐỊNH MỨC & TỔNG HỢP
 VÀO FILE EXCEL MASTER CẦU KM19+529.080
 
 1. Sheet PHAN_TICH_VAT_TU_WBS:
-   - Phân tích chi tiết vật liệu cấu thành từng hạng mục WBS theo Thông tư 12/2021/TT-BXD
+   - Phân tích chi tiết vật liệu cấu thành từng hạng mục WBS theo Thông tư 38/2026/TT-BXD
    - Chi tiết sắt thép từng loại Ø (Ø10, Ø12, Ø14, Ø16, Ø18, Ø20, Ø22, Ø25, Ø28, Ø32), cáp DƯL, xi măng, cát, đá, nước, phụ gia...
    - 100% công thức động trỏ sang Sheet QS_DIEN_GIAI_CHI_TIET
 
 2. Sheet TONG_HOP_VAT_TU_TOAN_BO:
    - Tổng hợp toàn bộ nhu cầu vật liệu theo 4 nhóm lớn (Sắt thép, Bê tông & Khoáng, Phụ gia hóa chất, Phụ kiện hoàn thiện)
    - Sử dụng hàm =SUMIF trỏ sang Sheet Phân tích vật tư
-   - Tính khối lượng cung ứng có hao hụt thi công theo TT 12/2021
+   - Tính khối lượng cung ứng có hao hụt thi công theo TT 38/2026
    - Phân bổ kế hoạch cung ứng theo 4 giai đoạn thi công (Procurement Schedule)
 """
 
@@ -63,7 +63,7 @@ def add_material_sheets(excel_path):
     ws_wbs["B2"].font = font_title
     ws_wbs["B3"] = "BẢNG PHÂN TÍCH ĐỊNH MỨC HAO PHÍ VẬT LIỆU CHO TỪNG HẠNG MỤC CÔNG TÁC WBS"
     ws_wbs["B3"].font = font_section
-    ws_wbs["B4"] = "Chi tiết sắt thép từng loại đường kính Ø, xi măng, cát, đá, cáp DƯL (Theo Định mức Thông tư 12/2021/TT-BXD)"
+    ws_wbs["B4"] = "Chi tiết sắt thép từng loại đường kính Ø, xi măng, cát, đá, cáp DƯL (Theo Định mức Thông tư 38/2026/TT-BXD)"
     ws_wbs["B4"].font = font_subtitle
 
     headers_wbs = [
@@ -324,7 +324,7 @@ def add_material_sheets(excel_path):
 
     headers_bom = [
         "TT", "Tên chủng loại vật tư", "Tiêu chuẩn kỹ thuật", "ĐVT",
-        "Hao phí định mức lý thuyết", "Tỷ lệ hao hụt TT12 (%)", "Tổng nhu cầu cung ứng (BOM)",
+        "Hao phí định mức lý thuyết", "Tỷ lệ hao hụt TT 38/2026 (%)", "Tổng nhu cầu cung ứng (BOM)",
         "GĐ 1: Cọc nhồi", "GĐ 2: Mố & Trụ", "GĐ 3: Dầm & Mặt cầu", "GĐ 4: Hoàn thiện"
     ]
     for col_idx, h in enumerate(headers_bom, start=1):

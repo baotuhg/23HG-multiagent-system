@@ -2,8 +2,8 @@
 """AEC BoQ & Tender Engineering Tool adapted for Vietnamese Construction Standards.
 
 Conforms to:
-- Thông tư 11/2021/TT-BXD (Quản lý chi phí xây dựng: Chi phí trực tiếp T, Gián tiếp GT, Thu nhập tính trước TL, Thuế VAT).
-- Thông tư 12/2021/TT-BXD (Hệ thống Định mức dự toán xây dựng: AB, AC, AD, AE, AF, AG...).
+- Thông tư 36/2026/TT-BXD (Quản lý chi phí xây dựng: Chi phí trực tiếp T, Gián tiếp GT, Thu nhập tính trước TL, Thuế VAT).
+- Thông tư 38/2026/TT-BXD (Hệ thống Định mức dự toán xây dựng: AB, AC, AD, AE, AF, AG...).
 - GAEB DA XML (International / European BoQ exchange standard via pyGAEB).
 """
 import argparse
@@ -83,7 +83,7 @@ def inspect_vietnam_estimate(file_path: str, project_type_override: Optional[str
         summary, cost_items = calculate_vietnam_estimate(items, project_type=ptype, project_name=pname)
 
         print("=========================================================================================")
-        print("          BẢNG TỔNG HỢP DỰ TOÁN CHI PHÍ XÂY DỰNG (THEO THÔNG TƯ 11/2021/TT-BXD)          ")
+        print("          BẢNG TỔNG HỢP DỰ TOÁN CHI PHÍ XÂY DỰNG (THEO THÔNG TƯ 36/2026/TT-BXD)          ")
         print("=========================================================================================")
         print(f"Dự án: {summary.project_name}")
         print(f"Loại công trình: {PROJECT_RATES[summary.project_type]['name']}")
@@ -106,7 +106,7 @@ def inspect_vietnam_estimate(file_path: str, project_type_override: Optional[str
         print(f"{'G_XD':<8} | {'TỔNG CỘNG CHI PHÍ XÂY DỰNG SAU THUẾ':<40} | {'':<10} | {summary.tong_chi_phi_xay_dung_sau_thue:>15,f} VNĐ")
         print("=========================================================================================\n")
 
-        print("DANH SÁCH CHI TIẾT CÁC ĐẦU VIỆC (MÃ HIỆU THÔNG TƯ 12/2021/TT-BXD):")
+        print("DANH SÁCH CHI TIẾT CÁC ĐẦU VIỆC (MÃ HIỆU THÔNG TƯ 38/2026/TT-BXD):")
         print(f"{'STT':<4} | {'Mã ĐM':<10} | {'Tên công tác xây dựng':<38} | {'ĐVT':<6} | {'Khối lượng':<10} | {'Đơn giá tổng':<13} | {'Thành tiền (VNĐ)'}")
         print("-" * 105)
         for it in cost_items:
@@ -193,9 +193,9 @@ def main():
     parser = argparse.ArgumentParser(description="AEC BoQ & Construction Cost Tool for Vietnam")
     parser.add_argument("file", help="Đường dẫn file hồ sơ dự toán (JSON hoặc GAEB XML)")
     parser.add_argument("--type", choices=["GIAO_THONG", "DAN_DUNG", "HA_TANG_KY_THUAT", "NONG_NGHIEP_PTNT"],
-                        help="Loại công trình theo Thông tư 11/2021/TT-BXD", default=None)
+                        help="Loại công trình theo Thông tư 36/2026/TT-BXD", default=None)
     parser.add_argument("--compare", help="File dự toán thứ hai để so sánh phát sinh", default=None)
-    parser.add_argument("--excel", help="Xuất ra file Excel (.xlsx) chuẩn dự toán Thông tư 11", default=None)
+    parser.add_argument("--excel", help="Xuất ra file Excel (.xlsx) chuẩn dự toán Thông tư 36/2026", default=None)
     args = parser.parse_args()
 
     if args.compare:

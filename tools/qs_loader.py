@@ -16,7 +16,7 @@ Dòng công tác: có Mã hiệu hoặc STT, và có Đơn giá. Dòng bắt đ�
 diễn giải của công tác phía trên (chỉ dùng để đối chiếu khối lượng). Dòng chỉ có chữ là
 tiêu đề phần.
 
-Cách tính (TT 11/2021/TT-BXD):
+Cách tính (TT 36/2026/TT-BXD):
   T  = Σ khối lượng × đơn giá
   GT = C (chi phí chung) + LT (nhà tạm) + TT (công việc không xác định KL) = T × tỷ lệ
   TL = (T + GT) × tỷ lệ thu nhập chịu thuế tính trước

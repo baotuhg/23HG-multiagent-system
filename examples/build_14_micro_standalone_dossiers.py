@@ -345,7 +345,7 @@ def build_dossier_05():
     ws1.views.sheetView[0].showGridLines = True
     headers1 = ["STT", "Cấp bê tông", "Mác tương đương", "Xi măng PCB40 (kg)", "Cát vàng (m3)", "Đá dăm 1x2 (m3)", "Nước sạch (lít)", "Phụ gia dẻo hóa (lít)", "Vị trí áp dụng kết cấu"]
     title_block(ws1, "ĐỊNH MỨC CẤP PHỐI VẬT LIỆU CHO 1M3 BÊ TÔNG — CẦU KHAI HOANG 2",
-                "Căn cứ định mức dự toán Bộ Xây dựng Thông tư 12/2021/TT-BXD và TCVN 10306:2014", len(headers1))
+                "Căn cứ định mức dự toán Bộ Xây dựng Thông tư 38/2026/TT-BXD và TCVN 10306:2014", len(headers1))
     header_row(ws1, 5, headers1, [6, 15, 18, 20, 15, 16, 16, 20, 35])
     mixes = [
         (1, "C10", "M150", 215, 0.54, 0.88, 185, 0.0, "Bê tông lót móng bệ mố M1, M2"),
@@ -422,7 +422,7 @@ def build_dossier_06():
     ws1.views.sheetView[0].showGridLines = True
     headers1 = ["Mã WBS", "Nội dung công việc kết cấu", "Khối lượng", "ĐVT", "Xi măng (tấn)", "Cát vàng (m3)", "Đá 1x2 (m3)", "Thép tròn (kg)", "Ván khuôn (m2)", "Ghi chú phân tích"]
     title_block(ws1, "BẢNG PHÂN TÍCH NHU CẦU VẬT TƯ CHI TIẾT THEO WBS — CẦU KHAI HOANG 2",
-                "Tính toán định mức hao phí theo Thông tư 12/2021/TT-BXD và Cấp phối thiết kế", len(headers1))
+                "Tính toán định mức hao phí theo Thông tư 38/2026/TT-BXD và Cấp phối thiết kế", len(headers1))
     header_row(ws1, 5, headers1, [8, 32, 12, 6, 14, 14, 14, 16, 14, 30])
     wbs_mats = [
         ("2.3", "Bê tông đệm mố M1, M2 (C10)", 9.91, "m3", "=C6*0.215", "=C6*0.54", "=C6*0.88", 0, 0, "Xi măng PCB40, cát vàng, đá 1x2"),
@@ -535,14 +535,14 @@ def build_dossier_07():
     return dst
 
 def build_dossier_08():
-    print("[8/14] Xây dựng Dossier 08: Dự toán chi phí xây dựng G_XD (TT 11/2021 & TT 12/2021)...")
+    print("[8/14] Xây dựng Dossier 08: Dự toán chi phí xây dựng G_XD (TT 36/2026 & TT 38/2026)...")
     src = os.path.join(OLD_DIR, "02_BOQ_Khoi_Luong_Cau_Khai_Hoang_2.xlsx")
     dst = os.path.join(DIR_MICRO, "08_Du_Toan_GXD_Thong_Tu_11_2021.xlsx")
     shutil.copyfile(src, dst)
     return dst
 
 def build_dossier_09():
-    print("[9/14] Xây dựng Dossier 09: Thanh toán khối lượng Phụ lục 03.a Nghị định 99/2021...")
+    print("[9/14] Xây dựng Dossier 09: Thanh toán khối lượng Phụ lục 03.a Nghị định 254/2025...")
     src = os.path.join(OLD_DIR, "04_Thanh_Toan_03a_Cau_Khai_Hoang_2.xlsx")
     dst = os.path.join(DIR_MICRO, "09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx")
     shutil.copyfile(src, dst)

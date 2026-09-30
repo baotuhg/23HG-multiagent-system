@@ -188,7 +188,7 @@ class AECAuditVerifier:
         report_content = f"""# BÁO CÁO THẨM TRA & PHẢN BIỆN KỸ THUẬT ĐỘC LẬP (AEC AUDIT REPORT)
 **Tác tử thẩm tra:** `aec_audit_verifier` (Autonomous Red Teaming Engine)  
 **Tài liệu kiểm định:** `{os.path.basename(self.excel_path)}`  
-**Tiêu chuẩn kiểm định:** Nguyên tắc CẤM SỐ CHẾT, Thông tư 11/2021/TT-BXD, Nghị định 99/2021/NĐ-CP  
+**Tiêu chuẩn kiểm định:** Nguyên tắc CẤM SỐ CHẾT, Thông tư 36/2026/TT-BXD, Nghị định 254/2025/NĐ-CP  
 
 ---
 

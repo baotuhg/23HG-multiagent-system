@@ -10,8 +10,8 @@ flowchart TD
     subgraph "VĂN PHÒNG KỸ THUẬT SỐ HÓA (DIGITAL OFFICE)"
         VisionTakeoff["2. aec_vision_takeoff\n(VLM Qwen2.5-VL / Gemini Vision\nĐọc bản vẽ PDF/DWG & Đếm cấu kiện)"]
         RebarEng["3. aec_rebar_engineer\n(1D Cutting Stock Engine\nCắt thép 11.7m đề-xê < 1.5%)"]
-        MaterialEng["4. aec_material_estimator\n(BOM & Định mức TT 12/2021\nSắt thép từng Ø, Xi măng, Cát, Đá)"]
-        CostEng["5. aec_cost_engineer\n(QS & Dự toán G_XD TT 11, 12, 13\nCẤM 100% SỐ CHẾT)"]
+        MaterialEng["4. aec_material_estimator\n(BOM & Định mức TT 38/2026\nSắt thép từng Ø, Xi măng, Cát, Đá)"]
+        CostEng["5. aec_cost_engineer\n(QS & Dự toán G_XD TT 36, 37, 38/2026\nCẤM 100% SỐ CHẾT)"]
         Scheduler["6. aec_lead_scheduler\n(Tiến độ MS Project & CPM Engine\nĐịnh mức ngày công TT 12)"]
         QAQCEng["7. aec_qaqc_engineer\n(RAG Tiêu chuẩn TCVN & NĐ 207\n24 Biên bản nghiệm thu KCS)"]
     end
@@ -44,9 +44,9 @@ flowchart TD
 | **`aec_data_aggregator`** | **Trọng tài Hợp nhất & Trưởng ban Dữ liệu** | Data Fusion Engine + Cross-modal Diff | Đối chiếu chéo CAD vs Excel vs Markdown, phát hiện lệch pha dữ liệu, giải mã font TCVN3, đồng bộ Blackboard State chuẩn. |
 | **`aec_vision_takeoff`** | **Kỹ sư Thị giác Bản vẽ (Takeoff)** | **Qwen2.5-VL / Gemini Vision** + `PyMuPDF` + `pdfplumber` | "Mắt thần" đọc bản vẽ PDF/Ảnh/DWG, quét lưới trục, tự động đếm cột, dầm, cửa và trích xuất kích thước $L \times W \times H$. |
 | **`aec_rebar_engineer`** | **Kỹ sư Cốt thép Tối ưu** | Thuật toán Integer Linear Programming (1D Cutting Stock) | Tối ưu hóa cắt ghép thép thanh trên cây nguyên chuẩn **11.7m**, ép tỷ lệ đề-xê $< 1.5\%$, lập BBS chi tiết. |
-| **`aec_material_estimator`** | **Kỹ sư Định mức & Cấp phối Vật tư** | Engine Định mức BXD Thông tư 12/2021 + TCVN 4453 | Phân tích cấp phối $1\text{ m}^3$ bê tông, bóc tách vật liệu cấu thành từng hạng mục WBS, lập BOM toàn công trình. |
-| **`aec_cost_engineer`** | **Kỹ sư Trưởng Dự toán BoQ** | **Qwen 2.5 72B-Instruct** + RAG Định mức BXD | Lập dự toán $G_{XD}$ theo Thông tư 11, 12, 13/2021/TT-BXD, bảo đảm **100% công thức động Dài x Rộng x Cao x Số lượng x Hệ số**. |
-| **`aec_lead_scheduler`** | **Kỹ sư Trưởng Tiến độ** | Thuật toán đường găng CPM + MS Project XML Engine | Tra định mức nhân công TT 12, phân bổ tổ đội thợ, xác định đường găng và xuất tệp tiến độ Microsoft Project `.xml / .mpp`. |
+| **`aec_material_estimator`** | **Kỹ sư Định mức & Cấp phối Vật tư** | Engine Định mức BXD Thông tư 38/2026 + TCVN 4453 | Phân tích cấp phối $1\text{ m}^3$ bê tông, bóc tách vật liệu cấu thành từng hạng mục WBS, lập BOM toàn công trình. |
+| **`aec_cost_engineer`** | **Kỹ sư Trưởng Dự toán BoQ** | **Qwen 2.5 72B-Instruct** + RAG Định mức BXD | Lập dự toán $G_{XD}$ theo Thông tư 36, 37, 38/2026/TT-BXD, bảo đảm **100% công thức động Dài x Rộng x Cao x Số lượng x Hệ số**. |
+| **`aec_lead_scheduler`** | **Kỹ sư Trưởng Tiến độ** | Thuật toán đường găng CPM + MS Project XML Engine | Tra định mức nhân công TT 38/2026, phân bổ tổ đội thợ, xác định đường găng và xuất tệp tiến độ Microsoft Project `.xml / .mpp`. |
 | **`aec_qaqc_engineer`** | **Kỹ sư Quản lý Chất lượng KCS** | RAG Tiêu chuẩn TCVN + Luật XD 135 & NĐ 207 | Lập Ma trận Tần suất thí nghiệm kiểm soát chất lượng, danh mục 22 biên bản KCS, kiểm tra logic chéo ngày tháng. |
 | **`aec_site_inspector`** | **Kỹ sư Giám sát Hiện trường & HSE** | **YOLOv11** (`ppe-detection`, `concrete-crack-detection`) | Soi ảnh camera/drone hiện trường: phạt vi phạm an toàn lao động (mũ, áo, dây an toàn) và phát hiện nứt/rỗ bê tông. |
 

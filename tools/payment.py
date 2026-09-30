@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-PAYMENT 03A — Bảng xác định giá trị khối lượng công việc hoàn thành (Mẫu số 03a, NĐ 99/2021/NĐ-CP)
+PAYMENT 03A — Bảng xác định giá trị khối lượng công việc hoàn thành (Mẫu số 03a, NĐ 254/2025/NĐ-CP)
 
 Pure Python, Zero LLM.
   Hợp đồng  : công tác, khối lượng, đơn giá từ bảng QS (tools/qs_loader)
@@ -311,7 +311,7 @@ def write_payment_workbook(path: str, res: PaymentResult, project_name: str = ""
     ws = wb.active
     ws.title = "PHU_LUC_03A"
     ws["A1"] = "BẢNG XÁC ĐỊNH GIÁ TRỊ KHỐI LƯỢNG CÔNG VIỆC HOÀN THÀNH ĐỀ NGHỊ THANH TOÁN"
-    ws["A2"] = f"Mẫu số 03a — Nghị định 99/2021/NĐ-CP. Kỳ thanh toán: {res.period or '...'}. {project_name}"
+    ws["A2"] = f"Mẫu số 03a — Nghị định 254/2025/NĐ-CP. Kỳ thanh toán: {res.period or '...'}. {project_name}"
     ws["A3"] = ("Đơn giá hợp đồng trước thuế = đơn giá bảng QS × " + f"{res.price_factor:.6f} (hệ số G/T)"
                 if res.price_basis == "direct" else "Đơn giá hợp đồng trước thuế = đơn giá bảng QS")
     headers = ["STT", "Mã hiệu", "Nội dung công việc theo hợp đồng", "Đơn vị tính",

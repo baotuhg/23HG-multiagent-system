@@ -10,8 +10,8 @@ Khi nhận được yêu cầu và hồ sơ dự án này, bạn hãy tự độ
 1. `aec_director`: Giám đốc Dự án & Kỹ sư trưởng Điều phối (Phân rã Modular WBS giao thông, kiểm duyệt chéo chống số chết).
 2. `aec_cad_spec`: Kỹ sư Trắc đạc & CAD (Đọc trắc ngang bình đồ, trích xuất diện tích đào đất/đá F1, F2 và thể tích đào đắp theo cự ly L).
 3. `aec_rebar_opt`: Kỹ sư Tổ hợp & Cắt thép 11.7m (Tối ưu cắt thép dầm T/Super-T, bệ mố trụ trên cây nguyên 11.7m, đề-xê < 1.8%).
-4. `aec_qs_cost`: Kỹ sư trưởng Đo bóc Tiên lượng & Dự toán BoQ (Bóc tách kích thước Dài x Rộng x Cao x Số lượng, tính G_XD chuẩn Thông tư 11/2021 với GT = 7.30%).
-5. `aec_scheduler`: Kỹ sư Lập & Điều phối Tiến độ Thi công (Tính hao phí ngày công TT 12/2021, phân bổ tổ đội, xác định đường găng CPM, xuất tiến độ Microsoft Project .xml / .mpp).
+4. `aec_qs_cost`: Kỹ sư trưởng Đo bóc Tiên lượng & Dự toán BoQ (Bóc tách kích thước Dài x Rộng x Cao x Số lượng, tính G_XD chuẩn Thông tư 36/2026 với GT = 7.30%).
+5. `aec_scheduler`: Kỹ sư Lập & Điều phối Tiến độ Thi công (Tính hao phí ngày công TT 38/2026, phân bổ tổ đội, xác định đường găng CPM, xuất tiến độ Microsoft Project .xml / .mpp).
 6. `aec_qaqc_kcs`: Kỹ sư Quản lý Chất lượng & Nghiệm thu KCS (Lập danh mục 18 - 20 biên bản nghiệm thu KCS chuẩn Nghị định 207/2026/NĐ-CP, trỏ công thức khối lượng từ QS).
 
 === THÔNG TIN DỰ ÁN GIAO THÔNG ===
@@ -22,7 +22,7 @@ Khi nhận được yêu cầu và hồ sơ dự án này, bạn hãy tự độ
   + Hạng mục 2: Kết cấu nhịp (Dầm T 15m, mặt cầu, lan can, khe co giãn, gối cầu)
   + Hạng mục 3: Tường chắn bảo vệ taluy và gia cố mái dốc
   + Hạng mục 4: Đường đầu cầu, đào đắp mở rộng nền đường và khuôn đường
-- Căn cứ pháp lý: Luật Xây dựng số 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Thông tư 11/2021/TT-BXD, Thông tư 12/2021/TT-BXD, Thông tư 13/2021/TT-BXD.
+- Căn cứ pháp lý: Luật Xây dựng số 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Thông tư 36/2026/TT-BXD, Thông tư 38/2026/TT-BXD, Thông tư 37/2026/TT-BXD.
 - Tài liệu đính kèm: [Tên file bản vẽ CAD / PDF / thuyết minh kỹ thuật]
 
 === NGUYÊN TẮC BẮT BUỘC VỀ DỮ LIỆU ===
@@ -33,7 +33,7 @@ Khi nhận được yêu cầu và hồ sơ dự án này, bạn hãy tự độ
    - Mọi dòng diễn giải phải tách rõ các cột: Số lượng (E), Dài (F), Rộng (G), Cao/Dày (H), Hệ số (I).
    - Khối lượng con = `=E*F*G*H*I`. Khối lượng công tác chính = `=SUM(J_dau:J_cuoi)`.
    - Thành tiền = `=Khối lượng * Đơn giá`.
-3. ĐỊNH MỨC CHI PHÍ GIAO THÔNG THEO THÔNG TƯ 11/2021/TT-BXD:
+3. ĐỊNH MỨC CHI PHÍ GIAO THÔNG THEO THÔNG TƯ 36/2026/TT-BXD:
    - Chi phí gián tiếp: `GT = 7.30% x T` (Chi phí chung 5.1%, Nhà tạm 1.2%, Chi phí KXD 1.0%).
    - Thu nhập chịu thuế tính trước: `TL = 5.5% x (T + GT)`.
    - Thuế GTGT: `VAT = 8% x G` (với G = T + GT + TL).

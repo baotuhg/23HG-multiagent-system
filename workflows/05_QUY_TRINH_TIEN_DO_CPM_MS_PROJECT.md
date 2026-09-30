@@ -1,10 +1,10 @@
-# QUY TRÌNH 05: TIẾN ĐỘ THI CÔNG WBS, ĐỊNH MỨC TT 12 & ĐƯỜNG GĂNG CPM
+# QUY TRÌNH 05: TIẾN ĐỘ THI CÔNG WBS, ĐỊNH MỨC TT 38/2026 & ĐƯỜNG GĂNG CPM
 ## XUẤT TỆP TIẾN ĐỘ MICROSOFT PROJECT (.XML TƯƠNG THÍCH 100% VỚI .MPP)
 
 ---
 
 ### I. NGUYÊN TẮC CỐT LÕI
-1. **Tính ngày công khoa học:** Không gán bừa thời gian thi công mà phải căn cứ **Hao phí định mức nhân công theo Thông tư 12/2021/TT-BXD**:
+1. **Tính ngày công khoa học:** Không gán bừa thời gian thi công mà phải căn cứ **Hao phí định mức nhân công theo Thông tư 38/2026/TT-BXD**:
    $$\text{Tổng ngày công (công)} = \text{Khối lượng} \times \text{Định mức nhân công (công/ĐVT)}$$
 2. **Thời gian thi công (Duration):**
    $$\text{Thời gian thi công (ngày)} = \text{ROUNDUP}\left(\frac{\text{Tổng ngày công}}{\text{Quân số tổ đội (người/ngày)}}, 0\right)$$

@@ -16,10 +16,10 @@ HỆ THỐNG XUẤT 2 GÓI HỒ SƠ DỰ ÁN CẦU KM19+529.080 (CAO TỐC TUYÊ
      03_QS_Dien_Giai_Chi_Tiet_Takeoff.xlsx (101 dòng hình học & chi tiết dầm Super-T)
      04_Thong_Ke_Thep_Chi_Tiet_BBS_396_Dong.xlsx (396 dòng cốt thép & bảng phân nhóm Ø)
      05_Cap_Phoi_1m3_Va_Tan_Suat_Thi_Nghiem.xlsx (Cấp phối C10-C50 & kế hoạch 809 mẫu QA/QC)
-     06_Phan_Tich_Vat_Tu_Chi_Tiet_WBS.xlsx (140 dòng phân tích vật tư định mức TT12)
+     06_Phan_Tich_Vat_Tu_Chi_Tiet_WBS.xlsx (140 dòng phân tích vật tư định mức TT 38/2026)
      07_Tong_Hop_Nhu_Cau_Vat_Tu_BOM_4_Giai_Doan.xlsx (BOM toàn bộ & kế hoạch cung ứng 4 phase)
      08_Du_Toan_GXD_Thong_Tu_11_2021.xlsx (Dự toán chi phí xây dựng G_XD chuẩn TT11)
-     09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx (Thanh toán Kỳ 01 theo NĐ 99/2021)
+     09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx (Thanh toán Kỳ 01 theo NĐ 254/2025)
      10_Tien_Do_Thi_Cong_CPM_Gantt_Chart.xlsx (36 công tác WBS, CPM, Gantt, kèm .xml, .mpp, .csv)
      11_Danh_Muc_KCS_22_Bien_Ban_Nghiem_Thu.xlsx (22 biên bản nghiệm thu KCS, kèm .docx)
      12_Mau_A4_Bien_Ban_Nghiem_Thu_Cong_Viec.xlsx (Mẫu in A4 tự động tra cứu, nhúng data local)
@@ -508,7 +508,7 @@ def build_dossier_07(wb_master, dest_dir):
     return dst_xlsx
 
 def build_dossier_08(wb_master, dest_dir):
-    print("  [08/14] Xây dựng Dossier 08: Dự toán chi phí xây dựng G_XD (Thông tư 11/2021/TT-BXD)...")
+    print("  [08/14] Xây dựng Dossier 08: Dự toán chi phí xây dựng G_XD (Thông tư 36/2026/TT-BXD)...")
     dst_xlsx = os.path.join(dest_dir, "08_Du_Toan_GXD_Thong_Tu_11_2021.xlsx")
     wb = openpyxl.Workbook()
     
@@ -524,7 +524,7 @@ def build_dossier_08(wb_master, dest_dir):
     return dst_xlsx
 
 def build_dossier_09(wb_master, dest_dir):
-    print("  [09/14] Xây dựng Dossier 09: Bảng xác định giá trị thanh toán Phụ lục 03.a (NĐ 99/2021)...")
+    print("  [09/14] Xây dựng Dossier 09: Bảng xác định giá trị thanh toán Phụ lục 03.a (NĐ 254/2025)...")
     dst_xlsx = os.path.join(dest_dir, "09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx")
     wb = openpyxl.Workbook()
     
