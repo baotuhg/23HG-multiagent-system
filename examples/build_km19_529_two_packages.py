@@ -139,6 +139,63 @@ def clone_worksheet(src, dst):
     for merge_range in src.merged_cells.ranges:
         dst.merge_cells(str(merge_range))
 
+def extract_master_eval_cache(master_path):
+    """Trích xuất ma trận giá trị tính toán sạch 100% từ Microsoft Excel COM Engine."""
+    import win32com.client
+    excel = win32com.client.DispatchEx('Excel.Application')
+    excel.Visible = False
+    excel.DisplayAlerts = False
+    try:
+        wb = excel.Workbooks.Open(os.path.abspath(master_path), UpdateLinks=0, ReadOnly=True)
+        excel.CalculateFullRebuild()
+        cache = {}
+        for ws in wb.Worksheets:
+            rng = ws.UsedRange
+            val = rng.Value
+            if not isinstance(val, tuple):
+                val = ((val,),)
+            elif val and not isinstance(val[0], tuple):
+                val = (val,)
+            cache[ws.Name] = {
+                'row_start': rng.Row,
+                'col_start': rng.Column,
+                'values': val
+            }
+        wb.Close(False)
+        return cache
+    finally:
+        excel.Quit()
+
+def sanitize_workbook_formulas(wb, eval_cache):
+    """
+    Tự động rà soát và khử toàn bộ lỗi liên kết chéo (#REF!, #VALUE!) trong các tệp vi mô độc lập:
+    - Nếu công thức tham chiếu đến một worksheet KHÔNG TỒN TẠI trong file này: Thay thế bằng giá trị số học đã tính toán chính xác từ Master.
+    - Nếu công thức nội bộ (cùng sheet hoặc trỏ sang sheet CÓ MẶT trong file này): Giữ nguyên 100% công thức sống.
+    """
+    import re
+    available_sheets = set(wb.sheetnames)
+    for sname in wb.sheetnames:
+        ws = wb[sname]
+        cache_s = eval_cache.get(sname)
+        if not cache_s:
+            continue
+        values_matrix = cache_s['values']
+        for row in ws.iter_rows():
+            for cell in row:
+                val = cell.value
+                if isinstance(val, str) and val.startswith("="):
+                    raw_refs = re.findall(r"(?:'([^']+)'|([A-Za-z0-9_]+))!", val)
+                    referenced_sheets = set(r[0] if r[0] else r[1] for r in raw_refs)
+                    missing = referenced_sheets - available_sheets
+                    if missing:
+                        r_idx = cell.row - cache_s['row_start']
+                        c_idx = cell.column - cache_s['col_start']
+                        if 0 <= r_idx < len(values_matrix):
+                            row_vals = values_matrix[r_idx]
+                            if 0 <= c_idx < len(row_vals):
+                                eval_val = row_vals[c_idx]
+                                if eval_val is not None:
+                                    cell.value = eval_val
 
 # =============================================================================
 # XÂY DỰNG GÓI 01: VĨ MÔ / MASTER ĐIỀU HÀNH
@@ -204,7 +261,7 @@ def build_dossier_01(wb_master, dest_dir):
                 writer.writerow([bar_name, a["diameter_mm"], mark, length / 1000.0, a["waste_mm"] / 1000.0, 11.7])
     return dst_xlsx
 
-def build_dossier_02(wb_master, dest_dir):
+def build_dossier_02(wb_master, eval_cache, dest_dir):
     print("  [02/14] Xây dựng Dossier 02: Bóc tách khối lượng đào đắp trình diễn (M1, M2, T1, T2)...")
     dst_xlsx = os.path.join(dest_dir, "02_Khoi_Luong_Dao_Dap_Trinh_Dien.xlsx")
     wb = openpyxl.Workbook()
@@ -274,10 +331,11 @@ def build_dossier_02(wb_master, dest_dir):
     put(ws3, r, 2, "TỔNG CỘNG THỂ TÍCH ĐẤT ĐẮP", font=FONT_BOLD)
     put(ws3, r, 8, f"=SUM(H6:H{r-1})", "#,##0.000", font=FONT_BOLD, border=DOUBLE_BOTTOM_BORDER)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     return dst_xlsx
 
-def build_dossier_03(wb_master, dest_dir):
+def build_dossier_03(wb_master, eval_cache, dest_dir):
     print("  [03/14] Xây dựng Dossier 03: QS Tiên lượng hình học chi tiết Takeoff (101 dòng)...")
     dst_xlsx = os.path.join(dest_dir, "03_QS_Dien_Giai_Chi_Tiet_Takeoff.xlsx")
     wb = openpyxl.Workbook()
@@ -330,10 +388,11 @@ def build_dossier_03(wb_master, dest_dir):
     put(ws4, r, 8, f"=SUM(H6:H{r-1})", "#,##0.00", font=FONT_BOLD)
     put(ws4, r, 9, f"=SUM(I6:I{r-1})", "#,##0.0", font=FONT_BOLD, border=DOUBLE_BOTTOM_BORDER)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     return dst_xlsx
 
-def build_dossier_04(wb_master, dest_dir):
+def build_dossier_04(wb_master, eval_cache, dest_dir):
     print("  [04/14] Xây dựng Dossier 04: Thống kê cốt thép chi tiết BBS (396 dòng cốt thép)...")
     dst_xlsx = os.path.join(dest_dir, "04_Thong_Ke_Thep_Chi_Tiet_BBS_396_Dong.xlsx")
     wb = openpyxl.Workbook()
@@ -380,10 +439,11 @@ def build_dossier_04(wb_master, dest_dir):
     put(ws2, r, 7, f"=SUM(G6:G{r-1})", "#,##0.000", font=FONT_BOLD, border=DOUBLE_BOTTOM_BORDER)
     put(ws2, r, 8, f"=SUM(H6:H{r-1})", "0.00%", font=FONT_BOLD, align=ALIGN_CENTER)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     return dst_xlsx
 
-def build_dossier_05(wb_master, dest_dir):
+def build_dossier_05(wb_master, eval_cache, dest_dir):
     print("  [05/14] Xây dựng Dossier 05: Cấp phối 1m3 & Kế hoạch tần suất thí nghiệm (809 mẫu QA/QC)...")
     dst_xlsx = os.path.join(dest_dir, "05_Cap_Phoi_1m3_Va_Tan_Suat_Thi_Nghiem.xlsx")
     wb = openpyxl.Workbook()
@@ -400,10 +460,11 @@ def build_dossier_05(wb_master, dest_dir):
     ws3 = wb.create_sheet(title="THONG_KE_THEP_CHI_TIET")
     clone_worksheet(wb_master["THONG_KE_THEP_CHI_TIET"], ws3)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     return dst_xlsx
 
-def build_dossier_06(wb_master, dest_dir):
+def build_dossier_06(wb_master, eval_cache, dest_dir):
     print("  [06/14] Xây dựng Dossier 06: Phân tích vật tư chi tiết WBS (140 dòng phân tích)...")
     dst_xlsx = os.path.join(dest_dir, "06_Phan_Tich_Vat_Tu_Chi_Tiet_WBS.xlsx")
     wb = openpyxl.Workbook()
@@ -416,10 +477,11 @@ def build_dossier_06(wb_master, dest_dir):
     ws2 = wb.create_sheet(title="QS_DIEN_GIAI_CHI_TIET")
     clone_worksheet(wb_master["QS_DIEN_GIAI_CHI_TIET"], ws2)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     return dst_xlsx
 
-def build_dossier_07(wb_master, dest_dir):
+def build_dossier_07(wb_master, eval_cache, dest_dir):
     print("  [07/14] Xây dựng Dossier 07: Tổng hợp nhu cầu vật tư BOM & Kế hoạch cung ứng 4 giai đoạn...")
     dst_xlsx = os.path.join(dest_dir, "07_Tong_Hop_Nhu_Cau_Vat_Tu_BOM_4_Giai_Doan.xlsx")
     wb = openpyxl.Workbook()
@@ -464,10 +526,11 @@ def build_dossier_07(wb_master, dest_dir):
         put(ws3, r, 9, p[8])
         r += 1
         
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     return dst_xlsx
 
-def build_dossier_08(wb_master, dest_dir):
+def build_dossier_08(wb_master, eval_cache, dest_dir):
     print("  [08/14] Xây dựng Dossier 08: Dự toán chi phí xây dựng G_XD (Thông tư 36/2026/TT-BXD)...")
     dst_xlsx = os.path.join(dest_dir, "08_Du_Toan_GXD_Thong_Tu_11_2021.xlsx")
     wb = openpyxl.Workbook()
@@ -480,10 +543,11 @@ def build_dossier_08(wb_master, dest_dir):
     ws2 = wb.create_sheet(title="QS_DIEN_GIAI_CHI_TIET")
     clone_worksheet(wb_master["QS_DIEN_GIAI_CHI_TIET"], ws2)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     return dst_xlsx
 
-def build_dossier_09(wb_master, dest_dir):
+def build_dossier_09(wb_master, eval_cache, dest_dir):
     print("  [09/14] Xây dựng Dossier 09: Bảng xác định giá trị thanh toán Phụ lục 03.a (NĐ 254/2025)...")
     dst_xlsx = os.path.join(dest_dir, "09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx")
     wb = openpyxl.Workbook()
@@ -496,10 +560,11 @@ def build_dossier_09(wb_master, dest_dir):
     ws2 = wb.create_sheet(title="QS_DIEN_GIAI_CHI_TIET")
     clone_worksheet(wb_master["QS_DIEN_GIAI_CHI_TIET"], ws2)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     return dst_xlsx
 
-def build_dossier_10(wb_master, dest_dir):
+def build_dossier_10(wb_master, eval_cache, dest_dir):
     print("  [10/14] Xây dựng Dossier 10: Tiến độ thi công CPM & Biểu đồ Gantt (36 WBS, XML, MPP, CSV)...")
     dst_xlsx = os.path.join(dest_dir, "10_Tien_Do_Thi_Cong_CPM_Gantt_Chart.xlsx")
     wb = openpyxl.Workbook()
@@ -516,6 +581,7 @@ def build_dossier_10(wb_master, dest_dir):
     ws3 = wb.create_sheet(title="KHOI_LUONG_DAO_DAP")
     clone_worksheet(wb_master["KHOI_LUONG_DAO_DAP"], ws3)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     
     # Sao chép các file vệ tinh XML & MPP
@@ -542,7 +608,7 @@ def build_dossier_10(wb_master, dest_dir):
                 
     return dst_xlsx
 
-def build_dossier_11(wb_master, dest_dir):
+def build_dossier_11(wb_master, eval_cache, dest_dir):
     print("  [11/14] Xây dựng Dossier 11: Danh mục KCS 22 Biên bản nghiệm thu (NĐ 207/2026/NĐ-CP, kèm Word .docx)...")
     dst_xlsx = os.path.join(dest_dir, "11_Danh_Muc_KCS_22_Bien_Ban_Nghiem_Thu.xlsx")
     wb = openpyxl.Workbook()
@@ -563,6 +629,7 @@ def build_dossier_11(wb_master, dest_dir):
     ws4 = wb.create_sheet(title="TIEN_DO_THI_CONG_WBS")
     clone_worksheet(wb_master["TIEN_DO_THI_CONG_WBS"], ws4)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     
     # Sao chép file Word 22 biên bản
@@ -572,7 +639,7 @@ def build_dossier_11(wb_master, dest_dir):
         
     return dst_xlsx
 
-def build_dossier_12(wb_master, dest_dir):
+def build_dossier_12(wb_master, eval_cache, dest_dir):
     print("  [12/14] Xây dựng Dossier 12: Mẫu in A4 Biên bản nghiệm thu công việc xây dựng...")
     dst_xlsx = os.path.join(dest_dir, "12_Mau_A4_Bien_Ban_Nghiem_Thu_Cong_Viec.xlsx")
     wb = openpyxl.Workbook()
@@ -585,10 +652,11 @@ def build_dossier_12(wb_master, dest_dir):
     ws2 = wb.create_sheet(title="HOSO_KCS_NGHIEM_THU")
     clone_worksheet(wb_master["HOSO_KCS_NGHIEM_THU"], ws2)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     return dst_xlsx
 
-def build_dossier_13(wb_master, dest_dir):
+def build_dossier_13(wb_master, eval_cache, dest_dir):
     print("  [13/14] Xây dựng Dossier 13: Mẫu in A4 Biên bản nghiệm thu vật liệu xây dựng đầu vào...")
     dst_xlsx = os.path.join(dest_dir, "13_Mau_A4_Bien_Ban_Nghiem_Thu_Vat_Lieu.xlsx")
     wb = openpyxl.Workbook()
@@ -601,10 +669,11 @@ def build_dossier_13(wb_master, dest_dir):
     ws2 = wb.create_sheet(title="CAP_PHOI_1M3_VA_TAN_SUAT")
     clone_worksheet(wb_master["CAP_PHOI_1M3_VA_TAN_SUAT"], ws2)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     return dst_xlsx
 
-def build_dossier_14(wb_master, dest_dir):
+def build_dossier_14(wb_master, eval_cache, dest_dir):
     print("  [14/14] Xây dựng Dossier 14: Mẫu in A4 Biên bản lấy mẫu & Nén mẫu bê tông R7, R28...")
     dst_xlsx = os.path.join(dest_dir, "14_Mau_A4_Bien_Ban_Lay_Mau_Thi_Nghiem_R7_R28.xlsx")
     wb = openpyxl.Workbook()
@@ -617,25 +686,26 @@ def build_dossier_14(wb_master, dest_dir):
     ws2 = wb.create_sheet(title="CAP_PHOI_1M3_VA_TAN_SUAT")
     clone_worksheet(wb_master["CAP_PHOI_1M3_VA_TAN_SUAT"], ws2)
     
+    sanitize_workbook_formulas(wb, eval_cache)
     wb.save(dst_xlsx)
     return dst_xlsx
 
-def build_package_micro(wb_master, dest_dir):
+def build_package_micro(wb_master, eval_cache, dest_dir):
     print(f"[*] Đang xuất toàn diện GÓI 02 (14 BỘ HỒ SƠ VI MÔ CHUYÊN SÂU) vào: {dest_dir}...")
     build_dossier_01(wb_master, dest_dir)
-    build_dossier_02(wb_master, dest_dir)
-    build_dossier_03(wb_master, dest_dir)
-    build_dossier_04(wb_master, dest_dir)
-    build_dossier_05(wb_master, dest_dir)
-    build_dossier_06(wb_master, dest_dir)
-    build_dossier_07(wb_master, dest_dir)
-    build_dossier_08(wb_master, dest_dir)
-    build_dossier_09(wb_master, dest_dir)
-    build_dossier_10(wb_master, dest_dir)
-    build_dossier_11(wb_master, dest_dir)
-    build_dossier_12(wb_master, dest_dir)
-    build_dossier_13(wb_master, dest_dir)
-    build_dossier_14(wb_master, dest_dir)
+    build_dossier_02(wb_master, eval_cache, dest_dir)
+    build_dossier_03(wb_master, eval_cache, dest_dir)
+    build_dossier_04(wb_master, eval_cache, dest_dir)
+    build_dossier_05(wb_master, eval_cache, dest_dir)
+    build_dossier_06(wb_master, eval_cache, dest_dir)
+    build_dossier_07(wb_master, eval_cache, dest_dir)
+    build_dossier_08(wb_master, eval_cache, dest_dir)
+    build_dossier_09(wb_master, eval_cache, dest_dir)
+    build_dossier_10(wb_master, eval_cache, dest_dir)
+    build_dossier_11(wb_master, eval_cache, dest_dir)
+    build_dossier_12(wb_master, eval_cache, dest_dir)
+    build_dossier_13(wb_master, eval_cache, dest_dir)
+    build_dossier_14(wb_master, eval_cache, dest_dir)
     print(f"-> GÓI 02 hoàn tất với đầy đủ 14 bộ hồ sơ chuyên sâu tại: {dest_dir}")
 
 def sync_folders(src_dir, dst_dir):
@@ -656,18 +726,22 @@ def main():
     # 1. Đóng gói GÓI 01 vào Parent
     build_package_macro(DIR_MACRO_P)
     
-    # 2. Mở file Master để nhân bản sang 14 bộ hồ sơ vi mô
+    # 2. Trích xuất ma trận giá trị tính toán sạch 100% từ Master bằng Excel COM
+    print(f"[*] Đang trích xuất ma trận giá trị tính toán từ Master: {MASTER_SOURCE}...")
+    eval_cache = extract_master_eval_cache(MASTER_SOURCE)
+    
+    # 3. Mở file Master để nhân bản sang 14 bộ hồ sơ vi mô
     print(f"[*] Đang tải Master Workbook từ {MASTER_SOURCE}...")
     wb_master = openpyxl.load_workbook(MASTER_SOURCE, data_only=False)
     
-    # 3. Đóng gói GÓI 02 vào Parent
-    build_package_micro(wb_master, DIR_MICRO_P)
+    # 4. Đóng gói GÓI 02 vào Parent với khử triệt để lỗi công thức
+    build_package_micro(wb_master, eval_cache, DIR_MICRO_P)
     
-    # 4. Đồng bộ sang thư mục con Nested để đảm bảo mở ở đâu cũng thấy
+    # 5. Đồng bộ sang thư mục con Nested để đảm bảo mở ở đâu cũng thấy
     sync_folders(DIR_MACRO_P, DIR_MACRO_N)
     sync_folders(DIR_MICRO_P, DIR_MICRO_N)
     
-    # 5. Đồng bộ Thư mục Hệ thống cắt thép độc lập 01_HE_THONG_CAT_THEP_REBARCUT
+    # 6. Đồng bộ Thư mục Hệ thống cắt thép độc lập 01_HE_THONG_CAT_THEP_REBARCUT
     src_rebar = os.path.join(TARGET_PARENT, "01_HE_THONG_CAT_THEP_REBARCUT")
     dst_rebar_n = os.path.join(TARGET_NESTED, "01_HE_THONG_CAT_THEP_REBARCUT")
     if os.path.exists(src_rebar):

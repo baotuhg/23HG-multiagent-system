@@ -80,27 +80,29 @@ def build_full_cross_linked_workbook(excel_path):
         print("[*] Đang liên kết số lượng thanh thép (cột D) từ BBS sang TO_HOP_CAT_THEP_11M7...")
         # Mỗi hàng: D = COUNTIFS dựa trên Đường kính (col C) và mô tả kết cấu (col B)
         # Dùng chuỗi wildcard theo tên cấu kiện để COUNTIFS tự động đếm từ BBS
-        ct_links = [
-            (6,  25, "*Cọc khoan nhồi*"),
-            (7,  16, "*đai tăng cường cọc*"),
-            (8,  10, "*đai xoắn*"),
-            (9,  32, "*đáy bệ móng*"),
-            (10, 20, "*phân bố bệ*"),
-            (11, 28, "*thân mố*"),
-            (12, 32, "*thân đặc trụ*"),
-            (13, 28, "*xà mũ trụ*"),
-            (14, 16, "*thường dầm Super-T*"),
-            (15, 14, "*thường dầm Super-T*"),
-            (16, 16, "*dầm ngang*"),
-            (17, 16, "*bản mặt cầu*"),
-            (18, 14, "*bản mặt cầu*"),
-            (19, 16, "*bản quá độ*"),
-        ]
-        for (r, dia, kw) in ct_links:
-            ws_ct.cell(r, 4, value=(
-                f'=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399,{dia},'
-                f'THONG_KE_THEP_CHI_TIET!$B$6:$B$399,"{kw}")'
-            ))
+        ct_formulas = {
+            6:  '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 25, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Cọc khoan nhồi*")',
+            7:  '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 16, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Cọc khoan nhồi*")',
+            8:  '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 10, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Cọc khoan nhồi*")',
+            9:  '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 32, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Trụ*") + COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 32, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Mố*")',
+            10: '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 20, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Trụ*") + COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 20, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Mố*")',
+            11: '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 28, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Mố*")',
+            12: '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 32, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Trụ*")',
+            13: '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 28, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Trụ*")',
+            14: '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 16, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Super-T*")',
+            15: '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 14, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Super-T*")',
+            16: '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 16, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Dầm ngang*")',
+            17: '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 16, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Bản*")',
+            18: '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 14, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Bản*")',
+            19: '=COUNTIFS(THONG_KE_THEP_CHI_TIET!$E$6:$E$399, 16, THONG_KE_THEP_CHI_TIET!$B$6:$B$399, "*Bản quá độ*")',
+        }
+        for r, form in ct_formulas.items():
+            ws_ct.cell(r, 4, value=form)
+            ws_ct.cell(r, 4).number_format = "#,##0"
+            ws_ct.cell(r, 12, value=f"=IF(I{r}=0, 0, (J{r}/I{r})*100)")
+            ws_ct.cell(r, 12).number_format = "0.00"
+        ws_ct.cell(20, 12, value="=IFERROR(AVERAGE(L6:L19), 0)")
+        ws_ct.cell(20, 12).number_format = "0.00"
 
     # =========================================================================
     # B. CẬP NHẬT SHEET CAP_PHOI_1M3_VA_TAN_SUAT: 100% CÔNG THỨC ĐỘNG NHÂN CHIA
@@ -187,6 +189,11 @@ def build_full_cross_linked_workbook(excel_path):
         for rf in range(24, 53):
             ws_mix.cell(rf, 9, value=f"=ROUNDUP(G{rf}/H{rf}, 0)")
 
+        # Ép kiểu cột A thành số nguyên Integer 1..29 để VLOOKUP hoạt động chính xác
+        for r in range(24, 53):
+            ws_mix.cell(r, 1, value=int(r - 23))
+            ws_mix.cell(r, 1).number_format = "0"
+
         # Dòng tổng số phép thử KCS tại hàng 53
         ws_mix.cell(53, 9, value="=SUM(I24:I52)")
 
@@ -197,6 +204,11 @@ def build_full_cross_linked_workbook(excel_path):
         ws_kcs = wb["HOSO_KCS_NGHIEM_THU"]
         print("[*] Đang liên kết khối lượng nghiệm thu từ QS và ngày nghiệm thu từ TIEN_DO sang HOSO_KCS_NGHIEM_THU...")
         
+        # Ép kiểu cột A thành số nguyên Integer 1..22 để VLOOKUP hoạt động chính xác
+        for r in range(6, 28):
+            ws_kcs.cell(r, 1, value=int(r - 5))
+            ws_kcs.cell(r, 1).number_format = "0"
+            
         # Tiêu đề Cột H
         ws_kcs.cell(5, 8, value="Ngày nghiệm thu hoàn thành")
         ws_kcs.cell(5, 8).font = Font(name="Times New Roman", size=10, bold=True)
@@ -246,6 +258,16 @@ def build_full_cross_linked_workbook(excel_path):
         for r in range(6, 28):
             ws_kcs.cell(r, 8).alignment = align_center
             ws_kcs.cell(r, 8).font = font_reg
+
+    # =========================================================================
+    # C2. CẬP NHẬT SHEET THANH_TOAN_KY_PHU_LUC_03A: SỬA LỖI #VALUE! HÀNG 32-34
+    # =========================================================================
+    if "THANH_TOAN_KY_PHU_LUC_03A" in wb.sheetnames:
+        ws_tt = wb["THANH_TOAN_KY_PHU_LUC_03A"]
+        ws_tt.cell(31, 6, value="=K28")
+        ws_tt.cell(32, 6, value="=F31*0.20")
+        ws_tt.cell(33, 6, value="=F31*0.05")
+        ws_tt.cell(34, 6, value="=F31-F32-F33")
 
     # =========================================================================
     # D. TẠO 3 SHEET MẪU BIÊN BẢN NGHIỆM THU EXCEL CHUẨN IN ẤN A4 (THAY THẾ WORD)
@@ -316,19 +338,19 @@ def build_full_cross_linked_workbook(excel_path):
     ws_bb["B18"] = "3. Địa điểm xây dựng:"
     ws_bb["C18"] = "Km19+529.080, Tỉnh Hà Giang"
     ws_bb["B19"] = "4. Đối tượng nghiệm thu:"
-    ws_bb["C19"] = '=VLOOKUP(C2, HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 3, FALSE)' # Trỏ tự động công việc
+    ws_bb["C19"] = '=IFERROR(VLOOKUP(C2, HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 3, FALSE), VLOOKUP(TEXT(C2, "@"), HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 3, FALSE))'
     ws_bb["C19"].font = Font(name="Times New Roman", size=11, bold=True, color="1F497D")
 
     ws_bb["B20"] = "5. Khối lượng nghiệm thu:"
-    ws_bb["C20"] = '=TEXT(VLOOKUP(C2, HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 4, FALSE), "#,##0.00") & " " & VLOOKUP(C2, HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 5, FALSE)'
+    ws_bb["C20"] = '=TEXT(IFERROR(VLOOKUP(C2, HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 4, FALSE), VLOOKUP(TEXT(C2, "@"), HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 4, FALSE)), "#,##0.00") & " " & IFERROR(VLOOKUP(C2, HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 5, FALSE), VLOOKUP(TEXT(C2, "@"), HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 5, FALSE))'
     ws_bb["C20"].font = font_bold
 
     ws_bb["B21"] = "6. Tiêu chuẩn kỹ thuật áp dụng:"
-    ws_bb["C21"] = '=VLOOKUP(C2, HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 6, FALSE)'
+    ws_bb["C21"] = '=IFERROR(VLOOKUP(C2, HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 6, FALSE), VLOOKUP(TEXT(C2, "@"), HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 6, FALSE))'
     ws_bb["C21"].font = font_reg
 
     ws_bb["B22"] = "7. Thời gian nghiệm thu:"
-    ws_bb["C22"] = '="Bắt đầu: 08 giờ 30 phút - Kết thúc: 11 giờ 30 phút, ngày " & TEXT(VLOOKUP(C2, HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 8, FALSE), "dd/mm/yyyy")'
+    ws_bb["C22"] = '="Bắt đầu: 08 giờ 30 phút - Kết thúc: 11 giờ 30 phút, ngày " & TEXT(IFERROR(VLOOKUP(C2, HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 8, FALSE), VLOOKUP(TEXT(C2, "@"), HOSO_KCS_NGHIEM_THU!$A$6:$H$27, 8, FALSE)), "dd/mm/yyyy")'
     ws_bb["C22"].font = font_reg
 
     for r in range(16, 23):
@@ -435,31 +457,31 @@ def build_full_cross_linked_workbook(excel_path):
     ws_vl.merge_cells("B9:G9")
 
     ws_vl["B12"] = "1. Tên vật liệu nghiệm thu:"
-    ws_vl["C12"] = '=VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$38, 2, FALSE)'
+    ws_vl["C12"] = '=IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 2, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 2, FALSE))'
     ws_vl["C12"].font = Font(name="Times New Roman", size=11, bold=True, color="1F497D")
 
     ws_vl["B13"] = "2. Khối lượng nghiệm thu lô hàng:"
-    ws_vl["C13"] = '=TEXT(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$38, 7, FALSE), "#,##0.00") & " " & VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$38, 6, FALSE)'
+    ws_vl["C13"] = '=TEXT(IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 7, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 7, FALSE)), "#,##0.00") & " " & IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 6, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 6, FALSE))'
     ws_vl["C13"].font = font_bold
 
     ws_vl["B14"] = "3. Tiêu chuẩn kỹ thuật áp dụng:"
-    ws_vl["C14"] = '=VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$38, 3, FALSE)'
+    ws_vl["C14"] = '=IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 3, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 3, FALSE))'
     ws_vl["C14"].font = font_reg
 
     ws_vl["B15"] = "4. Chỉ tiêu kiểm tra chất lượng:"
-    ws_vl["C15"] = '=VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$38, 4, FALSE)'
+    ws_vl["C15"] = '=IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 4, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 4, FALSE))'
     ws_vl["C15"].font = font_reg
 
     ws_vl["B16"] = "5. Quy cách và số lượng tổ mẫu thí nghiệm:"
-    ws_vl["C16"] = '=VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$38, 10, FALSE) & " (Số tổ mẫu: " & VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$38, 9, FALSE) & " tổ)"'
+    ws_vl["C16"] = '=IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 10, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 10, FALSE)) & " (Số tổ mẫu: " & IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 9, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 9, FALSE)) & " tổ)"'
     ws_vl["C16"].font = font_reg
 
     ws_vl["B17"] = "6. Đơn vị thực hiện thí nghiệm:"
-    ws_vl["C17"] = '=VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$38, 11, FALSE)'
+    ws_vl["C17"] = '=IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 11, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 11, FALSE))'
     ws_vl["C17"].font = font_reg
 
     ws_vl["B18"] = "7. Điều kiện nghiệm thu / Chuyển bước:"
-    ws_vl["C18"] = '=VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$38, 12, FALSE)'
+    ws_vl["C18"] = '=IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 12, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 12, FALSE))'
     ws_vl["C18"].font = font_bold
 
     for r in range(12, 19):
@@ -542,19 +564,19 @@ def build_full_cross_linked_workbook(excel_path):
     ws_lm.merge_cells("B9:G9")
 
     ws_lm["B12"] = "1. Đối tượng và cấu kiện lấy mẫu:"
-    ws_lm["C12"] = '=VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$51, 2, FALSE)'
+    ws_lm["C12"] = '=IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 2, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 2, FALSE))'
     ws_lm["C12"].font = Font(name="Times New Roman", size=11, bold=True, color="1F497D")
 
     ws_lm["B13"] = "2. Thể tích bê tông / Quy mô mẻ đổ:"
-    ws_lm["C13"] = '=TEXT(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$51, 7, FALSE), "#,##0.00") & " " & VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$51, 6, FALSE)'
+    ws_lm["C13"] = '=TEXT(IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 7, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 7, FALSE)), "#,##0.00") & " " & IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 6, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 6, FALSE))'
     ws_lm["C13"].font = font_bold
 
     ws_lm["B14"] = "3. Quy định số tổ mẫu bắt buộc:"
-    ws_lm["C14"] = '=VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$51, 9, FALSE) & " tổ mẫu (" & VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$51, 10, FALSE) & ")"'
+    ws_lm["C14"] = '=IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 9, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 9, FALSE)) & " tổ mẫu (" & IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 10, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 10, FALSE)) & ")"'
     ws_lm["C14"].font = font_bold
 
     ws_lm["B15"] = "4. Tiêu chuẩn lấy mẫu & thử nghiệm:"
-    ws_lm["C15"] = '=VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$23:$L$51, 3, FALSE)'
+    ws_lm["C15"] = '=IFERROR(VLOOKUP(C2, CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 3, FALSE), VLOOKUP(TEXT(C2, "@"), CAP_PHOI_1M3_VA_TAN_SUAT!$A$24:$L$52, 3, FALSE))'
     ws_lm["C15"].font = font_reg
 
     ws_lm["B16"] = "5. Phương pháp bảo dưỡng mẫu:"
