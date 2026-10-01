@@ -60,7 +60,18 @@ Hệ thống **23HG-multiagent-system** chuẩn hóa quy trình đóng gói thà
 | **Gói D: QS & Dự toán** | Kỹ sư QS, Trưởng phòng Kế hoạch, Kế toán | **Toàn quyền xem đơn giá, doanh thu, thanh toán.** | `03_QS_Dien_Giai_Chi_Tiet_Takeoff.xlsx`<br>`08_Du_Toan_GXD_Thong_Tu_11_2021.xlsx`<br>`09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx` |
 | **Gói E: Executive Hub** | Giám đốc Dự án, Ban Giám đốc, Chủ đầu tư | Xem KPI tổng thể, tiến độ đường găng CPM, báo cáo thẩm tra Audit 100/100. | `02_Tien_Do_Thi_Cong_Master_...xml`<br>`03_BAO_CAO_THAM_TRA_AEC_AUDIT_...md` |
 
+> [!CAUTION]
+> **TIÊU CHUẨN CỐT LÕI BẤT DI BẤT DỊCH CHO GÓI A (CƠ GIỚI & DẦU):**  
+> Tất cả và luôn luôn các dự án khi xuất hồ sơ Gói A bắt buộc phải lập bảng tiến độ theo đúng **CẤU TRÚC 5 SHEETS CHUẨN MẪU VINCONS / 23HG SYSTEM**:
+> 1. **Sheet 1 — `01_TienDo_CaMay_Master`**: Lưới tiến độ dải ngày chi tiết (ngày, thứ trong tuần, Chủ nhật đỏ), số máy huy động/ngày, **Summary 1** Tổng nhân công/ngày, **Summary 2** Ca máy từng loại theo ngày, **Summary 3** Tổng lít dầu Diezel tiêu thụ hàng ngày bằng công thức sống `=SUM(...)`.
+> 2. **Sheet 2 — `02_TongHop_CaXe_CaMay_MMTB`**: Bảng tổng hợp ca xe máy MMTB, ĐM dầu (lít/ca), Tổng số ca máy, Số máy Max, Số ngày, Tổng lít dầu tiêu thụ `=F*E`.
+> 3. **Sheet 3 — `03_KeHoach_Dau_Diezel`**: Kế hoạch cấp dầu Diezel phân bổ theo 4 Kỳ thi công chiến lược.
+> 4. **Sheet 4 — `04_KeHoach_NhanLuc`**: Bảng phân bổ nhân lực theo từng tổ đội thi công chuyên nghiệp.
+> 5. **Sheet 5 — `05_DoiChieu_BocTach`**: Bảng đối chiếu khối lượng thực tế hồ sơ bóc tách thiết kế.
+> 6. **File XML MS Project**: Xuất tệp `.xml` tương thích 100% Microsoft Project / Primavera P6.
+
 ---
+
 
 ## 3. CÁCH THỨC TRIỂN KHAI BẰNG CODE (PYTHON API)
 
