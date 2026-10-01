@@ -53,6 +53,67 @@ class TestPackageDispatcher(unittest.TestCase):
             self.assertTrue(os.path.exists(os.path.join(pkg_e, "Master_Dashboard.xlsx")))
             self.assertTrue(os.path.exists(os.path.join(target_root, "DISPATCH_MANIFEST.json")))
 
+    def test_dispatch_full_industrial_dossier(self):
+        """Kiểm tra quy trình công nghiệp xuất 3 tầng hồ sơ chuẩn xác 100%."""
+        import openpyxl
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Tạo Master Excel giả lập với 3 sheet
+            master_file = os.path.join(tmp_dir, "Master_Test.xlsx")
+            wb = openpyxl.Workbook()
+            ws1 = wb.active
+            ws1.title = "QS_DIEN_GIAI_CHI_TIET"
+            ws1["A1"] = "Hạng mục"
+            ws1["B1"] = 100.0
+
+            ws2 = wb.create_sheet(title="KHOI_LUONG_DAO_DAP")
+            ws2["A1"] = "Đào đất"
+            ws2["B1"] = 50.0
+
+            wb.save(master_file)
+            wb.close()
+
+            out_dir = os.path.join(tmp_dir, "OUTPUT_DOSSIER")
+            dispatcher = AECPackageDispatcher(base_output_dir=out_dir)
+
+            manifest = dispatcher.dispatch_full_industrial_dossier(
+                master_excel_path=master_file,
+                project_name="Cầu Thử Nghiệm",
+                target_dir=out_dir
+            )
+
+            # 1. Kiểm tra đủ 3 tầng
+            macro_dir = os.path.join(out_dir, "BO_HO_SO_01_MACRO_MASTER_14_SHEET")
+            micro_dir = os.path.join(out_dir, "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO")
+            hub_dir = os.path.join(out_dir, "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH")
+
+            self.assertTrue(os.path.exists(macro_dir))
+            self.assertTrue(os.path.exists(micro_dir))
+            self.assertTrue(os.path.exists(hub_dir))
+
+            # 2. Kiểm tra Gói A chuẩn 5 sheets Vincons
+            pkg_a_dir = os.path.join(hub_dir, "GOI_A_CO_GIOI_VA_DAU_DIEZEL")
+            self.assertTrue(os.path.exists(pkg_a_dir))
+            camay_files = [f for f in os.listdir(pkg_a_dir) if f.endswith(".xlsx")]
+            self.assertTrue(len(camay_files) >= 1)
+
+            camay_path = os.path.join(pkg_a_dir, camay_files[0])
+            wb_camay = openpyxl.load_workbook(camay_path)
+            expected_vincons_sheets = [
+                "01_TienDo_CaMay_Master",
+                "02_TongHop_CaXe_CaMay_MMTB",
+                "03_KeHoach_Dau_Diezel",
+                "04_KeHoach_NhanLuc",
+                "05_DoiChieu_BocTach"
+            ]
+            for s in expected_vincons_sheets:
+                self.assertIn(s, wb_camay.sheetnames, f"Thiếu sheet Vincons: {s}")
+            wb_camay.close()
+
+            # 3. Kiểm tra Manifest MD5
+            manifest_json = os.path.join(hub_dir, "DISPATCH_MANIFEST.json")
+            self.assertTrue(os.path.exists(manifest_json))
+            self.assertTrue(manifest.audit_zero_errors)
+
 
 if __name__ == "__main__":
     unittest.main()

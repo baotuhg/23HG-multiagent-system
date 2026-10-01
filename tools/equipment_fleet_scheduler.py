@@ -517,6 +517,205 @@ class EquipmentFleetScheduler:
         for c_let, w in {"A": 6, "B": 10, "C": 44, "D": 8, "E": 18, "F": 18, "G": 16, "H": 22}.items():
             ws2.column_dimensions[c_let].width = w
 
+        # =====================================================================
+        # SHEET 3: 03_KeHoach_Dau_Diezel (THEO 4 KỲ CHIẾN LƯỢC)
+        # =====================================================================
+        ws3 = wb.create_sheet(title="03_KeHoach_Dau_Diezel")
+        ws3.views.sheetView[0].showGridLines = True
+
+        ws3.merge_cells("A1:I1")
+        ws3["A1"] = f"KẾ HOẠCH CẤP DẦU DIEZEL CHO MÁY MÓC THI CÔNG — {project_name.upper()} (4 KỲ CHIẾN LƯỢC)"
+        ws3["A1"].font = Font(name=font_family, size=13, bold=True, color="FFFFFF")
+        ws3["A1"].fill = PatternFill(start_color=NAVY_HEADER, end_color=NAVY_HEADER, fill_type="solid")
+        ws3["A1"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
+
+        headers_ws3 = [
+            "STT", "Chủng loại phương tiện / Thiết bị", "Định mức (lít/ca)", "Tổng số ca máy",
+            "Tổng nhu cầu dầu (Lít)", "Kỳ 1: Khởi công & Chuẩn bị",
+            "Kỳ 2: Kết cấu ngầm & Móng", "Kỳ 3: Kết cấu thân & Thượng tầng", "Kỳ 4: Hoàn thiện & Bàn giao"
+        ]
+        for c_i, h in enumerate(headers_ws3, 1):
+            cell = ws3.cell(row=3, column=c_i, value=h)
+            cell.font = Font(name=font_family, size=9.5, bold=True, color="FFFFFF")
+            cell.fill = PatternFill(start_color=NAVY_HEADER, end_color=NAVY_HEADER, fill_type="solid")
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+
+        r_op = 4
+        for idx, (code, data) in enumerate(mach_stats.items(), 1):
+            ws3.cell(row=r_op, column=1, value=idx)
+            ws3.cell(row=r_op, column=2, value=data["name"])
+            ws3.cell(row=r_op, column=3, value=data["oil_rate"])
+            ws3.cell(row=r_op, column=4, value=round(data["shifts"], 1))
+            ws3.cell(row=r_op, column=5, value=f"=C{r_op}*D{r_op}")
+            ws3.cell(row=r_op, column=6, value=f"=E{r_op}*0.30")
+            ws3.cell(row=r_op, column=7, value=f"=E{r_op}*0.35")
+            ws3.cell(row=r_op, column=8, value=f"=E{r_op}*0.25")
+            ws3.cell(row=r_op, column=9, value=f"=E{r_op}*0.10")
+
+            for c in range(1, 10):
+                cell = ws3.cell(row=r_op, column=c)
+                cell.font = Font(name=font_family, size=9)
+                cell.border = thin_border
+                if c == 1:
+                    cell.alignment = Alignment(horizontal="center", vertical="center")
+                elif c in [3, 4, 5, 6, 7, 8, 9]:
+                    cell.number_format = "#,##0.0" if c in [3, 4] else "#,##0"
+                    cell.alignment = Alignment(horizontal="right", vertical="center")
+                else:
+                    cell.alignment = Alignment(horizontal="left", vertical="center")
+            r_op += 1
+
+        # Total oil row
+        ws3.cell(row=r_op, column=2, value="TỔNG SỐ LÍT DẦU DIEZEL CẦN CUNG CẤP (LÍT)")
+        ws3.cell(row=r_op, column=2).font = Font(name=font_family, size=10, bold=True, color="C00000")
+        for c in [4, 5, 6, 7, 8, 9]:
+            c_let = get_column_letter(c)
+            ws3.cell(row=r_op, column=c, value=f"=SUM({c_let}4:{c_let}{r_op-1})")
+            ws3.cell(row=r_op, column=c).font = Font(name=font_family, size=10, bold=True, color="C00000")
+            ws3.cell(row=r_op, column=c).number_format = "#,##0.0" if c == 4 else "#,##0"
+            ws3.cell(row=r_op, column=c).alignment = Alignment(horizontal="right", vertical="center")
+        for c in range(1, 10):
+            ws3.cell(row=r_op, column=c).fill = PatternFill(start_color=AMBER_SUM, end_color=AMBER_SUM, fill_type="solid")
+            ws3.cell(row=r_op, column=c).border = thick_bottom
+
+        for c_let, w in {"A": 6, "B": 44, "C": 16, "D": 16, "E": 20, "F": 22, "G": 22, "H": 22, "I": 24}.items():
+            ws3.column_dimensions[c_let].width = w
+
+        # =====================================================================
+        # SHEET 4: 04_KeHoach_NhanLuc (PHÂN BỔ TỔ ĐỘI CHUYÊN NGHIỆP)
+        # =====================================================================
+        ws4 = wb.create_sheet(title="04_KeHoach_NhanLuc")
+        ws4.views.sheetView[0].showGridLines = True
+
+        ws4.merge_cells("A1:H1")
+        ws4["A1"] = f"BẢNG PHÂN BỔ NHÂN LỰC THI CÔNG — {project_name.upper()} (CÁC TỔ ĐỘI CHUYÊN NGHIỆP)"
+        ws4["A1"].font = Font(name=font_family, size=13, bold=True, color="FFFFFF")
+        ws4["A1"].fill = PatternFill(start_color=NAVY_HEADER, end_color=NAVY_HEADER, fill_type="solid")
+        ws4["A1"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
+
+        headers_ws4 = [
+            "STT", "Tổ đội / Bộ phận chức năng", "Nhân lực bình quân (người)",
+            "Huy động cao điểm (người)", "Chế độ ca kíp", "Nhiệm vụ chính trên công trường",
+            "Đội trưởng phụ trách", "Ghi chú an toàn & kỹ thuật"
+        ]
+        for c_i, h in enumerate(headers_ws4, 1):
+            cell = ws4.cell(row=3, column=c_i, value=h)
+            cell.font = Font(name=font_family, size=9.5, bold=True, color="FFFFFF")
+            cell.fill = PatternFill(start_color=NAVY_HEADER, end_color=NAVY_HEADER, fill_type="solid")
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+
+        labor_rows = [
+            (1, "Tổ Cơ giới & Vận hành máy thi công", 12, 18, "2 ca/ngày", "Vận hành máy đào, cần cẩu, máy khoan cọc", "Nguyễn Văn Hùng", "Tuân thủ ATLĐ ca đêm"),
+            (2, "Tổ Cốt thép & Gia công bãi tiền chế", 14, 20, "1-2 ca/ngày", "Cắt uốn thép 11.7m theo sơ đồ RebarCut, hàn lồng", "Trần Bá Thắng", "Kiểm tra mối hàn TCVN 5574"),
+            (3, "Tổ Ván khuôn & Đà giáo định hình", 12, 16, "1 ca/ngày", "Lắp dựng & tháo dỡ ván khuôn tấm lớn", "Lê Đình Long", "Kiểm tra độ võng & chuyển vị"),
+            (4, "Tổ Bê tông & Bảo dưỡng ẩm", 10, 15, "Theo đợt đổ", "Đổ, san gạt, đầm dùi & phủ bạt bảo dưỡng", "Phạm Quốc Tuấn", "Đo độ sụt & đúc mẫu thí nghiệm"),
+            (5, "Tổ Kỹ thuật, QA/QC, Trắc đạc & KCS", 6, 8, "Thường trực", "Định vị tim mốc, nghiệm thu Hold Points, lập BBNT", "Kỹ sư Trưởng Hiện trường", "Nghiệm thu chuyển bước theo NĐ 207"),
+        ]
+        r_l = 4
+        for row_data in labor_rows:
+            ws4.cell(row=r_l, column=1, value=row_data[0])
+            ws4.cell(row=r_l, column=2, value=row_data[1])
+            ws4.cell(row=r_l, column=3, value=row_data[2])
+            ws4.cell(row=r_l, column=4, value=row_data[3])
+            ws4.cell(row=r_l, column=5, value=row_data[4])
+            ws4.cell(row=r_l, column=6, value=row_data[5])
+            ws4.cell(row=r_l, column=7, value=row_data[6])
+            ws4.cell(row=r_l, column=8, value=row_data[7])
+
+            for c in range(1, 9):
+                cell = ws4.cell(row=r_l, column=c)
+                cell.font = Font(name=font_family, size=9)
+                cell.border = thin_border
+                if c == 1:
+                    cell.alignment = Alignment(horizontal="center", vertical="center")
+                elif c in [3, 4]:
+                    cell.number_format = "#,##0"
+                    cell.alignment = Alignment(horizontal="right", vertical="center")
+                elif c == 5:
+                    cell.alignment = Alignment(horizontal="center", vertical="center")
+                else:
+                    cell.alignment = Alignment(horizontal="left", vertical="center")
+            r_l += 1
+
+        # Total labor row
+        ws4.cell(row=r_l, column=2, value="TỔNG CỘNG NHÂN LỰC THI CÔNG TOÀN DỰ ÁN")
+        ws4.cell(row=r_l, column=2).font = Font(name=font_family, size=10, bold=True, color="C00000")
+        ws4.cell(row=r_l, column=3, value=f"=SUM(C4:C{r_l-1})")
+        ws4.cell(row=r_l, column=4, value=f"=SUM(D4:D{r_l-1})")
+        for c in [3, 4]:
+            ws4.cell(row=r_l, column=c).font = Font(name=font_family, size=10, bold=True, color="C00000")
+            ws4.cell(row=r_l, column=c).number_format = "#,##0"
+            ws4.cell(row=r_l, column=c).alignment = Alignment(horizontal="right", vertical="center")
+        for c in range(1, 9):
+            ws4.cell(row=r_l, column=c).fill = PatternFill(start_color=AMBER_SUM, end_color=AMBER_SUM, fill_type="solid")
+            ws4.cell(row=r_l, column=c).border = thick_bottom
+
+        for c_let, w in {"A": 6, "B": 38, "C": 24, "D": 24, "E": 18, "F": 42, "G": 24, "H": 30}.items():
+            ws4.column_dimensions[c_let].width = w
+
+        # =====================================================================
+        # SHEET 5: 05_DoiChieu_BocTach (ĐỐI CHIẾU KHỐI LƯỢNG THIẾT KẾ)
+        # =====================================================================
+        ws5 = wb.create_sheet(title="05_DoiChieu_BocTach")
+        ws5.views.sheetView[0].showGridLines = True
+
+        ws5.merge_cells("A1:H1")
+        ws5["A1"] = f"BẢNG ĐỐI CHIẾU KHỐI LƯỢNG THỰC TẾ HỒ SƠ BÓC TÁCH — {project_name.upper()}"
+        ws5["A1"].font = Font(name=font_family, size=13, bold=True, color="FFFFFF")
+        ws5["A1"].fill = PatternFill(start_color=NAVY_HEADER, end_color=NAVY_HEADER, fill_type="solid")
+        ws5["A1"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
+
+        headers_ws5 = [
+            "STT", "Mã WBS", "Danh mục công tác thi công", "ĐVT",
+            "Khối lượng thiết kế", "Tổng số ca máy yêu cầu", "Số ca/ngày", "MMTB chính áp dụng"
+        ]
+        for c_i, h in enumerate(headers_ws5, 1):
+            cell = ws5.cell(row=3, column=c_i, value=h)
+            cell.font = Font(name=font_family, size=9.5, bold=True, color="FFFFFF")
+            cell.fill = PatternFill(start_color=NAVY_HEADER, end_color=NAVY_HEADER, fill_type="solid")
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+
+        r_boq = 4
+        for idx, t in enumerate(tasks, 1):
+            m_main = t.machine_allocations[0].machine_name if t.machine_allocations else "Thủ công / Cơ giới nhỏ"
+            shifts_tot = sum(m.total_shifts_required for m in t.machine_allocations) if t.machine_allocations else 0.0
+
+            ws5.cell(row=r_boq, column=1, value=idx)
+            ws5.cell(row=r_boq, column=2, value=t.code)
+            ws5.cell(row=r_boq, column=3, value=t.name)
+            ws5.cell(row=r_boq, column=4, value=t.unit)
+            ws5.cell(row=r_boq, column=5, value=t.quantity)
+            ws5.cell(row=r_boq, column=6, value=round(shifts_tot, 1))
+            ws5.cell(row=r_boq, column=7, value=t.shifts_per_day)
+            ws5.cell(row=r_boq, column=8, value=m_main)
+
+            for c in range(1, 9):
+                cell = ws5.cell(row=r_boq, column=c)
+                cell.font = Font(name=font_family, size=9)
+                cell.border = thin_border
+                if c in [1, 2, 4, 7]:
+                    cell.alignment = Alignment(horizontal="center", vertical="center")
+                elif c in [5, 6]:
+                    cell.number_format = "#,##0.0"
+                    cell.alignment = Alignment(horizontal="right", vertical="center")
+                else:
+                    cell.alignment = Alignment(horizontal="left", vertical="center")
+            r_boq += 1
+
+        # Total BOQ row
+        ws5.cell(row=r_boq, column=3, value="TỔNG CỘNG SỐ CA MÁY YÊU CẦU TOÀN CÔNG TRÌNH")
+        ws5.cell(row=r_boq, column=3).font = Font(name=font_family, size=10, bold=True, color="C00000")
+        ws5.cell(row=r_boq, column=6, value=f"=SUM(F4:F{r_boq-1})")
+        ws5.cell(row=r_boq, column=6).font = Font(name=font_family, size=10, bold=True, color="C00000")
+        ws5.cell(row=r_boq, column=6).number_format = "#,##0.0"
+        ws5.cell(row=r_boq, column=6).alignment = Alignment(horizontal="right", vertical="center")
+        for c in range(1, 9):
+            ws5.cell(row=r_boq, column=c).fill = PatternFill(start_color=AMBER_SUM, end_color=AMBER_SUM, fill_type="solid")
+            ws5.cell(row=r_boq, column=c).border = thick_bottom
+
+        for c_let, w in {"A": 6, "B": 12, "C": 44, "D": 8, "E": 18, "F": 22, "G": 12, "H": 36}.items():
+            ws5.column_dimensions[c_let].width = w
+
         # Save workbook
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         wb.save(output_path)

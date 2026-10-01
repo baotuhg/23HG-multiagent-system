@@ -280,16 +280,22 @@ python run_state_graph.py --phase fleet --fleet-out ca_xe_ca_may.xlsx --shifts 2
 > - Tự động bóc tách ca máy từ khối lượng công tác và tiến độ CPM theo định mức ca máy Vincons / Thông tư 37/2026/TT-BXD.
 > - Xuất bảng tiến độ ca máy chi tiết theo ngày/tuần, biểu đồ phụ tải máy móc và bảng dự trù cấp phát nhiên liệu dầu Diezel (Lít) theo từng ca làm việc.
 
-#### a6. Đóng gói & Phân quyền Công trường Hub & Spoke (5 Gói vệ tinh):
+#### a6. Xuất Hồ Sơ Công Nghiệp 3 Tầng & Đóng Gói Hub & Spoke (Industrial End-to-End Export Pipeline):
 ```powershell
-# Chạy trực tiếp qua module Package Dispatcher:
-python -m tools.package_dispatcher --source ./examples/HO_SO_CONG_HOP_TUYEN_A5 --target ./HO_SO_HUB_AND_SPOKE
+# 1. Xuất trọn vẹn 3 Tầng hồ sơ công nghiệp cho dự án bất kỳ từ Master Workbook (Zero Error Quality Gate):
+python run_state_graph.py --export-all --excel "Du_An_Master.xlsx" --export-dir "./HO_SO_XUAT_XUONG" --project-name "Cầu Km19+529.080"
 
-# Hoặc kích hoạt qua State Graph CLI:
-python run_state_graph.py --phase dispatch --dispatch-out ./HO_SO_HUB_AND_SPOKE
+# 2. Xuất trực tiếp qua module Package Dispatcher độc lập:
+python -m tools.package_dispatcher --master "Du_An_Master.xlsx" --target "./HO_SO_XUAT_XUONG" --project-name "Cầu Km19+529.080"
+
+# 3. Hoặc đóng gói theo thư mục nguồn (chế độ site operation):
+python -m tools.package_dispatcher --source ./examples/HO_SO_CONG_HOP_TUYEN_A5 --target ./HO_SO_HUB_AND_SPOKE
 ```
-> - Tự động quét và phân loại toàn bộ hồ sơ dự án thành 5 gói vệ tinh độc lập theo vai trò (`GOI_A` đến `GOI_E`).
-> - Tạo tệp kê khai `DISPATCH_MANIFEST.json` ghi nhận định danh nguồn, ngày giờ xuất xưởng và mã băm MD5 xác thực tính toàn vẹn của từng tệp tin.
+> - **Tự động sản xuất đồng bộ 3 tầng đóng gói**:
+>   1. **Tầng 1 (Macro Master)**: `BO_HO_SO_01_MACRO_MASTER_14_SHEET` (14 sheets động, XML/MPP, BBNT Word, Báo cáo Thẩm tra Audit 100/100).
+>   2. **Tầng 2 (Micro 14 bộ)**: `BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO` (14 file chuyên sâu độc lập, nạp engine `Automated Formula Sanitization` khử sạch 100% lỗi `#REF!`, `#VALUE!`).
+>   3. **Tầng 3 (Hub & Spoke 5 gói)**: `03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH` (Phân quyền RBAC, Gói A **bắt buộc tuân thủ chuẩn 5 sheets Vincons / 23HG System**, Bảng phân quyền bàn giao, file `DISPATCH_MANIFEST.json` xác thực mã băm MD5).
+> - **Cổng kiểm toán tự động (Quality Gate)**: Tự động quét kiểm tra từng ô tính của toàn bộ các file Excel đã sinh ra, cam kết xuất xưởng **ZERO FORMULA ERRORS** (`0 lỗi #REF!, #VALUE!, #DIV/0!, #N/A`).
 
 #### b. Chạy thử toàn bộ 8 pha bằng dữ liệu mẫu (demo):
 ```powershell
