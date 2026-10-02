@@ -8,6 +8,17 @@
     "GOI_D_QS_DU_TOAN_THANH_TOAN",
     "GOI_E_EXECUTIVE_DASHBOARD"
   ],
-  "total_files": 16,
-  "timestamp": "1790689927.9841554"
+  "total_files": 12,
+  "timestamp": "1790689927.9841554",
+  "not_generated": {
+    "reason": "Sheet tương ứng trong Master chưa có dữ liệu (CHƯA LẬP) nên không xuất thành hồ sơ riêng",
+    "dossiers": [
+      "05_Cap_Phoi_1m3_Va_Tan_Suat_Thi_Nghiem",
+      "06_Phan_Tich_Vat_Tu_Chi_Tiet_WBS",
+      "07_Tong_Hop_Nhu_Cau_Vat_Tu_BOM_4_Giai_Doan",
+      "12_Mau_A4_Bien_Ban_Nghiem_Thu_Cong_Viec",
+      "13_Mau_A4_Bien_Ban_Nghiem_Thu_Vat_Lieu",
+      "14_Mau_A4_Bien_Ban_Lay_Mau_Thi_Nghiem_R7_R28"
+    ]
+  }
 }

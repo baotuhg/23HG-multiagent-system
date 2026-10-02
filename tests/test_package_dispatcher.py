@@ -11,7 +11,7 @@ import tempfile
 import openpyxl
 
 from tools.package_dispatcher import (
-    AECPackageDispatcher, DispatchManifest, audit_all_exported_excels, find_missing_sheet_refs,
+    AECPackageDispatcher, DispatchManifest, audit_all_exported_excels, find_missing_sheet_refs, sheet_is_placeholder,
 )
 
 
@@ -147,6 +147,45 @@ class TestMissingSheetRefGate(unittest.TestCase):
             total, err_files, details = audit_all_exported_excels([tmp])
             self.assertEqual((total, err_files), (2, 1))
             self.assertTrue(any("QS_DIEN_GIAI_CHI_TIET" in d and "bad.xlsx" in d for d in details))
+
+
+class TestEmptyDossiersAreNotExported(unittest.TestCase):
+
+    def test_sheet_is_placeholder(self):
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        self.assertTrue(sheet_is_placeholder(ws))                         # rỗng
+        ws["A1"], ws["A2"] = "TIÊU ĐỀ", "Phụ đề"
+        self.assertTrue(sheet_is_placeholder(ws))                         # chỉ tiêu đề ở cột A
+        ws["B1"] = 5
+        self.assertFalse(sheet_is_placeholder(ws))                        # có dữ liệu
+        ws2 = wb.create_sheet("X")
+        ws2["A1"], ws2["B1"] = "CHƯA LẬP — chưa có dữ liệu", 1
+        self.assertTrue(sheet_is_placeholder(ws2))                        # đánh dấu CHƯA LẬP
+
+    def test_full_dossier_skips_placeholder_sheets_and_records_real_audit(self):
+        import json
+        with tempfile.TemporaryDirectory() as tmp:
+            master = os.path.join(tmp, "Master.xlsx")
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = "QS_DIEN_GIAI_CHI_TIET"
+            ws["A1"], ws["B1"] = "Hạng mục", 100.0
+            ph = wb.create_sheet("CAP_PHOI_1M3_VA_TAN_SUAT")             # chỉ có tiêu đề
+            ph["A1"], ph["A2"] = "CẤP PHỐI", "chưa có dữ liệu"
+            wb.save(master)
+            out = os.path.join(tmp, "OUT")
+            AECPackageDispatcher(base_output_dir=out).dispatch_full_industrial_dossier(
+                master_excel_path=master, project_name="Thử", target_dir=out)
+            micro = os.path.join(out, "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO")
+            self.assertFalse(os.path.exists(os.path.join(micro, "05_Cap_Phoi_1m3_Va_Tan_Suat_Thi_Nghiem.xlsx")))
+            hub = os.path.join(out, "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH", "DISPATCH_MANIFEST.json")
+            with open(hub, encoding="utf-8") as f:
+                mf = json.load(f)
+            self.assertIn("05_Cap_Phoi_1m3_Va_Tan_Suat_Thi_Nghiem.xlsx", mf["skipped_empty_dossiers"])
+            self.assertIs(mf["quality_gate"]["zero_formula_errors"], True)    # kết quả kiểm toán thật, không ghi cứng
+            self.assertGreater(mf["quality_gate"]["files_audited"], 0)
+            self.assertNotIn("zero_dead_numbers", mf["quality_gate"])         # không có phép đo → không khẳng định
 
 
 if __name__ == "__main__":

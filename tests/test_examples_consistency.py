@@ -1,0 +1,79 @@
+# -*- coding: utf-8 -*-
+"""Bảo vệ thư mục hồ sơ mẫu: không file rỗng, bản sao không lệch nhau, gói không có đơn giá thì không chứa sheet giá,
+và các số đối chiếu giữa bóc tách / hợp đồng / đắp lưng cống nằm trong giới hạn đã biết."""
+
+import hashlib
+import os
+import sys
+import unittest
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+import openpyxl
+
+from tools.audit_excels_static import audit_file, find_xlsx
+from tools.excel_eval import WorkbookEvaluator
+
+A5 = os.path.join(ROOT, "examples", "HO_SO_CONG_HOP_TUYEN_A5")
+HUB = os.path.join(A5, "HO_SO_THUC_CHIEN_HUB_AND_SPOKE_CONG_A5")
+MASTER = os.path.join(A5, "BO_HO_SO_01_MACRO_MASTER_14_SHEET", "01_Ho_So_KCS_QS_TienDo_Master_14_Sheets_Cong_Hop_A5.xlsx")
+PRICE_SHEET_HINTS = ("GXD", "03A", "THANH_TOAN", "DU_TOAN")
+
+
+def _md5(p):
+    with open(p, "rb") as f:
+        return hashlib.md5(f.read()).hexdigest()
+
+
+@unittest.skipUnless(os.path.isdir(A5), "thiếu thư mục ví dụ A5")
+class A5ExamplesTest(unittest.TestCase):
+
+    def test_no_empty_shell_workbooks(self):
+        empties = [p for p in find_xlsx(os.path.join(ROOT, "examples")) if audit_file(p, try_eval=False)["empty_shell"]]
+        self.assertEqual(empties, [], "file Excel chỉ có tiêu đề, không dữ liệu")
+
+    def test_same_named_copies_are_identical(self):
+        by_name = {}
+        for p in find_xlsx(A5):
+            by_name.setdefault(os.path.basename(p), []).append(p)
+        for name, paths in by_name.items():
+            if len(paths) > 1:
+                self.assertEqual(len({_md5(p) for p in paths}), 1, f"bản sao của {name} đã lệch nhau")
+
+    def test_goi_without_prices_have_no_price_sheets(self):
+        for pkg in ("GOI_A_CO_GIOI_VA_DAU_DIEZEL", "GOI_B_XUONG_TIEN_CHE_COT_THEP", "GOI_C_HIEN_TRUONG_QLCL_KCS"):
+            for p in find_xlsx(os.path.join(HUB, pkg)):
+                for name in openpyxl.load_workbook(p).sheetnames:
+                    self.assertFalse(any(h in name.upper() for h in PRICE_SHEET_HINTS),
+                                     f"{pkg}/{os.path.basename(p)} chứa sheet giá '{name}'")
+
+    def test_master_inputs_are_labelled_not_fake_formulas(self):
+        ws = openpyxl.load_workbook(MASTER)["TONG_HOP_DU_TOAN_GXD"]
+        self.assertEqual(ws["D5"].value, 42500000000)                      # số nhập, không phải "=42500000000"
+        self.assertIn("ĐẦU VÀO", ws["F5"].value)
+        for formula_cell in ("D6", "D7", "D9"):
+            self.assertNotRegex(ws[formula_cell].value, r"\*0\.\d")         # tỷ lệ nằm ở ô đầu vào, không trong công thức
+
+    def test_backfill_by_culvert_type_matches_hand_values(self):
+        ev = WorkbookEvaluator(MASTER)
+        s = "KHOI_LUONG_DAO_DAP"
+        # (hào − cống bao ngoài) × số đốt × dài: 34×11.3×3.75 ; 50×11.3×5.4 ; 108×11.3×5.4
+        self.assertAlmostEqual(ev.value(s, 15, 9), 1440.75, places=3)
+        self.assertAlmostEqual(ev.value(s, 16, 9), 3051.0, places=3)
+        self.assertAlmostEqual(ev.value(s, 17, 9), 6590.16, places=3)
+        self.assertAlmostEqual(ev.value(s, 18, 9), 11081.91, places=3)
+        self.assertAlmostEqual(ev.value(s, 19, 9), 20804.814, places=3)    # số cũ giữ nguyên để đối chiếu
+
+    def test_contract_vs_takeoff_reconciliation(self):
+        ev = WorkbookEvaluator(MASTER)
+        t = "THANH_TOAN_KY_PHU_LUC_03A"
+        for row in range(5, 10):                                           # đào, cọc tre, BT lót, BT thân, ván khuôn
+            self.assertLessEqual(abs(ev.value(t, row, 11)), 0.005, f"dòng {row}")
+        # cốt thép: hợp đồng 753.4 tấn lệch +14.4% so với bảng thống kê thép — sai khác ĐÃ BIẾT, chờ QS xử lý
+        self.assertGreater(ev.value(t, 10, 11), 0.10)
+
+
+if __name__ == "__main__":
+    unittest.main()
