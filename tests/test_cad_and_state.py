@@ -11,7 +11,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-import agents.aec_cad_extractor as cad
+import core.agents.aec_cad_extractor as cad
 from core.state.shared_state import ProjectSharedState, QAQCData
 from core.state.state_bus import StateBus
 

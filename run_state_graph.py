@@ -46,6 +46,7 @@ RUNTIME_STATE = os.path.join(STATE_DIR, "RUNTIME_STATE.json")
 
 PHASE_MAP = {
     "cad":      ProjectPhase.CAD_TAKEOFF,
+    "takeoff":  ProjectPhase.CAD_TAKEOFF,
     "rebar":    ProjectPhase.REBAR_CUT,
     "qs":       ProjectPhase.QS_ESTIMATE,
     "qaqc":     ProjectPhase.QAQC_REVIEW,
@@ -379,7 +380,8 @@ def main():
     )
     tk = parser.add_argument_group("Đo bóc khối lượng từ bảng cấu kiện (--takeoff; xuất Bảng 6.2 / 6.1)")
     tk.add_argument("--takeoff", default=None,
-                    help="Bảng cấu kiện (.csv/.xlsx/.json), mẫu cột: templates/Mau_dau_vao_do_boc.csv")
+                    help="Bảng cấu kiện (.csv/.xlsx/.json), mẫu cột: templates/Mau_dau_vao_do_boc.csv. "
+                         "Một mình: đo bóc độc lập; kèm --phase/--demo: dùng cho pha CAD_TAKEOFF của Supervisor")
     tk.add_argument("--takeoff-sheet", default=None, help="Tên sheet trong file Excel (mặc định: tự tìm)")
     tk.add_argument("--takeoff-out", default=None, help="File Excel kết quả (mặc định: <tên file>_do_boc.xlsx)")
     tk.add_argument("--takeoff-profile", default="mac-dinh",
@@ -401,7 +403,7 @@ def main():
     args = parser.parse_args()
 
     if args.evolution_report:
-        from agents.aec_experience_agent import AECExperienceAgent
+        from core.agents.aec_experience_agent import AECExperienceAgent
         agent = AECExperienceAgent()
         print(agent.generate_evolution_report())
         return
@@ -413,7 +415,8 @@ def main():
     if args.check_inputs:
         sys.exit(0 if check_inputs(args) else 1)
 
-    if args.takeoff:
+    # --takeoff một mình: đo bóc độc lập. Kèm --phase / --demo: bảng cấu kiện đi vào Supervisor (pha CAD_TAKEOFF).
+    if args.takeoff and not (args.phase or args.demo):
         sys.exit(run_takeoff(args))
 
     excel_path = args.excel if args.excel is not None else (SAMPLE_EXCEL_MASTER if args.demo else "")
@@ -481,7 +484,13 @@ def main():
     from core.agents.asbuilt_agent import AsBuiltAgent
     from core.agents.payment_agent import PaymentAgent
 
-    supervisor.register_agent(CADAgent(drawings_folder=args.drawings))
+    supervisor.register_agent(CADAgent(
+        drawings_folder=args.drawings,
+        takeoff_path=args.takeoff or "",
+        takeoff_sheet=args.takeoff_sheet,
+        takeoff_profile=args.takeoff_profile,
+        takeoff_out=args.takeoff_out,
+    ))
     supervisor.register_agent(RebarAgent(
         bbs_path=args.bbs,
         bbs_sheet=args.bbs_sheet,

@@ -104,3 +104,57 @@ class TakeoffCliTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TakeoffInSupervisorTest(unittest.TestCase):
+    """Bảng cấu kiện đi vào Supervisor ở pha CAD_TAKEOFF: State Bus, Gate-1, dữ liệu sai thì dừng."""
+
+    def run_phase(self, path, profile="tt13-2021", out=None):
+        import contextlib
+        import io
+        from core.agents.sub_agents import CADAgent
+        from core.state.shared_state import ProjectPhase
+        from core.supervisor.supervisor_agent import AECSupervisor
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        sup = AECSupervisor(project_root=ROOT, human_gate_mode="auto", persist_path=os.path.join(tmp.name, "s.json"))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            sup.register_agent(CADAgent(takeoff_path=path, takeoff_profile=profile, takeoff_out=out))
+            ok = sup.run(phases=[ProjectPhase.CAD_TAKEOFF])
+        return ok, sup, buf.getvalue()
+
+    def test_quantities_reach_state_bus_with_derivations(self):
+        ok, sup, log = self.run_phase(SAMPLE)
+        self.assertTrue(ok, log)
+        cad = sup.bus.get_cad_data()
+        self.assertAlmostEqual(cad.total_concrete_m3, 367.191, places=3)    # 0.96 + 4.32 + 361.911
+        self.assertAlmostEqual(cad.total_formwork_m2, 28.92, places=3)      # 3.52 + 5.1 + 20.3
+        self.assertEqual(cad.excavation_m3, 500.0)                           # chỉ đào hào; mặt cắt không gộp vào
+        self.assertEqual(len(cad.takeoff_quantities), 12)
+        self.assertFalse(cad.takeoff_profile["verified"])
+        first = cad.takeoff_quantities[0]
+        self.assertEqual((first["kind"], first["formula"]), ("be_tong", "2 × (1.2 × 1 × 0.4)"))
+        self.assertIn("CHƯA đối chiếu bản gốc", log)                         # Gate-1 cảnh báo, không chặn
+        self.assertFalse(sup.bus.get_sample_data_sources())                  # dữ liệu thật, không phải mẫu
+
+    def test_bad_table_stops_the_phase(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = os.path.join(tmp, "x.csv")
+            with open(p, "w", encoding="utf-8") as f:
+                f.write("Loại;Tên công tác;Dài (m)\nbe_tong;Móng;1\n")
+            ok, _, log = self.run_phase(p)
+        self.assertFalse(ok)
+        self.assertIn("thiếu cột", log)
+        self.assertIn("không retry", log)
+
+    def test_cli_with_phase_runs_through_supervisor(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = os.path.join(tmp, "kq.xlsx")
+            env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8", AEC_STATE_DIR=tmp)
+            r = subprocess.run([sys.executable, os.path.join(ROOT, "run_state_graph.py"), "--takeoff", SAMPLE,
+                                "--phase", "takeoff", "--takeoff-out", out], capture_output=True, text=True,
+                               encoding="utf-8", env=env, cwd=ROOT)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("GATE-1", r.stdout)
+            self.assertTrue(os.path.exists(out))

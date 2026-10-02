@@ -240,13 +240,16 @@ def load_takeoff(path: str, sheet: Optional[str] = None,
         except ValueError as e:
             errors.append(f"{where}: {e}")
             continue
-        out += [q.with_ref(**refs) for q in qs]
+        for q in qs:
+            sub = ("dap_dau_coc" if q.name.endswith("đập đầu cọc") else
+                   "van_khuon" if kind == "cot_tron" and q.unit == "m2" else kind)
+            out.append(q.with_ref(kind=sub, **refs))
 
     for name, sec in sections.items():
         order = sorted(zip(sec["st"], sec["ar"]))
         try:
             q = average_end_volume(name, [s for s, _ in order], [a for _, a in order], profile=profile)
-            out.append(q.with_ref(**sec["refs"]))
+            out.append(q.with_ref(kind="mat_cat", **sec["refs"]))
         except ValueError as e:
             errors.append(f"Mặt cắt '{name}' (từ dòng {sec['first']}): {e}")
 

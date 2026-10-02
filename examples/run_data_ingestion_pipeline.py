@@ -23,10 +23,10 @@ root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from agents.aec_cad_extractor import AECCadExtractor
-from agents.aec_office_extractor import AECOfficeExtractor
-from agents.aec_markdown_ingestor import AECMarkdownIngestor
-from agents.aec_data_aggregator import AECDataAggregator
+from core.agents.aec_cad_extractor import AECCadExtractor
+from core.agents.aec_office_extractor import AECOfficeExtractor
+from core.agents.aec_markdown_ingestor import AECMarkdownIngestor
+from core.agents.aec_data_aggregator import AECDataAggregator
 
 def main():
     print("=" * 80)

@@ -146,19 +146,19 @@
   },
   "agents": {
     "cad_extractor": {
-      "file": "agents/aec_cad_extractor.py",
+      "file": "core/agents/aec_cad_extractor.py",
       "status": "active"
     },
     "office_extractor": {
-      "file": "agents/aec_office_extractor.py",
+      "file": "core/agents/aec_office_extractor.py",
       "status": "active"
     },
     "markdown_ingestor": {
-      "file": "agents/aec_markdown_ingestor.py",
+      "file": "core/agents/aec_markdown_ingestor.py",
       "status": "active"
     },
     "data_aggregator": {
-      "file": "agents/aec_data_aggregator.py",
+      "file": "core/agents/aec_data_aggregator.py",
       "status": "active"
     }
   },

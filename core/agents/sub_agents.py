@@ -26,18 +26,28 @@ DEMO_HINT = "Muốn chạy thử với dữ liệu mẫu Cầu Km19+529.080 thì
 class CADAgent(BaseAgent):
     """
     Sub-Agent Trắc đạc & Bóc tách CAD.
-    Input  (từ StateBus): drawings_folder path
-    Output (vào StateBus): cad_data (concrete, formwork, excavation, drawings_processed)
+    Input : bảng cấu kiện (--takeoff, ưu tiên) hoặc thư mục bản vẽ (--drawings)
+    Output (vào StateBus): cad_data (concrete, formwork, excavation, takeoff_quantities, takeoff_profile)
     """
 
-    def __init__(self, drawings_folder: str = ""):
+    CONCRETE_KINDS = ("be_tong", "coc_khoan_nhoi", "cot_tron")
+    EXCAVATION_KINDS = ("dao_hao", "dao_ho")
+
+    def __init__(self, drawings_folder: str = "", takeoff_path: str = "", takeoff_sheet: Optional[str] = None,
+                 takeoff_profile: Optional[str] = None, takeoff_out: Optional[str] = None):
         super().__init__(
             agent_id="cad_agent",
-            description="Trắc đạc CAD — Shoelace + Average-End-Area + COM Interop"
+            description="Trắc đạc CAD / đo bóc bảng cấu kiện — diễn giải theo Bảng 6.2"
         )
         self.drawings_folder = drawings_folder
+        self.takeoff_path = takeoff_path
+        self.takeoff_sheet = takeoff_sheet
+        self.takeoff_profile = takeoff_profile
+        self.takeoff_out = takeoff_out
 
     def run(self, bus: StateBus) -> bool:
+        if self.takeoff_path:
+            return self._takeoff_from_table(bus)
         print("  [CADAgent] Bắt đầu quét bản vẽ CAD...")
 
         folder = self.drawings_folder or bus._state.drawings_folder
@@ -50,6 +60,45 @@ class CADAgent(BaseAgent):
             return self._use_sample_data(bus)
         raise MissingDataError(f"{problem} {DEMO_HINT}")
 
+    def _takeoff_from_table(self, bus: StateBus) -> bool:
+        """Đo bóc từ bảng cấu kiện bằng tools/takeoff_rules; dòng sai dữ liệu → dừng (không đoán)."""
+        from tools.takeoff_loader import TakeoffLoadError, load_takeoff, resolve_profile, write_takeoff_workbook
+        print(f"  [CADAgent] Đo bóc từ bảng cấu kiện: {self.takeoff_path}")
+        try:
+            profile = resolve_profile(self.takeoff_profile)
+            quantities = load_takeoff(self.takeoff_path, self.takeoff_sheet, profile)
+        except (TakeoffLoadError, ValueError) as e:
+            raise DataInputError(str(e))
+
+        def item(i, q):
+            return {"id": q.code or f"TK-{i:03d}", "name": q.name, "drawing": q.drawing, "kind": q.kind,
+                    "unit": q.unit, "count": q.count, "per_unit": q.per_unit, "value": q.value,
+                    "formula": q.formula}
+
+        concrete = [dict(item(i, q), wbs="KẾT CẤU CHUNG", volume_m3=q.value)
+                    for i, q in enumerate(quantities, 1) if q.kind in self.CONCRETE_KINDS]
+        formwork = [dict(item(i, q), area_m2=q.value) for i, q in enumerate(quantities, 1) if q.kind == "van_khuon"]
+        bus.set_cad_data({
+            "concrete_components": concrete,
+            "total_concrete_m3": round(sum(c["volume_m3"] for c in concrete), 3),
+            "formwork_components": formwork,
+            "total_formwork_m2": round(sum(f["area_m2"] for f in formwork), 3),
+            "excavation_m3": round(sum(q.value for q in quantities if q.kind in self.EXCAVATION_KINDS), 3),
+            "drawings_scanned": 0,
+            "drawings_processed": len({q.drawing for q in quantities if q.drawing}),
+            "takeoff_quantities": [item(i, q) for i, q in enumerate(quantities, 1)],
+            "takeoff_profile": {"name": profile.name, "source": profile.source, "verified": profile.verified,
+                                "warnings": profile.warnings()},
+            "source_takeoff_file": self.takeoff_path,
+        })
+        if self.takeoff_out:
+            write_takeoff_workbook(self.takeoff_out, quantities, profile, project_name=bus._state.project_name)
+            print(f"  [CADAgent] Đã ghi Bảng 6.2 / 6.1: {self.takeoff_out}")
+        print(f"  [CADAgent] {len(quantities)} khối lượng — BT {sum(c['volume_m3'] for c in concrete):,.3f} m³, "
+              f"VK {sum(f['area_m2'] for f in formwork):,.3f} m² — hồ sơ quy tắc: {profile.name}"
+              + ("" if profile.verified else " (CHƯA đối chiếu bản gốc)"))
+        return True
+
     def _takeoff_from_drawings(self, bus: StateBus, folder: str):
         """Bóc tách từ thư mục bản vẽ thật. Trả về None nếu thành công, ngược lại là lý do thiếu dữ liệu."""
         if not folder:
@@ -57,7 +106,7 @@ class CADAgent(BaseAgent):
         if not os.path.isdir(folder):
             return f"Không tìm thấy thư mục bản vẽ: {folder}"
 
-        from agents.aec_cad_extractor import AECCadExtractor
+        from core.agents.aec_cad_extractor import AECCadExtractor
         scan = AECCadExtractor().scan_drawings_folder(folder)
         drawings = scan.get("drawings", [])
         components = [d for d in drawings if d.get("volume_m3", 0) > 0]

@@ -89,13 +89,13 @@ Hệ thống **ĐÃ HOÀN TOÀN VẬN HÀNH THỰC TẾ** theo đúng 100% sơ �
 | Khối Chức Năng Trên Sơ Đồ | Module / Script Thực Thi Trong Hệ Thống | Trạng Thái Hoạt Động |
 |---|---|:---:|
 | **1. HỒ SƠ ĐẦU VÀO** | Thư mục `<THƯ_MỤC_DỰ_ÁN>\HSTK...` (61 bản vẽ DWG, BoQ Excel, Thuyết minh MD) | ✅ Sẵn sàng |
-| **2. AI SUPERVISOR** | `agents/project_state_manager.py` & `prompts/00_PROMPT_TONG_HOP_MULTI_AGENT_AEC.md` | ✅ Hoạt động |
-| **3. TRẮC ĐẠC & BÓC TÁCH CAD** | `agents/aec_cad_extractor.py` & `skills/aec-cad-automation/scripts/cad_takeoff_engine.py` (Shoelace, COM Interop, giải mã font TCVN3) | ✅ Hoạt động |
+| **2. AI SUPERVISOR** | `aec_core/project_state.py` & `prompts/00_PROMPT_TONG_HOP_MULTI_AGENT_AEC.md` | ✅ Hoạt động |
+| **3. TRẮC ĐẠC & BÓC TÁCH CAD** | `core/agents/aec_cad_extractor.py` & `skills/aec-cad-automation/scripts/cad_takeoff_engine.py` (Shoelace, COM Interop, giải mã font TCVN3) | ✅ Hoạt động |
 | **4. GIA CÔNG & VẬT TƯ** | `skills/aec-rebar-optimizer/scripts/optimize_rebar.py` (Cắt thép 1D <1.5%), `examples/update_material_sheets.py` (BBS 396 thanh & BOM) | ✅ Hoạt động |
-| **5. AGENT KỸ THUẬT & BPTC/KCS** | `agents/rag_method_statement_huggingface.py` (BPTC 8 chương), `examples/update_full_cross_linked_workbook.py` (3 Mẫu KCS A4) | ✅ Hoạt động |
+| **5. AGENT KỸ THUẬT & BPTC/KCS** | `core/agents/rag_method_statement_huggingface.py` (BPTC 8 chương), `examples/update_full_cross_linked_workbook.py` (3 Mẫu KCS A4) | ✅ Hoạt động |
 | **6. AGENT QS & DỰ TOÁN** | `skills/aec-cost-tender/scripts/vn_cost_engine.py` & Sheet `QS_DIEN_GIAI_CHI_TIET`, `TONG_HOP_DU_TOAN_GXD` (TT 36/2026, VAT 10%) | ✅ Hoạt động |
 | **7. KẾ HOẠCH & TIẾN ĐỘ** | `examples/generate_sample_bridge_project.py` (Mạng CPM 36 công tác, tệp MS Project `.xml` & `.mpp`) | ✅ Hoạt động |
-| **8. SHARED STATE BUS** | `agents/PROJECT_STATE.json` & `aec_core/project_state.py` (Single Source of Truth) | ✅ Hoạt động |
+| **8. SHARED STATE BUS** | `data/PROJECT_STATE.json` & `aec_core/project_state.py` (Single Source of Truth) | ✅ Hoạt động |
 | **9. QUALITY GATE (AUDIT)** | `aec_core/audit_verifier.py` & `examples/run_pipeline.py` (Chấm điểm 100/100, quét 0 số chết, kiểm tra logic chéo) | ✅ Hoạt động |
 | **10. HUMAN-IN-THE-LOOP** | Kỹ sư trưởng đọc `templates/BAO_CAO_THAM_TRA_AEC_AUDIT.md` và kiểm tra bảng tính trước khi phê duyệt | ✅ Hoạt động |
 | **11. XUẤT HỒ SƠ SẠCH** | `templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx` (14 Sheet), `Thuyet_Minh_Bien_Phap_Thi_Cong...md`, `Tien_Do...xml` | ✅ Hoạt động |

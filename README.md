@@ -159,7 +159,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**: m�
   ├── Ca xe, ca máy & kế hoạch dầu diezel (Gói A 5 sheet)
   ├── Supervisor (state machine) điều phối 8 pha, Quality Gate và Human Gate
   ├── Đóng gói Hub & Spoke 5 gói theo vai trò (tách file khi bàn giao; không mã hóa, không phân quyền truy cập)
-  ├── Thư viện đo bóc có diễn giải (tools/takeoff_rules.py), xuất Bảng 6.1/6.2;
+  ├── Thư viện đo bóc có diễn giải (tools/takeoff_rules.py), xuất Bảng 6.1/6.2, nối vào pha CAD_TAKEOFF của Supervisor;
   │   quy tắc Phụ lục VI TT 13/2021 lấy từ bản OCR — CHƯA đối chiếu bản gốc
   └── Kiểm toán Excel tĩnh: mã lỗi, tham chiếu sheet không tồn tại, file rỗng, bản sao lệch nhau
 
@@ -272,6 +272,8 @@ python run_state_graph.py --takeoff "cau_kien.csv" --takeoff-out bang_khoi_luong
 > - Kết quả: sheet `BANG_6_2_CHI_TIET` (có diễn giải tính toán từng dòng), `BANG_6_1_TONG_HOP` và `QUY_TAC_DO_BOC` (hồ sơ quy tắc đã dùng, kèm cảnh báo nếu chưa đối chiếu bản gốc).
 > - `--takeoff-profile`: `mac-dinh` (trừ mọi lỗ rỗng ghi trong bản vẽ), `tt13-2021` (ngưỡng lấy từ bản OCR Phụ lục VI — **chưa đối chiếu bản gốc**) hoặc đường dẫn file JSON do kỹ sư QS lập.
 > - Dòng sai dữ liệu (thiếu kích thước, loại không hợp lệ, số âm) làm lệnh **dừng và liệt kê từng dòng**, mã thoát 1.
+> - **Chạy qua Supervisor:** thêm `--phase takeoff` (hoặc `--demo` để chạy đủ 8 pha) thì bảng cấu kiện đi vào pha CAD_TAKEOFF: kết quả nằm trong State Bus (`cad_data.takeoff_quantities`, có diễn giải từng dòng), qua Gate-1 (cảnh báo nếu hồ sơ quy tắc chưa đối chiếu bản gốc) và hiện ở Human Gate. Ví dụ:
+>   `python run_state_graph.py --takeoff cau_kien.csv --phase takeoff rebar qs --takeoff-profile tt13-2021`
 
 #### a5. Điều phối Ca xe, Ca máy & Kế hoạch Nhiên liệu Dầu Diezel:
 ```powershell
@@ -481,7 +483,7 @@ flowchart TD
 
 Một trong những câu hỏi cốt lõi của kỹ sư khi ứng dụng AI vào xây dựng: **"Hệ thống sau khi đi qua hàng chục công trình thực tế có tự thông minh lên, tự nâng cấp kỹ năng (Level-Up) hay mãi dậm chân tại chỗ?"**
 
-Hệ thống **23HG-AEC-MultiAgent-System** trả lời một phần câu hỏi này bằng **Kho kinh nghiệm dự án (`aec_core/experience_store.py` & `agents/aec_experience_agent.py`)** vận hành theo **4 Cấp độ Tự Tiến Hóa Khép Kín**:
+Hệ thống **23HG-AEC-MultiAgent-System** trả lời một phần câu hỏi này bằng **Kho kinh nghiệm dự án (`aec_core/experience_store.py` & `core/agents/aec_experience_agent.py`)** vận hành theo **4 Cấp độ Tự Tiến Hóa Khép Kín**:
 
 > **Lưu ý:** đây là cơ chế lưu trữ và hiệu chuẩn theo quy tắc cố định, **không phải học máy**. "Level / XP" là chỉ số nội bộ đếm dữ liệu đã tích lũy, không đo năng lực kỹ thuật.
 
@@ -562,7 +564,8 @@ python run_state_graph.py --level
 ├── core/                         # Điều phối State Graph
 │   ├── state/                    # shared_state.py (SharedState), state_bus.py (State Bus, RLock)
 │   ├── supervisor/               # supervisor_agent.py (state machine điều phối), base_agent.py
-│   ├── agents/                   # rebar_agent, payment_agent, asbuilt_agent, sub_agents (CAD, QS, KCS, CPM)
+│   ├── agents/                   # Mọi agent: sub_agents (CAD/đo bóc, QS, KCS, CPM), rebar, payment, asbuilt;
+│   │                             # trích xuất CAD/Office/Markdown, hợp nhất dữ liệu, ca máy, kinh nghiệm, BPTC
 │   └── gates/                    # quality_gate.py (cổng kỹ thuật), human_gate.py (kỹ sư duyệt)
 │
 ├── tools/                        # Công cụ tính toán xác định (Python thuần, không LLM)
@@ -584,9 +587,8 @@ python run_state_graph.py --level
 │
 ├── aec_core/                     # audit_verifier (chấm điểm tự động), experience_store (kho kinh nghiệm),
 │                                 # material_frequency (cấp phối & tần suất thí nghiệm), project_state
-├── agents/                       # Các agent dùng độc lập (kinh nghiệm, ca máy, kiểm toán, trích xuất CAD/Office)
 ├── schemas/site_log_schema.py    # Nhật ký hiện trường & khối lượng hoàn công
-├── data/                         # Định mức ca máy, dầu diezel, hệ số vật tư (JSON)
+├── data/                         # Định mức ca máy, dầu diezel, hệ số vật tư; PROJECT_STATE.json (JSON)
 ├── workflows/                    # Quy trình kỹ thuật 00–15 (Markdown)
 ├── templates/                    # Master Excel, tiến độ XML/MPP, biên bản KCS Word, báo cáo kiểm toán mẫu
 │

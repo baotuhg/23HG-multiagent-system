@@ -40,7 +40,7 @@ gộp khi CI xanh.
 4. **Không trả kết quả "khớp" / "đạt" khi chưa kiểm tra.** Chưa có dữ liệu thì ghi
    `NOT_CHECKED` / `NOT_RUN`, không ghi `MATCHED` / `PASS`.
 5. **Không ghi đường dẫn máy cá nhân** (`C:\Users\...`, `D:\Code\...`) vào code trong `core/`,
-   `tools/`, `agents/`. Nhận đường dẫn qua tham số dòng lệnh.
+   `tools/`, `aec_core/`. Nhận đường dẫn qua tham số dòng lệnh.
 6. **Không commit file sinh ra khi chạy**: `.aec_state/`, file Excel / CSV đầu ra, file khóa
    Office `~$*.xlsx`. Xem `.gitignore`.
 7. Căn cứ pháp lý / tiêu chuẩn (TCVN, TT, NĐ) ghi rõ số hiệu trong docstring của hàm áp dụng.

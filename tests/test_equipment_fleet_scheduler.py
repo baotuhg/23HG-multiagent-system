@@ -15,7 +15,7 @@ from tools.equipment_fleet_scheduler import (
     MachineAllocation,
     DailyFleetMatrix
 )
-from agents.aec_equipment_fleet_agent import AECEquipmentFleetAgent
+from core.agents.aec_equipment_fleet_agent import AECEquipmentFleetAgent
 
 
 class TestEquipmentFleetScheduler(unittest.TestCase):

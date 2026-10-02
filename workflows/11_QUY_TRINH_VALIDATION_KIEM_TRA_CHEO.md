@@ -69,7 +69,7 @@ python examples/run_pipeline.py                        # Chạy audit → phải
 ### C. Kiểm tra kết nối CAD (nếu cập nhật bản vẽ)
 ```powershell
 python examples/run_data_ingestion_pipeline.py
-# Kiểm tra agents/PROJECT_STATE.json được cập nhật
+# Kiểm tra data/PROJECT_STATE.json được cập nhật
 ```
 
 ---

@@ -18,9 +18,9 @@ import os
 import json
 from typing import Dict, List, Any
 
-from agents.aec_cad_extractor import AECCadExtractor
-from agents.aec_office_extractor import AECOfficeExtractor
-from agents.aec_markdown_ingestor import AECMarkdownIngestor
+from core.agents.aec_cad_extractor import AECCadExtractor
+from core.agents.aec_office_extractor import AECOfficeExtractor
+from core.agents.aec_markdown_ingestor import AECMarkdownIngestor
 
 class AECDataAggregator:
     """Tác tử hợp nhất, đối chiếu chéo và chuẩn hóa dữ liệu toàn hệ thống."""

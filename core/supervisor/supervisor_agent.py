@@ -306,6 +306,7 @@ class AECSupervisor:
         errors = self.bus.get_errors()
 
         qs = self.bus.get_qs_data()
+        cad = self.bus.get_cad_data()
         sample_sources = self.bus.get_sample_data_sources()
         summary = {
             "Nguồn dữ liệu": (
@@ -313,6 +314,12 @@ class AECSupervisor:
                 + ", ".join(dict.fromkeys(s["agent_id"] for s in sample_sources))
                 if sample_sources else "Dữ liệu thật"
             ),
+            "Đo bóc khối lượng": (
+                "{n} khối lượng từ {f} — hồ sơ quy tắc: {p} ({v})".format(
+                    n=len(cad.takeoff_quantities), f=os.path.basename(cad.source_takeoff_file),
+                    p=cad.takeoff_profile.get("name", "?"),
+                    v="đã đối chiếu bản gốc" if cad.takeoff_profile.get("verified") else "CHƯA đối chiếu bản gốc")
+                if getattr(cad, "takeoff_quantities", None) else "Từ bản vẽ CAD (không dùng bảng cấu kiện)"),
             "G_XD (VNĐ)": f"{getattr(qs, 'total_G_XD_vnd', 0):,.0f}",
             "VAT 10%": f"{getattr(qs, 'vat_vnd', 0):,.0f}",
             "Audit score": (f"{getattr(qaqc, 'audit_score', 0)}/100" if getattr(qaqc, "audit_run", False)
