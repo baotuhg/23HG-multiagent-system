@@ -3,6 +3,10 @@
 
 ---
 
+
+> **Trạng thái:** ✅ **Đã hiện thực** — `tools/cpm_calculator.py`, `SchedulerAgent`;
+> xuất tệp MS Project `.xml`, tính đường găng và lịch nghỉ.
+
 ### I. NGUYÊN TẮC CỐT LÕI
 1. **Tính ngày công khoa học:** Không gán bừa thời gian thi công mà phải căn cứ **Hao phí định mức nhân công theo Thông tư 38/2026/TT-BXD**:
    $$\text{Tổng ngày công (công)} = \text{Khối lượng} \times \text{Định mức nhân công (công/ĐVT)}$$

@@ -143,3 +143,24 @@ class PaymentAgent(BaseAgent):
             write_payment_workbook(self.payment_out, result, bus._state.project_name)
             print(f"  [PaymentAgent] Đã xuất Mẫu 03a: {self.payment_out}")
         return True
+
+
+from core.agents.registry import register_agent  # noqa: E402
+
+
+@register_agent("payment_agent", order=70)
+def _make_payment_agent(args) -> "PaymentAgent":
+    return PaymentAgent(
+        qs_path=args.qs,
+        qs_sheet=args.qs_sheet,
+        rate_overrides={"chung": args.rate_chung, "nha_tam": args.rate_nha_tam, "kxd": args.rate_kxd,
+                        "tl": args.rate_tl, "vat": args.vat},
+        progress_path=args.progress,
+        progress_sheet=args.progress_sheet,
+        price_basis=args.price_basis,
+        advance_recovery_pct=args.advance_recovery_pct,
+        retention_pct=args.retention_pct,
+        advance_outstanding=args.advance_outstanding,
+        period=args.period,
+        payment_out=args.payment_out,
+    )

@@ -253,7 +253,8 @@ def check_inputs(args) -> bool:
     return ok
 
 
-def main():
+def build_parser() -> "argparse.ArgumentParser":
+    """Dựng ArgumentParser của CLI (tách khỏi main để test tái dùng được tham số mặc định)."""
     parser = argparse.ArgumentParser(
         description="23HG MultiAgent System v3.0 — State Graph + Supervisor"
     )
@@ -417,7 +418,11 @@ def main():
         "--sync-dir", default=None,
         help="Thư mục đích phụ lồng nhau (nested) để tự động đồng bộ sang"
     )
+    return parser
 
+
+def main():
+    parser = build_parser()
     args = parser.parse_args()
 
     if args.evolution_report:
@@ -497,71 +502,12 @@ def main():
         project_name=args.project_name,
     )
 
-    # Đăng ký tất cả Sub-Agent
-    from core.agents.sub_agents import (
-        CADAgent, QSAgent, BPTCKCSAgent, SchedulerAgent
-    )
-    from core.agents.rebar_agent import RebarAgent
-    from core.agents.asbuilt_agent import AsBuiltAgent
-    from core.agents.payment_agent import PaymentAgent
+    # Đăng ký tất cả Sub-Agent — tự động phát hiện trong core/agents/ (xem core/agents/registry.py).
+    # Thêm agent mới chỉ cần tạo module kèm factory @register_agent, không phải sửa file này.
+    from core.agents.registry import build_agents
 
-    supervisor.register_agent(CADAgent(
-        drawings_folder=args.drawings,
-        takeoff_path=args.takeoff or "",
-        takeoff_sheet=args.takeoff_sheet,
-        takeoff_profile=args.takeoff_profile,
-        takeoff_out=args.takeoff_out,
-    ))
-    supervisor.register_agent(RebarAgent(
-        bbs_path=args.bbs,
-        bbs_sheet=args.bbs_sheet,
-        skip_invalid_rows=args.bbs_skip_invalid,
-        cut_plan_out=args.cut_plan_out,
-        kerf_mm=args.kerf_mm,
-        end_trim_mm=args.end_trim_mm,
-        max_pieces_per_bar=args.max_pieces_per_bar,
-        max_marks_per_bar=args.max_marks_per_bar,
-        reuse_xd=args.reuse_xd,
-        short_xd=args.short_offcut_xd,
-        splice=args.splice,
-        lap_xd=args.lap_xd,
-        max_splice_ratio=args.max_splice_ratio,
-        min_splice_segment_xd=args.min_splice_segment_xd,
-        splice_zones=args.splice_zone,
-        rebarcut_out=args.rebarcut_out,
-    ))
-    supervisor.register_agent(QSAgent(
-        qs_path=args.qs,
-        qs_sheet=args.qs_sheet,
-        rate_overrides={"chung": args.rate_chung, "nha_tam": args.rate_nha_tam, "kxd": args.rate_kxd,
-                        "tl": args.rate_tl, "vat": args.vat},
-        qs_out=args.qs_out,
-    ))
-    supervisor.register_agent(BPTCKCSAgent(lab_path=args.lab, lab_sheet=args.lab_sheet, lab_out=args.lab_out))
-    supervisor.register_agent(SchedulerAgent(
-        schedule_path=args.schedule,
-        schedule_sheet=args.schedule_sheet,
-        start_date=args.start_date,
-        non_working_weekdays=args.non_working_days,
-        holidays=args.holidays,
-        schedule_out=args.schedule_out,
-    ))
-    supervisor.register_agent(AsBuiltAgent())
-    rates = {"chung": args.rate_chung, "nha_tam": args.rate_nha_tam, "kxd": args.rate_kxd,
-             "tl": args.rate_tl, "vat": args.vat}
-    supervisor.register_agent(PaymentAgent(
-        qs_path=args.qs,
-        qs_sheet=args.qs_sheet,
-        rate_overrides=rates,
-        progress_path=args.progress,
-        progress_sheet=args.progress_sheet,
-        price_basis=args.price_basis,
-        advance_recovery_pct=args.advance_recovery_pct,
-        retention_pct=args.retention_pct,
-        advance_outstanding=args.advance_outstanding,
-        period=args.period,
-        payment_out=args.payment_out,
-    ))
+    for agent in build_agents(args):
+        supervisor.register_agent(agent)
 
     # Chọn phases
     selected_phases = None

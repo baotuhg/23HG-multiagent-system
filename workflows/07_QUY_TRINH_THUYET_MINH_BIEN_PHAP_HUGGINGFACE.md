@@ -3,6 +3,11 @@
 
 ---
 
+
+> **Trạng thái:** 🔭 **Định hướng tương lai** — module `core/agents/rag_method_statement_huggingface.py`
+> **chưa gọi** mô hình Hugging Face / LLM / vector store nào; hiện chỉ xuất bản thuyết minh biện pháp
+> mẫu viết sẵn (module tự ghi rõ điều này). RAG thật nằm trong lộ trình.
+
 ### I. VÌ SAO PHẢI ỨNG DỤNG HUGGING FACE CHO THUYẾT MINH BIỆN PHÁP?
 - Khác với Bóc tách, Dự toán và Nghiệm thu (đòi hỏi tính xác định 100% bằng code toán học), **Thuyết minh Biện pháp thi công (Method Statement) và Kế hoạch HSE** là tài liệu văn bản kỹ thuật dài từ $50 - 100$ trang.
 - Tài liệu này đòi hỏi:

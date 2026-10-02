@@ -519,3 +519,49 @@ class SchedulerAgent(BaseAgent):
             {"id": "T10", "name": "Thảm BTN C16", "duration": 7, "predecessors": ["T09"]},
             {"id": "T11", "name": "Thử tải", "duration": 5, "predecessors": ["T10"]},
         ]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ĐĂNG KÝ AGENT (tự động phát hiện qua core/agents/registry.py)
+# ─────────────────────────────────────────────────────────────────────────────
+
+from core.agents.registry import register_agent  # noqa: E402
+
+
+@register_agent("cad_agent", order=10)
+def _make_cad_agent(args) -> CADAgent:
+    return CADAgent(
+        drawings_folder=args.drawings,
+        takeoff_path=args.takeoff or "",
+        takeoff_sheet=args.takeoff_sheet,
+        takeoff_profile=args.takeoff_profile,
+        takeoff_out=args.takeoff_out,
+    )
+
+
+@register_agent("qs_agent", order=30)
+def _make_qs_agent(args) -> QSAgent:
+    return QSAgent(
+        qs_path=args.qs,
+        qs_sheet=args.qs_sheet,
+        rate_overrides={"chung": args.rate_chung, "nha_tam": args.rate_nha_tam, "kxd": args.rate_kxd,
+                        "tl": args.rate_tl, "vat": args.vat},
+        qs_out=args.qs_out,
+    )
+
+
+@register_agent("bptc_kcs_agent", order=40)
+def _make_bptc_kcs_agent(args) -> BPTCKCSAgent:
+    return BPTCKCSAgent(lab_path=args.lab, lab_sheet=args.lab_sheet, lab_out=args.lab_out)
+
+
+@register_agent("scheduler_agent", order=50)
+def _make_scheduler_agent(args) -> SchedulerAgent:
+    return SchedulerAgent(
+        schedule_path=args.schedule,
+        schedule_sheet=args.schedule_sheet,
+        start_date=args.start_date,
+        non_working_weekdays=args.non_working_days,
+        holidays=args.holidays,
+        schedule_out=args.schedule_out,
+    )

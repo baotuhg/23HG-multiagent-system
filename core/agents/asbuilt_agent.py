@@ -289,3 +289,11 @@ class AsBuiltAgent(BaseAgent):
                     t["actual_finish_day"] = 56
 
         return calc.calculate(base_tasks, start_date_str="2026-10-01")
+
+
+from core.agents.registry import register_agent  # noqa: E402
+
+
+@register_agent("asbuilt_agent", order=60)
+def _make_asbuilt_agent(args) -> "AsBuiltAgent":
+    return AsBuiltAgent()

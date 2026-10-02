@@ -3,6 +3,12 @@
 
 ---
 
+
+> **Trạng thái:** ✅ **Đã hiện thực** — đo bóc từ bảng cấu kiện: `tools/takeoff_loader.py`,
+> `tools/takeoff_rules.py`, `CADAgent` (pha CAD_TAKEOFF), xuất Bảng 6.1 / 6.2.
+> 🟡 Bóc tách hình học trực tiếp từ DXF/DWG (`core/agents/aec_cad_extractor.py`) còn là nguyên mẫu
+> (cần `ezdxf`, chưa phải đường chạy chính).
+
 ### I. NGUYÊN TẮC CỐT LÕI
 1. **Tuyệt đối không điền số chết (Hard-coded numbers):** Mọi con số khối lượng phải được giải trình rõ nguồn gốc kích thước hình học từ bản vẽ.
 2. **Cấu trúc 12 cột chuẩn:**

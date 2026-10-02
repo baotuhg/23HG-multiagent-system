@@ -13,6 +13,10 @@
 
 ---
 
+
+> **Trạng thái:** ✅ **Đã hiện thực** phần đọc bảng thống kê thép (BBS): `tools/bbs_loader.py`.
+> 🟡 Cấp phối 1m³ và ma trận tần suất thí nghiệm KCS còn là nguyên mẫu / định hướng.
+
 ## 1. Mục tiêu và Nguyên tắc Quản lý Vật tư - KCS
 
 Trong quản lý chất lượng thi công công trình xây dựng (AEC QA/QC), để đảm bảo công trình an toàn chịu lực và nghiệm thu thanh quyết toán chặt chẽ, hệ thống bắt buộc phải giải quyết 3 bài toán cốt lõi:

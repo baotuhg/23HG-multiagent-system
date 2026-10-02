@@ -3,6 +3,12 @@
 
 ---
 
+
+> **Trạng thái:** ✅ **Đã hiện thực** phần kiểm tra logic ngày chéo và phiếu thí nghiệm / điểm
+> dừng kỹ thuật: `tools/lab_qaqc.py`, `BPTCKCSAgent`.
+> 🟡 Xuất biểu mẫu nghiệm thu ra Word (`.docx`) hiện chỉ có trong các script `examples/`, chưa tích
+> hợp vào pipeline chính.
+
 ### I. NGUYÊN TẮC CỐT LÕI
 1. **Kiểm soát tính hợp pháp của hồ sơ KCS:** Biên bản nghiệm thu là căn cứ pháp lý để thanh quyết toán và bàn giao công trình. Bất kỳ sự mâu thuẫn nào về ngày tháng giữa Biên bản nghiệm thu, Phiếu kết quả thí nghiệm và Nhật ký thi công đều là lỗi nghiêm trọng bị xuất toán khi kiểm toán.
 2. **Nguyên tắc "Không được đá ngày":**

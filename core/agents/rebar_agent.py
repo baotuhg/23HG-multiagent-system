@@ -350,3 +350,28 @@ class RebarAgent(BaseAgent):
             })
 
         return splice_positions
+
+
+from core.agents.registry import register_agent  # noqa: E402
+
+
+@register_agent("rebar_agent", order=20)
+def _make_rebar_agent(args) -> "RebarAgent":
+    return RebarAgent(
+        bbs_path=args.bbs,
+        bbs_sheet=args.bbs_sheet,
+        skip_invalid_rows=args.bbs_skip_invalid,
+        cut_plan_out=args.cut_plan_out,
+        kerf_mm=args.kerf_mm,
+        end_trim_mm=args.end_trim_mm,
+        max_pieces_per_bar=args.max_pieces_per_bar,
+        max_marks_per_bar=args.max_marks_per_bar,
+        reuse_xd=args.reuse_xd,
+        short_xd=args.short_offcut_xd,
+        splice=args.splice,
+        lap_xd=args.lap_xd,
+        max_splice_ratio=args.max_splice_ratio,
+        min_splice_segment_xd=args.min_splice_segment_xd,
+        splice_zones=args.splice_zone,
+        rebarcut_out=args.rebarcut_out,
+    )

@@ -3,6 +3,18 @@
 
 ---
 
+
+> ### 🔖 CHÚ THÍCH TRẠNG THÁI HIỆN THỰC (đồng bộ với code)
+> Mỗi quy trình dưới đây được gắn nhãn phản ánh đúng mức độ đã lập trình, để phân biệt phần
+> chạy được thật với phần còn là ý tưởng:
+> - **✅ Đã hiện thực (Python xác định):** có mã nguồn chạy được và có kiểm thử.
+> - **🟡 Nguyên mẫu (Prototype):** có mã nguồn nhưng chưa hoàn chỉnh, chưa phải đường chạy chính,
+>   hoặc mới chỉ có trong `examples/`.
+> - **🔭 Định hướng tương lai (RAG/LLM):** chưa có mã thực thi, nằm trong lộ trình.
+>
+> **Lưu ý pháp lý:** các số hiệu văn bản (Thông tư, Nghị định, TCVN) nêu trong tiêu đề là theo
+> giả định của hồ sơ mẫu; phải đối chiếu với văn bản hiện hành trước khi dùng cho hồ sơ thật.
+
 ### SƠ ĐỒ CHUỖI GIÁ TRỊ DỮ LIỆU KHÉP KÍN (END-TO-END PIPELINE)
 
 ```mermaid
