@@ -1,5 +1,6 @@
 # Core deterministic document & calculation engines
 openpyxl>=3.1.5
+xlrd>=2.0.1          # đọc file dự toán Excel 97-2003 (.xls)
 python-docx>=1.2.0
 
 # CAD & BIM processing (ezdxf: đọc 2D DXF; ifcopenshell: đọc & bóc tách 3D OpenBIM IFC)
