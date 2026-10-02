@@ -17,8 +17,10 @@ import json
 import tempfile
 
 from tools.takeoff_rules import (
-    BoxCulvert, CULVERT_ROWS, MeasurementProfile, average_end_volume, circular_column, load_profile,
-    pile, pit_excavation, rect_concrete, rect_formwork, trench_excavation,
+    BANG_6_2_HEADER, BoxCulvert, CULVERT_ROWS, K_BETONG_M3, MeasurementProfile, PROFILE_TT13_2021_PL_VI,
+    average_end_volume, bang_6_1, bang_6_2, bored_length, circular_column, load_profile, net_of_buried_works,
+    pile, pipe_length, pit_excavation, rect_concrete, rect_formwork, scaffold_column, scaffold_extra_layers,
+    scaffold_inner, trench_excavation,
 )
 
 A5 = os.path.join(ROOT, "examples", "HO_SO_CONG_HOP_TUYEN_A5", "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO",
@@ -126,7 +128,7 @@ class ElementLibraryTest(unittest.TestCase):
         wall = (1, 10, 0.2, 3)   # BT thô 6.000 ; lỗ 0.5 m3 và 0.05 m3
         deduct_all = rect_concrete("T1", *wall, openings_m3=[0.5, 0.05])
         self.assertEqual(deduct_all.value, 5.45)                                  # 6 − 0.5 − 0.05
-        over_threshold = MeasurementProfile(deduct_openings_over_m3=0.1)
+        over_threshold = MeasurementProfile(no_deduct_below={K_BETONG_M3: 0.1})
         q = rect_concrete("T1", *wall, openings_m3=[0.5, 0.05], profile=over_threshold)
         self.assertEqual(q.value, 5.5)                                            # chỉ trừ lỗ 0.5 > 0.1
         self.assertTrue(any("không trừ 1 lỗ" in n for n in q.notes))
@@ -172,15 +174,82 @@ class ElementLibraryTest(unittest.TestCase):
             path = os.path.join(tmp, "p.json")
             with open(path, "w", encoding="utf-8") as f:
                 json.dump({"name": "Dự án X", "source": "Điều ... đã đối chiếu", "verified": True,
-                           "deduct_openings_over_m3": 0.1}, f)
+                           "no_deduct_below": {"be_tong_m3": 0.1}, "ocr_pending": ["Trang 5"]}, f)
             pr = load_profile(path)
             self.assertTrue(pr.verified)
-            self.assertEqual(pr.deduct_openings_over_m3, 0.1)
+            self.assertEqual(pr.threshold("be_tong_m3"), 0.1)
+            self.assertEqual(pr.ocr_pending, ("Trang 5",))
             bad = os.path.join(tmp, "bad.json")
             with open(bad, "w", encoding="utf-8") as f:
                 json.dump({"khong_co": 1}, f)
             with self.assertRaises(ValueError):
                 load_profile(bad)
+
+
+class PhuLucVIRulesTest(unittest.TestCase):
+    """Quy tắc rút ra từ Phụ lục VI (bản OCR người dùng cung cấp). Số tính tay."""
+    P = PROFILE_TT13_2021_PL_VI
+
+    def test_preset_is_unverified_and_lists_ocr_items(self):
+        self.assertFalse(self.P.verified)
+        text = " | ".join(self.P.warnings())
+        self.assertIn("CHƯA đối chiếu", text)
+        self.assertIn("Cần đối chiếu", text)
+        self.assertEqual(self.P.decimals, 3)
+        self.assertEqual(self.P.rebar_no_deduct_below_ratio, 0.02)
+
+    def test_concrete_void_threshold_is_strictly_below(self):
+        # tường BT thô 6.000 ; lỗ 0.5, 0.1, 0.05: lỗ < 0.1 không trừ, lỗ ≥ 0.1 thì trừ → 6 − 0.5 − 0.1 = 5.400
+        q = rect_concrete("T1", 1, 10, 0.2, 3, openings_m3=[0.5, 0.1, 0.05], profile=self.P)
+        self.assertEqual(q.value, 5.4)
+
+    def test_rebar_deducted_only_when_content_reaches_2_percent(self):
+        # cột 0.3×0.3×3 = 0.270 m3: cốt thép 0.004 (1.48%) không trừ ; 0.007 (2.59%) thì trừ → 0.263
+        self.assertEqual(rect_concrete("C", 1, 0.3, 0.3, 3, rebar_volume_m3=0.004, profile=self.P).value, 0.27)
+        self.assertEqual(rect_concrete("C", 1, 0.3, 0.3, 3, rebar_volume_m3=0.007, profile=self.P).value, 0.263)
+        # hồ sơ mặc định (không đặt ngưỡng) không trừ cốt thép
+        self.assertEqual(rect_concrete("C", 1, 0.3, 0.3, 3, rebar_volume_m3=0.007).value, 0.27)
+
+    def test_formwork_void_threshold(self):
+        # sàn 4×5: ván khuôn đáy 20.000 ; lỗ 1.5 (≥ 1 m2) trừ, lỗ 0.5 (< 1 m2) không → 18.500
+        q = rect_formwork("S", "san", 1, 4, 5, 0.1, openings_m2=[1.5, 0.5], profile=self.P)
+        self.assertEqual(q.value, 18.5)
+
+    def test_bored_pile_drilling_and_buried_works(self):
+        self.assertEqual(bored_length("Khoan", 8, 42).value, 336.0)
+        # đắp: hào 2170 × 4 × 2.5 = 21,700 trừ phần cống chiếm chỗ 6.25 m2 × 11.3 × 34 = 2,401.25 → 19,298.75
+        q = net_of_buried_works("Đắp", 21700, [("cống 2x2 bao ngoài", 2401.25)])
+        self.assertEqual(q.value, 19298.75)
+
+    def test_pipe_length_excludes_chambers_only_for_drainage(self):
+        self.assertEqual(pipe_length("Ống", 120, 3.0, drainage=True).value, 117.0)
+        self.assertEqual(pipe_length("Ống", 120, 3.0, drainage=False).value, 120.0)
+
+    def test_scaffold_layers_rule(self):
+        # cao ≤ 3.6 không tính; mỗi 1.2 m tăng thêm = 1 lớp; phần dư < 0.6 không tính, ≥ 0.6 tính 1 lớp
+        cases = {3.6: 0, 4.0: 0, 4.2: 1, 4.8: 1, 5.4: 2, 6.0: 2, 6.6: 3}
+        for h, layers in cases.items():
+            self.assertEqual(scaffold_extra_layers(h), layers, f"cao {h}")
+        self.assertEqual(scaffold_inner("DG", 50, 3.0).value, 0.0)
+        self.assertEqual(scaffold_inner("DG", 50, 5.4).value, 150.0)          # 50 × (1 + 2)
+        self.assertEqual(scaffold_column("DG cột", 1.6, 5).value, 26.0)       # (1.6 + 3.6) × 5
+
+    def test_detail_table_6_2_columns(self):
+        q = rect_concrete("Bê tông móng M1", 2, 1.2, 1.0, 0.4).with_ref(drawing="KC-01", code="AF.11110")
+        rows = bang_6_2([q])
+        self.assertEqual(rows[0], BANG_6_2_HEADER)
+        self.assertEqual(len(rows[1]), 10)
+        stt, drawing, code, name, unit, count, formula, per_unit, total, _ = rows[1]
+        self.assertEqual((stt, drawing, code, name, unit, count), (1, "KC-01", "AF.11110", "Bê tông móng M1", "m3", 2))
+        self.assertEqual((per_unit, total), (0.48, 0.96))                       # cột (9) = (6) × (8)
+        self.assertIn("2 × (1.2 × 1 × 0.4)", formula)
+
+    def test_summary_table_6_1_merges_same_work(self):
+        a = rect_concrete("Bê tông móng", 2, 1.2, 1.0, 0.4).with_ref(code="AF.11110")
+        b = rect_concrete("Bê tông móng", 1, 1.0, 1.0, 0.4).with_ref(code="AF.11110")
+        rows = bang_6_1([a, b])
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[1][5], 1.36)                                      # 0.960 + 0.400
 
 
 if __name__ == "__main__":

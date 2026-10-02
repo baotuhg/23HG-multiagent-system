@@ -15,8 +15,14 @@ QUY TẮC ĐO BÓC LÀ ĐẦU VÀO, KHÔNG PHẢI HẰNG SỐ TRONG CODE
   Văn bản đo bóc thay đổi theo thời gian (TT 17/2019 → TT 13/2021, sửa đổi bởi TT 01/2025 và TT 60/2025;
   từ 01/07/2026 theo nguồn thứ cấp có thể chuyển sang văn bản mới) nên các ngưỡng phụ thuộc điều khoản
   (trừ lỗ rỗng bao nhiêu, mặt nào tính ván khuôn...) nằm trong MeasurementProfile do kỹ sư QS chọn/nạp từ
-  JSON (load_profile). Hồ sơ mặc định `verified=False`: mọi kết quả kèm cảnh báo cho tới khi người dùng đối
-  chiếu điều khoản và đặt verified=True. Thông tư 12/2021/TT-BXD là định mức (hao phí), KHÔNG phải đo bóc.
+  JSON (load_profile). Hồ sơ `verified=False` (mặc định, và cả PROFILE_TT13_2021_PL_VI lập từ bản OCR Phụ lục VI
+  do người dùng cung cấp): mọi kết quả kèm cảnh báo cho tới khi đối chiếu bản gốc và đặt verified=True.
+  Thông tư 12/2021/TT-BXD là định mức (hao phí), KHÔNG phải đo bóc.
+
+Quy tắc đã mã hóa từ Phụ lục VI (kèm TT 13/2021/TT-BXD): lấy 3 số thập phân; bê tông không trừ cốt thép < 2% và lỗ
+  rỗng < 0,1 m3; ván khuôn không trừ lỗ < 1 m2; xây/gỗ/hoàn thiện không trừ lỗ < 0,25 m2; mặt đường không trừ hố ga
+  < 1 m2; đào đắp không cộng độ nở rời/co ngót và trừ công trình ngầm chiếm chỗ; ống thoát nước không tính đoạn hố
+  ga; dàn giáo trong: cao > 3,6 m, +1 lớp mỗi 1,2 m, phần dư < 0,6 m bỏ; xuất Bảng 6.1/6.2 đúng cột mẫu.
 
 Nguyên tắc thông dụng được dùng (không phụ thuộc điều khoản cụ thể):
   - Đo theo kích thước trong bản vẽ thiết kế; bê tông và ván khuôn tách riêng theo cấu kiện.
@@ -33,7 +39,7 @@ Pure Python, Zero LLM.
 
 from __future__ import annotations
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 import json
 
@@ -80,25 +86,72 @@ class BoxCulvert:
 # HỒ SƠ QUY TẮC ĐO BÓC + KẾT QUẢ CÓ DIỄN GIẢI
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Khóa ngưỡng "không phải trừ lỗ rỗng nhỏ hơn X" — theo từng loại công tác
+K_BETONG_M3 = "be_tong_m3"          # lỗ rỗng trong khối bê tông (m3)
+K_VANKHUON_M2 = "van_khuon_m2"      # lỗ rỗng trên bề mặt bê tông, tính ván khuôn (m2)
+K_XAY_M2 = "xay_m2"                 # khoảng trống trong khối xây (m2)
+K_GO_M2 = "go_m2"                   # lỗ rỗng sàn, vách, trần gỗ (m2)
+K_HOANTHIEN_M2 = "hoan_thien_m2"    # lỗ rỗng không phải hoàn thiện (m2)
+K_MATDUONG_M2 = "mat_duong_m2"      # lỗ trống trên mặt đường: hố ga, hố thăm (m2)
+K_DAT_KHAC_CAP_M3 = "dat_khac_cap_m3"   # đất/đá khác cấp trong hố đào không tách riêng (m3)
+
+
 @dataclass(frozen=True)
 class MeasurementProfile:
-    """Các quy tắc phụ thuộc điều khoản văn bản đo bóc. KHÔNG tự điền theo trí nhớ: người dùng đặt từ văn bản."""
+    """Quy tắc đo bóc phụ thuộc điều khoản văn bản. Giá trị do người dùng đặt từ văn bản, kèm nguồn."""
     name: str = "CHƯA XÁC ĐỊNH"
-    source: str = ""                                   # văn bản + điều/khoản đã đối chiếu
-    verified: bool = False                             # True chỉ khi đã đối chiếu điều khoản
-    decimals: int = 3                                  # số chữ số thập phân của khối lượng
-    deduct_openings_over_m3: Optional[float] = None    # None = trừ mọi lỗ rỗng ghi trong bản vẽ; số = chỉ trừ lỗ > ngưỡng (m3)
-    deduct_openings_over_m2: Optional[float] = None    # như trên cho diện tích (m2) — ván khuôn
+    source: str = ""                                   # văn bản + mục/trang đã đối chiếu
+    verified: bool = False                             # True chỉ khi đã đối chiếu bản gốc
+    decimals: int = 3                                  # khối lượng lấy đến 3 số sau dấu phẩy khi là số thập phân
+    # "không phải trừ" lỗ rỗng NHỎ HƠN ngưỡng (lỗ >= ngưỡng thì trừ). Thiếu khóa = trừ mọi lỗ ghi trong bản vẽ.
+    no_deduct_below: Dict[str, float] = field(default_factory=dict)
+    rebar_no_deduct_below_ratio: Optional[float] = None   # không trừ thể tích cốt thép nếu hàm lượng < tỷ lệ này
     deduct_formwork_overlap: bool = True               # trừ phần ván khuôn chỗ cấu kiện giao nhau (dầm–sàn...)
+    ocr_pending: Tuple[str, ...] = ()                  # số liệu lấy từ OCR cần đối chiếu bản gốc
+
+    def threshold(self, key: str) -> Optional[float]:
+        return self.no_deduct_below.get(key)
 
     def warnings(self) -> List[str]:
         if self.verified:
             return []
-        return [f"Hồ sơ quy tắc '{self.name}' CHƯA đối chiếu điều khoản văn bản đo bóc hiện hành — "
-                f"kỹ sư QS cần xác nhận ngưỡng trừ lỗ rỗng và quy ước ván khuôn"]
+        msg = (f"Hồ sơ quy tắc '{self.name}' CHƯA đối chiếu bản gốc văn bản đo bóc hiện hành"
+               + (f" (nguồn: {self.source})" if self.source else ""))
+        out = [msg]
+        out += [f"Cần đối chiếu: {p}" for p in self.ocr_pending]
+        return out
 
 
 DEFAULT_PROFILE = MeasurementProfile()
+
+# Hồ sơ lập từ bản OCR Phụ lục VI "Phương pháp đo bóc khối lượng công trình" (kèm TT 13/2021/TT-BXD) do người dùng
+# cung cấp. Các số bên dưới được hai bộ OCR đọc giống nhau nhưng nằm trong danh sách "cần kiểm tra" nên verified=False
+# cho tới khi đối chiếu bản gốc. Văn bản này có thể đã hết hiệu lực/được thay thế tuỳ thời điểm lập hồ sơ.
+PROFILE_TT13_2021_PL_VI = MeasurementProfile(
+    name="TT 13/2021/TT-BXD — Phụ lục VI",
+    source="Phụ lục VI TT 13/2021/TT-BXD: II.1.4d (làm tròn 3 số, Trang 2), II.5.2 (Trang 4), II.5.3 (Trang 4-5), "
+           "II.5.4 (Trang 5), II.5.5 (Trang 5), II.5.9 (Trang 6), II.5.12-5.13 (Trang 7)",
+    verified=False,
+    decimals=3,
+    no_deduct_below={
+        K_BETONG_M3: 0.1,          # II.5.4: lỗ rỗng trong bê tông < 0,1 m3
+        K_VANKHUON_M2: 1.0,        # II.5.5: lỗ rỗng trên bề mặt bê tông < 1 m2
+        K_XAY_M2: 0.25,            # II.5.3: khoảng trống trong khối xây < 0,25 m2
+        K_GO_M2: 0.25,             # II.5.12: sàn, vách, trần gỗ < 0,25 m2
+        K_HOANTHIEN_M2: 0.25,      # II.5.13a: lỗ rỗng không phải hoàn thiện < 0,25 m2
+        K_MATDUONG_M2: 1.0,        # II.5.9: hố ga, hố thăm... trên mặt đường < 1 m2
+        K_DAT_KHAC_CAP_M3: 1.0,    # II.5.2: đất/đá khác cấp < 1 m3 không tách riêng
+    },
+    rebar_no_deduct_below_ratio=0.02,   # II.5.4: cốt thép hàm lượng < 2% thể tích cấu kiện bê tông
+    ocr_pending=(
+        "Trang 5, II.5.4: ngưỡng lỗ rỗng bê tông 0,1 m3 (OCR độ tin cậy thấp)",
+        "Trang 5, II.5.5: ngưỡng lỗ rỗng ván khuôn 1 m2 (OCR độ tin cậy thấp)",
+        "Trang 4, II.5.2: ngưỡng đất/đá khác cấp 1 m3 (OCR độ tin cậy thấp)",
+        "Trang 6, II.5.9: ngưỡng lỗ trống mặt đường 1 m2 (OCR độ tin cậy thấp)",
+        "Trang 7, II.5.12-5.13: ngưỡng 0,25 m2 (OCR độ tin cậy thấp)",
+        "Trang 5, II.5.5: câu về ván khuôn tấm định hình > 3 m2 bị OCR nhiễu — chưa áp dụng",
+    ),
+)
 
 
 def load_profile(path: str) -> MeasurementProfile:
@@ -108,21 +161,30 @@ def load_profile(path: str) -> MeasurementProfile:
     unknown = set(data) - set(MeasurementProfile.__dataclass_fields__)
     if unknown:
         raise ValueError(f"Hồ sơ quy tắc có khóa lạ: {', '.join(sorted(unknown))}")
+    if "ocr_pending" in data:
+        data["ocr_pending"] = tuple(data["ocr_pending"])
     return MeasurementProfile(**data)
 
 
 @dataclass(frozen=True)
 class Quantity:
-    """Một khối lượng đo bóc kèm diễn giải đọc được."""
+    """Một khối lượng đo bóc kèm diễn giải đọc được (đủ cột cho Bảng chi tiết khối lượng mẫu 6.2)."""
     name: str
     unit: str
-    value: float
+    value: float                 # khối lượng toàn bộ
     formula: str                 # công thức bằng số thật, vd "2 × (1.2 × 1 × 0.4)"
     notes: Tuple[str, ...] = ()
+    count: float = 1             # số bộ phận giống nhau (cột 6)
+    per_unit: Optional[float] = None   # khối lượng một bộ phận (cột 8)
+    drawing: str = ""            # ký hiệu bản vẽ (cột 2)
+    code: str = ""               # mã hiệu công tác (cột 3)
 
     def explain(self) -> str:
         extra = ("  [" + "; ".join(self.notes) + "]") if self.notes else ""
         return f"{self.name}: {self.formula} = {self.value:,.3f} {self.unit}{extra}"
+
+    def with_ref(self, drawing: str = "", code: str = "") -> "Quantity":
+        return replace(self, drawing=drawing or self.drawing, code=code or self.code)
 
 
 def _g(x: float) -> str:
@@ -130,31 +192,48 @@ def _g(x: float) -> str:
 
 
 def _q(profile: MeasurementProfile, name: str, unit: str, raw: float, formula: str,
-       notes: Sequence[str] = ()) -> Quantity:
+       notes: Sequence[str] = (), count: float = 1) -> Quantity:
     notes = tuple(notes) + tuple(profile.warnings())
-    return Quantity(name, unit, float(round_half_up(raw, profile.decimals)), formula, notes)
+    total = float(round_half_up(raw, profile.decimals))
+    per_unit = float(round_half_up(raw / count, profile.decimals)) if count else None
+    return Quantity(name, unit, total, formula, notes, count=count, per_unit=per_unit)
 
 
-def _deduct(gross: float, openings: Sequence[float], threshold: Optional[float]) -> Tuple[float, List[float]]:
-    taken = [o for o in openings if threshold is None or o > threshold]
-    return gross - sum(taken), taken
+def _deduct(gross: float, openings: Sequence[float], threshold: Optional[float]) -> Tuple[float, List[float], List[float]]:
+    """Trừ các lỗ rỗng; lỗ NHỎ HƠN ngưỡng thì không trừ (ngưỡng None = trừ hết). Trả về (net, đã trừ, bỏ qua)."""
+    taken = [o for o in openings if threshold is None or o >= threshold]
+    skipped = [o for o in openings if threshold is not None and o < threshold]
+    return gross - sum(taken), taken, skipped
 
 
 # ── Khối chữ nhật ────────────────────────────────────────────────────────────
 
 def rect_concrete(name: str, n: float, length: float, width: float, height: float,
-                  openings_m3: Sequence[float] = (), profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
-    """Bê tông cấu kiện chữ nhật: n × (dài × rộng × cao) − lỗ rỗng (theo ngưỡng của hồ sơ)."""
-    gross = n * length * width * height
-    net, taken = _deduct(gross, openings_m3, profile.deduct_openings_over_m3)
-    f = f"{_g(n)} × ({_g(length)} × {_g(width)} × {_g(height)})"
+                  openings_m3: Sequence[float] = (), rebar_volume_m3: float = 0.0,
+                  profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
+    """Bê tông cấu kiện chữ nhật: n × (dài × rộng × cao), trừ lỗ rỗng và cốt thép theo hồ sơ quy tắc.
+
+    - Lỗ rỗng nhỏ hơn ngưỡng của hồ sơ không trừ.
+    - Cốt thép: chỉ trừ thể tích cốt thép khi hàm lượng (rebar / thể tích BT một cấu kiện) ≥ ngưỡng của hồ sơ;
+      hồ sơ không đặt ngưỡng → không trừ cốt thép (thông lệ). rebar_volume_m3 là của TOÀN BỘ n cấu kiện.
+    """
+    unit_v = length * width * height
+    gross = n * unit_v
+    net, taken, skipped = _deduct(gross, openings_m3, profile.threshold(K_BETONG_M3))
+    f = f"{_g(n)} × ({_g(length)} × {_g(width)} × {_g(height)})" + "".join(f" − {_g(o)}" for o in taken)
     notes = []
-    if openings_m3:
-        f += "".join(f" − {_g(o)}" for o in taken)
-        skipped = [o for o in openings_m3 if o not in taken]
-        if skipped:
-            notes.append(f"không trừ {len(skipped)} lỗ ≤ {_g(profile.deduct_openings_over_m3)} m3 theo hồ sơ quy tắc")
-    return _q(profile, name, "m3", net, f, notes)
+    if skipped:
+        notes.append(f"không trừ {len(skipped)} lỗ < {_g(profile.threshold(K_BETONG_M3))} m3 theo hồ sơ quy tắc")
+    if rebar_volume_m3:
+        ratio = rebar_volume_m3 / gross if gross else 0.0
+        limit = profile.rebar_no_deduct_below_ratio
+        if limit is not None and ratio >= limit:
+            net -= rebar_volume_m3
+            f += f" − {_g(rebar_volume_m3)}"
+            notes.append(f"trừ cốt thép: hàm lượng {ratio:.2%} ≥ {limit:.0%}")
+        else:
+            notes.append(f"không trừ cốt thép (hàm lượng {ratio:.2%})")
+    return _q(profile, name, "m3", net, f, notes, count=n)
 
 
 _FORMWORK_KINDS = ("mong", "cot", "dam", "san", "tuong")
@@ -163,7 +242,7 @@ _FORMWORK_KINDS = ("mong", "cot", "dam", "san", "tuong")
 def rect_formwork(name: str, kind: str, n: float, length: float, width: float, height: float,
                   slab_thickness: float = 0.0, edges: bool = False, ends: bool = False,
                   openings_m2: Sequence[float] = (), profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
-    """Ván khuôn tiếp xúc cấu kiện chữ nhật (m2).
+    """Ván khuôn tiếp xúc cấu kiện chữ nhật (m2) — bề mặt bê tông cần chống đỡ tạm thời khi đúc.
 
     mong : 4 mặt hông           = 2(dài + rộng) × cao
     cot  : 4 mặt (dài × rộng là tiết diện, cao là chiều cao cột) = 2(dài + rộng) × cao
@@ -179,7 +258,8 @@ def rect_formwork(name: str, kind: str, n: float, length: float, width: float, h
     elif kind == "dam":
         depth = H - (slab_thickness if profile.deduct_formwork_overlap else 0.0)
         one = L * (2 * depth + W)
-        f1 = f"{_g(L)} × (2 × {_g(H)}{' − 2 × ' + _g(slab_thickness) if slab_thickness and profile.deduct_formwork_overlap else ''} + {_g(W)})"
+        cut = f" − 2 × {_g(slab_thickness)}" if slab_thickness and profile.deduct_formwork_overlap else ""
+        f1 = f"{_g(L)} × (2 × {_g(H)}{cut} + {_g(W)})"
     elif kind == "san":
         one, f1 = L * W, f"{_g(L)} × {_g(W)}"
         if edges:
@@ -191,33 +271,40 @@ def rect_formwork(name: str, kind: str, n: float, length: float, width: float, h
             one += 2 * W * H
             f1 += f" + 2 × {_g(W)} × {_g(H)}"
     gross = n * one
-    net, taken = _deduct(gross, openings_m2, profile.deduct_openings_over_m2)
+    net, taken, skipped = _deduct(gross, openings_m2, profile.threshold(K_VANKHUON_M2))
     f = f"{_g(n)} × ({f1})" + "".join(f" − {_g(o)}" for o in taken)
-    return _q(profile, name, "m2", net, f)
+    notes = [f"không trừ {len(skipped)} lỗ < {_g(profile.threshold(K_VANKHUON_M2))} m2 theo hồ sơ quy tắc"] if skipped else []
+    return _q(profile, name, "m2", net, f, notes, count=n)
 
 
-# ── Cấu kiện tròn ────────────────────────────────────────────────────────────
+# ── Cấu kiện tròn, cọc, khoan ────────────────────────────────────────────────
 
 def pile(name: str, n: float, diameter: float, length: float, cutoff: float = 0.0,
          profile: MeasurementProfile = DEFAULT_PROFILE) -> Tuple[Quantity, Optional[Quantity]]:
     """Cọc khoan nhồi: bê tông π/4·D²·L·n; kèm khối lượng đập đầu cọc (π/4·D²·cutoff·n) nếu có."""
     area = math.pi * diameter ** 2 / 4
     conc = _q(profile, name, "m3", n * area * length,
-              f"{_g(n)} × (π/4 × {_g(diameter)}² × {_g(length)})")
+              f"{_g(n)} × (π/4 × {_g(diameter)}² × {_g(length)})", count=n)
     demo = None
     if cutoff:
         demo = _q(profile, name + " — đập đầu cọc", "m3", n * area * cutoff,
-                  f"{_g(n)} × (π/4 × {_g(diameter)}² × {_g(cutoff)})")
+                  f"{_g(n)} × (π/4 × {_g(diameter)}² × {_g(cutoff)})", count=n)
     return conc, demo
+
+
+def bored_length(name: str, n: float, drill_depth: float, profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
+    """Công tác khoan (m): chiều sâu khoan đo dọc lỗ khoan, từ điểm bắt đầu tiếp xúc mặt đất đến đáy hố khoan.
+    Ghi rõ đường kính, cấp đất đá, khoan trên cạn/dưới nước... ở phần mô tả công tác (mục II.5.8)."""
+    return _q(profile, name, "m", n * drill_depth, f"{_g(n)} × {_g(drill_depth)}", count=n)
 
 
 def circular_column(name: str, n: float, diameter: float, height: float,
                     profile: MeasurementProfile = DEFAULT_PROFILE) -> Tuple[Quantity, Quantity]:
     """Cột tròn: bê tông π/4·D²·H·n và ván khuôn mặt bên π·D·H·n."""
     conc = _q(profile, name, "m3", n * math.pi * diameter ** 2 / 4 * height,
-              f"{_g(n)} × (π/4 × {_g(diameter)}² × {_g(height)})")
+              f"{_g(n)} × (π/4 × {_g(diameter)}² × {_g(height)})", count=n)
     form = _q(profile, name + " — ván khuôn", "m2", n * math.pi * diameter * height,
-              f"{_g(n)} × (π × {_g(diameter)} × {_g(height)})")
+              f"{_g(n)} × (π × {_g(diameter)} × {_g(height)})", count=n)
     return conc, form
 
 
@@ -225,7 +312,7 @@ def circular_column(name: str, n: float, diameter: float, height: float,
 
 def trench_excavation(name: str, length: float, bottom_width: float, depth: float, slope_m: float = 0.0,
                       profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
-    """Đào hào mái taluy 1:m (m = ngang/đứng): V = L × (b + m·H) × H."""
+    """Đào hào mái taluy 1:m (m = ngang/đứng): V = L × (b + m·H) × H. Không cộng thêm độ nở rời/co ngót."""
     area = (bottom_width + slope_m * depth) * depth
     return _q(profile, name, "m3", length * area,
               f"{_g(length)} × ({_g(bottom_width)} + {_g(slope_m)} × {_g(depth)}) × {_g(depth)}")
@@ -252,6 +339,78 @@ def average_end_volume(name: str, stations: Sequence[float], areas: Sequence[flo
         total += (a1 + a2) / 2 * (x2 - x1)
         terms.append(f"({_g(a1)} + {_g(a2)})/2 × {_g(x2 - x1)}")
     return _q(profile, name, "m3", total, " + ".join(terms))
+
+
+def net_of_buried_works(name: str, gross_volume: float, buried: Sequence[Tuple[str, float]],
+                        profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
+    """Khối lượng đào/đắp trừ các công trình ngầm chiếm chỗ (đường ống kỹ thuật, cống thoát nước...) — II.5.2.
+    buried = [(tên, thể tích chiếm chỗ m3)]. Thể tích chiếm chỗ là phần bao ngoài của công trình ngầm."""
+    f = _g(gross_volume) + "".join(f" − {_g(v)} ({n})" for n, v in buried)
+    return _q(profile, name, "m3", gross_volume - sum(v for _, v in buried), f)
+
+
+# ── Đường ống, dàn giáo ──────────────────────────────────────────────────────
+
+def pipe_length(name: str, centerline: float, occupied_by_chambers: float = 0.0, drainage: bool = True,
+                profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
+    """Đường ống: chiều dài đo dọc tim ống. Ống thoát nước không tính đoạn ở hố ga, hố thu, hố thăm chiếm chỗ (II.5.10)."""
+    cut = occupied_by_chambers if drainage else 0.0
+    f = _g(centerline) + (f" − {_g(cut)}" if cut else "")
+    return _q(profile, name, "m", centerline - cut, f)
+
+
+def scaffold_extra_layers(height: float, base: float = 3.6, step: float = 1.2, min_part: float = 0.6) -> int:
+    """Số lớp dàn giáo trong tính thêm: chỉ khi cao > 3,6 m; mỗi 1,2 m tăng thêm = 1 lớp; phần dư < 0,6 m không tính (II.5.16)."""
+    if height <= base:
+        return 0
+    extra = height - base
+    layers = int(extra // step)
+    if extra - layers * step >= min_part - 1e-12:
+        layers += 1
+    return layers
+
+
+def scaffold_inner(name: str, plan_area: float, height: float, profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
+    """Dàn giáo trong (m2 hình chiếu bằng × số lớp): chỉ tính khi cao > 3,6 m; lớp gốc 3,6 m + lớp cộng dồn."""
+    if height <= 3.6:
+        return _q(profile, name, "m2", 0.0, f"cao {_g(height)} ≤ 3,6 m: không tính dàn giáo trong")
+    layers = 1 + scaffold_extra_layers(height)
+    return _q(profile, name, "m2", plan_area * layers, f"{_g(plan_area)} × (1 + {layers - 1} lớp thêm)")
+
+
+def scaffold_column(name: str, perimeter: float, height: float, profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
+    """Dàn giáo hoàn thiện trụ, cột độc lập: (chu vi + 3,6 m) × chiều cao (II.5.16)."""
+    return _q(profile, name, "m2", (perimeter + 3.6) * height, f"({_g(perimeter)} + 3.6) × {_g(height)}")
+
+
+# ── Xuất theo biểu mẫu 6.1 / 6.2 ─────────────────────────────────────────────
+
+BANG_6_2_HEADER = ["STT", "KÝ HIỆU BẢN VẼ", "MÃ HIỆU CÔNG TÁC", "DANH MỤC CÔNG TÁC", "ĐƠN VỊ TÍNH",
+                   "SỐ BỘ PHẬN GIỐNG NHAU", "DIỄN GIẢI TÍNH TOÁN", "KHỐI LƯỢNG MỘT BỘ PHẬN",
+                   "KHỐI LƯỢNG TOÀN BỘ", "GHI CHÚ"]
+BANG_6_1_HEADER = ["STT", "MÃ HIỆU CÔNG TÁC", "DANH MỤC CÔNG TÁC XÂY DỰNG", "ĐƠN VỊ TÍNH",
+                   "CÁCH THỨC XÁC ĐỊNH", "KHỐI LƯỢNG", "GHI CHÚ"]
+
+
+def bang_6_2(quantities: Sequence[Quantity]) -> List[List]:
+    """Các dòng của Bảng chi tiết khối lượng công tác xây dựng (mẫu 6.2, Phụ lục VI TT 13/2021): 10 cột."""
+    rows = [list(BANG_6_2_HEADER)]
+    for i, q in enumerate(quantities, 1):
+        rows.append([i, q.drawing, q.code, q.name, q.unit, q.count, q.formula, q.per_unit, q.value,
+                     "; ".join(q.notes)])
+    return rows
+
+
+def bang_6_1(quantities: Sequence[Quantity], how: str = "Theo Bảng chi tiết khối lượng công tác xây dựng") -> List[List]:
+    """Các dòng của Bảng tổng hợp khối lượng xây dựng (mẫu 6.1): gộp cùng (mã hiệu, tên, đơn vị)."""
+    merged: Dict[Tuple[str, str, str], float] = {}
+    for q in quantities:
+        key = (q.code, q.name, q.unit)
+        merged[key] = merged.get(key, 0.0) + q.value
+    rows = [list(BANG_6_1_HEADER)]
+    for i, ((code, name, unit), value) in enumerate(merged.items(), 1):
+        rows.append([i, code, name, unit, how, round(value, 3), ""])
+    return rows
 
 
 # ─────────────────────────────────────────────────────────────────────────────
