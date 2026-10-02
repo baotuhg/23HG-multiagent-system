@@ -32,6 +32,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from tools.bbs_loader import _norm, _to_number
+from tools.money import D, mul, round_vnd, total
 
 HEADER_SCAN_ROWS = 40
 RATE_KEYS = ("chung", "nha_tam", "kxd", "tl", "vat")
@@ -83,21 +84,36 @@ class QSEstimate:
     G: int = 0
     VAT: int = 0
     G_XD: int = 0
+    line_rounding: bool = False
 
     @property
     def missing_rates(self) -> List[str]:
         return [k for k in RATE_KEYS if k not in self.rates]
 
-    def compute(self) -> None:
-        """Tính T, GT, TL, G, VAT, G_XD. Gọi sau khi đủ tỷ lệ."""
+    def line_amount(self, item: "QSItem"):
+        """Thành tiền chính xác (Decimal) của một dòng: KL × ĐG; nếu dòng chỉ có thành tiền trong file thì dùng số đó."""
+        exact = mul(item.quantity, item.unit_price)
+        if abs(float(exact) - item.amount) <= 1e-6 * max(1.0, abs(item.amount)):
+            return exact
+        return D(item.amount)
+
+    def compute(self, line_rounding: bool = False) -> None:
+        """Tính T, GT, TL, G, VAT, G_XD (Decimal, làm tròn half up như ROUND của Excel).
+
+        line_rounding=False (mặc định): T = ROUND(Σ KL×ĐG) — cộng chính xác rồi làm tròn một lần.
+        line_rounding=True : làm tròn từng dòng thành tiền đến đồng rồi cộng (cách nhiều bảng dự toán dùng).
+        Hai cách có thể lệch vài đồng; chọn theo quy ước của bảng dự toán / hợp đồng cần đối chiếu.
+        """
         if self.missing_rates:
             raise QSLoadError("Thiếu tỷ lệ: " + ", ".join(RATE_LABELS[k] for k in self.missing_rates))
-        self.T = round(sum(i.amount for i in self.items))
-        self.GT_components = {k: round(self.T * self.rates[k]) for k in ("chung", "nha_tam", "kxd")}
+        self.line_rounding = line_rounding
+        amounts = [self.line_amount(i) for i in self.items]
+        self.T = sum(round_vnd(a) for a in amounts) if line_rounding else round_vnd(total(amounts))
+        self.GT_components = {k: round_vnd(mul(self.T, self.rates[k])) for k in ("chung", "nha_tam", "kxd")}
         self.GT = sum(self.GT_components.values())
-        self.TL = round((self.T + self.GT) * self.rates["tl"])
+        self.TL = round_vnd(mul(self.T + self.GT, self.rates["tl"]))
         self.G = self.T + self.GT + self.TL
-        self.VAT = round(self.G * self.rates["vat"])
+        self.VAT = round_vnd(mul(self.G, self.rates["vat"]))
         self.G_XD = self.G + self.VAT
         if self.file_total_T is not None and abs(self.file_total_T - self.T) > max(1000, 1e-6 * self.T):
             self.warnings.append(
