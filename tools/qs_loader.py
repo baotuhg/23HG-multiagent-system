@@ -75,6 +75,7 @@ class QSItem:
 @dataclass
 class QSEstimate:
     source: str
+    hang_muc: str = ""
     items: List[QSItem] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
@@ -84,6 +85,9 @@ class QSEstimate:
     file_G_XD: Optional[float] = None
     evaluated_cells: int = 0
     # Kết quả (VNĐ, làm tròn đồng)
+    VL: int = 0
+    NC: int = 0
+    M: int = 0
     T: int = 0
     GT_components: Dict[str, int] = field(default_factory=dict)
     GT: int = 0
@@ -114,8 +118,15 @@ class QSEstimate:
         if self.missing_rates:
             raise QSLoadError("Thiếu tỷ lệ: " + ", ".join(RATE_LABELS[k] for k in self.missing_rates))
         self.line_rounding = line_rounding
-        amounts = [self.line_amount(i) for i in self.items]
-        self.T = sum(round_vnd(a) for a in amounts) if line_rounding else round_vnd(total(amounts))
+        if self.items and all(i.price_nc is not None for i in self.items):
+            # Bảng tách đơn giá VL / NC / M: làm tròn từng thành phần từng dòng (như phần mềm dự toán)
+            self.VL = sum(round_vnd(mul(i.quantity, i.price_vl)) for i in self.items)
+            self.NC = sum(round_vnd(mul(i.quantity, i.price_nc)) for i in self.items)
+            self.M = sum(round_vnd(mul(i.quantity, i.price_m)) for i in self.items)
+            self.T = self.VL + self.NC + self.M
+        else:
+            amounts = [self.line_amount(i) for i in self.items]
+            self.T = sum(round_vnd(a) for a in amounts) if line_rounding else round_vnd(total(amounts))
         self.GT_components = {k: round_vnd(mul(self.T, self.rates[k])) for k in ("chung", "nha_tam", "kxd")}
         self.GT = sum(self.GT_components.values())
         self.TL = round_vnd(mul(self.T + self.GT, self.rates["tl"]))
@@ -134,15 +145,18 @@ class QSEstimate:
 # PUBLIC API
 # ─────────────────────────────────────────────────────────────────────────────
 
-def load_qs(path: str, sheet: Optional[str] = None) -> QSEstimate:
-    """Đọc bảng QS + (nếu có) sheet tổng hợp G_XD để lấy tỷ lệ. Chưa tính G_XD (gọi .compute())."""
+def load_qs(path: str, sheet: Optional[str] = None, hang_muc: Optional[str] = None) -> QSEstimate:
+    """Đọc bảng QS + (nếu có) sheet tổng hợp G_XD để lấy tỷ lệ. Chưa tính G_XD (gọi .compute()).
+
+    hang_muc: khi sheet có nhiều hạng mục, chọn hạng mục theo tên (khớp một phần, bỏ dấu).
+    """
     if not os.path.exists(path):
         raise QSLoadError(f"Không tìm thấy file QS: {path}")
     ext = os.path.splitext(path)[1].lower()
     if ext in (".xlsx", ".xlsm"):
-        return _load_excel(path, sheet)
+        return _load_excel(path, sheet, hang_muc=hang_muc)
     if ext == ".xls":
-        return _load_excel(path, sheet, book=_XlsBook(path))
+        return _load_excel(path, sheet, book=_XlsBook(path), hang_muc=hang_muc)
     if ext in (".csv", ".txt"):
         return _parse_items(_read_csv(path), source=path)
     if ext == ".json":
@@ -175,27 +189,84 @@ def apply_rate_overrides(est: QSEstimate, overrides: Dict[str, Optional[float]])
 # EXCEL
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _load_excel(path: str, sheet: Optional[str], book=None) -> QSEstimate:
+_HANG_MUC = re.compile(r"^\s*HẠNG\s*MỤC\s*[:：]", re.I)
+
+
+def _split_hang_muc(rows: Sequence[Sequence[Any]]) -> List[Tuple[str, List[List[Any]]]]:
+    """Tách các khối hạng mục trong một sheet (dòng 'HẠNG MỤC: ...'). [] nếu < 2 hạng mục."""
+    starts = []
+    for r, row in enumerate(rows):
+        for v in row:
+            if isinstance(v, str) and _HANG_MUC.match(v):
+                name = re.split(r"[:：]", v, maxsplit=1)[1].strip()
+                starts.append((r, name))
+                break
+    if len(starts) < 2:
+        return []
+    out = []
+    for i, (r, name) in enumerate(starts):
+        end = starts[i + 1][0] if i + 1 < len(starts) else len(rows)
+        block = [list(row) for row in rows[r:end]]
+        # Cắt bỏ phần chân (TỔNG HẠNG MỤC + chữ ký) để không lẫn vào danh sách công tác;
+        # giữ lại dòng TỔNG để lấy chi phí trực tiếp ghi trong file.
+        for k, brow in enumerate(block):
+            if any(isinstance(v, str) and re.search(r"(TỔNG|CỘNG)\s+HẠNG\s*MỤC", v, re.I) for v in brow):
+                block = block[:k + 1]
+                break
+        out.append((name, block))
+    return out
+
+
+def _qs_sheet_rows(ev, sheet: Optional[str], path: str):
+    """Tìm sheet chứa bảng QS và trả (tên sheet, rows)."""
+    if sheet and sheet not in ev.sheetnames:
+        raise QSLoadError(f"Không có sheet '{sheet}' trong {path}. Các sheet: {ev.sheetnames}")
+    for name in ([sheet] if sheet else ev.sheetnames):
+        rows = ev.rows(name, missing=_UNCALC)
+        if _find_header(rows) is not None:
+            return name, rows
+    raise QSLoadError(
+        f"Không tìm thấy bảng QS trong {path} — cần các cột Nội dung công tác, ĐVT, Khối lượng, Đơn giá"
+    )
+
+
+def load_all_hang_muc(path: str, sheet: Optional[str] = None) -> List[QSEstimate]:
+    """Đọc mọi hạng mục trong file (mỗi hạng mục một dự toán). File một hạng mục → danh sách 1 phần tử."""
+    ext = os.path.splitext(path)[1].lower()
+    if ext == ".xls":
+        book = _XlsBook(path)
+    elif ext in (".xlsx", ".xlsm"):
+        from tools.excel_eval import WorkbookEvaluator
+        book = _XlsxBook(WorkbookEvaluator(path))
+    else:
+        return [load_qs(path, sheet)]
+    name, rows = _qs_sheet_rows(book, sheet, path)
+    blocks = _split_hang_muc(rows)
+    names = [b[0] for b in blocks] if blocks else [None]
+    return [_load_excel(path, sheet, book=book, hang_muc=n) for n in names]
+
+
+def _load_excel(path: str, sheet: Optional[str], book=None, hang_muc: Optional[str] = None) -> QSEstimate:
     if book is None:
         from tools.excel_eval import WorkbookEvaluator
         book = _XlsxBook(WorkbookEvaluator(path))
     ev = book
-    if sheet and sheet not in ev.sheetnames:
-        raise QSLoadError(f"Không có sheet '{sheet}' trong {path}. Các sheet: {ev.sheetnames}")
 
-    est = None
-    for name in ([sheet] if sheet else ev.sheetnames):
-        rows = ev.rows(name, missing=_UNCALC)
-        if _find_header(rows) is not None:
-            est = _parse_items(rows, source=f"{path}#{name}")
-            break
-    if est is None:
-        raise QSLoadError(
-            f"Không tìm thấy bảng QS trong {path} — cần các cột Nội dung công tác, ĐVT, Khối lượng, Đơn giá"
-        )
+    name, rows = _qs_sheet_rows(ev, sheet, path)
+    blocks = _split_hang_muc(rows)
+    if blocks:
+        chosen = next((b for b in blocks if hang_muc and _norm(hang_muc) in _norm(b[0])), blocks[0])
+        est = _parse_items(chosen[1], source=f"{path}#{name}")
+        est.hang_muc = chosen[0]
+        if hang_muc is None and len(blocks) > 1:
+            est.warnings.insert(0, f"Sheet '{name}' có {len(blocks)} hạng mục; đang đọc '{chosen[0]}'. "
+                                   f"Chọn hạng mục khác bằng tham số hang_muc. Các hạng mục: "
+                                   + "; ".join(b[0] for b in blocks))
+    else:
+        est = _parse_items(rows, source=f"{path}#{name}")
 
     # Tỷ lệ: lấy từ MỘT sheet tổng hợp G_XD — sheet có nhiều khoản mục chi phí nhận diện được nhất
-    qs_sheet = est.source.split("#", 1)[1]
+    qs_sheet = name
     best = None
     for name in ev.sheetnames:
         if name == qs_sheet:
@@ -318,13 +389,13 @@ def _detect_columns(headers: Sequence[Any]) -> Dict[str, int]:
                 cols.setdefault("amount_m", idx)
             else:
                 cols.setdefault("amount", idx)
-        elif "dongia" in h and "vatlieuphu" in h:
+        elif _is_price(h) and "vatlieuphu" in h:
             cols.setdefault("price_vlp", idx)
-        elif "dongia" in h and "vatlieu" in h or h in ("vl", "dongiavl"):
+        elif _is_price(h) and "vatlieu" in h or h in ("vl", "dongiavl"):
             cols.setdefault("price_vl", idx)
-        elif "dongia" in h and "nhancong" in h or h in ("nc", "dongianc"):
+        elif _is_price(h) and "nhancong" in h or h in ("nc", "dongianc"):
             cols.setdefault("price_nc", idx)
-        elif "dongia" in h and "may" in h or h in ("m", "mtc", "dongiamtc"):
+        elif _is_price(h) and "may" in h or h in ("m", "mtc", "dongiamtc"):
             cols.setdefault("price_m", idx)
         elif "dongia" in h or h in ("unitprice", "price"):
             cols.setdefault("price", idx)
@@ -338,14 +409,26 @@ def _detect_columns(headers: Sequence[Any]) -> Dict[str, int]:
         elif h.startswith("dvt") or h.startswith("donvi") or h in ("unit",):
             cols.setdefault("unit", idx)
         elif "khoiluong" in h or h in ("quantity", "qty"):
-            # Cột đúng tên "Khối lượng" thắng các cột phụ như "Khối lượng cấu kiện"
-            if h in ("khoiluong", "quantity", "qty") and not cols.get("_qty_exact"):
-                cols["quantity"] = idx
-                cols["_qty_exact"] = 1
+            # Nhiều cột "Khối lượng": ưu tiên "toàn bộ / toàn công trình" (KL để nhân đơn giá)
+            # hơn "một bộ phận / cấu kiện" (KL đơn vị). Cột đúng tên "Khối lượng" thắng tất cả.
+            if h in ("khoiluong", "quantity", "qty"):
+                score = 4
+            elif any(w in h for w in ("toanbo", "toancongtrinh", "tongcong", "toanphan")):
+                score = 3
+            elif any(w in h for w in ("motbophan", "caukien", "mot", "donvi")):
+                score = 1
             else:
-                cols.setdefault("quantity", idx)
-    cols.pop("_qty_exact", None)
+                score = 2
+            if score > cols.get("_qty_score", 0):
+                cols["quantity"] = idx
+                cols["_qty_score"] = score
+    cols.pop("_qty_score", None)
     return cols
+
+
+def _is_price(h: str) -> bool:
+    """Tiêu đề thuộc nhóm đơn giá: 'Đơn giá' hoặc 'Tính trực tiếp' (đơn giá trực tiếp VL/NC/M)."""
+    return "dongia" in h or "tinhtructiep" in h
 
 
 _PRICE_PARTS = ("price_vl", "price_vlp", "price_nc", "price_m")
@@ -486,10 +569,14 @@ def _parse_items(rows: List[List[Any]], source: str) -> QSEstimate:
         price = _to_number(price_cells[0]) if price_cells[0] is not None else None
         if price is None and (price_cells[0] is None or parts):
             price = sum(parts.values()) if parts and all(v is not None for v in parts.values()) else None
-        if price is None or price < 0:
-            est.errors.append(f"{where}: chưa có hoặc sai đơn giá")
-            continue
         file_amount = _to_number(raw_amount) if raw_amount not in (None, _UNCALC) else None
+        if price is None or price < 0:
+            if file_amount == 0:            # dòng ghi rõ không tính tiền (đã trừ / không tính tiền)
+                price = 0.0
+                parts = {"price_vl": 0.0, "price_nc": 0.0, "price_m": 0.0}
+            else:
+                est.errors.append(f"{where}: chưa có hoặc sai đơn giá")
+                continue
         current = QSItem(
             row=offset, stt="" if stt is None else str(stt).strip(), code="" if code is None else str(code).strip(),
             description=desc_text, unit=str(_get(row, cols.get("unit")) or "").strip(),
