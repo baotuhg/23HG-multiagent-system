@@ -774,7 +774,7 @@ def build_km19_machine_schedule():
         project_path(r"HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx"),
         project_path(r"HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx"),
         project_path(r"HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx"),
-        repo_path(r"examples\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx")
+        repo_path(r"examples\HO_SO_CAU_KM19_529\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx")
     ]
 
     for p in target_excel_paths:
@@ -815,7 +815,7 @@ def build_km19_machine_schedule():
         project_path(r"HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml"),
         project_path(r"HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml"),
         project_path(r"HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml"),
-        repo_path(r"examples\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml")
+        repo_path(r"examples\HO_SO_CAU_KM19_529\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml")
     ]
 
     for p in target_xml_paths:

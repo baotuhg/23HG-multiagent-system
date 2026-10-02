@@ -1011,7 +1011,7 @@ def build_b9_schedule():
     target_paths = [
         project_path(r"TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx"),
         project_path(r"260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx"),
-        repo_path(r"examples\260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx")
+        repo_path(r"examples\TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx")
     ]
 
     for p in target_paths:

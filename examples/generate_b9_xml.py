@@ -58,7 +58,7 @@ def generate_b9_xml():
     xml_paths = [
         project_path(r"TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml"),
         project_path(r"260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml"),
-        repo_path(r"examples\260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml")
+        repo_path(r"examples\TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml")
     ]
     for xp in xml_paths:
         tree.write(xp, encoding="utf-8", xml_declaration=True)

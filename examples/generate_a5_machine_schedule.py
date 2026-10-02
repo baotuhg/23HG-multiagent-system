@@ -749,7 +749,7 @@ def build_a5_machine_schedule():
     target_paths = [
         project_path(r"CỐNG HỘP TUYẾN A5\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx"),
         project_path(r"TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx"),
-        repo_path(r"examples\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx")
+        repo_path(r"examples\HO_SO_CONG_HOP_TUYEN_A5\HO_SO_THUC_CHIEN_HUB_AND_SPOKE_CONG_A5\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx")
     ]
 
     for p in target_paths:

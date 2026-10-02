@@ -46,6 +46,24 @@ class NoPersonalPathsTest(unittest.TestCase):
         self.assertEqual(hits, [], "đường dẫn máy cá nhân trong repo")
 
 
+class ExamplesLayoutTest(unittest.TestCase):
+    """Hồ sơ mẫu nằm trong thư mục dự án của nó, không để file rời ở gốc examples/ hay lẫn sang dự án khác."""
+    EXAMPLES = os.path.join(ROOT, "examples")
+    DATA_EXT = (".xlsx", ".xml", ".mpp", ".docx", ".csv")
+
+    def test_no_loose_dossier_files_at_examples_root(self):
+        loose = [f for f in os.listdir(self.EXAMPLES) if f.lower().endswith(self.DATA_EXT)]
+        self.assertEqual(loose, [], "file hồ sơ nằm rời ở gốc examples/")
+
+    def test_a5_files_only_in_a5_folder(self):
+        stray = []
+        for dp, _, files in os.walk(self.EXAMPLES):
+            if os.path.abspath(dp).startswith(os.path.abspath(A5)):
+                continue
+            stray += [os.path.join(dp, f) for f in files if "_A5" in f and f.lower().endswith(self.DATA_EXT)]
+        self.assertEqual(stray, [], "file của cống A5 nằm ngoài thư mục A5")
+
+
 @unittest.skipUnless(os.path.isdir(A5), "thiếu thư mục ví dụ A5")
 class A5ExamplesTest(unittest.TestCase):
 
