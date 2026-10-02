@@ -211,15 +211,38 @@ def extract_master_eval_cache(master_path: str) -> Dict[str, Dict[str, Any]]:
         wb_vals = openpyxl.load_workbook(master_abs, data_only=True)
         for sname in wb_vals.sheetnames:
             ws = wb_vals[sname]
-            matrix = []
-            for row in ws.iter_rows(values_only=True):
-                matrix.append(row)
+            matrix = [list(row) for row in ws.iter_rows(values_only=True)]
             cache[sname] = {
                 'row_start': 1,
                 'col_start': 1,
                 'values': matrix
             }
         wb_vals.close()
+    except Exception:
+        pass
+
+    # 3. Master chưa từng được Excel tính (không có giá trị lưu sẵn): tự tính các ô còn thiếu,
+    #    nếu không sanitize_workbook_formulas sẽ để nguyên công thức trỏ sang sheet không có trong file vi mô.
+    try:
+        from tools.excel_eval import WorkbookEvaluator
+        wb_f = openpyxl.load_workbook(master_abs, data_only=False)
+        ev = WorkbookEvaluator(master_abs)
+        for sname, info in cache.items():
+            if sname not in wb_f.sheetnames:
+                continue
+            matrix = info['values']
+            for row in wb_f[sname].iter_rows():
+                for cell in row:
+                    f = cell.value
+                    if not (isinstance(f, str) and f.startswith("=")):
+                        continue
+                    r, c = cell.row - info['row_start'], cell.column - info['col_start']
+                    if r < len(matrix) and c < len(matrix[r]) and matrix[r][c] is None:
+                        try:
+                            matrix[r][c] = ev.value(sname, cell.row, cell.column)
+                        except Exception:
+                            pass   # hàm chưa hỗ trợ: giữ nguyên, Quality Gate sẽ báo
+        wb_f.close()
     except Exception:
         pass
 
