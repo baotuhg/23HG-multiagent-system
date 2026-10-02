@@ -3,6 +3,10 @@
 
 ---
 
+
+> **Trạng thái:** ✅ **Đã hiện thực** — `tools/qs_loader.py` và `tools/survey_estimate.py`;
+> có golden test đối chiếu dự toán thật đã thẩm định (cả khảo sát và xây lắp), khớp đến từng đồng.
+
 ### I. CÔNG THỨC TÍNH TOÁN KINH PHÍ XÂY DỰNG CHUẨN
 
 $$G_{XD} = T + GT + TL + VAT$$

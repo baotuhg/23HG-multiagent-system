@@ -3,6 +3,10 @@
 
 ---
 
+
+> **Trạng thái:** ✅ **Đã hiện thực** — `tools/cutting_stock_solver.py` (OR-Tools),
+> `core/agents/rebar_agent.py`; có kiểm tra vùng nối chồng và kiểm thử đơn vị.
+
 ### I. NGUYÊN TẮC CỐT LÕI
 1. **Quy chuẩn cây nguyên:** Chiều dài cây thép tiêu chuẩn của các nhà máy sản xuất (Hòa Phát, Việt Ý, Pomina) là **$11.70\text{ m}$**.
 2. **Mục tiêu:** Ghép nối các đoạn cắt theo bảng thống kê thép từ bản vẽ thiết kế vào các cây nguyên sao cho tổng số cây nguyên là ít nhất và lượng đầu thừa phôi cắt (đề-xê) là nhỏ nhất.

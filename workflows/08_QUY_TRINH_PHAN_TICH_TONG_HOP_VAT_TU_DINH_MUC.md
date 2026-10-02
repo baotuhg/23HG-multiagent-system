@@ -4,6 +4,11 @@
 
 ---
 
+
+> **Trạng thái:** 🟡 **Nguyên mẫu** — `core/agents/aec_data_aggregator.py` đối soát nguồn dữ liệu
+> và tổng hợp trạng thái dự án; phần tổng hợp vật tư (BOM) đầy đủ theo từng Ø thép / xi măng / cát / đá
+> chưa phải một pipeline hoàn chỉnh.
+
 ## 1. MỤC TIÊU VÀ NGUYÊN TẮC CỐT LÕI
 
 Trong quản lý dự án xây dựng và công trường, việc chỉ có tổng khối lượng công tác (ví dụ $1.500 m^3$ bê tông hoặc 250 tấn cốt thép) là **chưa đủ để thi công và quản lý tài chính**. Ban Chỉ huy công trường, phòng vật tư và kế toán dự án cần biết chính xác:

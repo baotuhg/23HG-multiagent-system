@@ -3,6 +3,10 @@
 
 ---
 
+
+> **Trạng thái:** ✅ **Đã hiện thực** — `tools/payment.py`, `core/agents/payment_agent.py`
+> (Mẫu 03a từ bảng QS hợp đồng và khối lượng thực hiện).
+
 ### I. NGUYÊN TẮC CỐT LÕI
 1. **Biểu mẫu bắt buộc:** Phụ lục 03a là biểu mẫu pháp lý cao nhất để Kho bạc Nhà nước, Chủ đầu tư và Ban QLDA giải ngân tiền cho Nhà thầu thi công xây dựng.
 2. **Kiểm soát lũy kế:** Khối lượng lũy kế đến hết kỳ này không bao giờ được vượt quá Khối lượng Hợp đồng được duyệt (trừ trường hợp có Phụ lục hợp đồng bổ sung khối lượng phát sinh).
