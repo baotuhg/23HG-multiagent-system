@@ -46,6 +46,18 @@ class NoPersonalPathsTest(unittest.TestCase):
         self.assertEqual(hits, [], "đường dẫn máy cá nhân trong repo")
 
 
+class ReadmeLinksTest(unittest.TestCase):
+
+    def test_relative_links_point_to_existing_files(self):
+        import re
+        with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as f:
+            text = f.read()
+        links = [l for l in re.findall(r"\]\(([^)#\s]+)\)", text) if not l.startswith(("http://", "https://"))]
+        missing = [l for l in links if not os.path.exists(os.path.join(ROOT, l))]
+        self.assertTrue(links)
+        self.assertEqual(missing, [], "README trỏ tới file không tồn tại")
+
+
 class ExamplesLayoutTest(unittest.TestCase):
     """Hồ sơ mẫu nằm trong thư mục dự án của nó, không để file rời ở gốc examples/ hay lẫn sang dự án khác."""
     EXAMPLES = os.path.join(ROOT, "examples")
