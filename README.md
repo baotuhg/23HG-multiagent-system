@@ -1,41 +1,39 @@
 # 🏗️ 23HG-AEC-MultiAgent-System
-### Nền tảng Đa tác tử Kỹ thuật số hóa & Quản lý Dự án Xây dựng (Closed-Loop ConTech System)
-**Kỹ sư Trưởng Số hóa: Bóc tách Hình học • Cắt thép 1D OR-Tools • Dự toán G_xd • Thanh toán 03a • Tiến độ CPM MS Project • Ca xe Ca máy & Dầu Diezel • Phân quyền Hub & Spoke 5 Gói • Hồ sơ KCS & BPTC • Vòng lặp Hiện trường As-Built**
-
-> [!IMPORTANT]
-> **THÔNG CÁO BẢN QUYỀN VÀ NGUỒN GỐC CHÍNH THỨC (OFFICIAL AUTHORSHIP & COPYRIGHT NOTICE)**
-> - **Tác giả sáng lập & Duy trì**: **Nguyễn Bảo Tú** ([@baotuhg](https://github.com/baotuhg))
-> - **Kho lưu trữ chính thức duy nhất**: [https://github.com/baotuhg/23HG-multiagent-system](https://github.com/baotuhg/23HG-multiagent-system)
-> - **Cảnh báo bản quyền & Đạo nhái**: Toàn bộ kiến trúc Đa tác tử AEC, thuật toán tối ưu hóa cắt thép 1D Column Generation (Google OR-Tools CP-SAT), công cụ giải mã bản vẽ CAD, engine thanh toán Phụ lục 03a và bộ biểu mẫu Master Excel liên kết động thuộc bản quyền trí tuệ của **Nguyễn Bảo Tú (@baotuhg)**. Mọi hành vi clone/tải về re-upload dưới tên tổ chức/cá nhân khác, xóa lịch sử commit (commit history), nhận vơ sản phẩm mà không Fork chính thức từ repo gốc đều là hành vi xâm phạm quyền tác giả và bị xử lý theo quy định bảo vệ bản quyền phần mềm (DMCA Takedown).
-
----
+### Bộ công cụ Python xác định (deterministic) cho kỹ thuật & quản lý thi công xây dựng — điều phối theo State Graph, có cổng chất lượng và cổng người duyệt
 
 [![CI](https://github.com/baotuhg/23HG-multiagent-system/actions/workflows/ci.yml/badge.svg)](https://github.com/baotuhg/23HG-multiagent-system/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Standards: TCVN & BXD](https://img.shields.io/badge/Standards-TCVN%20%7C%20Lu%E1%BA%ADt%20XD%20135%2F2025-brightgreen)](workflows/)
-[![Optimization: Google OR-Tools](https://img.shields.io/badge/Optimization-OR--Tools%20Column%20Generation%20%2B%20CP--SAT-blue)](tools/cutting_stock_solver.py)
-[![Fleet Scheduling: Vincons & TT13](https://img.shields.io/badge/Fleet%20Scheduling-Vincons%20%7C%20TT13%2F2021-orange)](tools/equipment_fleet_scheduler.py)
-[![Packaging: Hub & Spoke 5 Packages](https://img.shields.io/badge/Packaging-Hub%20%26%20Spoke%20Role--Based-purple)](workflows/15_QUY_TRINH_DONG_GOI_HUB_AND_SPOKE_PHAN_QUYEN_THUC_CHIEN.md)
-[![OpenBIM: IfcOpenShell ISO 16739](https://img.shields.io/badge/OpenBIM-IfcOpenShell%20ISO%2016739-darkblue)](tools/ifc_loader.py)
-[![Zero Dead Numbers](https://img.shields.io/badge/Math-100%25%20Dynamic%20Formulas-red.svg)](templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx)
+[![Optimization: Google OR-Tools](https://img.shields.io/badge/Optimization-OR--Tools%20GLOP%20%2B%20CP--SAT-blue)](tools/cutting_stock_solver.py)
 
 ---
 
 ## 📖 1. Giới thiệu Tổng quan (Overview)
 
-**23HG-AEC-MultiAgent-System** là nền tảng ConTech mã nguồn mở chuyên sâu cho quản lý kỹ thuật, dự toán, kế hoạch cơ giới và điều hành thi công xây dựng tại Việt Nam. Hệ thống chuyển đổi mô hình tự động hóa từ chuỗi tuyến tính (Linear Pipeline) sang **Hệ thống Đa tác tử Khép kín (Closed-Loop Multi-Agent System)** vận hành trên **Đồ thị Trạng thái (State Graph v3.0)** với sự điều phối tập trung của **AI Supervisor (Chỉ huy trưởng ảo)**.
+**23HG-AEC-MultiAgent-System** là bộ công cụ mã nguồn mở bằng Python, số hóa các khâu kỹ thuật lặp đi lặp lại trên công trường và ở phòng kế hoạch/QS: **tối ưu cắt thép 1D, dự toán `G_XD`, bảng thanh toán Mẫu 03a, tiến độ CPM, ca xe – ca máy – dầu diezel, kiểm tra phiếu thí nghiệm, và đóng gói hồ sơ Excel theo vai trò**.
 
-Nền tảng tích hợp trọn gói chu trình vòng đời dự án: từ bóc tách bản vẽ CAD/BIM, giải bài toán tổ hợp cắt thép 1D Column Generation, lập dự toán chi phí `G_xd` và hồ sơ thanh toán Phụ lục 03a, quản lý tiến độ CPM đường găng, **điều phối ca xe ca máy & định mức cấp phát nhiên liệu dầu Diezel**, đến xuất hồ sơ chất lượng KCS in ấn A4 chuẩn chỉ và **đóng gói phân quyền thực chiến theo mô hình Hub & Spoke 5 gói vệ tinh**.
+### Hệ thống thực sự là gì
+- **Pipeline điều phối xác định, không phải AI tự quyết.** Một `AECSupervisor` (state machine) gọi lần lượt các agent theo đồ thị trạng thái, kiểm tra Quality Gate sau mỗi pha, thử lại khi bị từ chối, và dừng ở **Human Gate** chờ kỹ sư phê duyệt. Mã nguồn **không gọi LLM hay API AI nào**; mọi phép tính (OR-Tools, CPM, G_XD, 03a…) là code Python thuần, kết quả lặp lại được.
+- **Chỉ dùng dữ liệu thật theo mặc định.** Thiếu dữ liệu thì dừng và báo rõ cần cung cấp gì. Dữ liệu mẫu chỉ chạy với cờ `--demo` và luôn được đánh dấu trong log và báo cáo cuối.
+- **Đọc được file thật:** BBS (Excel/CSV/JSON), tiến độ MS Project XML/Excel/CSV, bảng QS/BOQ, phiếu thí nghiệm, IFC (qua `ifcopenshell`), DXF (qua `ezdxf`).
 
-### Cơ sở Pháp lý & Tiêu chuẩn Kỹ thuật:
-- **Luật Xây dựng số 135/2025/QH15** & **Nghị định số 207/2026/NĐ-CP**: Quản lý chất lượng thi công, nhật ký thi công, giám sát và nghiệm thu KCS.
-- **Nghị định số 254/2025/NĐ-CP**: Quản lý, thanh toán, quyết toán dự án vốn đầu tư công (Bảng thanh toán khối lượng hoàn thành Phụ lục 03a).
-- **Thông tư số 36/2026/TT-BXD**: Phương pháp xác định và quản lý chi phí đầu tư xây dựng (Dự toán chi phí xây dựng `G_xd = T + GT + TL + VAT 10%`).
-- **Thông tư số 38/2026/TT-BXD**: Định mức dự toán xây dựng công trình, định mức hao phí vật tư (xi măng, cát, đá, cốt thép, cáp DƯL), nhân công và ca máy.
-- **Thông tư số 37/2026/TT-BXD**: Phương pháp xác định các chỉ tiêu kinh tế kỹ thuật và đo bóc khối lượng xây dựng (Đơn giá nhân công, giá ca máy và thiết bị thi công).
-- **Tiêu chuẩn Định mức Cơ giới Thực chiến**: Bộ định mức ca máy, năng suất thiết bị thi công và định mức tiêu hao nhiên liệu dầu Diezel theo chuẩn Vincons / Vinhomes và các Tổng công ty xây dựng hạ tầng lớn.
-- **Tiêu chuẩn thiết kế & thi công**: **TCVN 11823:2017** (Cầu đường bộ), **TCVN 5574:2018** (Kết cấu BTCT - Quy chuẩn nối cốt thép), **TCVN 1651:2018** (Thép thanh vằn cốt bê tông), **TCVN 9395:2012** (Cọc khoan nhồi), **TCVN 4453:1995** (Toàn khối).
+### Những gì đã được kiểm chứng
+- `python -m unittest discover -s tests -t .`: **116 test** đạt; CI chạy trên Ubuntu (Python 3.10, 3.12) và Windows (Python 3.11).
+- Chạy `--demo` đủ 8 pha (CAD → cắt thép → QS → QA/QC → Human Gate → CPM → ca máy → As-Built) không lỗi.
+- Solver cắt thép tách theo từng Ø và mác thép, tính lưỡi cắt, báo **cận dưới** số cây (`OPTIMAL` nghĩa là đã chứng minh không dùng ít hơn được).
+- Quét tĩnh các file Excel mẫu bằng `python -m tools.audit_excels_static <thư_mục>` (không cần Excel): không có mã lỗi công thức, không có tham chiếu tới sheet không tồn tại. Quality Gate khi xuất hồ sơ cũng kiểm tra điều này.
+
+### Giới hạn cần biết trước khi dùng
+- **Chưa thay thế kỹ sư.** Kết quả dự toán, thanh toán và hồ sơ nghiệm thu phải được kỹ sư QS/QLCL rà soát trước khi dùng cho hồ sơ pháp lý. Các căn cứ pháp lý và công thức nêu trong tài liệu là tham chiếu của tác giả, chưa qua thẩm định độc lập.
+- **"Điểm Audit 100/100" do chính hệ thống tự chấm**, không phải đánh giá độc lập; các kiểm tra Excel ở đây là kiểm tra tĩnh, chưa đối chiếu bằng Microsoft Excel hay MS Project thật.
+- **Một số phần mới ở mức nguyên mẫu:** Thuyết minh BPTC hiện là mẫu viết sẵn (chưa có RAG); So sánh phiên bản CAD mới đọc được dữ liệu cấu kiện/diện tích đa tuyến khép kín; chưa có giao diện Web/Mobile hay ký số.
+- **Hồ sơ mẫu chưa hoàn chỉnh:** một số file trong bộ "14 hồ sơ vi mô" chỉ là vỏ rỗng; nhiều file bị nhân bản giữa các thư mục. Phần "Tự tiến hóa" (`aec_core/experience_store.py`) là kho kinh nghiệm hiệu chuẩn định mức/mẫu cắt thép, không phải học máy.
+
+### Căn cứ tham chiếu (cần kỹ sư xác nhận khi áp dụng)
+Luật Xây dựng 135/2025/QH15, NĐ 207/2026/NĐ-CP, NĐ 254/2025/NĐ-CP (thanh toán – Phụ lục 03a), TT 36/37/38/2026/TT-BXD (chi phí, đo bóc, định mức), TCVN 11823:2017, 5574:2018, 1651:2018, 9395:2012, 4453:1995; định mức ca máy và dầu theo bảng chuẩn Vincons trong `data/`.
+
+### Giấy phép và ghi nhận tác giả
+Phát hành theo **[MIT License](LICENSE)**. Tác giả & duy trì: **Nguyễn Bảo Tú** ([@baotuhg](https://github.com/baotuhg)). Kho chính thức: <https://github.com/baotuhg/23HG-multiagent-system>. Khi sao chép hoặc kế thừa, vui lòng giữ nguyên thông báo bản quyền và giấy phép MIT.
 
 ---
 
@@ -670,4 +668,4 @@ python run_state_graph.py --level
 - **Tác giả & Bản quyền trí tuệ**: **Nguyễn Bảo Tú** ([@baotuhg](https://github.com/baotuhg))
 - **Kho lưu trữ chính thức**: [https://github.com/baotuhg/23HG-multiagent-system](https://github.com/baotuhg/23HG-multiagent-system)
 - Dự án được phân phối dưới giấy phép mã nguồn mở **[MIT License](LICENSE)**.
-- **Quy định bắt buộc**: Mọi cá nhân, tổ chức sử dụng, sao chép, trích xuất mã nguồn hoặc kế thừa hệ thống **BẮT BUỘC** phải giữ nguyên thông báo bản quyền của tác giả **Nguyễn Bảo Tú** và dẫn liên kết đầy đủ về kho lưu trữ gốc theo đúng điều khoản pháp lý của MIT License. Nghiêm cấm mọi hành vi re-upload xóa nguồn hoặc mạo danh tác giả gốc.
+- **Điều kiện của MIT**: khi sử dụng, sao chép hoặc kế thừa mã nguồn, vui lòng giữ nguyên thông báo bản quyền và nội dung giấy phép MIT đi kèm.
