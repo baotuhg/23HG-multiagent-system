@@ -49,7 +49,7 @@ MAU_BB_LAY_MAU_HIEN_TRUONG (Auto: R7=ngày+7, R28=ngày+28)
 
 ### A. Kiểm tra Excel Master (tự động)
 ```powershell
-cd D:\Code\DONG_GOI_HETHONG_AEC
+cd 23HG-multiagent-system
 python examples/update_full_cross_linked_workbook.py  # Tái tạo công thức
 python examples/run_pipeline.py                        # Chạy audit → phải 100/100
 ```

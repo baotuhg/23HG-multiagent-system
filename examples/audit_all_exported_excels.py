@@ -4,10 +4,18 @@ Full-scale Excel COM Verification Script:
 Kiểm tra toàn diện 100% tất cả các tệp Excel đã xuất của dự án Cầu Km19+529.080
 bằng Microsoft Excel COM Engine chính quy.
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path, repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 
 import os
 import glob
-import win32com.client
+
+try:
+    import win32com.client
+except ImportError:   # chỉ có trên Windows cài Microsoft Excel
+    raise SystemExit("Script này cần Windows + Microsoft Excel (pywin32). Trên máy khác dùng kiểm tra tĩnh:\n"
+                     "    python -m tools.audit_excels_static <thư_mục>")
 
 def audit_exported_excels():
     excel = win32com.client.DispatchEx('Excel.Application')
@@ -16,21 +24,21 @@ def audit_exported_excels():
     
     # Danh sách các thư mục chứa hồ sơ đã xuất
     base_dirs = [
-        r"d:\Code\23HG-multiagent-system\23HG-multiagent-system\templates",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_01_MACRO_MASTER_14_SHEET",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_01_MACRO_MASTER_14_SHEET",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH",
+        repo_path(r"templates"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\BO_HO_SO_01_MACRO_MASTER_14_SHEET"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_01_MACRO_MASTER_14_SHEET"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH"),
     ]
     
     # Thêm các file root đã xuất
     root_files = [
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\BANG_DIEN_GIAI_KHOI_LUONG_PHAN_DUOI_CAU_KM19+529.080.xlsx",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\Bang_Dien_Giai_Khoi_Luong_Thi_Cong_Km19+529.080.xlsx",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\Bang_Tinh_Khoi_Luong_Cau_Km19+529.080.xlsx",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\Bang_Tong_Hop_QLCL_va_Doi_Chieu_QS_Km19+529.080.xlsx",
+        project_path(r"HSTK Cầu Km19+529.080_Marker\BANG_DIEN_GIAI_KHOI_LUONG_PHAN_DUOI_CAU_KM19+529.080.xlsx"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\Bang_Dien_Giai_Khoi_Luong_Thi_Cong_Km19+529.080.xlsx"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\Bang_Tinh_Khoi_Luong_Cau_Km19+529.080.xlsx"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\Bang_Tong_Hop_QLCL_va_Doi_Chieu_QS_Km19+529.080.xlsx"),
     ]
 
     target_files = set()

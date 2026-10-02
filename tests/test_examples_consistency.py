@@ -27,6 +27,25 @@ def _md5(p):
         return hashlib.md5(f.read()).hexdigest()
 
 
+class NoPersonalPathsTest(unittest.TestCase):
+    """Không ghi đường dẫn máy cá nhân vào repo (dùng examples/_paths.py và biến môi trường AEC_PROJECTS_DIR)."""
+
+    def test_no_personal_machine_paths(self):
+        import re
+        pat = re.compile(r"[A-Za-z]:\\Users\\(?!<)[^\\\s\"']+\\|[A-Za-z]:\\Code\\\w", re.I)
+        hits = []
+        for dp, dirs, files in os.walk(ROOT):
+            dirs[:] = [d for d in dirs if d not in (".git", "__pycache__", "du_lieu_du_an")]
+            for fn in files:
+                if fn.endswith((".py", ".md", ".txt", ".json", ".toml", ".yml", ".cfg")):
+                    path = os.path.join(dp, fn)
+                    with open(path, encoding="utf-8", errors="ignore") as f:
+                        for no, line in enumerate(f, 1):
+                            if pat.search(line):
+                                hits.append(f"{os.path.relpath(path, ROOT)}:{no}")
+        self.assertEqual(hits, [], "đường dẫn máy cá nhân trong repo")
+
+
 @unittest.skipUnless(os.path.isdir(A5), "thiếu thư mục ví dụ A5")
 class A5ExamplesTest(unittest.TestCase):
 

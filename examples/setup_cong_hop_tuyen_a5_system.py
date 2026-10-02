@@ -7,6 +7,9 @@ HỆ THỐNG MULTI-AGENT AEC — QUY TRÌNH THIẾT LẬP DỰ ÁN CỐNG HỘP 
 """
 
 from __future__ import annotations
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path, repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 import os
 import sys
 import math
@@ -20,14 +23,14 @@ from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 
-ROOT_REPO = r"d:\Code\23HG-multiagent-system\23HG-multiagent-system"
+ROOT_REPO = repo_path()
 if ROOT_REPO not in sys.path:
     sys.path.insert(0, ROOT_REPO)
 
 from tools.cutting_stock_solver import CuttingStockSolver, CutDemand
 
 # Destination directories
-DIR_PROJ = r"c:\Users\baotu\Downloads\CỐNG HỘP TUYẾN A5\HO_SO_THIET_LAP_AEC_CONG_HOP_TUYEN_A5"
+DIR_PROJ = project_path(r"CỐNG HỘP TUYẾN A5\HO_SO_THIET_LAP_AEC_CONG_HOP_TUYEN_A5")
 TARGET_DIR_2 = os.path.join(ROOT_REPO, "examples", "HO_SO_CONG_HOP_TUYEN_A5")
 DIR_MACRO = os.path.join(DIR_PROJ, "BO_HO_SO_01_MACRO_MASTER_14_SHEET")
 DIR_MICRO = os.path.join(DIR_PROJ, "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO")

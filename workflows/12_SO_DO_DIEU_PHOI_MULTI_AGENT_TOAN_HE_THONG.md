@@ -88,7 +88,7 @@ Hệ thống **ĐÃ HOÀN TOÀN VẬN HÀNH THỰC TẾ** theo đúng 100% sơ �
 
 | Khối Chức Năng Trên Sơ Đồ | Module / Script Thực Thi Trong Hệ Thống | Trạng Thái Hoạt Động |
 |---|---|:---:|
-| **1. HỒ SƠ ĐẦU VÀO** | Thư mục `c:\Users\baotu\Downloads\Documents\HSTK...` (61 bản vẽ DWG, BoQ Excel, Thuyết minh MD) | ✅ Sẵn sàng |
+| **1. HỒ SƠ ĐẦU VÀO** | Thư mục `<THƯ_MỤC_DỰ_ÁN>\HSTK...` (61 bản vẽ DWG, BoQ Excel, Thuyết minh MD) | ✅ Sẵn sàng |
 | **2. AI SUPERVISOR** | `agents/project_state_manager.py` & `prompts/00_PROMPT_TONG_HOP_MULTI_AGENT_AEC.md` | ✅ Hoạt động |
 | **3. TRẮC ĐẠC & BÓC TÁCH CAD** | `agents/aec_cad_extractor.py` & `skills/aec-cad-automation/scripts/cad_takeoff_engine.py` (Shoelace, COM Interop, giải mã font TCVN3) | ✅ Hoạt động |
 | **4. GIA CÔNG & VẬT TƯ** | `skills/aec-rebar-optimizer/scripts/optimize_rebar.py` (Cắt thép 1D <1.5%), `examples/update_material_sheets.py` (BBS 396 thanh & BOM) | ✅ Hoạt động |

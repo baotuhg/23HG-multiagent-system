@@ -14,6 +14,9 @@ Tuân thủ:
 - Tiêu chuẩn thiết kế cầu TCVN 11823:2017 & Cốt thép TCVN 1651:2018
 - 100% CÔNG THỨC SỐNG - ZERO DEAD NUMBERS - KIỂM TOÁN AUDIT 100/100
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 
 import os
 import sys
@@ -1588,7 +1591,7 @@ def create_ms_project_xml(wbs_tasks, output_xml_path):
     tree.write(output_xml_path, encoding="utf-8", xml_declaration=True)
 
 if __name__ == "__main__":
-    out_dir = r"c:\Users\baotu\Downloads\Documents\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker"
+    out_dir = project_path(r"Cầu thôn Khai Hoang 2, Km 14+363.65_Marker\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker")
     excel_p = os.path.join(out_dir, "Ho_So_KCS_QS_TienDo_Cau_Khai_Hoang_2_Km14+363.65.xlsx")
     xml_p = os.path.join(out_dir, "Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.xml")
     generate_khai_hoang_2_master_package(excel_p, xml_p)

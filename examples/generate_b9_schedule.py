@@ -5,6 +5,9 @@ Theo mẫu chuẩn: "260820_TĐTC cụm B9" (Vincons / Vinhomes HTKT)
 Thời gian: Bắt đầu 20/09/2026 -> Kết thúc 25/10/2026 (Hoàn thành mốc Thảm thô BTN C19)
 Tác giả: 23HG-AEC-MultiAgent-System
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path, repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 
 import os
 import datetime
@@ -1006,9 +1009,9 @@ def build_b9_schedule():
 
     # Save to primary target locations
     target_paths = [
-        r"c:\Users\baotu\Downloads\TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx",
-        r"c:\Users\baotu\Downloads\260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx",
-        r"d:\Code\23HG-multiagent-system\23HG-multiagent-system\examples\260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx"
+        project_path(r"TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx"),
+        project_path(r"260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx"),
+        repo_path(r"examples\260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx")
     ]
 
     for p in target_paths:

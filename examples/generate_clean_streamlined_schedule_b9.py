@@ -14,6 +14,9 @@ Chắt lọc và tinh giản tiến độ Vina Alpha:
 """
 
 from __future__ import annotations
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 import datetime
 import os
 import sys
@@ -23,7 +26,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from tools.dynamic_schedule_builder import DynamicScheduleBuilder
 
-OUTPUT_DIR = r"C:\Users\baotu\Downloads\TĐTC vina alpha"
+OUTPUT_DIR = project_path(r"TĐTC vina alpha")
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "260820_TDTC_Cum_B9_TINH_GIAN_CHUAN_CPM.xlsx")
 
 REPO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "TIEN_DO_THI_CONG_CUM_B9_OLYMPIC"))

@@ -6,6 +6,9 @@ HỆ THỐNG XUẤT 2 GÓI HỒ SƠ CẦU THÔN KHAI HOANG 2, KM14+363.65:
 """
 
 from __future__ import annotations
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path, repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 import os
 import sys
 import shutil
@@ -14,7 +17,7 @@ import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
-ROOT_REPO = r"d:\Code\23HG-multiagent-system\23HG-multiagent-system"
+ROOT_REPO = repo_path()
 if ROOT_REPO not in sys.path:
     sys.path.insert(0, ROOT_REPO)
 EXAMPLES_DIR = os.path.join(ROOT_REPO, "examples")
@@ -23,8 +26,8 @@ if EXAMPLES_DIR not in sys.path:
 
 from khai_hoang_2_source import load_bbs, load_thkl, check_bbs_weights, UNIT_WEIGHT, GRADE
 
-SOURCE_WS = r"C:\Users\baotu\Downloads\Documents\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker"
-PARENT_WS = r"C:\Users\baotu\Downloads\Documents\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker"
+SOURCE_WS = project_path(r"Cầu thôn Khai Hoang 2, Km 14+363.65_Marker\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker")
+PARENT_WS = project_path(r"Cầu thôn Khai Hoang 2, Km 14+363.65_Marker")
 OLD_DIR = os.path.join(SOURCE_WS, "HO_SO_THIET_LAP")
 
 DIR_MACRO = os.path.join(SOURCE_WS, "BO_HO_SO_01_MACRO_MASTER_14_SHEET")

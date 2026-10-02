@@ -28,6 +28,9 @@ HỆ THỐNG XUẤT 2 GÓI HỒ SƠ DỰ ÁN CẦU KM19+529.080 (CAO TỐC TUYÊ
 """
 
 from __future__ import annotations
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path, repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 import os
 import sys
 import shutil
@@ -38,12 +41,12 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
 # Đường dẫn nguồn và đích
-REPO_DIR = r"d:\Code\23HG-multiagent-system\23HG-multiagent-system"
+REPO_DIR = repo_path()
 if REPO_DIR not in sys.path:
     sys.path.insert(0, REPO_DIR)
 TEMPLATES_DIR = os.path.join(REPO_DIR, "templates")
 
-TARGET_PARENT = r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker"
+TARGET_PARENT = project_path(r"HSTK Cầu Km19+529.080_Marker")
 TARGET_NESTED = os.path.join(TARGET_PARENT, "HSTK Cầu Km19+529.080_Marker")
 
 DIR_MACRO_P = os.path.join(TARGET_PARENT, "BO_HO_SO_01_MACRO_MASTER_14_SHEET")

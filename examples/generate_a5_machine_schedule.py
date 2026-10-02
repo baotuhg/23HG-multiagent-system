@@ -5,6 +5,9 @@ TỰ ĐỘNG HÓA TÍNH TOÁN CA XE, CA MÁY & TIẾN ĐỘ THI CÔNG CỐNG H�
 Dự án: Cống hộp Tuyến A5 - Khu đô thị Thể thao Quốc tế Hà Nội (Vincons)
 Chiều dài: L = 2,170 m (192 đốt 11.3m, 63 hố ga)
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path, repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 
 import os
 import datetime
@@ -744,9 +747,9 @@ def build_a5_machine_schedule():
 
     # Save to paths
     target_paths = [
-        r"c:\Users\baotu\Downloads\CỐNG HỘP TUYẾN A5\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx",
-        r"c:\Users\baotu\Downloads\TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx",
-        r"d:\Code\23HG-multiagent-system\23HG-multiagent-system\examples\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx"
+        project_path(r"CỐNG HỘP TUYẾN A5\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx"),
+        project_path(r"TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx"),
+        repo_path(r"examples\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx")
     ]
 
     for p in target_paths:
