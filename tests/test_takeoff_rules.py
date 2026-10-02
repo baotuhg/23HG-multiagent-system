@@ -13,7 +13,13 @@ if ROOT not in sys.path:
 import openpyxl
 
 from tools.excel_eval import WorkbookEvaluator
-from tools.takeoff_rules import BoxCulvert, CULVERT_ROWS
+import json
+import tempfile
+
+from tools.takeoff_rules import (
+    BoxCulvert, CULVERT_ROWS, MeasurementProfile, average_end_volume, circular_column, load_profile,
+    pile, pit_excavation, rect_concrete, rect_formwork, trench_excavation,
+)
 
 A5 = os.path.join(ROOT, "examples", "HO_SO_CONG_HOP_TUYEN_A5", "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO",
                   "03_QS_Dien_Giai_Chi_Tiet_Takeoff_Cong_A5.xlsx")
@@ -83,6 +89,98 @@ class A5SheetDerivationTest(unittest.TestCase):
     def test_legacy_formwork_numbers_are_kept_not_silently_overwritten(self):
         # Số ván khuôn đang dùng cho hợp đồng được giữ nguyên; chênh lệch hiển thị ở cột T để QS quyết định.
         self.assertEqual([self.ws[f"F{r}"].value for r in (11, 12, 13)], [11.14, 16.48, 25.66])
+
+
+class ElementLibraryTest(unittest.TestCase):
+    """Mọi kỳ vọng tính tay (số thật, không lấy từ chương trình)."""
+
+    def test_footing(self):
+        # 2 móng 1.2 × 1.0 × 0.4: BT = 2 × 0.48 = 0.960 ; ván khuôn hông = 2 × (2 × 2.2 × 0.4) = 3.520
+        self.assertEqual(rect_concrete("M1", 2, 1.2, 1.0, 0.4).value, 0.96)
+        self.assertEqual(rect_formwork("M1", "mong", 2, 1.2, 1.0, 0.4).value, 3.52)
+
+    def test_column(self):
+        # 10 cột 0.3 × 0.4, cao 3.6: BT = 10 × 0.432 = 4.320 ; VK = 10 × 2 × 0.7 × 3.6 = 50.400
+        self.assertEqual(rect_concrete("C1", 10, 0.3, 0.4, 3.6).value, 4.32)
+        self.assertEqual(rect_formwork("C1", "cot", 10, 0.3, 0.4, 3.6).value, 50.4)
+
+    def test_beam_formwork_subtracts_slab_embedded_part(self):
+        # dầm dài 5, rộng 0.22, cao 0.5, sàn dày 0.1: BT = 0.550 ; VK = 5 × (2 × 0.4 + 0.22) = 5.100
+        self.assertEqual(rect_concrete("D1", 1, 5, 0.22, 0.5).value, 0.55)
+        self.assertEqual(rect_formwork("D1", "dam", 1, 5, 0.22, 0.5, slab_thickness=0.1).value, 5.1)
+        # không trừ phần chìm khi hồ sơ tắt trừ giao nhau: 5 × (2 × 0.5 + 0.22) = 6.100
+        no_overlap = MeasurementProfile(deduct_formwork_overlap=False)
+        self.assertEqual(rect_formwork("D1", "dam", 1, 5, 0.22, 0.5, slab_thickness=0.1, profile=no_overlap).value, 6.1)
+
+    def test_slab_and_wall(self):
+        # sàn 4 × 5 dày 0.1: BT = 2.000 ; VK đáy = 20.000 ; thêm cạnh = 2 × 9 × 0.1 = 1.800 → 21.800
+        self.assertEqual(rect_concrete("S1", 1, 4, 5, 0.1).value, 2.0)
+        self.assertEqual(rect_formwork("S1", "san", 1, 4, 5, 0.1).value, 20.0)
+        self.assertEqual(rect_formwork("S1", "san", 1, 4, 5, 0.1, edges=True).value, 21.8)
+        # tường dài 10, cao 3, dày 0.2: BT = 6.000 ; VK 2 mặt = 60.000 ; thêm 2 đầu = 2 × 0.2 × 3 = 1.200
+        self.assertEqual(rect_concrete("T1", 1, 10, 0.2, 3).value, 6.0)
+        self.assertEqual(rect_formwork("T1", "tuong", 1, 10, 0.2, 3).value, 60.0)
+        self.assertEqual(rect_formwork("T1", "tuong", 1, 10, 0.2, 3, ends=True).value, 61.2)
+
+    def test_openings_follow_profile_threshold(self):
+        wall = (1, 10, 0.2, 3)   # BT thô 6.000 ; lỗ 0.5 m3 và 0.05 m3
+        deduct_all = rect_concrete("T1", *wall, openings_m3=[0.5, 0.05])
+        self.assertEqual(deduct_all.value, 5.45)                                  # 6 − 0.5 − 0.05
+        over_threshold = MeasurementProfile(deduct_openings_over_m3=0.1)
+        q = rect_concrete("T1", *wall, openings_m3=[0.5, 0.05], profile=over_threshold)
+        self.assertEqual(q.value, 5.5)                                            # chỉ trừ lỗ 0.5 > 0.1
+        self.assertTrue(any("không trừ 1 lỗ" in n for n in q.notes))
+
+    def test_bored_pile_and_cutoff(self):
+        # 8 cọc D1.2 dài 40: π × 0.36 × 320 = 361.911 ; đập đầu 0.8 m: π × 0.36 × 0.8 × 8 = 7.238
+        conc, demo = pile("CKN", 8, 1.2, 40, cutoff=0.8)
+        self.assertAlmostEqual(conc.value, 361.911, places=3)
+        self.assertAlmostEqual(demo.value, 7.238, places=3)
+        self.assertIsNone(pile("CKN", 8, 1.2, 40)[1])
+
+    def test_circular_column(self):
+        # D0.5, cao 3: BT = π × 0.0625 × 3 = 0.589 ; VK = π × 0.5 × 3 = 4.712
+        conc, form = circular_column("CT", 1, 0.5, 3)
+        self.assertAlmostEqual(conc.value, 0.589, places=3)
+        self.assertAlmostEqual(form.value, 4.712, places=3)
+
+    def test_excavation(self):
+        # hào đáy 1.5, sâu 2, mái 1:0.5, dài 100: (1.5 + 1.0) × 2 × 100 = 500.000
+        self.assertEqual(trench_excavation("H1", 100, 1.5, 2.0, 0.5).value, 500.0)
+        # hố 2 × 3, sâu 1.5, không mái: lăng trụ = 6 × 1.5 = 9.000
+        self.assertAlmostEqual(pit_excavation("H2", 2, 3, 1.5).value, 9.0, places=9)
+        # hố 2 × 2, sâu 3, mái 1:0.5: đáy trên 5 × 5 = 25 ; V = 3/3 × (4 + 25 + 10) = 39.000
+        self.assertAlmostEqual(pit_excavation("H3", 2, 2, 3, 0.5).value, 39.0, places=9)
+
+    def test_average_end_area(self):
+        # lý trình 0, 20, 50; diện tích 10, 16, 12: (10+16)/2 × 20 + (16+12)/2 × 30 = 260 + 420 = 680
+        q = average_end_volume("DAO", [0, 20, 50], [10, 16, 12])
+        self.assertEqual(q.value, 680.0)
+        with self.assertRaises(ValueError):
+            average_end_volume("X", [0, 0], [1, 1])
+
+    def test_explanation_is_readable_and_unverified_profile_warns(self):
+        q = rect_concrete("M1", 2, 1.2, 1.0, 0.4)
+        text = q.explain()
+        self.assertIn("2 × (1.2 × 1 × 0.4)", text)
+        self.assertIn("= 0.960 m3", text)
+        self.assertTrue(any("CHƯA đối chiếu" in n for n in q.notes))
+        self.assertEqual(rect_concrete("M1", 2, 1.2, 1.0, 0.4, profile=MeasurementProfile(verified=True)).notes, ())
+
+    def test_profile_from_json(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "p.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"name": "Dự án X", "source": "Điều ... đã đối chiếu", "verified": True,
+                           "deduct_openings_over_m3": 0.1}, f)
+            pr = load_profile(path)
+            self.assertTrue(pr.verified)
+            self.assertEqual(pr.deduct_openings_over_m3, 0.1)
+            bad = os.path.join(tmp, "bad.json")
+            with open(bad, "w", encoding="utf-8") as f:
+                json.dump({"khong_co": 1}, f)
+            with self.assertRaises(ValueError):
+                load_profile(bad)
 
 
 if __name__ == "__main__":

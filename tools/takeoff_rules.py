@@ -1,18 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-TAKEOFF RULES — diễn giải khối lượng bê tông & ván khuôn cống hộp từ kích thước hình học.
+TAKEOFF RULES — thư viện diễn giải khối lượng (bê tông, ván khuôn, đào đắp) từ kích thước hình học.
 
-Mục tiêu: không còn "số chết" trong bảng diễn giải. Kích thước lòng cống, số khoang, cạnh vút và
-các quy ước tính ván khuôn là ô đầu vào có nhãn; khối lượng là công thức của các ô đó.
+Mục tiêu: mỗi khối lượng đều có DIỄN GIẢI đọc được (công thức bằng số thật), tính bằng Decimal làm tròn
+half-up, và không có "số chết" ẩn: kích thước và quy ước là đầu vào có nhãn.
 
-Quy ước đo bóc (cần đối chiếu điều khoản cụ thể với văn bản hiện hành khi lập hồ sơ):
-  - Khối lượng đo theo kích thước trong bản vẽ thiết kế; bê tông và ván khuôn tách riêng theo
-    chủng loại / cấu kiện (nguyên tắc đo bóc của Thông tư 13/2021/TT-BXD; TT 17/2019/TT-BXD cũ đã hết hiệu lực từ 15/10/2021).
-  - Thông tư 12/2021/TT-BXD là Định mức xây dựng (hao phí), KHÔNG phải quy định đo bóc.
-  - Chưa đối chiếu từng điều khoản của TT 13/2021 (toàn văn chưa truy cập được) và chưa kiểm tra các sửa đổi
-    sau đó; khi lập hồ sơ cần dùng bản hợp nhất hiện hành.
-  - Ván khuôn tính theo diện tích bề mặt bê tông tiếp xúc ván khuôn (nguyên tắc thông dụng).
-    Mặt nào được coi là có ván khuôn là quy ước của biện pháp thi công → để thành công tắc 1/0.
+Cấu kiện hỗ trợ (đủ cho nhà dân dụng, cầu, thoát nước, đường):
+  - Khối chữ nhật: móng, cột, dầm, sàn, tường  (rect_concrete / rect_formwork)
+  - Tròn: cọc khoan nhồi (+ đoạn đập đầu cọc), cột tròn  (pile, circular_column)
+  - Đất: đào hào/hố mái taluy, đào đắp theo mặt cắt (diện tích trung bình đầu mút)
+  - Cống hộp 1-n khoang có vút góc (BoxCulvert) và bảng diễn giải Excel của cống A5
+
+QUY TẮC ĐO BÓC LÀ ĐẦU VÀO, KHÔNG PHẢI HẰNG SỐ TRONG CODE
+  Văn bản đo bóc thay đổi theo thời gian (TT 17/2019 → TT 13/2021, sửa đổi bởi TT 01/2025 và TT 60/2025;
+  từ 01/07/2026 theo nguồn thứ cấp có thể chuyển sang văn bản mới) nên các ngưỡng phụ thuộc điều khoản
+  (trừ lỗ rỗng bao nhiêu, mặt nào tính ván khuôn...) nằm trong MeasurementProfile do kỹ sư QS chọn/nạp từ
+  JSON (load_profile). Hồ sơ mặc định `verified=False`: mọi kết quả kèm cảnh báo cho tới khi người dùng đối
+  chiếu điều khoản và đặt verified=True. Thông tư 12/2021/TT-BXD là định mức (hao phí), KHÔNG phải đo bóc.
+
+Nguyên tắc thông dụng được dùng (không phụ thuộc điều khoản cụ thể):
+  - Đo theo kích thước trong bản vẽ thiết kế; bê tông và ván khuôn tách riêng theo cấu kiện.
+  - Ván khuôn = diện tích bề mặt bê tông tiếp xúc ván khuôn; mặt nào có ván khuôn là quy ước biện pháp thi công.
 
 Mặt cắt cống hộp (đơn vị mét), tính trên 1 m dài:
   diện tích BT   = B_ngoài × H_ngoài − n × b_lòng × h_lòng + n × 4 × ½ × c²       (c: cạnh vút)
@@ -26,7 +34,10 @@ Pure Python, Zero LLM.
 from __future__ import annotations
 import math
 from dataclasses import dataclass
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+import json
+
+from tools.money import round_half_up
 
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
@@ -66,6 +77,184 @@ class BoxCulvert:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# HỒ SƠ QUY TẮC ĐO BÓC + KẾT QUẢ CÓ DIỄN GIẢI
+# ─────────────────────────────────────────────────────────────────────────────
+
+@dataclass(frozen=True)
+class MeasurementProfile:
+    """Các quy tắc phụ thuộc điều khoản văn bản đo bóc. KHÔNG tự điền theo trí nhớ: người dùng đặt từ văn bản."""
+    name: str = "CHƯA XÁC ĐỊNH"
+    source: str = ""                                   # văn bản + điều/khoản đã đối chiếu
+    verified: bool = False                             # True chỉ khi đã đối chiếu điều khoản
+    decimals: int = 3                                  # số chữ số thập phân của khối lượng
+    deduct_openings_over_m3: Optional[float] = None    # None = trừ mọi lỗ rỗng ghi trong bản vẽ; số = chỉ trừ lỗ > ngưỡng (m3)
+    deduct_openings_over_m2: Optional[float] = None    # như trên cho diện tích (m2) — ván khuôn
+    deduct_formwork_overlap: bool = True               # trừ phần ván khuôn chỗ cấu kiện giao nhau (dầm–sàn...)
+
+    def warnings(self) -> List[str]:
+        if self.verified:
+            return []
+        return [f"Hồ sơ quy tắc '{self.name}' CHƯA đối chiếu điều khoản văn bản đo bóc hiện hành — "
+                f"kỹ sư QS cần xác nhận ngưỡng trừ lỗ rỗng và quy ước ván khuôn"]
+
+
+DEFAULT_PROFILE = MeasurementProfile()
+
+
+def load_profile(path: str) -> MeasurementProfile:
+    """Nạp hồ sơ quy tắc từ JSON (khóa trùng tên trường của MeasurementProfile)."""
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    unknown = set(data) - set(MeasurementProfile.__dataclass_fields__)
+    if unknown:
+        raise ValueError(f"Hồ sơ quy tắc có khóa lạ: {', '.join(sorted(unknown))}")
+    return MeasurementProfile(**data)
+
+
+@dataclass(frozen=True)
+class Quantity:
+    """Một khối lượng đo bóc kèm diễn giải đọc được."""
+    name: str
+    unit: str
+    value: float
+    formula: str                 # công thức bằng số thật, vd "2 × (1.2 × 1 × 0.4)"
+    notes: Tuple[str, ...] = ()
+
+    def explain(self) -> str:
+        extra = ("  [" + "; ".join(self.notes) + "]") if self.notes else ""
+        return f"{self.name}: {self.formula} = {self.value:,.3f} {self.unit}{extra}"
+
+
+def _g(x: float) -> str:
+    return f"{x:g}"
+
+
+def _q(profile: MeasurementProfile, name: str, unit: str, raw: float, formula: str,
+       notes: Sequence[str] = ()) -> Quantity:
+    notes = tuple(notes) + tuple(profile.warnings())
+    return Quantity(name, unit, float(round_half_up(raw, profile.decimals)), formula, notes)
+
+
+def _deduct(gross: float, openings: Sequence[float], threshold: Optional[float]) -> Tuple[float, List[float]]:
+    taken = [o for o in openings if threshold is None or o > threshold]
+    return gross - sum(taken), taken
+
+
+# ── Khối chữ nhật ────────────────────────────────────────────────────────────
+
+def rect_concrete(name: str, n: float, length: float, width: float, height: float,
+                  openings_m3: Sequence[float] = (), profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
+    """Bê tông cấu kiện chữ nhật: n × (dài × rộng × cao) − lỗ rỗng (theo ngưỡng của hồ sơ)."""
+    gross = n * length * width * height
+    net, taken = _deduct(gross, openings_m3, profile.deduct_openings_over_m3)
+    f = f"{_g(n)} × ({_g(length)} × {_g(width)} × {_g(height)})"
+    notes = []
+    if openings_m3:
+        f += "".join(f" − {_g(o)}" for o in taken)
+        skipped = [o for o in openings_m3 if o not in taken]
+        if skipped:
+            notes.append(f"không trừ {len(skipped)} lỗ ≤ {_g(profile.deduct_openings_over_m3)} m3 theo hồ sơ quy tắc")
+    return _q(profile, name, "m3", net, f, notes)
+
+
+_FORMWORK_KINDS = ("mong", "cot", "dam", "san", "tuong")
+
+
+def rect_formwork(name: str, kind: str, n: float, length: float, width: float, height: float,
+                  slab_thickness: float = 0.0, edges: bool = False, ends: bool = False,
+                  openings_m2: Sequence[float] = (), profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
+    """Ván khuôn tiếp xúc cấu kiện chữ nhật (m2).
+
+    mong : 4 mặt hông           = 2(dài + rộng) × cao
+    cot  : 4 mặt (dài × rộng là tiết diện, cao là chiều cao cột) = 2(dài + rộng) × cao
+    dam  : 2 hông + đáy         = dài × (2(cao − dày sàn) + rộng)   [trừ phần chìm trong sàn nếu có]
+    san  : đáy (+ cạnh sàn)     = dài × rộng (+ 2(dài + rộng) × cao khi edges)   [cao = chiều dày sàn]
+    tuong: 2 mặt (+ 2 đầu)      = 2 × dài × cao (+ 2 × rộng × cao khi ends)   [rộng = chiều dày tường]
+    """
+    if kind not in _FORMWORK_KINDS:
+        raise ValueError(f"kind phải thuộc {_FORMWORK_KINDS}")
+    L, W, H = length, width, height
+    if kind in ("mong", "cot"):
+        one, f1 = 2 * (L + W) * H, f"2 × ({_g(L)} + {_g(W)}) × {_g(H)}"
+    elif kind == "dam":
+        depth = H - (slab_thickness if profile.deduct_formwork_overlap else 0.0)
+        one = L * (2 * depth + W)
+        f1 = f"{_g(L)} × (2 × {_g(H)}{' − 2 × ' + _g(slab_thickness) if slab_thickness and profile.deduct_formwork_overlap else ''} + {_g(W)})"
+    elif kind == "san":
+        one, f1 = L * W, f"{_g(L)} × {_g(W)}"
+        if edges:
+            one += 2 * (L + W) * H
+            f1 += f" + 2 × ({_g(L)} + {_g(W)}) × {_g(H)}"
+    else:  # tuong
+        one, f1 = 2 * L * H, f"2 × {_g(L)} × {_g(H)}"
+        if ends:
+            one += 2 * W * H
+            f1 += f" + 2 × {_g(W)} × {_g(H)}"
+    gross = n * one
+    net, taken = _deduct(gross, openings_m2, profile.deduct_openings_over_m2)
+    f = f"{_g(n)} × ({f1})" + "".join(f" − {_g(o)}" for o in taken)
+    return _q(profile, name, "m2", net, f)
+
+
+# ── Cấu kiện tròn ────────────────────────────────────────────────────────────
+
+def pile(name: str, n: float, diameter: float, length: float, cutoff: float = 0.0,
+         profile: MeasurementProfile = DEFAULT_PROFILE) -> Tuple[Quantity, Optional[Quantity]]:
+    """Cọc khoan nhồi: bê tông π/4·D²·L·n; kèm khối lượng đập đầu cọc (π/4·D²·cutoff·n) nếu có."""
+    area = math.pi * diameter ** 2 / 4
+    conc = _q(profile, name, "m3", n * area * length,
+              f"{_g(n)} × (π/4 × {_g(diameter)}² × {_g(length)})")
+    demo = None
+    if cutoff:
+        demo = _q(profile, name + " — đập đầu cọc", "m3", n * area * cutoff,
+                  f"{_g(n)} × (π/4 × {_g(diameter)}² × {_g(cutoff)})")
+    return conc, demo
+
+
+def circular_column(name: str, n: float, diameter: float, height: float,
+                    profile: MeasurementProfile = DEFAULT_PROFILE) -> Tuple[Quantity, Quantity]:
+    """Cột tròn: bê tông π/4·D²·H·n và ván khuôn mặt bên π·D·H·n."""
+    conc = _q(profile, name, "m3", n * math.pi * diameter ** 2 / 4 * height,
+              f"{_g(n)} × (π/4 × {_g(diameter)}² × {_g(height)})")
+    form = _q(profile, name + " — ván khuôn", "m2", n * math.pi * diameter * height,
+              f"{_g(n)} × (π × {_g(diameter)} × {_g(height)})")
+    return conc, form
+
+
+# ── Đào đắp ──────────────────────────────────────────────────────────────────
+
+def trench_excavation(name: str, length: float, bottom_width: float, depth: float, slope_m: float = 0.0,
+                      profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
+    """Đào hào mái taluy 1:m (m = ngang/đứng): V = L × (b + m·H) × H."""
+    area = (bottom_width + slope_m * depth) * depth
+    return _q(profile, name, "m3", length * area,
+              f"{_g(length)} × ({_g(bottom_width)} + {_g(slope_m)} × {_g(depth)}) × {_g(depth)}")
+
+
+def pit_excavation(name: str, bottom_a: float, bottom_b: float, depth: float, slope_m: float = 0.0,
+                   profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
+    """Đào hố móng đáy a×b mái taluy 1:m: hình chóp cụt V = H/3 × (A1 + A2 + √(A1·A2))."""
+    a1 = bottom_a * bottom_b
+    a2 = (bottom_a + 2 * slope_m * depth) * (bottom_b + 2 * slope_m * depth)
+    return _q(profile, name, "m3", depth / 3 * (a1 + a2 + math.sqrt(a1 * a2)),
+              f"{_g(depth)}/3 × ({_g(a1)} + {_g(a2)} + √({_g(a1)} × {_g(a2)}))")
+
+
+def average_end_volume(name: str, stations: Sequence[float], areas: Sequence[float],
+                       profile: MeasurementProfile = DEFAULT_PROFILE) -> Quantity:
+    """Khối lượng theo mặt cắt (diện tích trung bình đầu mút): V = Σ (A_i + A_{i+1})/2 × (x_{i+1} − x_i)."""
+    if len(stations) != len(areas) or len(stations) < 2:
+        raise ValueError("Cần ≥ 2 mặt cắt, số lý trình bằng số diện tích")
+    if any(b <= a for a, b in zip(stations, stations[1:])):
+        raise ValueError("Lý trình phải tăng dần")
+    terms, total = [], 0.0
+    for (x1, a1), (x2, a2) in zip(zip(stations, areas), zip(stations[1:], areas[1:])):
+        total += (a1 + a2) / 2 * (x2 - x1)
+        terms.append(f"({_g(a1)} + {_g(a2)})/2 × {_g(x2 - x1)}")
+    return _q(profile, name, "m3", total, " + ".join(terms))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # ÁP VÀO SHEET DIỄN GIẢI (QS_DIEN_GIAI_CHI_TIET / QS_TAKEOFF)
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -84,8 +273,10 @@ FLAGS = [
     ("Ván khuôn đầu đốt (2 đầu mỗi đốt)", 1),
 ]
 NOTE = ("Quy ước: ván khuôn tính theo diện tích bề mặt bê tông tiếp xúc ván khuôn; mặt nào có ván khuôn do biện pháp "
-        "thi công quyết định (công tắc 1/0 bên dưới). Căn cứ đo bóc: Thông tư 13/2021/TT-BXD (cần đối chiếu điều "
-        "khoản cụ thể và bản sửa đổi hiện hành); Thông tư 12/2021/TT-BXD là định mức, không phải đo bóc.")
+        "thi công quyết định (công tắc 1/0 bên dưới). Căn cứ đo bóc: văn bản hiện hành tại thời điểm lập hồ sơ do kỹ sư QS "
+        "xác nhận (theo nguồn thứ cấp: TT 13/2021/TT-BXD và sửa đổi áp dụng đến 30/06/2026; từ 01/07/2026 cần kiểm tra "
+        "văn bản thay thế như TT 37/2026/TT-BXD, QĐ 1041/QĐ-BXD - chưa đối chiếu toàn văn). TT 12/2021/TT-BXD là định "
+        "mức, không phải đo bóc.")
 
 
 def apply_culvert_derivation(ws) -> None:
