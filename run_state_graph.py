@@ -124,6 +124,20 @@ def run_takeoff(args) -> int:
     return 0
 
 
+def run_survey(args) -> int:
+    """Tính lại dự toán khảo sát xây dựng (--survey) và đối chiếu với số ghi trong file."""
+    from tools.qs_loader import QSLoadError
+    from tools.survey_estimate import load_survey_estimate, print_report
+    try:
+        est = load_survey_estimate(args.survey, sheet=args.survey_sheet)
+        est.compute()
+    except (QSLoadError, ValueError, OSError) as e:
+        print(f"  ❌ {e}")
+        return 1
+    print_report(est)
+    return 1 if est.errors else 0
+
+
 # ── MAIN ─────────────────────────────────────────────────────────────────────
 
 def run_solver_test():
@@ -386,6 +400,10 @@ def main():
     tk.add_argument("--takeoff-out", default=None, help="File Excel kết quả (mặc định: <tên file>_do_boc.xlsx)")
     tk.add_argument("--takeoff-profile", default="mac-dinh",
                     help="Hồ sơ quy tắc đo bóc: mac-dinh | tt13-2021 | đường dẫn JSON (mặc định: mac-dinh)")
+    sv = parser.add_argument_group("Dự toán khảo sát xây dựng (--survey; tính lại và đối chiếu với file)")
+    sv.add_argument("--survey", default=None,
+                    help="File dự toán khảo sát (.xls/.xlsx): bảng KL × đơn giá VL/NC/M + bảng tổng hợp có ký hiệu Gks")
+    sv.add_argument("--survey-sheet", default=None, help="Tên sheet bảng khối lượng (mặc định: tự tìm)")
     exp = parser.add_argument_group("Xuất hồ sơ công nghiệp 3 tầng (Industrial 3-Tier Export Pipeline)")
     exp.add_argument(
         "--export-all", action="store_true",
@@ -414,6 +432,9 @@ def main():
 
     if args.check_inputs:
         sys.exit(0 if check_inputs(args) else 1)
+
+    if args.survey:
+        sys.exit(run_survey(args))
 
     # --takeoff một mình: đo bóc độc lập. Kèm --phase / --demo: bảng cấu kiện đi vào Supervisor (pha CAD_TAKEOFF).
     if args.takeoff and not (args.phase or args.demo):

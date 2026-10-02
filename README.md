@@ -239,9 +239,19 @@ python run_state_graph.py --phase schedule --schedule "TienDo.xml" --non-working
 ```powershell
 python run_state_graph.py --phase qs --qs "Du_toan.xlsx" --qs-out du_toan_gxd.xlsx
 ```
-> - Đọc bảng QS / BOQ (Excel, CSV hoặc JSON) theo các cột *STT*, *Mã hiệu*, *Nội dung công tác*, *ĐVT*, *Khối lượng*, *Đơn giá* (hoặc *Đơn giá vật liệu / nhân công / máy*), *Thành tiền*.
+> - Đọc bảng QS / BOQ (Excel `.xlsx`/`.xls`, CSV hoặc JSON) theo các cột *STT*, *Mã hiệu*, *Nội dung công tác* (hoặc *Danh mục công tác*), *ĐVT*, *Khối lượng*, *Đơn giá* (hoặc *Đơn giá vật liệu / nhân công / máy*), *Thành tiền*. Tiêu đề 2 dòng kiểu phần mềm dự toán ("Đơn giá" ở trên, "Vật liệu / Nhân công / Máy thi công" ở dưới) được ghép tự động.
 > - `T = Σ khối lượng × đơn giá`. `GT = T × (chi phí chung + nhà tạm + công việc không xác định KL)`, `TL = (T + GT) × tỷ lệ`, `G = T + GT + TL`, `G_XD = G + VAT` (TT 36/2026/TT-BXD).
 > - **Tỷ lệ** được đọc từ sheet tổng hợp G_XD trong file, hoặc truyền bằng `--rate-chung --rate-nha-tam --rate-kxd --rate-tl --vat` (đơn vị %).
+> - Bảng tách đơn giá *Vật liệu / Nhân công / Máy* được làm tròn từng thành phần từng dòng rồi cộng (đúng cách phần mềm dự toán tính `T = VL + NC + M`). Một sheet chứa nhiều **hạng mục** (dòng `HẠNG MỤC: ...`) được tách riêng; mỗi hạng mục tính độc lập.
+> - Đã kiểm bằng một dự toán xây lắp thật (2 hạng mục, 425 công tác, TT 13/2021/TT-BXD): khớp từng khoản `VL/NC/M/T/C/LT/TT/TL/G/G_XD` đến từng đồng (golden test `tests/test_qs_construction.py`).
+
+#### a3b. Tính lại dự toán khảo sát xây dựng và đối chiếu với file:
+```powershell
+python run_state_graph.py --survey "Du_toan_khao_sat.xls"
+```
+> - Bảng khối lượng × đơn giá tách *Vật liệu / Nhân công / Máy*; tỷ lệ đọc từ bảng tổng hợp có ký hiệu `C`, `TL`, `Gks`, `Glpa`, `Glbc`, `Gco`, `Gdc`, `Ggt`, `Gbh`, `GTGT`, `Gdp` (cột CÁCH TÍNH, vd `NC x 65%`), đối chiếu thêm với sheet *Hệ số* nếu có. Thiếu tỷ lệ nào thì báo, không tự điền.
+> - `C = NC × %`, `TL = (T + C) × %`, `Gks = T + C + TL`, `G = Gks + Glpa + Glbc + Ghmc`, `Gxd = G + GTGT`, tổng = `Gxd + Gdp`. Mọi giá trị ghi trong file được tính lại và báo lệch nếu khác quá 1 đồng.
+> - Đã kiểm bằng một dự toán khảo sát thật đã thẩm định: khớp đến từng đồng (golden test `tests/test_survey_estimate.py`).
 
 #### a4. Lập Mẫu 03a — giá trị khối lượng hoàn thành đề nghị thanh toán (NĐ 254/2025):
 ```powershell
