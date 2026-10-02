@@ -1,4 +1,7 @@
 # TỔNG QUAN QUY TRÌNH QUẢN TRỊ KỸ THUẬT & DỰ ÁN AEC KHÉP KÍN (8 BƯỚC)
+> **Trạng thái hiện thực:** `[ĐÃ HIỆN THỰC BẰNG CODE PYTHON THUẦN (100% DETERMINISTIC)]`
+> *Lưu ý:* Mọi phép tính toán (OR-Tools cutting stock 1D, CPM Schedule, G_XD, Phụ lục 03a, Fleet Management, Quality Gate) được thực thi bằng Python thuần xác định. Các phần RAG/LLM hiện ở mức nguyên mẫu hoặc định hướng mở rộng.
+
 ## HỆ THỐNG VĂN PHÒNG KỸ THUẬT SỐ HÓA & BAN CHỈ HUY CÔNG TRƯỜNG THÔNG MINH
 
 ---

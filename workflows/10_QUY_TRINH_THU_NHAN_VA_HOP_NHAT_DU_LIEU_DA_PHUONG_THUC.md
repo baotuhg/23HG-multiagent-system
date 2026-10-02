@@ -1,4 +1,6 @@
 # QUY TRÌNH THU NHẬN & HỢP NHẤT DỮ LIỆU ĐA PHƯƠNG THỨC (MULTI-MODAL INGESTION & DATA FUSION)
+> **Trạng thái hiện thực:** `[NGUYÊN MẪU / MỘT PHẦN]`
+> *Lưu ý:* Hệ thống hiện đọc trực tiếp dữ liệu cấu kiện/bảng khối lượng từ Excel/CSV/JSON/DWG/DXF/IFC. Khâu OCR xử lý hình ảnh chụp/PDF đang ở mức cấu hình định hướng.
 
 > **Căn cứ kiến trúc hệ thống:**
 > - **Kiến trúc Bảng tin tập trung (Blackboard Architecture - Single Source of Truth)**

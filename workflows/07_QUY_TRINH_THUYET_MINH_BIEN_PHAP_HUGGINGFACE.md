@@ -1,5 +1,8 @@
 # QUY TRÌNH 07: THUYẾT MINH BIỆN PHÁP THI CÔNG & KẾ HOẠCH AN TOÀN HSE
-## ỨNG DỤNG MÔ HÌNH HUGGING FACE EMBEDDING & LLM RAG CHUYÊN SÂU
+> **Trạng thái hiện thực:** `[NGUYÊN MẪU / MẪU VIẾT SẴN (CHƯA GỌI LLM/RAG)]`
+> *Lưu ý:* Mô hình RAG Embedding / Hugging Face dưới đây là kiến trúc định hướng nâng cấp. Trong phiên bản hiện tại, hệ thống xuất Thuyết minh BPTC theo mẫu viết sẵn (Cầu Km19+529.080) dạng Markdown/Word thuần Python, không gọi API LLM ngoài.
+
+## ỨNG DỤNG MÔ HÌNH HUGGING FACE EMBEDDING & LLM RAG CHUYÊN SÂU (ĐỊNH HƯỚNG MỞ RỘNG)
 
 ---
 
