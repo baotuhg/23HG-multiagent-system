@@ -159,7 +159,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**: m�
   ├── Ca xe, ca máy & kế hoạch dầu diezel (Gói A 5 sheet)
   ├── Supervisor (state machine) điều phối 8 pha, Quality Gate và Human Gate
   ├── Đóng gói Hub & Spoke 5 gói theo vai trò (tách file khi bàn giao; không mã hóa, không phân quyền truy cập)
-  ├── Thư viện đo bóc có diễn giải (tools/takeoff_rules.py), xuất Bảng 6.1/6.2;
+  ├── Thư viện đo bóc có diễn giải (tools/takeoff_rules.py), xuất Bảng 6.1/6.2, nối vào pha CAD_TAKEOFF của Supervisor;
   │   quy tắc Phụ lục VI TT 13/2021 lấy từ bản OCR — CHƯA đối chiếu bản gốc
   └── Kiểm toán Excel tĩnh: mã lỗi, tham chiếu sheet không tồn tại, file rỗng, bản sao lệch nhau
 
@@ -272,6 +272,8 @@ python run_state_graph.py --takeoff "cau_kien.csv" --takeoff-out bang_khoi_luong
 > - Kết quả: sheet `BANG_6_2_CHI_TIET` (có diễn giải tính toán từng dòng), `BANG_6_1_TONG_HOP` và `QUY_TAC_DO_BOC` (hồ sơ quy tắc đã dùng, kèm cảnh báo nếu chưa đối chiếu bản gốc).
 > - `--takeoff-profile`: `mac-dinh` (trừ mọi lỗ rỗng ghi trong bản vẽ), `tt13-2021` (ngưỡng lấy từ bản OCR Phụ lục VI — **chưa đối chiếu bản gốc**) hoặc đường dẫn file JSON do kỹ sư QS lập.
 > - Dòng sai dữ liệu (thiếu kích thước, loại không hợp lệ, số âm) làm lệnh **dừng và liệt kê từng dòng**, mã thoát 1.
+> - **Chạy qua Supervisor:** thêm `--phase takeoff` (hoặc `--demo` để chạy đủ 8 pha) thì bảng cấu kiện đi vào pha CAD_TAKEOFF: kết quả nằm trong State Bus (`cad_data.takeoff_quantities`, có diễn giải từng dòng), qua Gate-1 (cảnh báo nếu hồ sơ quy tắc chưa đối chiếu bản gốc) và hiện ở Human Gate. Ví dụ:
+>   `python run_state_graph.py --takeoff cau_kien.csv --phase takeoff rebar qs --takeoff-profile tt13-2021`
 
 #### a5. Điều phối Ca xe, Ca máy & Kế hoạch Nhiên liệu Dầu Diezel:
 ```powershell

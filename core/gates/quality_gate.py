@@ -98,6 +98,12 @@ class QualityGate:
         else:
             result.issues.append(f"Phát hiện {len(neg_volumes)} cấu kiện có thể tích âm!")
 
+        # Đo bóc từ bảng cấu kiện: hồ sơ quy tắc chưa đối chiếu bản gốc → cảnh báo (không chặn)
+        profile = cad_data.get("takeoff_profile") or {}
+        if profile and not profile.get("verified", False):
+            result.warnings.append(f"Hồ sơ quy tắc đo bóc '{profile.get('name', '?')}' CHƯA đối chiếu bản gốc "
+                                   f"— kỹ sư QS cần xác nhận ngưỡng trừ lỗ rỗng / quy ước ván khuôn")
+
         result.score = score
         result.passed = (score >= 75 and not result.issues)
         result.details = {

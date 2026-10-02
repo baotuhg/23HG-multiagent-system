@@ -110,6 +110,11 @@ class CADTakeoffData:
     source_dwg_files: List[str] = field(default_factory=list)
     wbs_mapping: Dict[str, Any] = field(default_factory=dict)
 
+    # Đo bóc từ bảng cấu kiện (--takeoff): mọi khối lượng có diễn giải + hồ sơ quy tắc đã dùng
+    takeoff_quantities: List[Dict[str, Any]] = field(default_factory=list)
+    takeoff_profile: Dict[str, Any] = field(default_factory=dict)
+    source_takeoff_file: str = ""
+
     # CAD Diff / Versioning
     revision_tag: str = "Rev00"
     diff_from_previous: Dict[str, Any] = field(default_factory=dict)

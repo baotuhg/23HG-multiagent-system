@@ -178,13 +178,14 @@ class Quantity:
     per_unit: Optional[float] = None   # khối lượng một bộ phận (cột 8)
     drawing: str = ""            # ký hiệu bản vẽ (cột 2)
     code: str = ""               # mã hiệu công tác (cột 3)
+    kind: str = ""               # loại công tác (be_tong, van_khuon, dao_hao...) — để phân nhóm khi tổng hợp
 
     def explain(self) -> str:
         extra = ("  [" + "; ".join(self.notes) + "]") if self.notes else ""
         return f"{self.name}: {self.formula} = {self.value:,.3f} {self.unit}{extra}"
 
-    def with_ref(self, drawing: str = "", code: str = "") -> "Quantity":
-        return replace(self, drawing=drawing or self.drawing, code=code or self.code)
+    def with_ref(self, drawing: str = "", code: str = "", kind: str = "") -> "Quantity":
+        return replace(self, drawing=drawing or self.drawing, code=code or self.code, kind=kind or self.kind)
 
 
 def _g(x: float) -> str:
