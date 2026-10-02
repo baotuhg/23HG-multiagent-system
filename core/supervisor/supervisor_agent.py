@@ -157,31 +157,41 @@ class AECSupervisor:
     # PHASE HANDLERS
     # ─────────────────────────────────────────────────────────────────────────
 
+    # Dynamic phase handler registry (decorator-based)
+    _PHASE_HANDLERS: Dict[str, str] = {
+        ProjectPhase.CAD_TAKEOFF: "_phase_cad_takeoff",
+        ProjectPhase.REBAR_CUT: "_phase_rebar_cut",
+        ProjectPhase.QS_ESTIMATE: "_phase_qs_estimate",
+        ProjectPhase.QAQC_REVIEW: "_phase_qaqc_review",
+        ProjectPhase.HUMAN_GATE: "_phase_human_gate",
+        ProjectPhase.SCHEDULE_CPM: "_phase_schedule_cpm",
+        ProjectPhase.ASBUILT_LOOP: "_phase_asbuilt_loop",
+        ProjectPhase.PAYMENT_03A: "_phase_payment",
+    }
+
+    @classmethod
+    def register_phase_handler(cls, phase: str, handler_name_or_func: Any) -> None:
+        """Đăng ký phase handler gọn gàng mà không dùng dynamic import magic."""
+        cls._PHASE_HANDLERS[phase] = handler_name_or_func
+
     def _run_phase(self, phase: str) -> bool:
-        """Dispatch sang đúng handler cho từng phase."""
+        """Dispatch sang handler đã đăng ký cho từng phase."""
         print(f"\n{'─' * 60}")
         print(f"  ▶ Phase: {phase}")
         print(f"{'─' * 60}")
         self.bus.set_phase(phase)
 
-        if phase == ProjectPhase.CAD_TAKEOFF:
-            return self._phase_cad_takeoff()
-        elif phase == ProjectPhase.REBAR_CUT:
-            return self._phase_rebar_cut()
-        elif phase == ProjectPhase.QS_ESTIMATE:
-            return self._phase_qs_estimate()
-        elif phase == ProjectPhase.QAQC_REVIEW:
-            return self._phase_qaqc_review()
-        elif phase == ProjectPhase.HUMAN_GATE:
-            return self._phase_human_gate()
-        elif phase == ProjectPhase.SCHEDULE_CPM:
-            return self._phase_schedule_cpm()
-        elif phase == ProjectPhase.ASBUILT_LOOP:
-            return self._phase_asbuilt_loop()
-        elif phase == ProjectPhase.PAYMENT_03A:
-            return self._phase_payment()
-        else:
+        handler = self._PHASE_HANDLERS.get(phase)
+        if not handler:
             print(f"  [Supervisor] Phase không xác định: {phase}")
+            return False
+
+        if callable(handler):
+            return handler(self)
+        elif isinstance(handler, str) and hasattr(self, handler):
+            return getattr(self, handler)()
+        else:
+            print(f"  [Supervisor] Handler không hợp lệ cho phase {phase}: {handler}")
             return False
 
     def _phase_cad_takeoff(self) -> bool:
