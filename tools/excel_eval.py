@@ -9,7 +9,7 @@ bằng Excel thì dùng luôn giá trị Excel đã tính (không tính lại).
 Hỗ trợ (đủ cho bảng QS / BBS / tiến độ thông dụng):
   số, chuỗi, + - * / ^ &, ngoặc, dấu âm, tham chiếu ô / vùng (có $, sang sheet khác),
   SUM, SUMIF, SUMIFS, COUNTIF, COUNTIFS, ROUND, ROUNDUP, ROUNDDOWN, MIN, MAX,
-  AVERAGE, ABS, PI, PRODUCT.
+  AVERAGE, ABS, SQRT, PI, PRODUCT.
 Hàm khác → FormulaError (báo rõ, không đoán).
 """
 
@@ -331,6 +331,11 @@ class _Parser:
             return abs(_num(_scalar(a[0])))
         if name == "PI":
             return math.pi
+        if name == "SQRT":
+            x = _num(_scalar(a[0]))
+            if x < 0:
+                raise FormulaError("SQRT của số âm (#NUM!)")
+            return math.sqrt(x)
         if name in ("ROUND", "ROUNDUP", "ROUNDDOWN"):
             x, d = _num(_scalar(a[0])), int(_num(_scalar(a[1])) if len(a) > 1 else 0)
             f = 10 ** d

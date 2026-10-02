@@ -11,6 +11,8 @@ from tools.qs_loader import RATE_LABELS, QSEstimate
 
 def write_gxd_workbook(path: str, est: QSEstimate) -> None:
     import openpyxl
+
+from tools.money import round_vnd
     from openpyxl.styles import Alignment, Font, PatternFill
 
     def header(ws, row, values):
@@ -58,7 +60,7 @@ def write_gxd_workbook(path: str, est: QSEstimate) -> None:
     header(ws, 1, ["Dòng file", "TT", "Mã hiệu", "Nội dung công tác", "ĐVT", "Khối lượng", "Đơn giá",
                    "Thành tiền (KL×ĐG)", "Thành tiền trong file", "Tổng diễn giải", "Phần"])
     for i in est.items:
-        ws.append([i.row, i.stt, i.code, i.description, i.unit, i.quantity, i.unit_price, round(i.amount),
+        ws.append([i.row, i.stt, i.code, i.description, i.unit, i.quantity, i.unit_price, round_vnd(est.line_amount(i)),
                    i.file_amount, i.detail_quantity, i.section])
     ws.column_dimensions["D"].width = 60
     for col in ("G", "H", "I"):

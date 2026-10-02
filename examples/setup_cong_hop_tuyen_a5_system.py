@@ -226,6 +226,11 @@ for r_idx, r_val in enumerate(qs_rows, 5):
         if c_idx == 4: cell.number_format = "#,##0"
         elif c_idx in [5, 6, 7, 8, 9]: cell.number_format = "#,##0.00"
 
+# Đưa kích thước lòng cống, số khoang, cạnh vút và quy ước ván khuôn thành ô đầu vào (không số chết trong công thức)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from tools.takeoff_rules import apply_culvert_derivation
+apply_culvert_derivation(ws3)
+
 # --- SHEET 4: THONG_KE_THEP_CHI_TIET ---
 ws4 = wb_master["THONG_KE_THEP_CHI_TIET"]
 ws4.cell(row=1, column=1, value="BẢNG THỐNG KÊ CỐT THÉP CHI TIẾT (BBS) TOÀN TUYẾN CỐNG HỘP A5").font = F_TITLE

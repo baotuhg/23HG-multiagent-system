@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence
 
 from tools.bbs_loader import _FORMULA, _norm, _to_number
+from tools.money import D, mul, round_vnd
 from tools.qs_loader import QSEstimate, QSItem
 
 HEADER_SCAN_ROWS = 40
@@ -226,9 +227,9 @@ def compute_payment(
     if price_basis == "direct":
         if not estimate.T:
             raise PaymentError("Cần tính G_XD (tỷ lệ GT, TL) trước khi quy đổi đơn giá trực tiếp")
-        factor = estimate.G / estimate.T
+        factor = D(estimate.G) / D(estimate.T)
     else:
-        factor = 1.0
+        factor = D(1)
     vat = estimate.rates.get("vat") if vat_rate is None else vat_rate
     if vat is None:
         raise PaymentError("Thiếu thuế suất VAT")
@@ -236,7 +237,7 @@ def compute_payment(
         if not 0 <= pct <= 100:
             raise PaymentError(f"Tỷ lệ {label} {pct}% không hợp lệ")
 
-    res = PaymentResult(period=period, price_basis=price_basis, price_factor=factor, vat_rate=vat,
+    res = PaymentResult(period=period, price_basis=price_basis, price_factor=float(factor), vat_rate=vat,
                         advance_recovery_pct=advance_recovery_pct, retention_pct=retention_pct)
     done: Dict[int, ProgressRow] = {}
     for p in progress:
@@ -258,7 +259,7 @@ def compute_payment(
         p = done.get(id(item))
         prev = p.previous_qty if p else 0.0
         this = p.this_qty if p else 0.0
-        price = round(item.unit_price * factor)
+        price = round_vnd(mul(item.unit_price, factor))
         q = item.quantity
         payable = max(0.0, min(this, q - prev))
         overrun = this - payable
@@ -272,12 +273,12 @@ def compute_payment(
                                 f"{overrun:,.3f} {item.unit} — cần phụ lục hợp đồng / phát sinh")
         cumulative = min(prev + payable, max(q, prev))
         line = PaymentLine(
-            item=item, unit_price=price, contract_value=round(q * price), previous_qty=prev,
-            this_qty=payable, cumulative_qty=cumulative, cumulative_value=round(min(cumulative, q) * price),
-            this_value=round(payable * price), overrun_qty=overrun, note=note,
+            item=item, unit_price=price, contract_value=round_vnd(mul(q, price)), previous_qty=prev,
+            this_qty=payable, cumulative_qty=cumulative, cumulative_value=round_vnd(mul(min(cumulative, q), price)),
+            this_value=round_vnd(mul(payable, price)), overrun_qty=overrun, note=note,
         )
         res.lines.append(line)
-        res.overrun_value += round(overrun * price)
+        res.overrun_value += round_vnd(mul(overrun, price))
 
     for p in res.unmatched:
         res.warnings.append(f"Dòng {p.row} ({p.code or p.stt} {p.description[:40]}): không có trong hợp đồng — "
@@ -286,13 +287,13 @@ def compute_payment(
     res.contract_value = sum(l.contract_value for l in res.lines)
     res.cumulative_value = sum(l.cumulative_value for l in res.lines)
     res.this_value = sum(l.this_value for l in res.lines)
-    res.this_vat = round(res.this_value * vat)
+    res.this_vat = round_vnd(mul(res.this_value, vat))
     res.this_total = res.this_value + res.this_vat
-    recovery = round(res.this_total * advance_recovery_pct / 100)
+    recovery = round_vnd(mul(res.this_total, advance_recovery_pct) / 100)
     if advance_outstanding is not None:
-        recovery = min(recovery, round(advance_outstanding))
+        recovery = min(recovery, round_vnd(advance_outstanding))
     res.advance_recovery = recovery
-    res.retention = round(res.this_total * retention_pct / 100)
+    res.retention = round_vnd(mul(res.this_total, retention_pct) / 100)
     res.payable = res.this_total - res.advance_recovery - res.retention
     if res.payable < 0:
         res.errors.append(f"Số đề nghị thanh toán âm ({res.payable:,}) — kiểm tra tỷ lệ khấu trừ")
@@ -370,7 +371,7 @@ def write_payment_workbook(path: str, res: PaymentResult, project_name: str = ""
         for l in res.lines:
             if l.overrun_qty > 1e-9:
                 ws2.append(["Vượt HĐ", l.item.code or l.item.stt, l.item.description, l.overrun_qty,
-                            l.unit_price, round(l.overrun_qty * l.unit_price)])
+                            l.unit_price, round_vnd(mul(l.overrun_qty, l.unit_price))])
         for p in res.unmatched:
             ws2.append(["Ngoài HĐ", p.code or p.stt, p.description, p.this_qty, None, None])
         ws2.append([])
