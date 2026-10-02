@@ -9,11 +9,14 @@ Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx
 5. MAU_BIEN_BAN_KCS, MAU_BB_NGHIEM_THU_VAT_LIEU, MAU_BB_LAY_MAU_HIEN_TRUONG:
    Bọc IFERROR đa tầng hỗ trợ cả chuỗi và số nguyên trong VLOOKUP.
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 
 import os
 import openpyxl
 
-MASTER_PATH = r"D:\Code\23HG-multiagent-system\23HG-multiagent-system\templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx"
+MASTER_PATH = repo_path(r"templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx")
 
 def fix_master_workbook(fpath=MASTER_PATH):
     print(f"[*] Đang tải và sửa lỗi Master Workbook: {fpath}")

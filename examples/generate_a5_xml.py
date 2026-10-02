@@ -2,6 +2,9 @@
 """
 XUẤT TIẾN ĐỘ MS PROJECT XML CHO CỐNG HỘP TUYẾN A5
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path, repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 import xml.etree.ElementTree as ET
 
 def generate_a5_xml():
@@ -47,9 +50,9 @@ def generate_a5_xml():
 
     tree = ET.ElementTree(project)
     paths = [
-        r"c:\Users\baotu\Downloads\CỐNG HỘP TUYẾN A5\260920_Tien_Do_CaMay_Cong_Hop_Tuyen_A5.xml",
-        r"c:\Users\baotu\Downloads\TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_Tien_Do_CaMay_Cong_Hop_Tuyen_A5.xml",
-        r"d:\Code\23HG-multiagent-system\23HG-multiagent-system\examples\260920_Tien_Do_CaMay_Cong_Hop_Tuyen_A5.xml"
+        project_path(r"CỐNG HỘP TUYẾN A5\260920_Tien_Do_CaMay_Cong_Hop_Tuyen_A5.xml"),
+        project_path(r"TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_Tien_Do_CaMay_Cong_Hop_Tuyen_A5.xml"),
+        repo_path(r"examples\HO_SO_CONG_HOP_TUYEN_A5\HO_SO_THUC_CHIEN_HUB_AND_SPOKE_CONG_A5\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_Tien_Do_CaMay_Cong_Hop_Tuyen_A5.xml")
     ]
     for p in paths:
         tree.write(p, encoding="utf-8", xml_declaration=True)

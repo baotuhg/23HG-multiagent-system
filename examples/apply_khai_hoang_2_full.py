@@ -14,6 +14,9 @@ Các mục tiêu hoàn thiện:
 """
 
 from __future__ import annotations
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path, repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 import os
 import sys
 import shutil
@@ -25,12 +28,12 @@ from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 
-ROOT_REPO = r"d:\Code\23HG-multiagent-system\23HG-multiagent-system"
+ROOT_REPO = repo_path()
 if ROOT_REPO not in sys.path:
     sys.path.insert(0, ROOT_REPO)
 
-SOURCE_WS = r"C:\Users\baotu\Downloads\Documents\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker"
-PARENT_WS = r"C:\Users\baotu\Downloads\Documents\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker"
+SOURCE_WS = project_path(r"Cầu thôn Khai Hoang 2, Km 14+363.65_Marker\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker")
+PARENT_WS = project_path(r"Cầu thôn Khai Hoang 2, Km 14+363.65_Marker")
 OUT_DIR = os.path.join(SOURCE_WS, "HO_SO_THIET_LAP")
 os.makedirs(OUT_DIR, exist_ok=True)
 

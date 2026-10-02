@@ -78,11 +78,11 @@ Hệ thống **23HG-multiagent-system** chuẩn hóa quy trình đóng gói thà
 ```python
 from tools.package_dispatcher import AECPackageDispatcher
 
-dispatcher = AECPackageDispatcher(base_output_dir=r"c:\Users\baotu\Downloads\DU_AN_CONG_TRINH")
+dispatcher = AECPackageDispatcher(base_output_dir="./DU_AN_CONG_TRINH")
 
 manifest = dispatcher.dispatch_site_operation_packages(
     project_name="Cong_Hop_Tuyen_A5",
-    artifacts_source_dir=r"c:\Users\baotu\Downloads\CỐNG HỘP TUYẾN A5",
+    artifacts_source_dir="./examples/HO_SO_CONG_HOP_TUYEN_A5",
     custom_subfolder="HO_SO_THUC_CHIEN_HUB_AND_SPOKE_CONG_A5"
 )
 

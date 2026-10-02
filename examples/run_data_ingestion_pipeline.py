@@ -11,6 +11,9 @@ Tuân thủ Kiến trúc Hệ thống MCP 3 Thành Phần:
                                ▼ (API / COM Interop: win32com / ezdxf)
       [ Bản vẽ DWG trong AutoCAD ] <---> [ Hồ sơ thiết kế (Excel/PDF) ]
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 
 import os
 import sys
@@ -38,7 +41,7 @@ def main():
     aggregator = AECDataAggregator()
 
     # Thư mục hồ sơ dự án
-    drawing_folder = r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker"
+    drawing_folder = project_path(r"HSTK Cầu Km19+529.080_Marker")
     design_base = os.path.join(drawing_folder, r"HSTK Cầu Km19+529.080_Marker\01.CAU KM19+529.08")
     md_file = os.path.join(drawing_folder, r"PHAN_TICH_KHOI_LUONG_QS_CAU_KM19+529.080.md")
     excel_file = os.path.join(design_base, r"06. QUANTITY\06.THKL_KM19.5.xlsx")

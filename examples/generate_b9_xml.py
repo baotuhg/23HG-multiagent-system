@@ -2,6 +2,9 @@
 """
 XUẤT TIẾN ĐỘ THI CÔNG MS PROJECT XML CHO CỤM B9 - SÂN VẬN ĐỘNG OLYMPIC THƯỜNG TÍN
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path, repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 import datetime
 import xml.etree.ElementTree as ET
 
@@ -53,9 +56,9 @@ def generate_b9_xml():
 
     tree = ET.ElementTree(project)
     xml_paths = [
-        r"c:\Users\baotu\Downloads\TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml",
-        r"c:\Users\baotu\Downloads\260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml",
-        r"d:\Code\23HG-multiagent-system\23HG-multiagent-system\examples\260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml"
+        project_path(r"TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml"),
+        project_path(r"260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml"),
+        repo_path(r"examples\TIEN_DO_THI_CONG_CUM_B9_OLYMPIC\260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml")
     ]
     for xp in xml_paths:
         tree.write(xp, encoding="utf-8", xml_declaration=True)

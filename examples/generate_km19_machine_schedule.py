@@ -18,6 +18,9 @@ Kèm file XML: 260920_Tien_Do_CaMay_Cau_Km19+529.080.xml
 """
 
 from __future__ import annotations
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path, repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 import os
 import sys
 import datetime
@@ -768,10 +771,10 @@ def build_km19_machine_schedule():
 
     # LƯU FILE EXCEL VÀO TẤT CẢ CÁC VỊ TRÍ ĐÍCH
     target_excel_paths = [
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx",
-        r"d:\Code\23HG-multiagent-system\23HG-multiagent-system\examples\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx"
+        project_path(r"HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx"),
+        repo_path(r"examples\HO_SO_CAU_KM19_529\260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx")
     ]
 
     for p in target_excel_paths:
@@ -809,10 +812,10 @@ def build_km19_machine_schedule():
 
     tree = ET.ElementTree(project)
     target_xml_paths = [
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml",
-        r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml",
-        r"d:\Code\23HG-multiagent-system\23HG-multiagent-system\examples\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml"
+        project_path(r"HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml"),
+        project_path(r"HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_A_CO_GIOI_VA_DAU_DIEZEL\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml"),
+        repo_path(r"examples\HO_SO_CAU_KM19_529\260920_Tien_Do_CaMay_Cau_Km19+529.080.xml")
     ]
 
     for p in target_xml_paths:

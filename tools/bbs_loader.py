@@ -107,6 +107,13 @@ def _load_excel(path: str, sheet: Optional[str]) -> BBSLoadResult:
 def _read_csv(path: str) -> List[List[Any]]:
     with open(path, "r", encoding="utf-8-sig", newline="") as f:
         text = f.read().replace("\r\n", "\n")
+    # Ký tự phân cách lấy theo dòng tiêu đề (ổn định cả khi các dòng có số cột không đều);
+    # chỉ đoán bằng Sniffer khi tiêu đề không chứa ký tự nào.
+    header = next((line for line in text.splitlines() if line.strip()), "")
+    counts = {d: header.count(d) for d in (";", "\t", ",")}
+    best = max(counts, key=lambda d: (counts[d], d == ";"))
+    if counts[best]:
+        return [row for row in csv.reader(text.splitlines(), delimiter=best)]
     try:
         dialect = csv.Sniffer().sniff(text[:4096], delimiters=",;\t")
     except csv.Error:

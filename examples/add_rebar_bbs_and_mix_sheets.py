@@ -13,6 +13,9 @@ MÔ-ĐUN MỞ RỘNG CAO CẤP: BỔ SUNG 2 SHEET THỐNG KÊ THÉP CHI TIẾT &
    - Bảng 2: Tổng hợp tổng nhu cầu vật liệu cấu thành (Xi măng PCB40, cát vàng, đá 1x2, nước, phụ gia...).
    - Bảng 3: Ma trận Tần suất thí nghiệm kiểm soát chất lượng vật liệu đầu vào và nghiệm thu KCS (Testing Frequency Matrix) theo TCVN 4453, TCVN 1651, TCVN 6260, TCVN 7570, TCVN 9396, ASTM D6760...
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 
 import os
 import json
@@ -83,7 +86,7 @@ def add_detailed_rebar_and_mix_sheets(excel_path):
     ws_bbs.row_dimensions[5].height = 28
 
     # Đọc dữ liệu chi tiết từ file JSON đã trích xuất
-    json_path = r"D:\Code\DONG_GOI_HETHONG_AEC\temp_xlsx\extracted_rebars.json"
+    json_path = repo_path(r"temp_xlsx\extracted_rebars.json")
     rebar_data = []
     if os.path.exists(json_path):
         with open(json_path, "r", encoding="utf-8") as f:
@@ -571,6 +574,6 @@ def add_detailed_rebar_and_mix_sheets(excel_path):
     return wb.sheetnames
 
 if __name__ == "__main__":
-    target_excel = r"D:\Code\DONG_GOI_HETHONG_AEC\templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx"
+    target_excel = repo_path(r"templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx")
     sheets = add_detailed_rebar_and_mix_sheets(target_excel)
     print("Danh sách Sheet hiện tại:", sheets)

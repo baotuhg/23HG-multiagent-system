@@ -18,16 +18,17 @@
 - **Đọc được file thật:** BBS (Excel/CSV/JSON), tiến độ MS Project XML/Excel/CSV, bảng QS/BOQ, phiếu thí nghiệm, IFC (qua `ifcopenshell`), DXF (qua `ezdxf`).
 
 ### Những gì đã được kiểm chứng
-- `python -m unittest discover -s tests -t .`: **116 test** đạt; CI chạy trên Ubuntu (Python 3.10, 3.12) và Windows (Python 3.11).
+- `python -m unittest discover -s tests -t .`: toàn bộ test tự động đạt (hơn 160 test, gồm các phép tính tay độc lập cho tiền, đo bóc và hồ sơ mẫu); CI chạy trên Ubuntu (Python 3.10, 3.12) và Windows (Python 3.11).
 - Chạy `--demo` đủ 8 pha (CAD → cắt thép → QS → QA/QC → Human Gate → CPM → ca máy → As-Built) không lỗi.
 - Solver cắt thép tách theo từng Ø và mác thép, tính lưỡi cắt, báo **cận dưới** số cây (`OPTIMAL` nghĩa là đã chứng minh không dùng ít hơn được).
 - Quét tĩnh các file Excel mẫu bằng `python -m tools.audit_excels_static <thư_mục>` (không cần Excel): không có mã lỗi công thức, không có tham chiếu tới sheet không tồn tại. Quality Gate khi xuất hồ sơ cũng kiểm tra điều này.
+- Bộ tính công thức `tools/excel_eval.py` tính được **toàn bộ** ô công thức trong `examples/` và `templates/` (hơn 10.000 ô; gồm ngày tháng, `IF/AND`, `VLOOKUP`, `SUMPRODUCT` theo mảng, `TEXT`), không ô nào ra lỗi Excel. Đây vẫn là bộ tính tự viết, không phải Excel.
 
 ### Giới hạn cần biết trước khi dùng
 - **Chưa thay thế kỹ sư.** Kết quả dự toán, thanh toán và hồ sơ nghiệm thu phải được kỹ sư QS/QLCL rà soát trước khi dùng cho hồ sơ pháp lý. Các căn cứ pháp lý và công thức nêu trong tài liệu là tham chiếu của tác giả, chưa qua thẩm định độc lập.
 - **"Điểm Audit 100/100" do chính hệ thống tự chấm**, không phải đánh giá độc lập; các kiểm tra Excel ở đây là kiểm tra tĩnh, chưa đối chiếu bằng Microsoft Excel hay MS Project thật.
 - **Một số phần mới ở mức nguyên mẫu:** Thuyết minh BPTC hiện là mẫu viết sẵn (chưa có RAG); So sánh phiên bản CAD mới đọc được dữ liệu cấu kiện/diện tích đa tuyến khép kín; chưa có giao diện Web/Mobile hay ký số.
-- **Hồ sơ mẫu chưa hoàn chỉnh:** một số file trong bộ "14 hồ sơ vi mô" chỉ là vỏ rỗng; nhiều file bị nhân bản giữa các thư mục. Phần "Tự tiến hóa" (`aec_core/experience_store.py`) là kho kinh nghiệm hiệu chuẩn định mức/mẫu cắt thép, không phải học máy.
+- **Hồ sơ mẫu chưa hoàn chỉnh:** Cống A5 có 8/14 hồ sơ vi mô (6 sheet trong Master ghi "CHƯA LẬP"); số liệu đầu vào là số nhập, còn sai khác cốt thép +14,4% chờ kỹ sư QS — xem `examples/HO_SO_CONG_HOP_TUYEN_A5/README.md`. Các bản sao giữa các gói là chủ ý và được test kiểm tra không lệch nhau. Phần "Tự tiến hóa" (`aec_core/experience_store.py`) là kho kinh nghiệm hiệu chuẩn định mức/mẫu cắt thép, không phải học máy.
 
 ### Căn cứ tham chiếu (cần kỹ sư xác nhận khi áp dụng)
 Luật Xây dựng 135/2025/QH15, NĐ 207/2026/NĐ-CP, NĐ 254/2025/NĐ-CP (thanh toán – Phụ lục 03a), TT 36/37/38/2026/TT-BXD (chi phí, đo bóc, định mức), TCVN 11823:2017, 5574:2018, 1651:2018, 9395:2012, 4453:1995; định mức ca máy và dầu theo bảng chuẩn Vincons trong `data/`.
@@ -39,7 +40,7 @@ Phát hành theo **[MIT License](LICENSE)**. Tác giả & duy trì: **Nguyễn B
 
 ## 🏛️ 2. Sơ đồ Kiến trúc Hệ thống (System Architecture)
 
-Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, phân định tuyệt đối giữa năng lực suy luận nhận dạng (LLM Intent Recognition) và năng lực tính toán số học xác định (Deterministic Pure Python Code, Zero LLM Math):
+Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**: một state machine Python gọi các agent theo thứ tự, kiểm tra Quality Gate sau mỗi pha và dừng ở Human Gate chờ kỹ sư duyệt. Mọi phép tính là code Python xác định; hệ thống **không gọi LLM**.
 
 ```text
                            +-------------------------------+
@@ -49,7 +50,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
                                            |
                                            v
                   +-------------------------------------------------+
-                  |       AI SUPERVISOR (CHỈ HUY TRƯỞNG ẢO)         |
+                  |       SUPERVISOR (STATE MACHINE ĐIỀU PHỐI)      |
                   | - Tiếp nhận mục tiêu, phân bổ đầu việc Modular  |
                   | - Điều phối State dự án qua Shared State Bus    |
                   | - Kiểm soát các Cổng Chất lượng (Quality Gates) |
@@ -64,7 +65,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
 +--------+---------+             +--------+---------+             +--------+---------+
 | * Đọc DWG/DXF    |             | * Kiểm soát BPTC |             | * Đơn giá TT 38/2026  |
 | * Shoelace diện  |             | * Lab Link R7/R28|             | * Tính G_xd      |
-|   tích, thể tích |             | * 22 BBNT chuẩn  |             | * 100% công thức |
+|   tích, thể tích |             | * 22 BBNT chuẩn  |             | * Công thức Excel|
 | * Average-End    |             | * Hold Points NT |             | * Phụ lục 03a    |
 +--------+---------+             +--------+---------+             +--------+---------+
     |    |                                ^                                ^
@@ -137,7 +138,7 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
 |---|---|---|---|
 | **Bóc tách CAD/BIM** | Bản vẽ CAD `.dwg`, `.dxf`, mô hình OpenBIM `.ifc` | Bảng khối lượng Bê tông, Ván khuôn, Cốt thép 3D, Đào đắp | `ifcopenshell` (ISO 16739), `ezdxf`, `AutoCAD COM`, Shoelace & IFC Qto |
 | **Gia công Cốt thép** | File BBS thật `.xlsx` / `.csv` / `.json` (`--bbs`) | Phiếu cắt từng phương án cây 11.7m (CSV), số cây, cận dưới, đề-xê, mẩu thừa tận dụng | OR-Tools Column Generation (GLOP) + CP-SAT, tách nhóm Ø + mác thép, tính lưỡi cắt 3mm |
-| **Dự toán Chi phí** | Khối lượng trích xuất, Đơn giá định mức | Bảng dự toán tổng hợp chi phí xây dựng `G_xd` | Excel 100% công thức động (`G_xd = T + GT + TL + VAT 10%`) |
+| **Dự toán Chi phí** | Khối lượng trích xuất, Đơn giá định mức | Bảng dự toán tổng hợp chi phí xây dựng `G_xd` | Excel có công thức; T và các tỷ lệ là ô đầu vào (`G_xd = T + GT + TL + VAT`) |
 | **Thanh toán Hợp đồng**| Khối lượng thiết kế vs Khối lượng hoàn công | Bảng xác định khối lượng hoàn thành Phụ lục 03a | Nghị định 254/2025/NĐ-CP, tính phát sinh tự động |
 | **Quản lý Tiến độ** | File tiến độ thật `MS Project .xml` / `.xlsx` / `.csv` (`--schedule`) | Bảng CPM (ES/EF/LS/LF, dự trữ, đường găng, ngày lịch) CSV; cảnh báo ngày trong file vi phạm quan hệ logic | CPM với quan hệ FS/SS/FF/SF + lag, lịch nghỉ (Chủ nhật, ngày lễ) |
 | **Ca xe & Dầu Diezel** | Tiến độ CPM (`.xml`/`.xlsx`), Khối lượng hình học, Định mức ca máy | Bảng tiến độ ca máy theo ngày/tuần (`.xlsx` + `.xml`), Biểu đồ phụ tải, Kế hoạch cấp dầu Diezel (Lít) | `EquipmentFleetScheduler`, định mức Vincons / TT 37/2026, tính ca/ngày và nhiên liệu chi tiết |
@@ -151,37 +152,29 @@ Hệ thống hoạt động theo mô hình **Supervisor & Shared State Bus**, ph
 ## 🗺️ 4. Lộ trình Phát triển (Roadmap 3 Phase)
 
 ```text
-  Phase 1 (v1.x) [100% HOÀN THÀNH]
-  ├── Tự động hóa tác vụ kỹ thuật cốt lõi (Core Engines)
-  ├── Bóc tách hình học Takeoff 100% công thức động (0 số chết)
-  ├── Cắt thép 1D Cutting Stock: tối ưu số cây theo từng Ø + mác thép, có cận dưới chứng minh
-  ├── Bảng phân tích định mức & Tổng hợp vật tư toàn cầu BOM
-  ├── Dự toán G_xd Thông tư 36/2026 & Thanh toán kỳ Phụ lục 03a
-  └── Bộ 14 Sheet Master Excel đạt 100/100 điểm Audit Verifier
+  ĐÃ CÓ (có test tự động)
+  ├── Cắt thép 1D: tối ưu số cây theo từng Ø + mác thép, có cận dưới chứng minh (OR-Tools GLOP + CP-SAT)
+  ├── Tiến độ CPM: FS/SS/FF/SF + lag, lịch nghỉ; đọc MS Project XML / Excel / CSV
+  ├── Dự toán G_XD và Mẫu 03a từ bảng QS thật; tiền tính bằng Decimal, làm tròn như ROUND của Excel
+  ├── Ca xe, ca máy & kế hoạch dầu diezel (Gói A 5 sheet)
+  ├── Supervisor (state machine) điều phối 8 pha, Quality Gate và Human Gate
+  ├── Đóng gói Hub & Spoke 5 gói theo vai trò (tách file khi bàn giao; không mã hóa, không phân quyền truy cập)
+  ├── Thư viện đo bóc có diễn giải (tools/takeoff_rules.py), xuất Bảng 6.1/6.2;
+  │   quy tắc Phụ lục VI TT 13/2021 lấy từ bản OCR — CHƯA đối chiếu bản gốc
+  └── Kiểm toán Excel tĩnh: mã lỗi, tham chiếu sheet không tồn tại, file rỗng, bản sao lệch nhau
 
-  Phase 2 (v2.x) [100% HOÀN THÀNH - State Graph v3.0]
-  ├── Tái cấu trúc State Graph & AI Supervisor điều phối tập trung
-  ├── Cách ly 100% toán học số học khỏi LLM (Google OR-Tools, Pure Python CPM)
-  ├── Phản biện chéo Inter-Agent Negotiation: Thẩm tra vị trí nối thép TCVN 5574
-  ├── Vòng lặp đối soát hiện trường (Site Feedback & As-Built Loop)
-  ├── QA/QC Lab Link: Tích hợp kết quả nén R7/R28, siêu âm cọc, PDA vào KCS
-  └── Cổng phê duyệt Kỹ sư trưởng Human-in-the-loop (Awaiting Approval)
+  MỨC NGUYÊN MẪU / MỘT PHẦN
+  ├── Kho kinh nghiệm dự án (hiệu chuẩn năng suất, thư viện mẫu cắt thép) — quy tắc cố định, không phải học máy
+  ├── So sánh phiên bản CAD Rev00/Rev01 — so được dữ liệu cấu kiện; chưa tự bóc khối lượng từ bản vẽ
+  ├── Vòng lặp hiện trường As-Built — mới chạy với dữ liệu mẫu
+  └── Hồ sơ mẫu Cống A5: 8/14 hồ sơ vi mô có dữ liệu; cốt thép 03a lệch +14,4% so với bảng thống kê thép,
+      đắp lưng cống tính lại chờ kỹ sư QS xác nhận (xem examples/HO_SO_CONG_HOP_TUYEN_A5/README.md)
 
-  Phase 3 (v3.x) [ĐANG TRIỂN KHAI & MỞ RỘNG]
-  ├── [100% HOÀN THÀNH] Tác tử Điều phối Ca xe, Ca máy & Kế hoạch Nhiên liệu Dầu Diezel (AEC Equipment & Fleet Engine)
-  ├── [100% HOÀN THÀNH] Mô hình Đóng gói Phân quyền Thực chiến Hub & Spoke 5 Gói Vệ tinh (Role-Based Dispatcher)
-  ├── [100% HOÀN THÀNH] Mở rộng bộ hồ sơ mẫu thực chiến: Cống hộp Tuyến A5 & Cụm B9 San lấp Olympic Thường Tín
-  ├── [100% HOÀN THÀNH MỚI] Động cơ Tiến độ CPM 100% Công thức Sống & Biểu đồ Native Excel (Dynamic Schedule & Fleet Engine)
-  │   ├── Khởi tạo Master Tiến độ 6 Sheet không số chết, tự động tái cân bằng toàn diện
-  │   ├── 4 Biểu đồ Native Excel: Phụ tải 97 ngày, Phân kỳ dầu 4 tháng, Cơ cấu vật tư, Cột cụm đối sánh ĐM vs Thực tế
-  │   ├── Công tắc chuyển đổi hiển thị Gantt linh hoạt (Vạch tiến độ █ / Nhân công / Ca máy)
-  │   └── Phục dựng & nâng cấp Sheet SS Vina Alpha: Diệt sạch 28.091 Defined Names rác & 18.635 lỗi #REF!, dung lượng nén giảm 330 lần
-  ├── Động cơ so sánh phiên bản CAD/BIM Versioning (Incremental Diff Rev00 vs Rev01) — đã so sánh được dữ liệu cấu kiện;
-  │   còn thiếu bước tự bóc khối lượng từ bản vẽ (hiện đọc được diện tích đa tuyến khép kín trong DXF)
-  ├── RAG thật cho Thuyết minh BPTC (embedding + truy xuất TCVN + sinh nội dung) — hiện là bản mẫu viết sẵn
-  ├── Tích hợp Ký số điện tử (E-Signatures / PKI) trực tiếp trên Web Dashboard
-  ├── Mở rộng Multi-Project State Graph quản trị đồng thời nhiều phân đoạn cao tốc
-  └── Giao diện WebUI / Mobile App cho Kỹ sư hiện trường nhập Daily Log trực tiếp
+  CHƯA LÀM
+  ├── Đối chiếu với bảng dự toán thật đã duyệt (tests/golden/) và chạy thử trọn một công trình thật
+  ├── Xác minh văn bản đo bóc áp dụng (thay đổi từ 01/07/2026 theo nguồn thứ cấp) và các số OCR của Phụ lục VI
+  ├── RAG cho Thuyết minh BPTC (hiện là bản mẫu viết sẵn), ký số điện tử, quản lý nhiều dự án đồng thời
+  └── Giao diện Web / Mobile cho kỹ sư hiện trường
 ```
 
 ---
@@ -263,13 +256,22 @@ python run_state_graph.py --phase qaqc --lab "Phieu_thi_nghiem.xlsx" --lab-out d
 ```
 > - Đọc phiếu thí nghiệm (Excel, CSV hoặc JSON; mẫu cột: `templates/Phieu_thi_nghiem_mau.csv`): nén bê tông R7/R28, kéo thép, PDA, siêu âm cọc, độ sụt...
 > - Mỗi phiếu được đánh giá **ĐẠT / KHÔNG ĐẠT / CHỜ**; mỗi biên bản nghiệm thu (BBNT) liên kết được xếp **GIẢI TỎA / CHỜ / CHẶN**. Có phiếu KHÔNG ĐẠT thì phase dừng.
-> - Kiểm toán Excel master (GATE-4, 100/100) chỉ chạy khi có `--excel`; không có thì Human Gate ghi rõ "chưa kiểm toán".
+> - Kiểm toán Excel master (GATE-4, điểm do hệ thống tự chấm) chỉ chạy khi có `--excel`; không có thì Human Gate ghi rõ "chưa kiểm toán".
 
 #### a4c. Kiểm tra file đầu vào trước khi chạy (không tính toán, không ghi file):
 ```powershell
 python run_state_graph.py --check-inputs --bbs "BBS.xlsx" --qs "Du_toan.xlsx" --schedule "TienDo.xml" --lab "Phieu_thi_nghiem.xlsx"
 ```
 > Đọc từng file bằng đúng bộ đọc của hệ thống, liệt kê dòng lỗi, trả mã thoát 1 nếu có lỗi — dùng được trong script / CI.
+
+#### a4d. Đo bóc khối lượng từ bảng cấu kiện → Bảng 6.2 / 6.1:
+```powershell
+python run_state_graph.py --takeoff "cau_kien.csv" --takeoff-out bang_khoi_luong.xlsx --takeoff-profile tt13-2021
+```
+> - Mỗi dòng là một cấu kiện: `be_tong`, `van_khuon` (kiểu `mong/cot/dam/san/tuong`), `coc_khoan_nhoi`, `khoan`, `cot_tron`, `dao_hao`, `dao_ho`, `mat_cat` (nhiều dòng cùng tên = các mặt cắt), `ong`, `dan_giao_trong`, `dan_giao_cot`. Mẫu cột: [`templates/Mau_dau_vao_do_boc.csv`](templates/Mau_dau_vao_do_boc.csv).
+> - Kết quả: sheet `BANG_6_2_CHI_TIET` (có diễn giải tính toán từng dòng), `BANG_6_1_TONG_HOP` và `QUY_TAC_DO_BOC` (hồ sơ quy tắc đã dùng, kèm cảnh báo nếu chưa đối chiếu bản gốc).
+> - `--takeoff-profile`: `mac-dinh` (trừ mọi lỗ rỗng ghi trong bản vẽ), `tt13-2021` (ngưỡng lấy từ bản OCR Phụ lục VI — **chưa đối chiếu bản gốc**) hoặc đường dẫn file JSON do kỹ sư QS lập.
+> - Dòng sai dữ liệu (thiếu kích thước, loại không hợp lệ, số âm) làm lệnh **dừng và liệt kê từng dòng**, mã thoát 1.
 
 #### a5. Điều phối Ca xe, Ca máy & Kế hoạch Nhiên liệu Dầu Diezel:
 ```powershell
@@ -280,7 +282,7 @@ python run_state_graph.py --phase fleet --fleet-out ca_xe_ca_may.xlsx --shifts 2
 
 #### a6. Xuất Hồ Sơ Công Nghiệp 3 Tầng & Đóng Gói Hub & Spoke (Industrial End-to-End Export Pipeline):
 ```powershell
-# 1. Xuất trọn vẹn 3 Tầng hồ sơ công nghiệp cho dự án bất kỳ từ Master Workbook (Zero Error Quality Gate):
+# 1. Xuất trọn vẹn 3 Tầng hồ sơ công nghiệp cho dự án bất kỳ từ Master Workbook (kèm Quality Gate kiểm tra lỗi công thức):
 python run_state_graph.py --export-all --excel "Du_An_Master.xlsx" --export-dir "./HO_SO_XUAT_XUONG" --project-name "Cầu Km19+529.080"
 
 # 2. Xuất trực tiếp qua module Package Dispatcher độc lập:
@@ -290,10 +292,10 @@ python -m tools.package_dispatcher --master "Du_An_Master.xlsx" --target "./HO_S
 python -m tools.package_dispatcher --source ./examples/HO_SO_CONG_HOP_TUYEN_A5 --target ./HO_SO_HUB_AND_SPOKE
 ```
 > - **Tự động sản xuất đồng bộ 3 tầng đóng gói**:
->   1. **Tầng 1 (Macro Master)**: `BO_HO_SO_01_MACRO_MASTER_14_SHEET` (14 sheets động, XML/MPP, BBNT Word, Báo cáo Thẩm tra Audit 100/100).
->   2. **Tầng 2 (Micro 14 bộ)**: `BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO` (14 file chuyên sâu độc lập, nạp engine `Automated Formula Sanitization` khử sạch 100% lỗi `#REF!`, `#VALUE!`).
->   3. **Tầng 3 (Hub & Spoke 5 gói)**: `03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH` (Phân quyền RBAC, Gói A **bắt buộc tuân thủ chuẩn 5 sheets Vincons / 23HG System**, Bảng phân quyền bàn giao, file `DISPATCH_MANIFEST.json` xác thực mã băm MD5).
-> - **Cổng kiểm toán tự động (Quality Gate)**: Tự động quét kiểm tra từng ô tính của toàn bộ các file Excel đã sinh ra, cam kết xuất xưởng **ZERO FORMULA ERRORS** (`0 lỗi #REF!, #VALUE!, #DIV/0!, #N/A`).
+>   1. **Tầng 1 (Macro Master)**: `BO_HO_SO_01_MACRO_MASTER_14_SHEET` (Master, XML/MPP, BBNT Word, báo cáo kiểm toán tự chấm).
+>   2. **Tầng 2 (Micro 14 bộ)**: `BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO` (tối đa 14 file độc lập; công thức trỏ sang sheet không có trong file được thay bằng giá trị đã tính; sheet chưa có dữ liệu không được xuất).
+>   3. **Tầng 3 (Hub & Spoke 5 gói)**: `03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH` (Tách file theo vai trò — không mã hóa hay phân quyền truy cập, Gói A **bắt buộc tuân thủ chuẩn 5 sheets Vincons / 23HG System**, Bảng phân quyền bàn giao, file `DISPATCH_MANIFEST.json` xác thực mã băm MD5).
+> - **Cổng kiểm toán tự động (Quality Gate)**: Quét mọi file Excel đã sinh, báo lỗi nếu có mã lỗi công thức (`#REF!`, `#VALUE!`, `#DIV/0!`, `#N/A`...) hoặc công thức trỏ tới sheet không tồn tại; kết quả ghi vào `DISPATCH_MANIFEST.json`. Đây là kiểm tra tĩnh, không thay cho việc mở bằng Excel.
 
 #### b. Chạy thử toàn bộ 8 pha bằng dữ liệu mẫu (demo):
 ```powershell
@@ -322,7 +324,7 @@ python -m unittest tests/test_equipment_fleet_scheduler.py tests/test_package_di
 python examples/run_cad_diff_demo.py
 ```
 
-#### e. Chạy Kiểm toán Độc lập trên Workbook 14 Sheet Master (Audit Score 100/100):
+#### e. Chạy Kiểm toán Độc lập trên Workbook 14 Sheet Master (điểm tự chấm):
 ```powershell
 python examples/run_pipeline.py
 ```
@@ -363,26 +365,27 @@ Hệ thống thiết lập **3 Tầng Đóng Gói Hồ Sơ Linh Hoạt**, đáp 
                             +-------------------------------------+
                             | GÓI E: EXECUTIVE DASHBOARD (HUB)    |
                             | • Giám đốc Dự án, Ban QLDA, CĐT     |
-                            | • Tiến độ CPM, Báo cáo Audit 100/100|
+                            | • Tiến độ CPM, báo cáo kiểm toán    |
                             +-------------------------------------+
 ```
 
-### 1. TẦNG 1: VĨ MÔ / MASTER 14 SHEET LIÊN KẾT ĐỘNG TOÀN DIỆN (Macro Tier)
+### 1. TẦNG 1: VĨ MÔ / MASTER 14 SHEET (Macro Tier)
 *Mục đích: Phục vụ Hội đồng Thẩm định, Lưu trữ Pháp lý, Kiểm toán Độc lập.*
-- **Tệp Excel Master:** [`templates/Ho_So_KCS_QS_TienDo_Cau_Khai_Hoang_2_Km14+363.65.xlsx`](templates/Ho_So_KCS_QS_TienDo_Cau_Khai_Hoang_2_Km14+363.65.xlsx) gồm **14 Sheet** liên thông 100% công thức động (0 số chết, 0 link gãy, Audit Score **100/100**).
+- **Tệp Excel Master:** [`templates/Ho_So_KCS_QS_TienDo_Cau_Khai_Hoang_2_Km14+363.65.xlsx`](templates/Ho_So_KCS_QS_TienDo_Cau_Khai_Hoang_2_Km14+363.65.xlsx) gồm **14 Sheet** liên kết bằng công thức (điểm audit do hệ thống tự chấm, chưa kiểm định độc lập).
 - **Tệp Tiến độ MS Project:** [`templates/Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.xml`](templates/Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.xml) & [`.mpp`](templates/Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.mpp).
-- **Báo cáo Thẩm tra Độc lập:** [`templates/BAO_CAO_THAM_TRA_AEC_AUDIT_KHAI_HOANG_2.md`](templates/BAO_CAO_THAM_TRA_AEC_AUDIT_KHAI_HOANG_2.md).
+- **Báo cáo kiểm toán (tự chấm):** [`templates/BAO_CAO_THAM_TRA_AEC_AUDIT_KHAI_HOANG_2.md`](templates/BAO_CAO_THAM_TRA_AEC_AUDIT_KHAI_HOANG_2.md).
 
-### 2. TẦNG 2: VI MÔ / 14 BỘ HỒ SƠ CHUYÊN SÂU ĐỘC LẬP (Micro Tier 1-to-1)
+### 2. TẦNG 2: VI MÔ / TỐI ĐA 14 HỒ SƠ ĐỘC LẬP (Micro Tier 1-to-1)
 *Mục đích: Cho phép chuyên viên kỹ thuật tra cứu chuyên sâu từng hạng mục mà không làm gãy công thức `#REF!`.*
 - Mỗi Sheet trong Master được tách thành 1 file độc lập (`01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx`, `02_Khoi_Luong_Dao_Dap_Trinh_Dien.xlsx`... đến `14_Mau_A4_Bien_Ban_Lay_Mau_Thi_Nghiem_R7_R28.xlsx`), chứa sẵn các tab dữ liệu nội bộ (`DATA_CONG_TAC`, `DATA_VAT_LIEU`, `DATA_NEN_MAU`).
 - Lệnh tự động dựng: `python examples/build_14_micro_standalone_dossiers.py`.
+- Sheet chưa có dữ liệu trong Master không được xuất thành file (hồ sơ mẫu Cống A5 hiện có 8 hồ sơ vi mô).
 
 ### 3. TẦNG 3: MÔ HÌNH THỰC CHIẾN "HUB & SPOKE" PHÂN QUYỀN 5 GÓI (Role-Based Field Dispatching)
 *Mục đích: KHUYẾN NGHỊ HÀNG ĐẦU CHO ĐIỀU HÀNH CÔNG TRƯỜNG THỰC TẾ.*
-Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet trên hiện trường:
+Giảm 3 nhược điểm khi dùng 1 file 14 sheet trên hiện trường:
 1. **Xung đột file khóa (Read-Only Lock):** Nhiều bộ phận (QS, Đội xe, Thợ sắt, QA/QC) cùng mở và chỉnh sửa không bị tranh chấp tệp.
-2. **Bảo mật tuyệt đối dữ liệu tài chính:** Thợ sắt, lái máy và thầu phụ chỉ nhận đúng thông số kỹ thuật, **không thấy đơn giá thầu, chi phí gián tiếp hay lợi nhuận định mức** của Tổng thầu.
+2. **Tách dữ liệu tài chính khỏi gói hiện trường** (tách file khi bàn giao — không mã hóa, không phân quyền truy cập; ai có file vẫn mở được): Thợ sắt, lái máy và thầu phụ chỉ nhận đúng thông số kỹ thuật, **không thấy đơn giá thầu, chi phí gián tiếp hay lợi nhuận định mức** của Tổng thầu.
 3. **Tối ưu hóa thiết bị di động:** Dung lượng file nhẹ, mở tức thì trên điện thoại ngoài công trường, không lo lag hay gãy công thức.
 
 #### Bảng Phân Quyền & Bàn Giao 5 Gói Vệ Tinh:
@@ -392,7 +395,7 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 | **Gói B: Xưởng cốt thép** | Quản đốc xưởng, Thợ uốn cắt, Nhà cấp thép | Xem BBS, sơ đồ cắt thép, file CSV nạp máy CNC. **Không xem đơn giá tiền.** | `01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx`<br>`01_Phieu_Cat_Thep_Xuong_CNC_...csv`<br>`04_Thong_Ke_Thep_Chi_Tiet_BBS_...xlsx` |
 | **Gói C: Hiện trường KCS** | Kỹ sư QA/QC, Tư vấn giám sát, Thí nghiệm | Xem ngày nghiệm thu, nén mẫu, in ấn biên bản. **Không xem đơn giá tiền.** | `11_Danh_Muc_KCS_Bien_Ban_Nghiem_Thu.xlsx`<br>`Ho_So_Bien_Ban_Nghiem_Thu_KCS_...docx`<br>`Mau_A4_Bien_Ban_...xlsx` |
 | **Gói D: QS & Dự toán** | Kỹ sư QS, Trưởng phòng Kế hoạch, Kế toán | **Toàn quyền xem đơn giá, doanh thu, thanh toán.** | `03_QS_Dien_Giai_Chi_Tiet_Takeoff.xlsx`<br>`08_Du_Toan_GXD_Thong_Tu_11_2021.xlsx`<br>`09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx` |
-| **Gói E: Executive Hub** | Giám đốc Dự án, Ban Giám đốc, Chủ đầu tư | Xem KPI tổng thể, tiến độ đường găng CPM, báo cáo thẩm tra Audit 100/100. | `02_Tien_Do_Thi_Cong_Master_...xml`<br>`03_BAO_CAO_THAM_TRA_AEC_AUDIT_...md` |
+| **Gói E: Executive Hub** | Giám đốc Dự án, Ban Giám đốc, Chủ đầu tư | Xem KPI tổng thể, tiến độ đường găng CPM, báo cáo kiểm toán tự chấm. | `02_Tien_Do_Thi_Cong_Master_...xml`<br>`03_BAO_CAO_THAM_TRA_AEC_AUDIT_...md` |
 
 > [!CAUTION]
 > **TIÊU CHUẨN CỐT LÕI BẤT DI BẤT DỊCH CHO GÓI A (CƠ GIỚI & DẦU):**  
@@ -402,7 +405,7 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 > - **Sheet 3 — `03_KeHoach_Dau_Diezel`**: Kế hoạch cấp dầu Diezel phân bổ khoa học theo 4 Kỳ thi công chiến lược.
 > - **Sheet 4 — `04_KeHoach_NhanLuc`**: Bảng phân bổ nhân lực theo từng tổ đội thi công chuyên nghiệp.
 > - **Sheet 5 — `05_DoiChieu_BocTach`**: Bảng đối chiếu khối lượng thực tế hồ sơ bóc tách thiết kế.
-> - **File XML MS Project**: Xuất tệp `.xml` tương thích 100% Microsoft Project / Primavera P6.
+> - **File XML MS Project**: Xuất tệp `.xml` theo định dạng Microsoft Project XML.
 
 > Chi tiết quy trình đóng gói: Xem [`workflows/15_QUY_TRINH_DONG_GOI_HUB_AND_SPOKE_PHAN_QUYEN_THUC_CHIEN.md`](workflows/15_QUY_TRINH_DONG_GOI_HUB_AND_SPOKE_PHAN_QUYEN_THUC_CHIEN.md).  
 > Các bộ hồ sơ mẫu thực chiến chuẩn 5 gói Hub & Spoke:
@@ -412,9 +415,9 @@ Khắc phục triệt để 3 nhược điểm lớn khi dùng 1 file 14 sheet t
 
 ---
 
-## 📈 7. Đột phá Công nghệ: Động cơ Tiến độ CPM 100% Công thức Sống & Biểu đồ Native Excel (Dynamic Schedule & Fleet Engine)
+## 📈 7. Động cơ Tiến độ CPM bằng Công thức Excel & Biểu đồ Native (Dynamic Schedule & Fleet Engine)
 
-Hệ thống bổ sung công cụ chuyên biệt **`DynamicScheduleBuilder`** ([`tools/dynamic_schedule_builder.py`](tools/dynamic_schedule_builder.py)), giải quyết triệt để vấn đề "số chết", lỗi đứt gãy công thức `#REF!` và dung lượng nặng nề của các file tiến độ truyền thống:
+Hệ thống bổ sung công cụ chuyên biệt **`DynamicScheduleBuilder`** ([`tools/dynamic_schedule_builder.py`](tools/dynamic_schedule_builder.py)), giảm "số chết", lỗi đứt gãy công thức `#REF!` và dung lượng lớn của các file tiến độ truyền thống:
 
 ```mermaid
 flowchart TD
@@ -464,21 +467,23 @@ flowchart TD
 ### 1. Bảng So Sánh Kỹ Thuật: Bản Gốc Vina Alpha vs Bản Tinh Giản Chuẩn CPM Mới
 | Tiêu chí kỹ thuật | File gốc Vina Alpha (`260820_TĐTC cụm B9.xlsx`) | Bản Tinh Giản Chuẩn CPM (`260820_TDTC_Cum_B9_TINH_GIAN_CHUAN_CPM.xlsx`) |
 | :--- | :--- | :--- |
-| **Dung lượng tệp (File Size)** | **13.9 MB** (Cực kỳ nặng, mở mất 15-30 giây) | **41.6 KB** (Nhẹ hơn **330 lần**, mở tức thì 0.05s) |
-| **Rác Defined Names** | **28.091 name rác ẩn** (18.635 name bị gãy `#REF!`) | **0 name rác** (Sạch 100%, bảo mật tuyệt đối) |
-| **Tính toàn vẹn XML** | Dễ crash, báo lỗi phục hồi khi mở trên Excel | **100% PASS kiểm tra Excel COM Automation**, 0 cảnh báo |
-| **Cơ chế số liệu** | Nhiều số gõ chết (dead numbers), đứt gãy liên kết | **100% Công thức sống**: Đổi ngày bắt đầu `C6` tại Sheet 01, toàn bộ 14 công tác, 97 cột Gantt, phụ tải và 4 biểu đồ tự nhảy theo |
+| **Dung lượng tệp (File Size)** | **13.9 MB** (Cực kỳ nặng, mở mất 15-30 giây) | **41.6 KB** (nhẹ hơn khoảng 330 lần) |
+| **Rác Defined Names** | **28.091 name rác ẩn** (18.635 name bị gãy `#REF!`) | **0 name rác** |
+| **Tính toàn vẹn XML** | Dễ crash, báo lỗi phục hồi khi mở trên Excel | Mở bằng Excel không báo phục hồi (tác giả kiểm tra bằng Excel COM) |
+| **Cơ chế số liệu** | Nhiều số gõ chết (dead numbers), đứt gãy liên kết | **Công thức liên kết**: Đổi ngày bắt đầu `C6` tại Sheet 01, toàn bộ 14 công tác, 97 cột Gantt, phụ tải và 4 biểu đồ tự nhảy theo |
 | **Công tắc hiển thị Gantt** | Cố định, không thể đổi chế độ xem | **Tương tác động qua ô `C11`**: Nhập `1` (Hiện vạch tiến độ `█`), nhập `2` (Hiện số nhân công/ngày), nhập `3` (Hiện số ca máy/ngày) |
 | **Phục hồi Sheet SS** | Bị lỗi gãy tham chiếu `#REF!`, số liệu chết | **Sheet 06 hoàn chỉnh**: Đối sánh chi tiết Định mức vs Đề xuất BĐH, phân tích lý do chênh lệch kỹ thuật và cân bằng dầu Diesel |
 | **Hệ thống Biểu đồ** | 2 biểu đồ gãy liên kết | **4 Biểu đồ Native Excel** dựng bằng `openpyxl.chart` sống động |
 
 ---
 
-## 🧠 8. Động cơ Tự Tiến Hóa & Tích Lũy Kinh Nghiệm Thực Chiến (Self-Evolving & Continuous Learning Engine)
+## 🧠 8. Kho Kinh nghiệm Dự án (Experience Store)
 
 Một trong những câu hỏi cốt lõi của kỹ sư khi ứng dụng AI vào xây dựng: **"Hệ thống sau khi đi qua hàng chục công trình thực tế có tự thông minh lên, tự nâng cấp kỹ năng (Level-Up) hay mãi dậm chân tại chỗ?"**
 
-Hệ thống **23HG-AEC-MultiAgent-System** giải quyết triệt để vấn đề này bằng **Động cơ Tiến hóa Thực chiến (`aec_core/experience_store.py` & `agents/aec_experience_agent.py`)** vận hành theo **4 Cấp độ Tự Tiến Hóa Khép Kín**:
+Hệ thống **23HG-AEC-MultiAgent-System** trả lời một phần câu hỏi này bằng **Kho kinh nghiệm dự án (`aec_core/experience_store.py` & `agents/aec_experience_agent.py`)** vận hành theo **4 Cấp độ Tự Tiến Hóa Khép Kín**:
+
+> **Lưu ý:** đây là cơ chế lưu trữ và hiệu chuẩn theo quy tắc cố định, **không phải học máy**. "Level / XP" là chỉ số nội bộ đếm dữ liệu đã tích lũy, không đo năng lực kỹ thuật.
 
 ```mermaid
 flowchart TD
@@ -511,7 +516,7 @@ flowchart TD
    - Khi lập kế hoạch cho dự án tiếp theo, `EquipmentFleetScheduler` tự động áp dụng $\alpha$ để điều chỉnh số ca máy và máy móc cần huy động, phản ánh đúng năng lực nhà thầu và thời tiết địa phương.
 2. **Level 2 — Golden Rebar Cutting Pattern Library (Thư viện Mẫu Cắt Thép Vàng)**:
    - Các cấu kiện chuẩn hóa như cọc khoan nhồi D1000/D1200, dầm Super-T 33m, mố cầu M1 sau khi được Google OR-Tools CP-SAT tối ưu đạt tỷ lệ đề-xê $< 1.5\%$ sẽ được tự động gắn mã băm định danh (Hash Demand Signature) và lưu vào Thư viện Mẫu Vàng.
-   - Các dự án sau nếu gặp cấu kiện tương tự có thể tra cứu tức thì trong **0 ms**, bỏ qua thời gian giải toán Column Generation.
+   - Các dự án sau nếu gặp cấu kiện tương tự có thể tra cứu lại mẫu đã lưu mà không cần giải lại bài toán Column Generation.
 3. **Level 3 — Reflexion & Error Immunity Engine (Cơ chế Miễn dịch Lỗi & Kiểm toán Tự Động)**:
    - Hệ thống ghi nhớ các bài học sự cố: ví dụ lỗi ô text bắt đầu bằng dấu `=` gây sập XML Excel (`RULE-EXCEL-001`), lỗi số chết trong thanh toán (`RULE-MATH-002`), lỗi nối thép tại vùng kéo căng (`RULE-REBAR-003`).
    - Bộ quy tắc kiểm toán của `AECAuditVerifier` tự động mở rộng và cảnh báo sớm trong các lần chạy tiếp theo.
@@ -551,114 +556,56 @@ python run_state_graph.py --level
 
 ```text
 23HG-multiagent-system/
+├── .github/workflows/ci.yml      # CI: Ubuntu (Python 3.10, 3.12) + Windows (Python 3.11)
+├── run_state_graph.py            # Điểm chạy chính: Supervisor 8 pha và các phase đơn lẻ
 │
-├── .github/                      # 🤖 CI/CD WORKFLOWS
-│   └── workflows/ci.yml          # GitHub Actions (Python 3.10, 3.11, 3.12 trên Ubuntu & Windows)
+├── core/                         # Điều phối State Graph
+│   ├── state/                    # shared_state.py (SharedState), state_bus.py (State Bus, RLock)
+│   ├── supervisor/               # supervisor_agent.py (state machine điều phối), base_agent.py
+│   ├── agents/                   # rebar_agent, payment_agent, asbuilt_agent, sub_agents (CAD, QS, KCS, CPM)
+│   └── gates/                    # quality_gate.py (cổng kỹ thuật), human_gate.py (kỹ sư duyệt)
 │
-├── core/                         # 🧠 BỘ ĐIỀU PHỐI ĐỒ THỊ TRẠNG THÁI (STATE GRAPH v3.0)
-│   ├── state/
-│   │   ├── shared_state.py       # Pydantic/Dataclass SharedState (SSOT 9 miền, bổ sung FLEET_DISPATCH)
-│   │   └── state_bus.py          # State Bus thread-safe (RLock, read/write gateway)
-│   ├── supervisor/
-│   │   ├── supervisor_agent.py   # AI Supervisor (Chỉ huy trưởng ảo điều phối các pha)
-│   │   └── base_agent.py         # Lớp cơ sở trừu tượng BaseAgent
-│   ├── agents/
-│   │   ├── rebar_agent.py        # Sub-Agent Cắt thép OR-Tools & Phản biện TCVN 5574
-│   │   ├── asbuilt_agent.py      # Sub-Agent Vòng lặp Hiện trường (demo)
-│   │   ├── payment_agent.py      # Sub-Agent Thanh toán Mẫu 03a từ bảng QS + khối lượng thực hiện
-│   │   └── sub_agents.py         # CADAgent, QSAgent, BPTCKCSAgent (Lab Link), SchedulerAgent
-│   └── gates/
-│       ├── quality_gate.py       # Các Cổng kiểm soát kỹ thuật số học xác định
-│       └── human_gate.py         # Human-in-the-loop Gate (Ký duyệt Kỹ sư trưởng)
+├── tools/                        # Công cụ tính toán xác định (Python thuần, không LLM)
+│   ├── cutting_stock_solver.py   # Cắt thép 1D: Column Generation (GLOP) + CP-SAT, cận dưới
+│   ├── cpm_calculator.py         # CPM: FS/SS/FF/SF + lag, lịch nghỉ
+│   ├── schedule_loader.py        # Đọc tiến độ MS Project XML / Excel / CSV
+│   ├── dynamic_schedule_builder.py # Tiến độ Excel bằng công thức + biểu đồ native
+│   ├── equipment_fleet_scheduler.py # Ca xe, ca máy & kế hoạch dầu diezel
+│   ├── qs_loader.py / qs_export.py # Đọc bảng QS, tính và xuất G_XD
+│   ├── payment.py                # Mẫu 03a: KL thực hiện × đơn giá HĐ, tạm ứng, giữ lại
+│   ├── money.py                  # Số học tiền Decimal, làm tròn như ROUND của Excel
+│   ├── takeoff_rules.py          # Thư viện đo bóc có diễn giải, hồ sơ quy tắc, Bảng 6.1/6.2
+│   ├── bbs_loader.py / rebarcut_export.py # Đọc BBS, xuất bố cục RebarCut
+│   ├── lab_qaqc.py               # Phiếu thí nghiệm R7/R28, Hold Point
+│   ├── ifc_loader.py / cad_diff_engine.py # OpenBIM IFC; so sánh phiên bản CAD
+│   ├── excel_eval.py             # Tự tính công thức Excel chưa có giá trị lưu sẵn
+│   ├── audit_excels_static.py    # Kiểm toán Excel tĩnh (không cần Excel)
+│   └── package_dispatcher.py     # Xuất 3 tầng hồ sơ & Hub & Spoke, Quality Gate
 │
-├── tools/                        # ⚙️ CÔNG CỤ TÍNH TOÁN XÁC ĐỊNH (PURE PYTHON, ZERO LLM)
-│   ├── cutting_stock_solver.py   # Solver cắt thép 1D (Column Generation GLOP + CP-SAT, tách nhóm Ø + mác)
-│   ├── ifc_loader.py             # Bóc tách cấu kiện Bê tông & Cốt thép 3D từ mô hình OpenBIM IFC (ISO 16739)
-│   ├── dynamic_schedule_builder.py # Khởi tạo Tiến độ CPM 100% công thức sống & 4 Biểu đồ Native Excel
-│   ├── equipment_fleet_scheduler.py # Động cơ lập tiến độ Ca xe, Ca máy & Kế hoạch Dầu Diezel Vincons/TT 37/2026
-│   ├── package_dispatcher.py     # Bộ điều phối đóng gói phân quyền Hub & Spoke 5 gói vệ tinh công trường
-│   ├── bbs_loader.py             # Đọc BBS thật từ Excel / CSV / JSON, nhận diện mối nối
-│   ├── rebarcut_export.py        # Xuất kết quả cắt thép theo bố cục RebarCut Pro Excel (.xlsx)
-│   ├── schedule_loader.py        # Đọc tiến độ thật từ MS Project XML / Excel / CSV, đối chiếu ngày logic
-│   ├── qs_loader.py              # Đọc bảng QS thật, tỷ lệ chi phí, tính G_XD TT 36/2026 + đối chiếu
-│   ├── qs_export.py              # Xuất bảng tổng hợp G_XD + chi tiết công tác (.xlsx)
-│   ├── payment.py                # Mẫu 03a NĐ 254/2025: KL thực hiện × đơn giá HĐ, tạm ứng, giữ lại
-│   ├── lab_qaqc.py               # Xử lý kết quả thí nghiệm nén mẫu R7/R28 & liên kết QLCL
-│   ├── excel_eval.py             # Tính công thức Excel chưa có kết quả lưu sẵn (Pure Python)
-│   ├── cpm_calculator.py         # Bộ tính CPM: FS/SS/FF/SF + lag, lịch nghỉ, Forward/Backward Pass
-│   └── cad_diff_engine.py        # Động cơ so sánh phiên bản bản vẽ CAD Rev00 vs Rev01
+├── aec_core/                     # audit_verifier (chấm điểm tự động), experience_store (kho kinh nghiệm),
+│                                 # material_frequency (cấp phối & tần suất thí nghiệm), project_state
+├── agents/                       # Các agent dùng độc lập (kinh nghiệm, ca máy, kiểm toán, trích xuất CAD/Office)
+├── schemas/site_log_schema.py    # Nhật ký hiện trường & khối lượng hoàn công
+├── data/                         # Định mức ca máy, dầu diezel, hệ số vật tư (JSON)
+├── workflows/                    # Quy trình kỹ thuật 00–15 (Markdown)
+├── templates/                    # Master Excel, tiến độ XML/MPP, biên bản KCS Word, báo cáo kiểm toán mẫu
 │
-├── schemas/                      # 📋 ĐẶC TẢ SCHEMA DỮ LIỆU CHUYÊN NGÀNH
-│   ├── site_log_schema.py        # Schema Nhật ký hiện trường & Khối lượng hoàn công As-Built
-│   └── lab_result_schema.py      # Schema Phiếu thí nghiệm phòng LAS-XD (R7/R28, kéo thép, PDA)
+├── examples/
+│   ├── HO_SO_CONG_HOP_TUYEN_A5/  # Hồ sơ mẫu Cống hộp A5: Master, 8 hồ sơ vi mô, 5 gói Hub & Spoke (README riêng)
+│   ├── TIEN_DO_THI_CONG_CUM_B9_OLYMPIC/ # Tiến độ & ca máy Cụm B9
+│   ├── HO_SO_CAU_KM19_529/       # Tiến độ ca máy & dầu diezel Cầu Km19+529.080
+│   ├── _paths.py                 # repo_path / project_path (biến môi trường AEC_PROJECTS_DIR)
+│   ├── clean_a5_dossier.py       # Dọn & đối chiếu hồ sơ A5 (chạy lặp được)
+│   └── *.py                      # Script dựng hồ sơ từng dự án, demo CAD diff, runner kiểm toán
 │
-├── aec_core/                     # 🔍 BỘ CÔNG CỤ KIỂM TOÁN VÀ XÁC THỰC ĐỘC LẬP
-│   ├── audit_verifier.py         # AECAuditVerifier: Quét toàn diện, 0 số chết, điểm 100/100
-│   ├── experience_store.py       # ProjectExperienceStore: Kho tri thức 4 cấp độ tự nâng cấp (Level-Up)
-│   └── project_state.py          # Trình quản lý trạng thái dự án cơ sở
+├── tests/                        # python -m unittest discover -s tests -t .
+│   ├── golden/                   # Chỗ đặt bảng dự toán thật đã duyệt (README hướng dẫn)
+│   └── test_*.py                 # Cắt thép, CPM, QS/G_XD, 03a, tiền, đo bóc, đóng gói, hồ sơ mẫu...
 │
-├── agents/                       # 🤖 CÁC TÁC TỬ CHUYÊN BIỆT (STANDALONE AGENTS)
-│   ├── aec_experience_agent.py   # Quản trị tích lũy kinh nghiệm, tính điểm XP và cấp độ hệ thống
-│   ├── aec_equipment_fleet_agent.py # Quản trị ca xe, ca máy & nhiên liệu dầu Diezel
-│   └── aec_audit_verifier.py     # Thẩm tra độc lập file tính toán kỹ thuật
-│
-├── workflows/                    # 📚 QUY TRÌNH KỸ THUẬT & TIÊU CHUẨN THI CÔNG
-│   ├── 00_TONG_QUAN_QUY_TRINH_KHEP_KIN_AEC.md
-│   ├── 01_QUY_TRINH_BOC_TACH_HINH_HOC_TAKEOFF.md
-│   ├── 02_QUY_TRINH_TO_HOP_CAT_THEP_1D.md
-│   ├── 03_QUY_TRINH_DU_TOAN_GXD_TT11.md
-│   ├── 04_QUY_TRINH_THANH_TOAN_PHU_LUC_03A.md
-│   ├── 05_QUY_TRINH_TIEN_DO_CPM_MS_PROJECT.md
-│   ├── 06_QUY_TRINH_KCS_LOGIC_CHEO_XUAT_WORD.md
-│   ├── 07_QUY_TRINH_THUYET_MINH_BIEN_PHAP_HUGGINGFACE.md
-│   ├── 08_QUY_TRINH_PHAN_TICH_TONG_HOP_VAT_TU_DINH_MUC.md
-│   ├── 09_QUY_TRINH_THONG_KE_THEP_BBS_VA_TAN_SUAT_THI_NGHIEM.md
-│   ├── 10_QUY_TRINH_THU_NHAN_VA_HOP_NHAT_DU_LIEU_DA_PHUONG_THUC.md
-│   ├── 11_QUY_TRINH_VALIDATION_KIEM_TRA_CHEO.md
-│   ├── 12_SO_DO_DIEU_PHOI_MULTI_AGENT_TOAN_HE_THONG.md
-│   ├── 13_KIEN_TRUC_STATE_GRAPH_V3_SUPERVISOR_PATTERN.md
-│   ├── 14_QUY_TRINH_DONG_GOI_2_GOI_HO_SO_MACRO_VA_MICRO_14_BO.md
-│   └── 15_QUY_TRINH_DONG_GOI_HUB_AND_SPOKE_PHAN_QUYEN_THUC_CHIEN.md
-│
-├── templates/                    # 📦 SẢN PHẨM MẪU SỐ HÓA HOÀN THIỆN
-│   ├── Ho_So_KCS_QS_TienDo_Cau_Khai_Hoang_2_Km14+363.65.xlsx # Master 14 Sheet liên kết động
-│   ├── Ho_So_Bien_Ban_Nghiem_Thu_KCS_Cau_Khai_Hoang_2.docx  # 43 Biên bản KCS Word chuẩn NĐ 207
-│   ├── Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.xml               # Tiến độ MS Project XML
-│   ├── Tien_Do_Thi_Cong_Cau_Khai_Hoang_2.mpp               # Tiến độ MS Project MPP
-│   └── BAO_CAO_THAM_TRA_AEC_AUDIT_KHAI_HOANG_2.md          # Báo cáo thẩm tra Audit Score 100/100
-│
-├── examples/                     # 🚀 SCRIPT THỰC THI & HỒ SƠ MẪU DỰ ÁN THỰC CHIẾN
-│   ├── HO_SO_CONG_HOP_TUYEN_A5/  # 📁 Trọn bộ Hồ sơ Cống hộp Tuyến A5 + 5 Gói Hub & Spoke
-│   │   ├── BANG_BOC_TACH_KHOI_LUONG_CONG_HOP_TUYEN_A5.xlsx
-│   │   └── HO_SO_THUC_CHIEN_HUB_AND_SPOKE_CONG_A5/ (GOI_A đến GOI_E + MANIFEST)
-│   ├── TIEN_DO_THI_CONG_CUM_B9_OLYMPIC/ # 📁 Hồ sơ mẫu Tiến độ & Ca máy Cụm B9 Olympic
-│   │   ├── 260820_TDTC_Cum_B9_TINH_GIAN_CHUAN_CPM.xlsx # Master Excel 100% công thức sống + 4 biểu đồ Native
-│   │   ├── 260920_TDTC_Cum_B9_SanLap_Va_DuongNoiBo_Olympic_ThuongTin.xlsx
-│   │   └── 260920_Tien_Do_Thi_Cong_Cum_B9_Olympic_ThuongTin.xml
-│   ├── generate_clean_streamlined_schedule_b9.py # Generator tiến độ Cụm B9 tinh giản chuẩn CPM
-│   ├── build_14_micro_standalone_dossiers.py     # Generator 14 bộ hồ sơ vi mô chuyên sâu độc lập
-│   ├── apply_khai_hoang_2_full.py                # Áp giá TT 38/2026, TT 36/2026 và liên kết động 14 Sheet
-│   ├── build_khai_hoang_2_dossier.py             # Dựng hồ sơ từ dữ liệu gốc 166 dòng BBS
-│   ├── run_pipeline.py                           # Runner kiểm tra toàn diện 14 Sheet Master
-│   └── run_cad_diff_demo.py                      # Demo so sánh bản vẽ CAD Rev00 vs Rev01
-│
-├── tests/                        # 🧪 TEST TỰ ĐỘNG (python -m unittest discover tests)
-│   ├── test_experience_store.py                  # Test 4 cấp độ tự nâng cấp kinh nghiệm & Human Gate
-│   ├── test_ifc_loader.py                        # Test bóc tách OpenBIM IFC & nạp trực tiếp vào OR-Tools
-│   ├── test_dynamic_cpm_schedule.py              # Test tiến độ CPM 100% công thức sống & biểu đồ native
-│   ├── test_cad_and_state.py                     # Test đọc DXF hình học & lưu/khôi phục State
-│   ├── test_equipment_fleet_scheduler.py         # Test động cơ ca xe, ca máy & nhiên liệu dầu
-│   ├── test_package_dispatcher.py                # Test bộ đóng gói phân quyền Hub & Spoke
-│   ├── test_cutting_stock_solver.py              # Test solver cắt thép 1D CP-SAT
-│   ├── test_schedule.py                          # Test tính toán tiến độ đường găng CPM
-│   └── test_payment.py                           # Test biểu thanh toán Phụ lục 03a
-│
-├── run_state_graph.py            # 🌟 ENTRY POINT: State Graph & Supervisor Runner v3.0
-├── requirements.txt              # Danh mục thư viện phụ thuộc (ortools, openpyxl, pandas...)
-├── pyproject.toml                # Cấu hình đóng gói hệ thống chuẩn PEP 621
-├── CONTRIBUTING.md               # Quy chuẩn đóng góp mã nguồn (Zero LLM Math, Real Data)
-├── LICENSE                       # Giấy phép phần mềm mã nguồn mở MIT
-└── README.md                     # Tài liệu hướng dẫn chính thức của dự án
+├── requirements.txt / pyproject.toml
+├── CONTRIBUTING.md               # Quy tắc đóng góp (không LLM trong tính toán, dữ liệu thật)
+├── LICENSE                       # MIT
+└── README.md
 ```
 
 ---

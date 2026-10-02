@@ -11,6 +11,9 @@ HỆ THỐNG LIÊN KẾT ĐỘNG TOÀN DIỆN (FULL CROSS-LINKED DYNAMIC WORKBOO
    - Sheet MAU_BB_NGHIEM_THU_VAT_LIEU (Vật liệu đầu vào)
    - Sheet MAU_BB_LAY_MAU_HIEN_TRUONG (Lấy mẫu thí nghiệm hiện trường)
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 
 import os
 import openpyxl
@@ -634,6 +637,6 @@ def build_full_cross_linked_workbook(excel_path):
     return wb.sheetnames
 
 if __name__ == "__main__":
-    target_excel = r"D:\Code\DONG_GOI_HETHONG_AEC\templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx"
+    target_excel = repo_path(r"templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx")
     sheets = build_full_cross_linked_workbook(target_excel)
     print("Danh sách Sheet hiện tại trong Workbook:", sheets)

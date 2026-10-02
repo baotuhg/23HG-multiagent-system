@@ -14,6 +14,9 @@ VÀO FILE EXCEL MASTER CẦU KM19+529.080
    - Tính khối lượng cung ứng có hao hụt thi công theo TT 38/2026
    - Phân bổ kế hoạch cung ứng theo 4 giai đoạn thi công (Procurement Schedule)
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 
 import os
 import openpyxl
@@ -465,5 +468,5 @@ def add_material_sheets(excel_path):
     print(f"    -> Tổng số sheet hiện tại: {len(wb.sheetnames)}: {wb.sheetnames}")
 
 if __name__ == "__main__":
-    p1 = r"D:\Code\DONG_GOI_HETHONG_AEC\templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx"
+    p1 = repo_path(r"templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx")
     add_material_sheets(p1)

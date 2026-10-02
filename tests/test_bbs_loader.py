@@ -114,3 +114,28 @@ class BBSLoaderTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReadCsvDelimiterTest(unittest.TestCase):
+    """Dòng có số cột không đều không được làm hỏng việc nhận ký tự phân cách (từng gộp cả dòng thành 1 cột)."""
+
+    def test_ragged_semicolon_rows_are_split(self):
+        import tempfile
+        from tools.bbs_loader import _read_csv
+        with tempfile.TemporaryDirectory() as tmp:
+            p = os.path.join(tmp, "x.csv")
+            with open(p, "w", encoding="utf-8") as f:
+                f.write("A;B;C;D\n1;2;\n3;4;5;6;7\n8\n")
+            rows = _read_csv(p)
+        self.assertEqual(rows[0], ["A", "B", "C", "D"])
+        self.assertEqual(rows[1], ["1", "2", ""])
+        self.assertEqual(rows[2], ["3", "4", "5", "6", "7"])
+
+    def test_decimal_commas_with_semicolon_delimiter(self):
+        import tempfile
+        from tools.bbs_loader import _read_csv
+        with tempfile.TemporaryDirectory() as tmp:
+            p = os.path.join(tmp, "x.csv")
+            with open(p, "w", encoding="utf-8") as f:
+                f.write("Tên;Dài (m)\nMóng;1,2\n")
+            self.assertEqual(_read_csv(p)[1], ["Móng", "1,2"])

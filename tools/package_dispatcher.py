@@ -249,6 +249,16 @@ def extract_master_eval_cache(master_path: str) -> Dict[str, Dict[str, Any]]:
     return cache
 
 
+def sheet_is_placeholder(ws) -> bool:
+    """Sheet chưa có dữ liệu: rỗng, ghi "CHƯA LẬP", hoặc chỉ có tiêu đề/phụ đề ở cột A (không có bảng số liệu)."""
+    cells = [c for row in ws.iter_rows() for c in row if c.value is not None]
+    if not cells:
+        return True
+    if any(isinstance(c.value, str) and c.value.strip().upper().startswith("CHƯA LẬP") for c in cells):
+        return True
+    return len(cells) <= 3 and all(c.column == 1 for c in cells)
+
+
 def sanitize_workbook_formulas(wb: openpyxl.Workbook, eval_cache: Dict[str, Dict[str, Any]]) -> int:
     """
     Khử sạch triệt để các lỗi tham chiếu cross-sheet (#REF!, #VALUE!) trong các tệp vi mô độc lập:
@@ -906,6 +916,7 @@ class AECPackageDispatcher:
         # Kiểm tra xem Master có sheet theo chuẩn nào
         available_master_sheets = set(wb_master.sheetnames)
 
+        skipped_empty: List[str] = []
         for filename, required_sheets in sheet_dossier_mapping:
             dst_file = os.path.join(dir_micro, filename)
             # Tìm sheet chính có trong master
@@ -922,6 +933,11 @@ class AECPackageDispatcher:
                     if base_key.lower() in s.lower():
                         primary_sheet = s
                         break
+
+            if primary_sheet and sheet_is_placeholder(wb_master[primary_sheet]):
+                skipped_empty.append(filename)
+                print(f"      [bỏ qua] {filename}: sheet '{primary_sheet}' chưa có dữ liệu — không xuất file rỗng")
+                continue
 
             if primary_sheet:
                 wb_micro = openpyxl.Workbook()
@@ -1050,9 +1066,9 @@ class AECPackageDispatcher:
             },
             "total_files": len(all_exported_files),
             "checksums_md5": files_checksum,
+            "skipped_empty_dossiers": skipped_empty,
             "quality_gate": {
-                "zero_formula_errors": True,
-                "zero_dead_numbers": True,
+                "zero_formula_errors": None,       # điền sau khi chạy kiểm toán bên dưới
                 "vincons_fleet_5_sheets": True
             }
         }
@@ -1065,6 +1081,10 @@ class AECPackageDispatcher:
         print("  [*] Đang chạy Quality Gate tự động thẩm định lỗi công thức...")
         tot_f, err_f, err_details = audit_all_exported_excels([dir_macro, dir_micro, dir_hub])
         zero_err = (err_f == 0)
+        manifest_data["quality_gate"]["zero_formula_errors"] = zero_err
+        manifest_data["quality_gate"]["files_audited"] = tot_f
+        with open(manifest_path, "w", encoding="utf-8") as f:
+            json.dump(manifest_data, f, ensure_ascii=False, indent=2)
         if not zero_err:
             print(f"  [!] CẢNH BÁO: Phát hiện {err_f} file có lỗi công thức:")
             for e in err_details[:5]:

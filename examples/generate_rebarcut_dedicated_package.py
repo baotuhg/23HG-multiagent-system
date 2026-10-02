@@ -11,6 +11,9 @@ Hệ thống tổ hợp cắt thép chuyên nghiệp theo chuẩn RebarCut Pro c
 """
 
 from __future__ import annotations
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 import csv
 import os
 import shutil
@@ -31,7 +34,7 @@ from tools.cutting_stock_solver import CuttingStockSolver, CutDemand
 from tools.rebarcut_export import write_rebarcut_workbook
 
 # Đường dẫn thư mục đầu ra
-PROJECT_DIR = r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker"
+PROJECT_DIR = project_path(r"HSTK Cầu Km19+529.080_Marker")
 TARGET_FOLDER = os.path.join(PROJECT_DIR, "01_HE_THONG_CAT_THEP_REBARCUT")
 SUB_FOLDER_DIAS = os.path.join(TARGET_FOLDER, "THEO_TUNG_DUONG_KINH_PHI")
 SUB_FOLDER_CNC = os.path.join(TARGET_FOLDER, "LENH_CAT_CNC_CSV")

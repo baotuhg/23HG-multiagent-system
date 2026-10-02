@@ -17,6 +17,9 @@ Cấu trúc 5 Gói Vệ tinh:
 """
 
 from __future__ import annotations
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _paths import project_path, repo_path  # noqa: E402 — đường dẫn repo / thư mục dự án (AEC_PROJECTS_DIR)
 import os
 import sys
 import shutil
@@ -26,8 +29,8 @@ import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
-ROOT_REPO = r"d:\Code\23HG-multiagent-system\23HG-multiagent-system"
-TARGET_DIR_1 = r"c:\Users\baotu\Downloads\Documents\HSTK Cầu Km19+529.080_Marker"
+ROOT_REPO = repo_path()
+TARGET_DIR_1 = project_path(r"HSTK Cầu Km19+529.080_Marker")
 TARGET_DIR_2 = os.path.join(TARGET_DIR_1, "HSTK Cầu Km19+529.080_Marker")
 TARGET_DIR_3 = os.path.join(TARGET_DIR_2, "HSTK Cầu Km19+529.080_Marker")
 

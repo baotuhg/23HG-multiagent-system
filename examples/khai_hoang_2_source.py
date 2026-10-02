@@ -19,8 +19,11 @@ from typing import Dict, List, Optional, Tuple
 
 import openpyxl
 
-SOURCE_DIR = (r"C:\Users\baotu\Downloads\Documents\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker"
-              r"\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker")
+import sys as _sys
+_sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _paths import project_path  # noqa: E402 — thư mục dự án (AEC_PROJECTS_DIR)
+
+SOURCE_DIR = project_path(r"Cầu thôn Khai Hoang 2, Km 14+363.65_Marker\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker")
 TABLES_JSON = os.path.join(SOURCE_DIR, "bang_so_lieu.json")
 THKL_XLSX = os.path.join(SOURCE_DIR, "THKL G9 - CHUẨN.xlsx")
 THKL_SHEET = "Cau 15m"

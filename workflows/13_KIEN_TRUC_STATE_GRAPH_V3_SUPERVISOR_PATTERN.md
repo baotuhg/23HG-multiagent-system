@@ -81,7 +81,7 @@ COMPLETED ✅
 ## III. Cấu trúc thư mục mới (song song với cấu trúc cũ)
 
 ```
-D:\Code\DONG_GOI_HETHONG_AEC\
+23HG-multiagent-system/
 │
 ├── run_state_graph.py          ← Entry Point mới (State Graph v3.0)
 ├── examples/run_pipeline.py    ← Entry Point cũ (giữ nguyên, backward compat)

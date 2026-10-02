@@ -103,6 +103,26 @@ def parse_splice_zone(text: str):
     return zones
 
 
+def run_takeoff(args) -> int:
+    """Đo bóc từ bảng cấu kiện → Excel Bảng 6.2 / 6.1. Trả mã thoát (0 = thành công)."""
+    from tools.takeoff_loader import TakeoffLoadError, load_takeoff, resolve_profile, write_takeoff_workbook
+    try:
+        profile = resolve_profile(args.takeoff_profile)
+        quantities = load_takeoff(args.takeoff, args.takeoff_sheet, profile)
+    except (TakeoffLoadError, ValueError) as e:
+        print(f"  ❌ {e}")
+        return 1
+    out = args.takeoff_out or os.path.splitext(args.takeoff)[0] + "_do_boc.xlsx"
+    write_takeoff_workbook(out, quantities, profile, project_name=args.project_name or "")
+    print(f"\n  ĐO BÓC KHỐI LƯỢNG — hồ sơ quy tắc: {profile.name}")
+    for q in quantities:
+        print(f"   • {q.name}: {q.formula} = {q.value:,.3f} {q.unit}")
+    for w in profile.warnings():
+        print(f"  ⚠ {w}")
+    print(f"\n  Đã ghi: {out} ({len(quantities)} khối lượng)")
+    return 0
+
+
 # ── MAIN ─────────────────────────────────────────────────────────────────────
 
 def run_solver_test():
@@ -357,6 +377,13 @@ def main():
         "--evolution-report", "--level", action="store_true",
         help="Hiển thị Báo cáo Cấp độ (Level-Up) & Điểm kinh nghiệm tích lũy của Hệ thống AI"
     )
+    tk = parser.add_argument_group("Đo bóc khối lượng từ bảng cấu kiện (--takeoff; xuất Bảng 6.2 / 6.1)")
+    tk.add_argument("--takeoff", default=None,
+                    help="Bảng cấu kiện (.csv/.xlsx/.json), mẫu cột: templates/Mau_dau_vao_do_boc.csv")
+    tk.add_argument("--takeoff-sheet", default=None, help="Tên sheet trong file Excel (mặc định: tự tìm)")
+    tk.add_argument("--takeoff-out", default=None, help="File Excel kết quả (mặc định: <tên file>_do_boc.xlsx)")
+    tk.add_argument("--takeoff-profile", default="mac-dinh",
+                    help="Hồ sơ quy tắc đo bóc: mac-dinh | tt13-2021 | đường dẫn JSON (mặc định: mac-dinh)")
     exp = parser.add_argument_group("Xuất hồ sơ công nghiệp 3 tầng (Industrial 3-Tier Export Pipeline)")
     exp.add_argument(
         "--export-all", action="store_true",
@@ -385,6 +412,9 @@ def main():
 
     if args.check_inputs:
         sys.exit(0 if check_inputs(args) else 1)
+
+    if args.takeoff:
+        sys.exit(run_takeoff(args))
 
     excel_path = args.excel if args.excel is not None else (SAMPLE_EXCEL_MASTER if args.demo else "")
 
