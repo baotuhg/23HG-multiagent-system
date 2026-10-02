@@ -46,6 +46,20 @@ class NoPersonalPathsTest(unittest.TestCase):
         self.assertEqual(hits, [], "đường dẫn máy cá nhân trong repo")
 
 
+class FormulaCoverageTest(unittest.TestCase):
+    """Mọi ô công thức trong hồ sơ mẫu phải tính được bằng tools/excel_eval và không ra lỗi Excel."""
+
+    def test_all_sample_formulas_evaluate_without_errors(self):
+        problems = []
+        for folder in ("examples", "templates"):
+            for p in find_xlsx(os.path.join(ROOT, folder)):
+                r = audit_file(p)
+                if r["eval_unsupported"] or r["eval_error_results"]:
+                    problems.append(f"{os.path.relpath(p, ROOT)}: chưa hỗ trợ {r['eval_unsupported']}, "
+                                    f"lỗi {r['eval_error_results']}")
+        self.assertEqual(problems, [])
+
+
 class ReadmeLinksTest(unittest.TestCase):
 
     def test_relative_links_point_to_existing_files(self):

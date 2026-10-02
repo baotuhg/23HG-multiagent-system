@@ -34,6 +34,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from tools.bbs_loader import _FORMULA, _cell, _norm, _to_number
 from tools.cpm_calculator import parse_predecessor
+from tools.excel_eval import serial_to_date
 
 HEADER_SCAN_ROWS = 40
 MSP_LINK_TYPES = {"0": "FF", "1": "FS", "2": "SF", "3": "SS"}
@@ -247,6 +248,9 @@ def _as_date_str(v: Any) -> str:
         return ""
     if isinstance(v, (datetime, date)):
         return v.strftime("%Y-%m-%d")
+    d = serial_to_date(v)                    # ngày do công thức Excel tính ra là số seri
+    if d is not None:
+        return d.strftime("%Y-%m-%d")
     s = str(v).strip()
     for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"):
         try:

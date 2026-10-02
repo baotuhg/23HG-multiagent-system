@@ -33,6 +33,7 @@ from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from tools.bbs_loader import _FORMULA, _norm, _to_number
+from tools.excel_eval import serial_to_date
 
 HEADER_SCAN_ROWS = 40
 
@@ -223,6 +224,9 @@ def _as_date(v: Any) -> Optional[date]:
         return v.date()
     if isinstance(v, date):
         return v
+    d = serial_to_date(v)                    # ngày do công thức Excel tính ra là số seri
+    if d is not None:
+        return d
     s = str(v).strip()[:10]
     for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y"):
         try:

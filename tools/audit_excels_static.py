@@ -127,7 +127,7 @@ def audit_file(path: str, try_eval: bool = True) -> Dict[str, Any]:
 
     res["empty_shell"] = (res["formulas"] == 0 and res["constants"] <= 5)
     if try_eval and uncached:
-        from tools.excel_eval import WorkbookEvaluator, FormulaError
+        from tools.excel_eval import WorkbookEvaluator, FormulaError, ExcelErrorResult
         try:
             ev = WorkbookEvaluator(path)
         except Exception as e:
@@ -142,6 +142,9 @@ def audit_file(path: str, try_eval: bool = True) -> Dict[str, Any]:
                         note("eval_error", f"{sheet}!{coord}", f"{val} <- {f}")
                     else:
                         res["eval_ok"] += 1
+                except ExcelErrorResult as e:
+                    res["eval_error_results"] += 1
+                    note("eval_error", f"{sheet}!{coord}", f"{e.code} <- {f}")
                 except FormulaError as e:
                     res["eval_unsupported"] += 1
                     note("eval_unsupported", f"{sheet}!{coord}", str(e))
