@@ -95,7 +95,8 @@ COMPLETED ✅
 │   │   └── base_agent.py       # Abstract BaseAgent
 │   ├── agents/
 │   │   ├── rebar_agent.py      # Sub-Agent mẫu: OR-Tools + Splice Validator
-│   │   └── sub_agents.py       # CADAgent, QSAgent, BPTCKCSAgent, SchedulerAgent
+│   │   ├── sub_agents.py       # CADAgent (CAD / bảng cấu kiện --takeoff), QSAgent, BPTCKCSAgent, SchedulerAgent
+│   │   └── aec_*.py            # Trích xuất CAD/Office/Markdown, hợp nhất dữ liệu, ca máy, kinh nghiệm
 │   └── gates/
 │       ├── quality_gate.py     # 4 Quality Gates (deterministic, zero LLM)
 │       └── human_gate.py       # Human-in-the-loop (CLI/auto/file/callback)
@@ -108,15 +109,9 @@ COMPLETED ✅
 ├── schemas/                    ← MỚI: Schema definitions
 │   └── __init__.py
 │
-├── agents/                     ← CŨ: Giữ nguyên (backward compat)
-│   ├── aec_cad_extractor.py
-│   ├── aec_data_aggregator.py
-│   ├── project_state_manager.py
-│   └── PROJECT_STATE.json
-│
-├── aec_core/                   ← CŨ: Giữ nguyên
-│   ├── audit_verifier.py       # AECAuditVerifier (100/100)
-│   └── project_state.py
+├── aec_core/
+│   ├── audit_verifier.py       # AECAuditVerifier (điểm tự chấm)
+│   └── project_state.py        # ProjectStateManager → data/PROJECT_STATE.json
 │
 ├── templates/
 │   └── Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx  # Excel 14 Sheet Master

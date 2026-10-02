@@ -94,7 +94,7 @@ Nếu để các tác tử nghiệp vụ (Cắt thép 1D, Dự toán G_XD, Lập
 ## 4. Đặc tả Nhiệm vụ 4 Tác tử Thu nhận & Hợp nhất
 
 ### 3.1. Tác tử `aec_cad_extractor` (Chuyên gia CAD DWG)
-- **Vị trí tệp:** `agents/aec_cad_extractor.py`
+- **Vị trí tệp:** `core/agents/aec_cad_extractor.py`
 - **Chức năng:**
   - Tích hợp bộ giải mã font `TCVN3Decoder` tự động chuyển các chuỗi ký tự `.VnTime` thành tiếng Việt Unicode chuẩn.
   - Quét cấu trúc bản vẽ, phát hiện các block bảng thống kê thép (BBS) vẽ trong AutoCAD.
@@ -102,21 +102,21 @@ Nếu để các tác tử nghiệp vụ (Cắt thép 1D, Dự toán G_XD, Lập
   - Nhận diện các cấu kiện chủ đạo: Dầm Super-T 38.2m, Mố M1/M2, Trụ T1/T2, Cọc khoan nhồi D1200.
 
 ### 3.2. Tác tử `aec_office_extractor` (Chuyên gia Office Excel & Word)
-- **Vị trí tệp:** `agents/aec_office_extractor.py`
+- **Vị trí tệp:** `core/agents/aec_office_extractor.py`
 - **Chức năng:**
   - Bóc tách bảng thống kê thép từ các file Excel thiết kế gốc (`CT-km19.5.xls`, `KLDam.xls`, `KL-tru-2than.xls`, `Coc KN D=1200.xls`).
   - Kiểm tra cây công thức, phân loại rạch ròi giữa ô tính có công thức sống (`=SUM`, `=PRODUCT`) và số chết (hardcoded numbers).
   - Trích xuất bảng tiên lượng mời thầu (BoQ) và mẫu biên bản nghiệm thu Word.
 
 ### 3.3. Tác tử `aec_markdown_ingestor` (Chuyên gia Hồ sơ Markdown)
-- **Vị trí tệp:** `agents/aec_markdown_ingestor.py`
+- **Vị trí tệp:** `core/agents/aec_markdown_ingestor.py`
 - **Chức năng:**
   - Đọc hồ sơ thiết kế, thuyết minh biện pháp thi công và quy chuẩn kỹ thuật dạng Markdown.
   - Tự động bóc tách các bảng biểu Markdown thành danh sách bản ghi có cấu trúc.
   - Trích xuất tự động các tham số kỹ thuật then chốt: mác bê tông từng cấu kiện (C10, C25, C30, C35, C45), mác cốt thép (CB240-T, CB400-V, ASTM A416), các tiêu chuẩn viện dẫn (TCVN 4453, TCVN 1651, TCVN 9396).
 
 ### 3.4. Tác tử `aec_data_aggregator` (Trọng tài Hợp nhất & Trưởng ban Dữ liệu)
-- **Vị trí tệp:** `agents/aec_data_aggregator.py`
+- **Vị trí tệp:** `core/agents/aec_data_aggregator.py`
 - **Chức năng cốt lõi:**
   - **Cửa khẩu kiểm dịch dữ liệu (Quality Gate):** Tiếp nhận dữ liệu từ 3 tác tử trên và tiến hành đối chiếu chéo (Cross-modal Reconciliation).
   - **Phát hiện lệch pha (Discrepancy Detection):** Nếu CAD ghi cọc $L=44\text{ m}$ nhưng Excel ghi $L=40\text{ m}$, tự động gắn cờ cảnh báo `[WARNING]` và đề xuất phương án xử lý theo hồ sơ được phê duyệt.

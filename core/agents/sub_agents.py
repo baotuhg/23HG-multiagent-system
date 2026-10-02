@@ -57,7 +57,7 @@ class CADAgent(BaseAgent):
         if not os.path.isdir(folder):
             return f"Không tìm thấy thư mục bản vẽ: {folder}"
 
-        from agents.aec_cad_extractor import AECCadExtractor
+        from core.agents.aec_cad_extractor import AECCadExtractor
         scan = AECCadExtractor().scan_drawings_folder(folder)
         drawings = scan.get("drawings", [])
         components = [d for d in drawings if d.get("volume_m3", 0) > 0]

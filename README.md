@@ -481,7 +481,7 @@ flowchart TD
 
 Một trong những câu hỏi cốt lõi của kỹ sư khi ứng dụng AI vào xây dựng: **"Hệ thống sau khi đi qua hàng chục công trình thực tế có tự thông minh lên, tự nâng cấp kỹ năng (Level-Up) hay mãi dậm chân tại chỗ?"**
 
-Hệ thống **23HG-AEC-MultiAgent-System** trả lời một phần câu hỏi này bằng **Kho kinh nghiệm dự án (`aec_core/experience_store.py` & `agents/aec_experience_agent.py`)** vận hành theo **4 Cấp độ Tự Tiến Hóa Khép Kín**:
+Hệ thống **23HG-AEC-MultiAgent-System** trả lời một phần câu hỏi này bằng **Kho kinh nghiệm dự án (`aec_core/experience_store.py` & `core/agents/aec_experience_agent.py`)** vận hành theo **4 Cấp độ Tự Tiến Hóa Khép Kín**:
 
 > **Lưu ý:** đây là cơ chế lưu trữ và hiệu chuẩn theo quy tắc cố định, **không phải học máy**. "Level / XP" là chỉ số nội bộ đếm dữ liệu đã tích lũy, không đo năng lực kỹ thuật.
 
@@ -562,7 +562,8 @@ python run_state_graph.py --level
 ├── core/                         # Điều phối State Graph
 │   ├── state/                    # shared_state.py (SharedState), state_bus.py (State Bus, RLock)
 │   ├── supervisor/               # supervisor_agent.py (state machine điều phối), base_agent.py
-│   ├── agents/                   # rebar_agent, payment_agent, asbuilt_agent, sub_agents (CAD, QS, KCS, CPM)
+│   ├── agents/                   # Mọi agent: sub_agents (CAD/đo bóc, QS, KCS, CPM), rebar, payment, asbuilt;
+│   │                             # trích xuất CAD/Office/Markdown, hợp nhất dữ liệu, ca máy, kinh nghiệm, BPTC
 │   └── gates/                    # quality_gate.py (cổng kỹ thuật), human_gate.py (kỹ sư duyệt)
 │
 ├── tools/                        # Công cụ tính toán xác định (Python thuần, không LLM)
@@ -584,9 +585,8 @@ python run_state_graph.py --level
 │
 ├── aec_core/                     # audit_verifier (chấm điểm tự động), experience_store (kho kinh nghiệm),
 │                                 # material_frequency (cấp phối & tần suất thí nghiệm), project_state
-├── agents/                       # Các agent dùng độc lập (kinh nghiệm, ca máy, kiểm toán, trích xuất CAD/Office)
 ├── schemas/site_log_schema.py    # Nhật ký hiện trường & khối lượng hoàn công
-├── data/                         # Định mức ca máy, dầu diezel, hệ số vật tư (JSON)
+├── data/                         # Định mức ca máy, dầu diezel, hệ số vật tư; PROJECT_STATE.json (JSON)
 ├── workflows/                    # Quy trình kỹ thuật 00–15 (Markdown)
 ├── templates/                    # Master Excel, tiến độ XML/MPP, biên bản KCS Word, báo cáo kiểm toán mẫu
 │

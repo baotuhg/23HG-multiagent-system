@@ -401,7 +401,7 @@ def main():
     args = parser.parse_args()
 
     if args.evolution_report:
-        from agents.aec_experience_agent import AECExperienceAgent
+        from core.agents.aec_experience_agent import AECExperienceAgent
         agent = AECExperienceAgent()
         print(agent.generate_evolution_report())
         return

@@ -22,7 +22,7 @@ from aec_core.experience_store import (
     ImmunityRule,
     CandidateSkill,
 )
-from agents.aec_experience_agent import AECExperienceAgent
+from core.agents.aec_experience_agent import AECExperienceAgent
 from core.gates.human_gate import HumanGate, ApprovalRequest
 from tools.equipment_fleet_scheduler import EquipmentFleetScheduler, FleetTask
 from tools.cutting_stock_solver import CuttingStockSolver, CutDemand
