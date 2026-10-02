@@ -211,15 +211,38 @@ def extract_master_eval_cache(master_path: str) -> Dict[str, Dict[str, Any]]:
         wb_vals = openpyxl.load_workbook(master_abs, data_only=True)
         for sname in wb_vals.sheetnames:
             ws = wb_vals[sname]
-            matrix = []
-            for row in ws.iter_rows(values_only=True):
-                matrix.append(row)
+            matrix = [list(row) for row in ws.iter_rows(values_only=True)]
             cache[sname] = {
                 'row_start': 1,
                 'col_start': 1,
                 'values': matrix
             }
         wb_vals.close()
+    except Exception:
+        pass
+
+    # 3. Master chưa từng được Excel tính (không có giá trị lưu sẵn): tự tính các ô còn thiếu,
+    #    nếu không sanitize_workbook_formulas sẽ để nguyên công thức trỏ sang sheet không có trong file vi mô.
+    try:
+        from tools.excel_eval import WorkbookEvaluator
+        wb_f = openpyxl.load_workbook(master_abs, data_only=False)
+        ev = WorkbookEvaluator(master_abs)
+        for sname, info in cache.items():
+            if sname not in wb_f.sheetnames:
+                continue
+            matrix = info['values']
+            for row in wb_f[sname].iter_rows():
+                for cell in row:
+                    f = cell.value
+                    if not (isinstance(f, str) and f.startswith("=")):
+                        continue
+                    r, c = cell.row - info['row_start'], cell.column - info['col_start']
+                    if r < len(matrix) and c < len(matrix[r]) and matrix[r][c] is None:
+                        try:
+                            matrix[r][c] = ev.value(sname, cell.row, cell.column)
+                        except Exception:
+                            pass   # hàm chưa hỗ trợ: giữ nguyên, Quality Gate sẽ báo
+        wb_f.close()
     except Exception:
         pass
 
@@ -270,10 +293,29 @@ def sanitize_workbook_formulas(wb: openpyxl.Workbook, eval_cache: Dict[str, Dict
 # QUALITY GATE: ZERO-FORMULA-ERROR AUDITOR
 # -----------------------------------------------------------------------------
 
+_SHEET_REF_RE = re.compile(r"(?:'((?:[^']|'')+)'|([A-Za-z0-9_\u00C0-\u1EF9.]+))!")
+_STRING_LITERAL_RE = re.compile(r'"(?:[^"]|"")*"')
+
+
+def find_missing_sheet_refs(formula: str, sheetnames) -> List[str]:
+    """Tên sheet được công thức tham chiếu nhưng KHÔNG tồn tại trong workbook (bỏ qua chuỗi "..." và liên kết ngoài [n])."""
+    body = _STRING_LITERAL_RE.sub('""', formula)
+    available = set(sheetnames)
+    missing: List[str] = []
+    for m in _SHEET_REF_RE.finditer(body):
+        if m.start() > 0 and body[m.start() - 1] == "]":
+            continue
+        name = (m.group(1) or m.group(2)).replace("''", "'")
+        if name not in available and name not in missing:
+            missing.append(name)
+    return missing
+
+
 def audit_all_exported_excels(directories: List[str]) -> Tuple[int, int, List[str]]:
     """
     Quét và kiểm toán toàn diện tất cả tệp .xlsx trong danh sách thư mục.
-    Bảo đảm đạt chuẩn ZERO FORMULA ERRORS (0 lỗi #REF!, #VALUE!, #N/A, #DIV/0!).
+    Bảo đảm đạt chuẩn ZERO FORMULA ERRORS (0 lỗi #REF!, #VALUE!, #N/A, #DIV/0!)
+    và 0 công thức trỏ tới sheet không tồn tại trong chính tệp đó.
     Trả về (tổng_số_file, số_file_lỗi, danh_sách_lỗi_chi_tiết).
     """
     total_files = 0
@@ -299,9 +341,15 @@ def audit_all_exported_excels(directories: List[str]) -> Tuple[int, int, List[st
                                 for cell in row:
                                     v = str(cell.value) if cell.value is not None else ""
                                     for tok in error_tokens:
-                                        if tok in v:
+                                        # công thức chứa mã lỗi, hoặc cả ô là mã lỗi (không tính câu mô tả có nhắc tới "#REF!")
+                                        if (v.startswith("=") and tok in v) or v.strip() == tok:
                                             has_err = True
                                             error_details.append(f"[{f} -> {sname}!{cell.coordinate}] chứa {tok}")
+                                    if v.startswith("="):
+                                        for ms in find_missing_sheet_refs(v, wb.sheetnames):
+                                            has_err = True
+                                            error_details.append(
+                                                f"[{f} -> {sname}!{cell.coordinate}] trỏ tới sheet không tồn tại '{ms}'")
                         wb.close()
                         if has_err:
                             error_files += 1
