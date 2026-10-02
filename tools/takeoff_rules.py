@@ -7,8 +7,10 @@ các quy ước tính ván khuôn là ô đầu vào có nhãn; khối lượng 
 
 Quy ước đo bóc (cần đối chiếu điều khoản cụ thể với văn bản hiện hành khi lập hồ sơ):
   - Khối lượng đo theo kích thước trong bản vẽ thiết kế; bê tông và ván khuôn tách riêng theo
-    chủng loại / cấu kiện (nguyên tắc chung của Thông tư 17/2019/TT-BXD về đo bóc khối lượng).
+    chủng loại / cấu kiện (nguyên tắc đo bóc của Thông tư 13/2021/TT-BXD; TT 17/2019/TT-BXD cũ đã hết hiệu lực từ 15/10/2021).
   - Thông tư 12/2021/TT-BXD là Định mức xây dựng (hao phí), KHÔNG phải quy định đo bóc.
+  - Chưa đối chiếu từng điều khoản của TT 13/2021 (toàn văn chưa truy cập được) và chưa kiểm tra các sửa đổi
+    sau đó; khi lập hồ sơ cần dùng bản hợp nhất hiện hành.
   - Ván khuôn tính theo diện tích bề mặt bê tông tiếp xúc ván khuôn (nguyên tắc thông dụng).
     Mặt nào được coi là có ván khuôn là quy ước của biện pháp thi công → để thành công tắc 1/0.
 
@@ -82,8 +84,8 @@ FLAGS = [
     ("Ván khuôn đầu đốt (2 đầu mỗi đốt)", 1),
 ]
 NOTE = ("Quy ước: ván khuôn tính theo diện tích bề mặt bê tông tiếp xúc ván khuôn; mặt nào có ván khuôn do biện pháp "
-        "thi công quyết định (công tắc 1/0 bên dưới). Nguyên tắc đo bóc theo Thông tư 17/2019/TT-BXD (cần đối chiếu "
-        "điều khoản cụ thể); Thông tư 12/2021/TT-BXD là định mức, không phải đo bóc.")
+        "thi công quyết định (công tắc 1/0 bên dưới). Căn cứ đo bóc: Thông tư 13/2021/TT-BXD (cần đối chiếu điều "
+        "khoản cụ thể và bản sửa đổi hiện hành); Thông tư 12/2021/TT-BXD là định mức, không phải đo bóc.")
 
 
 def apply_culvert_derivation(ws) -> None:
