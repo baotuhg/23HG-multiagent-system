@@ -8,7 +8,11 @@ import os
 import unittest
 import tempfile
 
-from tools.package_dispatcher import AECPackageDispatcher, DispatchManifest
+import openpyxl
+
+from tools.package_dispatcher import (
+    AECPackageDispatcher, DispatchManifest, audit_all_exported_excels, find_missing_sheet_refs,
+)
 
 
 class TestPackageDispatcher(unittest.TestCase):
@@ -113,6 +117,36 @@ class TestPackageDispatcher(unittest.TestCase):
             manifest_json = os.path.join(hub_dir, "DISPATCH_MANIFEST.json")
             self.assertTrue(os.path.exists(manifest_json))
             self.assertTrue(manifest.audit_zero_errors)
+
+
+class TestMissingSheetRefGate(unittest.TestCase):
+    """Quality Gate phải bắt công thức trỏ tới sheet không tồn tại (không sinh ra mã lỗi #REF!)."""
+
+    def test_find_missing_sheet_refs(self):
+        sheets = ["DAO_DAP", "Bảng 1"]
+        self.assertEqual(find_missing_sheet_refs("=A1+DAO_DAP!B2", sheets), [])
+        self.assertEqual(find_missing_sheet_refs("='Bảng 1'!A1*2", sheets), [])
+        self.assertEqual(find_missing_sheet_refs("=A1-QS_DIEN_GIAI_CHI_TIET!I8", sheets),
+                         ["QS_DIEN_GIAI_CHI_TIET"])
+        self.assertEqual(find_missing_sheet_refs("='Sheet Khác'!A1", sheets), ["Sheet Khác"])
+        # chuỗi chứa dấu ! và liên kết ngoài không bị coi là tham chiếu sheet
+        self.assertEqual(find_missing_sheet_refs('=IF(A1>0,"Xong!","")', sheets), [])
+        self.assertEqual(find_missing_sheet_refs("=[1]Ngoai!A1", sheets), [])
+
+    def test_audit_flags_missing_sheet(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = openpyxl.Workbook()
+            bad.active.title = "DAO_DAP"
+            bad.active["A1"] = "=1-QS_DIEN_GIAI_CHI_TIET!I8"
+            bad.save(os.path.join(tmp, "bad.xlsx"))
+            good = openpyxl.Workbook()
+            good.active.title = "DAO_DAP"
+            good.active["A1"] = "=1-2"
+            good.active["B1"] = "Đã loại bỏ hoàn toàn lỗi #REF!"   # chữ mô tả, không phải lỗi
+            good.save(os.path.join(tmp, "good.xlsx"))
+            total, err_files, details = audit_all_exported_excels([tmp])
+            self.assertEqual((total, err_files), (2, 1))
+            self.assertTrue(any("QS_DIEN_GIAI_CHI_TIET" in d and "bad.xlsx" in d for d in details))
 
 
 if __name__ == "__main__":
