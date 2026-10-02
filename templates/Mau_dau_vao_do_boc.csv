@@ -1,0 +1,14 @@
+Loại;Tên công tác;Ký hiệu bản vẽ;Mã hiệu;Số lượng;Dài (m);Rộng (m);Cao (m);Kiểu;Dày sàn (m);Có cạnh;Đường kính (m);Đập đầu cọc (m);Sâu khoan (m);Mái taluy;Lỗ rỗng;Lý trình (m);Diện tích (m2);Trừ hố ga (m);Diện tích bằng (m2);Chu vi (m);Ghi chú
+be_tong;Bê tông móng M1;KC-01;AF.11110;2;1,2;1,0;0,4;;;;;;;;;;;;;;Dấu phẩy thập phân kiểu Việt Nam
+van_khuon;Ván khuôn móng M1;KC-01;AF.81111;2;1,2;1,0;0,4;mong;;;;;;;;;;;;;
+be_tong;Bê tông cột C1;KC-02;AF.12210;10;0,3;0,4;3,6;;;;;;;;;;;;;;
+van_khuon;Ván khuôn dầm D1;KC-03;AF.81131;1;5;0,22;0,5;dam;0,1;;;;;;;;;;;;Trừ phần dầm chìm trong sàn
+van_khuon;Ván khuôn sàn S1;KC-04;AF.81141;1;4;5;0,1;san;;1;;;;;1,5;;;;;;Lỗ 1,5 m2 có trừ hay không tùy hồ sơ quy tắc
+coc_khoan_nhoi;Bê tông cọc khoan nhồi D1200;KC-10;AC.31111;8;40;;;;;;1,2;0,8;;;;;;;;;
+khoan;Khoan tạo lỗ cọc D1200 trên cạn;KC-10;AC.21111;8;;;;;;;;;42;;;;;;;;
+dao_hao;Đào hào đặt cống;TH-01;AB.25112;;100;1,5;2;;;;;;;0,5;;;;;;;
+mat_cat;Đào nền đường;TD-01;AB.31121;;;;;;;;;;;;;0;10;;;;
+mat_cat;Đào nền đường;TD-01;AB.31121;;;;;;;;;;;;;20;16;;;;
+mat_cat;Đào nền đường;TD-01;AB.31121;;;;;;;;;;;;;50;12;;;;
+ong;Ống thoát nước D600;TN-01;BB.11111;;120;;;;;;;;;;;;;3;;;Không tính đoạn trong hố ga
+dan_giao_trong;Dàn giáo trong sảnh;KT-01;AL.51111;;;;5,4;;;;;;;;;;;;50;;
