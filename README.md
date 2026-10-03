@@ -18,7 +18,7 @@
 - **Đọc được file thật:** BBS (Excel/CSV/JSON), tiến độ MS Project XML/Excel/CSV, bảng QS/BOQ, phiếu thí nghiệm, IFC (qua `ifcopenshell`), DXF (qua `ezdxf`).
 
 ### Những gì đã được kiểm chứng
-- `python -m unittest discover -s tests -t .`: 229 test đạt (4 test bỏ qua khi thiếu thư viện tùy chọn), gồm các phép tính tay độc lập cho tiền, đo bóc và hồ sơ mẫu; CI chạy trên Ubuntu (Python 3.10, 3.12) và Windows (Python 3.11). Test chưa phủ hết: ví dụ lỗi cú pháp trong `tools/qs_export.py` (làm `--qs-out` hỏng) tồn tại từ commit `8a90ad4` mà không test nào bắt được, đến nay mới sửa và bổ sung test.
+- `python -m unittest discover -s tests -t .`: 270 test đạt (4 test bỏ qua khi thiếu thư viện tùy chọn), gồm các phép tính tay độc lập cho tiền, đo bóc và hồ sơ mẫu; CI chạy trên Ubuntu (Python 3.10, 3.12) và Windows (Python 3.11). Test chưa phủ hết: ví dụ lỗi cú pháp trong `tools/qs_export.py` (làm `--qs-out` hỏng) tồn tại từ commit `8a90ad4` mà không test nào bắt được, đến nay mới sửa và bổ sung test.
 - Chạy `--demo` đủ 8 pha (CAD → cắt thép → QS → QA/QC → Human Gate → CPM → ca máy → As-Built) không lỗi.
 - Solver cắt thép tách theo từng Ø và mác thép, tính lưỡi cắt, báo **cận dưới** số cây (`OPTIMAL` nghĩa là đã chứng minh không dùng ít hơn được).
 - Quét tĩnh các file Excel mẫu bằng `python -m tools.audit_excels_static <thư_mục>` (không cần Excel): không có mã lỗi công thức, không có tham chiếu tới sheet không tồn tại. Quality Gate khi xuất hồ sơ cũng kiểm tra điều này.
@@ -666,7 +666,7 @@ Có 10 unit test trong [`tests/test_civil_and_bridge_takeoff.py`](tests/test_civ
 │   ├── clean_a5_dossier.py       # Dọn & đối chiếu hồ sơ A5 (chạy lặp được)
 │   └── *.py                      # Script dựng hồ sơ từng dự án, demo CAD diff, runner kiểm toán
 │
-├── tests/                        # python -m unittest discover -s tests -t . (229 tests)
+├── tests/                        # python -m unittest discover -s tests -t . (270 tests)
 │   ├── golden/                   # Chỗ đặt bảng dự toán thật đã duyệt (README hướng dẫn)
 │   ├── test_civil_and_bridge_takeoff.py # 10 unit tests kiểm định hình học cầu & KCT
 │   ├── test_experience_store.py  # 10 unit tests kiểm định Level-Up, XP, Golden Pattern, Immunity Rules
