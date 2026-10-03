@@ -13,7 +13,7 @@ Cấu trúc 5 Sheets chuẩn:
 - Sheet 2: 02_TongHop_CaXe_CaMay_MMTB (Bảng tổng hợp ca xe máy MMTB, ĐM dầu, số ca máy, max máy, tổng lít dầu tiêu thụ)
 - Sheet 3: 03_KeHoach_Dau_Diezel (Kế hoạch cấp dầu Diezel theo 4 Kỳ thi công)
 - Sheet 4: 04_KeHoach_NhanLuc (Bảng phân bổ nhân lực thi công theo 5 mũi/tổ đội)
-- Sheet 5: 05_DoiChieu_BocTach_Km19 (Bảng đối chiếu khối lượng thực tế thiết kế Cầu Km19+529.080)
+- Sheet 5: 05_DoiChieu_BocTach (Bảng đối chiếu khối lượng thực tế thiết kế Cầu Km19+529.080)
 Kèm file XML: 260920_Tien_Do_CaMay_Cau_Km19+529.080.xml
 """
 
@@ -689,9 +689,9 @@ def build_km19_machine_schedule():
     ws4.column_dimensions["I"].width = 38
 
     # =========================================================================
-    # SHEET 5: 05_DoiChieu_BocTach_Km19
+    # SHEET 5: 05_DoiChieu_BocTach
     # =========================================================================
-    ws5 = wb.create_sheet(title="05_DoiChieu_BocTach_Km19")
+    ws5 = wb.create_sheet(title="05_DoiChieu_BocTach")
     ws5.views.sheetView[0].showGridLines = True
 
     ws5.merge_cells("A1:H1")

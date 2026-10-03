@@ -398,7 +398,7 @@ def build_permission_and_handover_workbook(dest_path: str):
 # 3. TẠO TÀI LIỆU MARKDOWN HƯỚNG DẪN BÀN GIAO & PHÂN QUYỀN
 # -----------------------------------------------------------------------------
 def build_permission_markdown(dest_path: str):
-    content = """# BẢNG MA TRẬN PHÂN QUYỀN & BIÊN BẢN BÀN GIAO 5 GÓI VỆ TINH THỰC CHIẾN
+    content = r"""# BẢNG MA TRẬN PHÂN QUYỀN & BIÊN BẢN BÀN GIAO 5 GÓI VỆ TINH THỰC CHIẾN
 ## DỰ ÁN: CAO TỐC TUYÊN QUANG - HÀ GIANG (GIAI ĐOẠN 1) — CẦU KM19+529.080
 **Mô hình điều phối:** Hub & Spoke Role-Based Model (Quy trình 15 - 23HG MultiAgent System)  
 **Tiêu chuẩn tuân thủ:** Luật Xây dựng 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Nghị định 254/2025/NĐ-CP & Vincons Standards  
