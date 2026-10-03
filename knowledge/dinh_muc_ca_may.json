@@ -1,0 +1,4446 @@
+{
+ "status": "PENDING_APPROVAL",
+ "generated": "2026-10-03T16:41:20",
+ "source": {
+  "project": "Cầu Tân Quang (dự toán cao tốc Tuyên Quang–Hà Giang)",
+  "file": "2.GDX phan cau vs1.xlsm",
+  "sha256_16": "14f33b89ad7f7245",
+  "sheets": [
+   "Don gia XD",
+   "Gia ca may XD"
+  ]
+ },
+ "tasks": [
+  {
+   "code": "AG.12210",
+   "name": "Bê tông dầm Super T C45",
+   "unit": "m³",
+   "machines": {
+    "M112.0801": 0.035,
+    "M112.1301": 0.18,
+    "M112.1201": 0.27,
+    "M102.0606": 0.03
+   },
+   "labor": 2.27
+  },
+  {
+   "code": "AF.51170",
+   "name": "Sản xuất vữa bê tông",
+   "unit": "100m³",
+   "machines": {
+    "M104.0408a": 0.326,
+    "M101.0403": 0.326,
+    "M101.0503": 0.163
+   },
+   "labor": 4.5
+  },
+  {
+   "code": "AF.52111",
+   "name": "V/c bê tông cự ly 0,5km",
+   "unit": "100m³",
+   "machines": {
+    "M106.0401": 3.7
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AG.13421",
+   "name": "SX, lắp dựng cốt thép D<=10mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.225,
+    "M112.2601": 0.21,
+    "M102.0605": 0.11
+   },
+   "labor": 7.29
+  },
+  {
+   "code": "AG.13421",
+   "name": "SX, lắp dựng cốt thép dầm cầu D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.225,
+    "M112.2601": 0.21,
+    "M102.0605": 0.11
+   },
+   "labor": 7.29
+  },
+  {
+   "code": "AG.13431",
+   "name": "SX, lắp dựng cốt thép dầm cầu D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.612,
+    "M112.2601": 0.14,
+    "M102.0605": 0.11
+   },
+   "labor": 3.88
+  },
+  {
+   "code": "AI.13121",
+   "name": "SX cốt thép đặt trong bê tông",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.92,
+    "M112.3703": 1.4,
+    "M112.1501": 1.4
+   },
+   "labor": 20.76
+  },
+  {
+   "code": "AI.64221",
+   "name": "Lắp đặt cốt thép đặt trong bê tông",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.16
+   },
+   "labor": 14.2
+  },
+  {
+   "code": "AG.13512",
+   "name": "Cốt thép DUL loại 15.2mm (kéo trước)",
+   "unit": "tấn",
+   "machines": {
+    "M102.0203": 0.12,
+    "M102.1107": 0.3,
+    "M112.1901": 2.2,
+    "M102.1307": 2.8,
+    "M102.1308": 2.8
+   },
+   "labor": 20.4
+  },
+  {
+   "code": "BB.41101",
+   "name": "Ống nhựa PVC D18/22",
+   "unit": "100m",
+   "machines": {},
+   "labor": 2.49
+  },
+  {
+   "code": "BB.41105",
+   "name": "Ống nhựa PVC D50",
+   "unit": "100m",
+   "machines": {},
+   "labor": 5.48
+  },
+  {
+   "code": "AG.13512",
+   "name": "Móc cẩu",
+   "unit": "tấn",
+   "machines": {
+    "M102.0203": 0.12,
+    "M102.1107": 0.3,
+    "M112.1901": 2.2,
+    "M102.1307": 2.8,
+    "M102.1308": 2.8
+   },
+   "labor": 20.4
+  },
+  {
+   "code": "AK.92111",
+   "name": "Quét keo Epoxy đầu dầm",
+   "unit": "m²",
+   "machines": {},
+   "labor": 0.03
+  },
+  {
+   "code": "AF.32310",
+   "name": "Bê tông dầm ngang C35, đá 1x2 đổ tại chỗ",
+   "unit": "m³",
+   "machines": {
+    "M112.0901": 0.033,
+    "M112.1301": 0.18
+   },
+   "labor": 1.66
+  },
+  {
+   "code": "AF.52111",
+   "name": "V/c vữa bê tông cự ly 0,5km",
+   "unit": "100m³",
+   "machines": {
+    "M106.0401": 3.7
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AF.61521",
+   "name": "Cốt thép dầm ngang D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.133,
+    "M112.2601": 0.32
+   },
+   "labor": 9.24
+  },
+  {
+   "code": "AF.61531",
+   "name": "Cốt thép dầm ngang D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.456,
+    "M112.2601": 0.16
+   },
+   "labor": 8.01
+  },
+  {
+   "code": "AF.86111",
+   "name": "Ván khuôn thép bt dầm ngang",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 1.5,
+    "M102.1001": 0.12,
+    "M102.0406": 0.12
+   },
+   "labor": 20.0
+  },
+  {
+   "code": "AF.31310",
+   "name": "Bê tông bản mặt cầu, liên tục nhiệt C35, đá 1x2 đổ tại chỗ",
+   "unit": "m³",
+   "machines": {
+    "M112.0901": 0.033,
+    "M112.1301": 0.089
+   },
+   "labor": 0.74
+  },
+  {
+   "code": "AF.52141",
+   "name": "V/c vữa bê tông cự ly 0,5km",
+   "unit": "100m³",
+   "machines": {
+    "M106.0401": 3.7
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AF.69110",
+   "name": "Cốt thép bản mặt cầu D<=10mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.2601": 0.4
+   },
+   "labor": 11.07
+  },
+  {
+   "code": "AF.69120",
+   "name": "Cốt thép bản mặt cầu D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.2601": 0.32,
+    "M112.4003": 1.16
+   },
+   "labor": 8.37
+  },
+  {
+   "code": "AF.69130",
+   "name": "Cốt thép bản mặt cầu D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.2601": 0.16,
+    "M112.4003": 1.27
+   },
+   "labor": 6.16
+  },
+  {
+   "code": "AF.86111",
+   "name": "Ván khuôn thép bt bản mặt cầu, liên tục nhiệt",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 1.5,
+    "M102.1001": 0.12,
+    "M102.0406": 0.12
+   },
+   "labor": 20.0
+  },
+  {
+   "code": "AD.23225",
+   "name": "Rải thảm BTN C16, dày 7cm",
+   "unit": "100m²",
+   "machines": {
+    "M105.0203": 0.061,
+    "M101.1103": 0.12,
+    "M101.0902": 0.064
+   },
+   "labor": 2.17
+  },
+  {
+   "code": "AD.26143",
+   "name": "Sản xuất BTN C16",
+   "unit": "100tấn",
+   "machines": {
+    "M104.0805": 0.21,
+    "M101.0406": 0.21,
+    "M101.0503": 0.161
+   },
+   "labor": 1.88
+  },
+  {
+   "code": "AD.27223",
+   "name": "V/c BTN cự ly 1,8km",
+   "unit": "100 tấn",
+   "machines": {
+    "M106.0205": 1.38
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AD.24221",
+   "name": "Tưới nhựa dính bám 0,5kg/m2",
+   "unit": "100m²",
+   "machines": {
+    "M105.0101": 0.068,
+    "M108.0306": 0.034
+   },
+   "labor": 0.23
+  },
+  {
+   "code": "AK.92111",
+   "name": "Lớp phòng nước",
+   "unit": "m²",
+   "machines": {},
+   "labor": 0.03
+  },
+  {
+   "code": "AG.11410",
+   "name": "Bê tông C25 tấm ván khuôn",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095
+   },
+   "labor": 1.93
+  },
+  {
+   "code": "AG.13231",
+   "name": "Cốt thép tấm ván khuôn",
+   "unit": "tấn",
+   "machines": {
+    "M112.2601": 0.4
+   },
+   "labor": 16.25
+  },
+  {
+   "code": "AG.32211",
+   "name": "Ván khuôn thép bt tấm ván khuôn",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 0.53
+   },
+   "labor": 31.76
+  },
+  {
+   "code": "AM.25121",
+   "name": "V/c CK BTĐS",
+   "unit": "10 tấn/km",
+   "machines": {
+    "M106.0108": 0.016
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AM.12201",
+   "name": "Bốc xếp CK BTĐS <=500kg lên PTVC",
+   "unit": "C.kiện",
+   "machines": {
+    "M102.0201": 0.02
+   },
+   "labor": 0.06
+  },
+  {
+   "code": "AM.12202",
+   "name": "Bốc xếp CK BTĐS <=500kg xuống PTVC",
+   "unit": "C.kiện",
+   "machines": {
+    "M102.0201": 0.016
+   },
+   "labor": 0.05
+  },
+  {
+   "code": "AG.41610",
+   "name": "Lắp đặt CK BTĐS",
+   "unit": "C.kiện",
+   "machines": {
+    "M102.0201": 0.015
+   },
+   "labor": 0.03
+  },
+  {
+   "code": "AF.14320",
+   "name": "Bê tông gờ lan can, chân cột đèn C25, đá 1x2 đổ tại chỗ",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095
+   },
+   "labor": 3.15
+  },
+  {
+   "code": "AF.61521",
+   "name": "Cốt thép gờ lan can, chân cột đèn D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.133,
+    "M112.2601": 0.32
+   },
+   "labor": 9.24
+  },
+  {
+   "code": "AF.61531",
+   "name": "Cốt thép gờ lan can D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.456,
+    "M112.2601": 0.16
+   },
+   "labor": 8.01
+  },
+  {
+   "code": "BB.41310",
+   "name": "Ống nhựa PVC D125",
+   "unit": "100m",
+   "machines": {
+    "M112.4301": 0.73
+   },
+   "labor": 12.91
+  },
+  {
+   "code": "AF.82511",
+   "name": "Ván khuôn thép bt gờ lan can, chân cột đèn",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 0.82
+   },
+   "labor": 12.25
+  },
+  {
+   "code": "BB.43101",
+   "name": "Lắp đặt ống nhựa gân xoắn HDPE D65/50",
+   "unit": "100m",
+   "machines": {},
+   "labor": 1.5
+  },
+  {
+   "code": "AI.13121",
+   "name": "Gia công thép bản chân cột đèn",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.92,
+    "M112.3703": 1.4,
+    "M112.1501": 1.4
+   },
+   "labor": 20.76
+  },
+  {
+   "code": "AI.64221",
+   "name": "Lắp đặt thép bản chân cột đèn",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.16
+   },
+   "labor": 14.2
+  },
+  {
+   "code": "AL.25111",
+   "name": "Lắp đặt gối chậu",
+   "unit": "cái",
+   "machines": {},
+   "labor": 5.5
+  },
+  {
+   "code": "AI.13131",
+   "name": "Thép bản đệm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.62,
+    "M112.3703": 1.29,
+    "M112.1501": 1.29
+   },
+   "labor": 19.54
+  },
+  {
+   "code": "AI.64231",
+   "name": "Lắp đặt thép bản",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.05
+   },
+   "labor": 12.5
+  },
+  {
+   "code": "AL.25210",
+   "name": "Lắp đặt khe co giãn răng lược D100mm",
+   "unit": "m",
+   "machines": {
+    "M102.0302": 0.082,
+    "M112.2202": 0.018,
+    "M112.3202": 0.054,
+    "M112.4003": 0.698,
+    "M112.1502": 0.048,
+    "M112.3703": 0.434
+   },
+   "labor": 12.5
+  },
+  {
+   "code": "AF.14310",
+   "name": "Bê tông không co ngót 40MPa",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1101": 0.089
+   },
+   "labor": 2.1
+  },
+  {
+   "code": "AF.61621",
+   "name": "Cốt thép khe co giãn",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.123,
+    "M112.2601": 0.32
+   },
+   "labor": 15.68
+  },
+  {
+   "code": "AI.13131",
+   "name": "Thép tấm mạ kẽm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.62,
+    "M112.3703": 1.29,
+    "M112.1501": 1.29
+   },
+   "labor": 19.54
+  },
+  {
+   "code": "AI.64231",
+   "name": "Lắp đặt thép tấm mạ kẽm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.05
+   },
+   "labor": 12.5
+  },
+  {
+   "code": "BB.41310",
+   "name": "Ống thoát nước PVC D125",
+   "unit": "100m",
+   "machines": {
+    "M112.4301": 0.73
+   },
+   "labor": 12.91
+  },
+  {
+   "code": "AI.13121",
+   "name": "Thép bản định vị; đai treo",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.92,
+    "M112.3703": 1.4,
+    "M112.1501": 1.4
+   },
+   "labor": 20.76
+  },
+  {
+   "code": "BB.41302",
+   "name": "Ống nhựa PVC D27",
+   "unit": "100m",
+   "machines": {
+    "M112.4301": 0.17
+   },
+   "labor": 7.17
+  },
+  {
+   "code": "AF.33110",
+   "name": "Bê tông móng mố, thân trụ C30, đá 1x2",
+   "unit": "m³",
+   "machines": {
+    "M102.0202": 0.033,
+    "M112.0901": 0.033,
+    "M112.1301": 0.085
+   },
+   "labor": 1.55
+  },
+  {
+   "code": "AF.33210",
+   "name": "Bê tông gờ lan can, ụ chống chuyển vị, tường tai C30, đá 1x2",
+   "unit": "m³",
+   "machines": {
+    "M102.0202": 0.04,
+    "M112.0901": 0.04,
+    "M112.1301": 0.085
+   },
+   "labor": 2.35
+  },
+  {
+   "code": "AF.65110",
+   "name": "Cốt thép mố, trụ D<=10mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.2601": 0.4,
+    "M102.0202": 0.12
+   },
+   "labor": 15.95
+  },
+  {
+   "code": "AF.65120",
+   "name": "Cốt thép mố, trụ D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.6,
+    "M112.2601": 0.32,
+    "M102.0202": 0.09
+   },
+   "labor": 10.78
+  },
+  {
+   "code": "AF.65130",
+   "name": "Cốt thép mố, trụ D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.73,
+    "M112.2601": 0.16,
+    "M102.0202": 0.08
+   },
+   "labor": 8.97
+  },
+  {
+   "code": "AF.11120",
+   "name": "Bê tông lót móng C10, đá 4x6 đổ tại chỗ",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1101": 0.089
+   },
+   "labor": 0.89
+  },
+  {
+   "code": "AF.14110",
+   "name": "Vữa đệm gối 40MPa",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1301": 0.089,
+    "M102.0202": 0.045
+   },
+   "labor": 2.04
+  },
+  {
+   "code": "AF.87211",
+   "name": "Ván khuôn thép bt mố trụ cầu trên cạn",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 3.8,
+    "M112.2601": 2.5,
+    "M102.0202": 0.8
+   },
+   "labor": 33.5
+  },
+  {
+   "code": "AK.94111",
+   "name": "Quét nhựa bitum",
+   "unit": "m²",
+   "machines": {},
+   "labor": 0.07
+  },
+  {
+   "code": "BB.41310",
+   "name": "Ống PVC D125",
+   "unit": "100m",
+   "machines": {
+    "M112.4301": 0.73
+   },
+   "labor": 12.91
+  },
+  {
+   "code": "BB.41113",
+   "name": "Ống nhựa PVC D315",
+   "unit": "100m",
+   "machines": {},
+   "labor": 15.34
+  },
+  {
+   "code": "BB.41106",
+   "name": "Ống nhựa PVC D60",
+   "unit": "100m",
+   "machines": {},
+   "labor": 5.98
+  },
+  {
+   "code": "AL.16121",
+   "name": "Vải địa kỹ thuật 12kN/m",
+   "unit": "100m²",
+   "machines": {},
+   "labor": 1.18
+  },
+  {
+   "code": "AE.12120",
+   "name": "Đá hộc xếp khan",
+   "unit": "m³",
+   "machines": {},
+   "labor": 1.4
+  },
+  {
+   "code": "AF.33110",
+   "name": "Bê tông mố, thân trụ trên cạn C30, đá 1x2",
+   "unit": "m³",
+   "machines": {
+    "M102.0202": 0.033,
+    "M112.0901": 0.033,
+    "M112.1301": 0.085
+   },
+   "labor": 1.55
+  },
+  {
+   "code": "AF.33210",
+   "name": "Bê tông xà mũ, ụ chống xô C30, đá 1x2 trên cạn",
+   "unit": "m³",
+   "machines": {
+    "M102.0202": 0.04,
+    "M112.0901": 0.04,
+    "M112.1301": 0.085
+   },
+   "labor": 2.35
+  },
+  {
+   "code": "AF.65110",
+   "name": "Cốt thép mố, trụ trên cạn D<=10mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.2601": 0.4,
+    "M102.0202": 0.12
+   },
+   "labor": 15.95
+  },
+  {
+   "code": "AF.65120",
+   "name": "Cốt thép mố, trụ trên cạn D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.6,
+    "M112.2601": 0.32,
+    "M102.0202": 0.09
+   },
+   "labor": 10.78
+  },
+  {
+   "code": "AF.65130",
+   "name": "Cốt thép mố, trụ trên cạn D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.73,
+    "M112.2601": 0.16,
+    "M102.0202": 0.08
+   },
+   "labor": 8.97
+  },
+  {
+   "code": "BB.41105",
+   "name": "Ống nhựa PVC D48",
+   "unit": "100m",
+   "machines": {},
+   "labor": 5.48
+  },
+  {
+   "code": "AF.33120",
+   "name": "Bê tông mố, trụ cầu dưới nước C30, đá 1x2",
+   "unit": "m³",
+   "machines": {
+    "M112.0901": 0.044,
+    "M112.1301": 0.1,
+    "M109.0102": 0.088,
+    "M109.0104": 0.044,
+    "M109.0702": 0.026,
+    "M102.0202": 0.044
+   },
+   "labor": 1.98
+  },
+  {
+   "code": "AF.33220",
+   "name": "Bê tông xà mũ, ụ chống xô C30, đá 1x2 dưới nước",
+   "unit": "m³",
+   "machines": {
+    "M102.0202": 0.06,
+    "M112.0901": 0.06,
+    "M112.1301": 0.1,
+    "M109.0102": 0.12,
+    "M109.0104": 0.06,
+    "M109.0702": 0.033
+   },
+   "labor": 2.66
+  },
+  {
+   "code": "AF.65210",
+   "name": "Cốt thép mố, trụ dưới nước D<=10mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.2601": 0.4,
+    "M102.0203": 0.06,
+    "M109.0102": 0.06,
+    "M109.0104": 0.06,
+    "M109.0702": 0.012
+   },
+   "labor": 19.1
+  },
+  {
+   "code": "AF.65220",
+   "name": "Cốt thép mố, trụ dưới nước D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.6,
+    "M112.2601": 0.32,
+    "M102.0203": 0.06,
+    "M109.0102": 0.06,
+    "M109.0104": 0.06,
+    "M109.0702": 0.012
+   },
+   "labor": 12.94
+  },
+  {
+   "code": "AF.65230",
+   "name": "Cốt thép mố, trụ dưới nước D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.73,
+    "M112.2601": 0.16,
+    "M102.0203": 0.04,
+    "M109.0102": 0.04,
+    "M109.0104": 0.04,
+    "M109.0702": 0.01
+   },
+   "labor": 10.76
+  },
+  {
+   "code": "AF.14120",
+   "name": "Vữa đệm gối 40MPa",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.11,
+    "M112.1301": 0.1,
+    "M102.0202": 0.06,
+    "M109.0104": 0.11,
+    "M109.0102": 0.11,
+    "M109.0702": 0.04
+   },
+   "labor": 2.44
+  },
+  {
+   "code": "AF.87221",
+   "name": "Ván khuôn thép bt mố, trụ cầu dưới nước",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 3.8,
+    "M112.2601": 2.5,
+    "M102.0203": 0.96,
+    "M109.0102": 0.5,
+    "M109.0104": 0.5,
+    "M109.0702": 0.25
+   },
+   "labor": 40.2
+  },
+  {
+   "code": "AF.35120",
+   "name": "Bê tông C30 cọc khoan nhồi trên cạn (không sd ov)",
+   "unit": "m³",
+   "machines": {
+    "M102.0203": 0.047,
+    "M112.0901": 0.047
+   },
+   "labor": 0.7
+  },
+  {
+   "code": "AF.35120",
+   "name": "Bê tông C30 cọc khoan nhồi trên cạn (sd ov)",
+   "unit": "m³",
+   "machines": {
+    "M102.0203": 0.047,
+    "M112.0901": 0.047
+   },
+   "labor": 0.7
+  },
+  {
+   "code": "AF.67110",
+   "name": "Cốt thép cọc khoan nhồi D<=10mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.37,
+    "M112.2601": 0.32,
+    "M102.0203": 0.13
+   },
+   "labor": 12.3
+  },
+  {
+   "code": "AF.67110",
+   "name": "Cốt thép cọc khoan nhồi D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.37,
+    "M112.2601": 0.32,
+    "M102.0203": 0.13
+   },
+   "labor": 12.3
+  },
+  {
+   "code": "CT.10001",
+   "name": "Cốt thép cọc khoan nhồi D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 0.524,
+    "M112.2601": 0.155,
+    "M102.0203": 0.12
+   },
+   "labor": 9.42
+  },
+  {
+   "code": "AA.22410",
+   "name": "Đập đầu cọc bê tông",
+   "unit": "m³",
+   "machines": {
+    "M112.2902": 0.36,
+    "M108.0303": 0.18,
+    "M112.4003": 0.23,
+    "M102.0202": 0.111
+   },
+   "labor": 0.72
+  },
+  {
+   "code": "AI.13121",
+   "name": "Thép bản",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.92,
+    "M112.3703": 1.4,
+    "M112.1501": 1.4
+   },
+   "labor": 20.76
+  },
+  {
+   "code": "AI.64221",
+   "name": "Lắp đặt thép bản",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.16
+   },
+   "labor": 14.2
+  },
+  {
+   "code": "AF.37510",
+   "name": "Bơm vữa xi măng lấp ống siêu âm",
+   "unit": "1m³",
+   "machines": {
+    "M104.0201": 0.2,
+    "M112.0602": 0.2,
+    "M112.0106": 0.06
+   },
+   "labor": 3.6
+  },
+  {
+   "code": "BB.31007",
+   "name": "Ống thép siêu âm D53,9/59,9mm",
+   "unit": "100m",
+   "machines": {
+    "M112.4003": 0.41
+   },
+   "labor": 29.12
+  },
+  {
+   "code": "BB.31010",
+   "name": "Ống thép siêu âm D106,5/113,5mm",
+   "unit": "100m",
+   "machines": {
+    "M112.4003": 0.76
+   },
+   "labor": 35.28
+  },
+  {
+   "code": "BB.88206",
+   "name": "Nắp ống nối sonic M1",
+   "unit": "cái",
+   "machines": {},
+   "labor": 0.12
+  },
+  {
+   "code": "BB.88211",
+   "name": "Nắp ống nối sonic M2",
+   "unit": "cái",
+   "machines": {},
+   "labor": 0.19
+  },
+  {
+   "code": "CE.12910",
+   "name": "Siêu âm kiểm tra cọc khoan nhồi",
+   "unit": "mặt cắt siêu âm/lần TN",
+   "machines": {
+    "M202.0008": 0.32
+   },
+   "labor": 1.58
+  },
+  {
+   "code": "CE.12820",
+   "name": "Thí nghiệm thử tải PDA (D1200)",
+   "unit": "lần TN/cọc TN",
+   "machines": {
+    "M102.0304": 1.5,
+    "M202.0007": 1.5,
+    "M112.4003": 2.5,
+    "M112.1702": 1.2
+   },
+   "labor": 32.0
+  },
+  {
+   "code": "AL.55120",
+   "name": "Khoan kiểm tra, xử lý đáy cọc khoan nhồi; khoan lấy lõi",
+   "unit": "cọc",
+   "machines": {
+    "M107.0202": 0.45,
+    "M108.0307": 0.45
+   },
+   "labor": 10.5
+  },
+  {
+   "code": "AC.32130",
+   "name": "Khoan vào đất, D=1200 trên cạn, L<=30m",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.073,
+    "M102.0304": 0.073
+   },
+   "labor": 1.11
+  },
+  {
+   "code": "AC.32130",
+   "name": "Khoan vào đất, D=1200 trên cạn, L<=30m\n(kết cấu sét cứng, cát chặt, đất lẫn sỏi HSx1,2)",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.073,
+    "M102.0304": 0.073
+   },
+   "labor": 1.11
+  },
+  {
+   "code": "AC.32130",
+   "name": "Khoan vào đất, D=1200 trên cạn, L>30m\n(kết cấu sét cứng, cát chặt, đất lẫn sỏi HSx1,2)\nNC, Mx1,015",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.073,
+    "M102.0304": 0.073
+   },
+   "labor": 1.11
+  },
+  {
+   "code": "AC.32343",
+   "name": "Khoan vào đá, D=1200 trên cạn, L<=30m",
+   "unit": "m",
+   "machines": {
+    "M103.1103": 0.137,
+    "M102.0304": 0.137
+   },
+   "labor": 1.58
+  },
+  {
+   "code": "AC.32343",
+   "name": "Khoan vào đá, D=1200 trên cạn, L>30m\n(NC, Mx1,015)",
+   "unit": "m",
+   "machines": {
+    "M103.1103": 0.137,
+    "M102.0304": 0.137
+   },
+   "labor": 1.58
+  },
+  {
+   "code": "AB.24141",
+   "name": "Đào xúc đất đổ thải",
+   "unit": "100m³",
+   "machines": {
+    "M101.0106": 0.152,
+    "M101.0503": 0.018
+   },
+   "labor": 0.34
+  },
+  {
+   "code": "AB.41431",
+   "name": "V/c đất C1 cự ly 1km đầu",
+   "unit": "100m³",
+   "machines": {
+    "M106.0204": 0.679
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AB.42131",
+   "name": "V/c đất C1 cự ly 0,6km cuối",
+   "unit": "100m³",
+   "machines": {
+    "M106.0204": 0.256
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AF.35120",
+   "name": "Bê tông C30 cọc KN",
+   "unit": "m³",
+   "machines": {
+    "M102.0203": 0.047,
+    "M112.0901": 0.047
+   },
+   "labor": 0.7
+  },
+  {
+   "code": "AI.12111",
+   "name": "Sản xuất ống vách phục vụ thí nghiệm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 3.2,
+    "M112.3001": 0.5,
+    "M102.0202": 0.27
+   },
+   "labor": 14.8
+  },
+  {
+   "code": "AB.41434",
+   "name": "V/c đất C4 cự ly 1km đầu",
+   "unit": "100m³",
+   "machines": {
+    "M106.0204": 0.984
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AB.42134",
+   "name": "V/c đất C4 cự ly 0,6km cuối",
+   "unit": "100m³",
+   "machines": {
+    "M106.0204": 0.363
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AF.35220",
+   "name": "Bê tông C30 cọc khoan nhồi dưới nước (không sd ov)",
+   "unit": "m³",
+   "machines": {
+    "M102.0203": 0.057,
+    "M112.0901": 0.057,
+    "M109.0102": 0.114,
+    "M109.0104": 0.057,
+    "M109.0702": 0.028
+   },
+   "labor": 0.84
+  },
+  {
+   "code": "AF.35220",
+   "name": "Bê tông C30 cọc khoan nhồi dưới nước (sd ov)",
+   "unit": "m³",
+   "machines": {
+    "M102.0203": 0.057,
+    "M112.0901": 0.057,
+    "M109.0102": 0.114,
+    "M109.0104": 0.057,
+    "M109.0702": 0.028
+   },
+   "labor": 0.84
+  },
+  {
+   "code": "AF.67210",
+   "name": "Cốt thép cọc khoan nhồi D<=10mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.37,
+    "M112.2601": 0.32,
+    "M102.0202": 0.07,
+    "M102.0203": 0.15,
+    "M109.0102": 0.15,
+    "M109.0104": 0.15,
+    "M109.0702": 0.03
+   },
+   "labor": 13.53
+  },
+  {
+   "code": "AF.67210",
+   "name": "Cốt thép cọc khoan nhồi D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.37,
+    "M112.2601": 0.32,
+    "M102.0202": 0.07,
+    "M102.0203": 0.15,
+    "M109.0102": 0.15,
+    "M109.0104": 0.15,
+    "M109.0702": 0.03
+   },
+   "labor": 13.53
+  },
+  {
+   "code": "CT.10002",
+   "name": "Cốt thép cọc khoan nhồi D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 0.524,
+    "M112.2601": 0.155,
+    "M102.0202": 0.06,
+    "M102.0203": 0.14,
+    "M109.0102": 0.14,
+    "M109.0104": 0.14,
+    "M109.0702": 0.03
+   },
+   "labor": 10.36
+  },
+  {
+   "code": "AF.37520",
+   "name": "Bơm vữa xi măng lấp ống siêu âm",
+   "unit": "1m³",
+   "machines": {
+    "M104.0201": 0.24,
+    "M112.0602": 0.24,
+    "M112.0106": 0.066,
+    "M109.0104": 0.24,
+    "M109.0702": 0.16
+   },
+   "labor": 4.23
+  },
+  {
+   "code": "AC.32230",
+   "name": "Khoan vào đất, D=1200 dưới nước, L<=30m\n(kết cấu sét cứng, cát chặt, đất lẫn sỏi HSx1,2)",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.086,
+    "M102.0304": 0.086,
+    "M109.0104": 0.086,
+    "M109.0102": 0.086,
+    "M109.0702": 0.058
+   },
+   "labor": 1.27
+  },
+  {
+   "code": "AC.32230",
+   "name": "Khoan vào đất, D=1200 dưới nước, L<=30m",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.086,
+    "M102.0304": 0.086,
+    "M109.0104": 0.086,
+    "M109.0102": 0.086,
+    "M109.0702": 0.058
+   },
+   "labor": 1.27
+  },
+  {
+   "code": "AC.32230",
+   "name": "Khoan vào đất, D=1200 dưới nước, L>30m\n(kết cấu sét cứng, cát chặt, đất lẫn sỏi HSx1,2);\nNC, Mx1,015",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.086,
+    "M102.0304": 0.086,
+    "M109.0104": 0.086,
+    "M109.0102": 0.086,
+    "M109.0702": 0.058
+   },
+   "labor": 1.27
+  },
+  {
+   "code": "AC.32443",
+   "name": "Khoan vào đá, D=1200 dưới nước, L<=30m",
+   "unit": "m",
+   "machines": {
+    "M103.1103": 0.161,
+    "M102.0304": 0.161,
+    "M109.0104": 0.161,
+    "M109.0102": 0.161,
+    "M109.0702": 0.1
+   },
+   "labor": 1.82
+  },
+  {
+   "code": "AC.32443",
+   "name": "Khoan vào đá, D=1200 dưới nước, L>30m\nNC,Mx1,015",
+   "unit": "m",
+   "machines": {
+    "M103.1103": 0.161,
+    "M102.0304": 0.161,
+    "M109.0104": 0.161,
+    "M109.0102": 0.161,
+    "M109.0702": 0.1
+   },
+   "labor": 1.82
+  },
+  {
+   "code": "AC.32230",
+   "name": "Khoan vào đất, D=1200 dưới nước, L<=30m;\nHS mực nước sâu>4m",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.086,
+    "M102.0304": 0.086,
+    "M109.0104": 0.086,
+    "M109.0102": 0.086,
+    "M109.0702": 0.058
+   },
+   "labor": 1.27
+  },
+  {
+   "code": "AC.32443",
+   "name": "Khoan vào đá, D=1200 dưới nước, L<=30m;\nHS mực nước sâu>4m",
+   "unit": "m",
+   "machines": {
+    "M103.1103": 0.161,
+    "M102.0304": 0.161,
+    "M109.0104": 0.161,
+    "M109.0102": 0.161,
+    "M109.0702": 0.1
+   },
+   "labor": 1.82
+  },
+  {
+   "code": "AC.32230",
+   "name": "Khoan vào đất, D=1200 dưới nước, L<=30m\n(kết cấu sét cứng, cát chặt, đất lẫn sỏi HSx1,2);\nHS mực nước sâu >4m",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.086,
+    "M102.0304": 0.086,
+    "M109.0104": 0.086,
+    "M109.0102": 0.086,
+    "M109.0702": 0.058
+   },
+   "labor": 1.27
+  },
+  {
+   "code": "AC.32443",
+   "name": "Khoan vào đá, D=1200 dưới nước, L<=30m\nHS mực nước sâu >4m",
+   "unit": "m",
+   "machines": {
+    "M103.1103": 0.161,
+    "M102.0304": 0.161,
+    "M109.0104": 0.161,
+    "M109.0102": 0.161,
+    "M109.0702": 0.1
+   },
+   "labor": 1.82
+  },
+  {
+   "code": "AC.32443",
+   "name": "Khoan vào đá, D=1200 dưới nước, L>30m;\nHS mực nước sâu>4m; NC, Mx1,015",
+   "unit": "m",
+   "machines": {
+    "M103.1103": 0.161,
+    "M102.0304": 0.161,
+    "M109.0104": 0.161,
+    "M109.0102": 0.161,
+    "M109.0702": 0.1
+   },
+   "labor": 1.82
+  },
+  {
+   "code": "AF.35220",
+   "name": "Bê tông C30 cọc khoan nhồi dưới nước",
+   "unit": "m³",
+   "machines": {
+    "M102.0203": 0.057,
+    "M112.0901": 0.057,
+    "M109.0102": 0.114,
+    "M109.0104": 0.057,
+    "M109.0702": 0.028
+   },
+   "labor": 0.84
+  },
+  {
+   "code": "AF.52141",
+   "name": "V/c vữa bê tông cự ly 1,8km",
+   "unit": "100m³",
+   "machines": {
+    "M106.0401": 4.56
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "CT.10002",
+   "name": "Cốt thép cọc khoan nhồi D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 0.524,
+    "M112.2601": 0.155,
+    "M102.0202": 0.06,
+    "M102.0203": 0.14,
+    "M109.0102": 0.14,
+    "M109.0104": 0.14,
+    "M109.0702": 0.03
+   },
+   "labor": 10.36
+  },
+  {
+   "code": "AB.42134",
+   "name": "V/c đất C4 cự ly 0,6km cuối",
+   "unit": "100m³/km",
+   "machines": {
+    "M106.0204": 0.363
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "CC.21110",
+   "name": "Khoan thăm dò vào đất trên cạn, độ sâu hố khoan từ 0m đến 30m (không lấy mẫu)",
+   "unit": "m",
+   "machines": {
+    "M201.0002": 0.09
+   },
+   "labor": 1.76
+  },
+  {
+   "code": "CC.21210",
+   "name": "Khoan thăm dò vào đất trên cạn, độ sâu hố khoan từ 0m đến 60m (không lấy mẫu)",
+   "unit": "m",
+   "machines": {
+    "M201.0002": 0.09
+   },
+   "labor": 1.86
+  },
+  {
+   "code": "CC.21120",
+   "name": "Khoan thăm dò vào đá trên cạn, độ sâu hố khoan từ 0m đến 30m (không lấy mẫu)",
+   "unit": "m",
+   "machines": {
+    "M201.0002": 0.2
+   },
+   "labor": 2.53
+  },
+  {
+   "code": "CC.31110",
+   "name": "Khoan thăm dò vào đất dưới nước, độ sâu hố khoan từ 0m đến 30m (không lấy mẫu)",
+   "unit": "m",
+   "machines": {
+    "M201.0002": 0.1
+   },
+   "labor": 2.61
+  },
+  {
+   "code": "CC.31120",
+   "name": "Khoan thăm dò vào đá dưới nước, độ sâu hố khoan từ 0m đến 30m (không lấy mẫu)",
+   "unit": "m",
+   "machines": {
+    "M201.0002": 0.24
+   },
+   "labor": 3.71
+  },
+  {
+   "code": "AF.11310",
+   "name": "Bê tông C25, đá 1x2 đổ tại chỗ",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1101": 0.089
+   },
+   "labor": 1.19
+  },
+  {
+   "code": "AF.61110",
+   "name": "Cốt thép bản quá độ D<=10mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.2601": 0.4
+   },
+   "labor": 10.75
+  },
+  {
+   "code": "AF.61120",
+   "name": "Cốt thép bản quá độ D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.12,
+    "M112.2601": 0.32
+   },
+   "labor": 7.67
+  },
+  {
+   "code": "AF.61130",
+   "name": "Cốt thép bản quá độ D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.27,
+    "M112.2601": 0.16
+   },
+   "labor": 5.59
+  },
+  {
+   "code": "AF.82511",
+   "name": "Ván khuôn thép bt bản quá độ",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 0.82
+   },
+   "labor": 12.25
+  },
+  {
+   "code": "BB.41103",
+   "name": "Ống PVC D30",
+   "unit": "100m",
+   "machines": {},
+   "labor": 3.51
+  },
+  {
+   "code": "AB.24131",
+   "name": "Vét hữu cơ",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.172,
+    "M101.0503": 0.02
+   },
+   "labor": 0.37
+  },
+  {
+   "code": "AB.31133",
+   "name": "Đào đất",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.311,
+    "M101.0503": 0.04
+   },
+   "labor": 4.06
+  },
+  {
+   "code": "AB.65120",
+   "name": "Đắp trả chân khay",
+   "unit": "100m³",
+   "machines": {
+    "M101.0803": 3.845
+   },
+   "labor": 6.19
+  },
+  {
+   "code": "AB.64133",
+   "name": "Đắp K95 tứ nón và đường đầu cầu",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.294,
+    "M101.0503": 0.147
+   },
+   "labor": 1.27
+  },
+  {
+   "code": "AB.66134",
+   "name": "Đắp VLHD K98",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.266,
+    "M101.0503": 0.133
+   },
+   "labor": 1.16
+  },
+  {
+   "code": "AD.13112",
+   "name": "Đắp VLHD K98",
+   "unit": "100m³",
+   "machines": {
+    "M101.1103": 0.612,
+    "M101.1002": 1.469,
+    "M101.0803": 0.607,
+    "M101.0503": 0.268
+   },
+   "labor": 3.07
+  },
+  {
+   "code": "AK.98110",
+   "name": "Đá dăm đệm",
+   "unit": "m³",
+   "machines": {},
+   "labor": 1.48
+  },
+  {
+   "code": "AE.11920",
+   "name": "Đá hộc xây vữa C10",
+   "unit": "m³",
+   "machines": {
+    "M104.0202": 0.053
+   },
+   "labor": 2.09
+  },
+  {
+   "code": "BB.41107",
+   "name": "Ống PVC D90 thoát nước",
+   "unit": "100m",
+   "machines": {},
+   "labor": 6.32
+  },
+  {
+   "code": "AD.11212",
+   "name": "Cấp phối đá dăm loại 2",
+   "unit": "100m³",
+   "machines": {
+    "M105.0401": 0.21,
+    "M101.1006": 0.32,
+    "M101.0902": 0.12,
+    "M101.1103": 0.26,
+    "M106.0502": 0.21
+   },
+   "labor": 3.12
+  },
+  {
+   "code": "AD.11242",
+   "name": "Cấp phối đá dăm loại 1",
+   "unit": "100m³",
+   "machines": {
+    "M105.0401": 0.21,
+    "M101.1002": 0.626,
+    "M101.0902": 0.15,
+    "M101.1103": 0.26,
+    "M106.0502": 0.21
+   },
+   "labor": 3.17
+  },
+  {
+   "code": "AD.24223",
+   "name": "Nhựa thấm bám 1kg/m2",
+   "unit": "100m²",
+   "machines": {
+    "M105.0101": 0.068,
+    "M108.0306": 0.034
+   },
+   "labor": 0.23
+  },
+  {
+   "code": "AD.23225",
+   "name": "Rải thảm BTN C19, dày 7cm",
+   "unit": "100m²",
+   "machines": {
+    "M105.0203": 0.061,
+    "M101.1103": 0.12,
+    "M101.0902": 0.064
+   },
+   "labor": 2.17
+  },
+  {
+   "code": "AD.24221",
+   "name": "Tưới nhựa dính bám 0.5kg/m2",
+   "unit": "100m²",
+   "machines": {
+    "M105.0101": 0.068,
+    "M108.0306": 0.034
+   },
+   "labor": 0.23
+  },
+  {
+   "code": "AD.23223",
+   "name": "Rải thảm BTN C16, dày 5cm",
+   "unit": "100m²",
+   "machines": {
+    "M105.0203": 0.043,
+    "M101.1103": 0.12,
+    "M101.0902": 0.064
+   },
+   "labor": 1.55
+  },
+  {
+   "code": "AD.26142",
+   "name": "Sản xuất BTN C19",
+   "unit": "100tấn",
+   "machines": {
+    "M104.0805": 0.21,
+    "M101.0406": 0.21,
+    "M101.0503": 0.161
+   },
+   "labor": 1.88
+  },
+  {
+   "code": "AF.61110",
+   "name": "Cốt thép D ≤10mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.2601": 0.4
+   },
+   "labor": 10.75
+  },
+  {
+   "code": "AF.61120",
+   "name": "Cốt thép D ≤18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.12,
+    "M112.2601": 0.32
+   },
+   "labor": 7.67
+  },
+  {
+   "code": "AF.61130",
+   "name": "Cốt thép D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.27,
+    "M112.2601": 0.16
+   },
+   "labor": 5.59
+  },
+  {
+   "code": "AF.12110",
+   "name": "Bê tông tường C30",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1301": 0.18
+   },
+   "labor": 2.49
+  },
+  {
+   "code": "AF.86211",
+   "name": "Ván khuôn thép bt tường",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 1.5,
+    "M102.1001": 0.12,
+    "M102.0406": 0.12
+   },
+   "labor": 28.5
+  },
+  {
+   "code": "AF.11210",
+   "name": "Bê tông bệ tường chắn C30",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1301": 0.089
+   },
+   "labor": 1.23
+  },
+  {
+   "code": "AF.82511",
+   "name": "Ván khuôn bệ tường",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 0.82
+   },
+   "labor": 12.25
+  },
+  {
+   "code": "AF.11110",
+   "name": "Bê tông đệm C10",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1101": 0.089
+   },
+   "labor": 1.07
+  },
+  {
+   "code": "BB.41105",
+   "name": "Ống PVC D48",
+   "unit": "100m",
+   "machines": {},
+   "labor": 5.48
+  },
+  {
+   "code": "AL.16121",
+   "name": "Rải vải địa kỹ thuật",
+   "unit": "100m²",
+   "machines": {},
+   "labor": 1.18
+  },
+  {
+   "code": "AF.35110",
+   "name": "Bê tông C30 cọc khoan nhồi (không sd ov)",
+   "unit": "m³",
+   "machines": {
+    "M102.0203": 0.079,
+    "M112.0901": 0.079
+   },
+   "labor": 0.83
+  },
+  {
+   "code": "AF.35110",
+   "name": "Bê tông C30 cọc khoan nhồi (sử dụng ov)",
+   "unit": "m³",
+   "machines": {
+    "M102.0203": 0.079,
+    "M112.0901": 0.079
+   },
+   "labor": 0.83
+  },
+  {
+   "code": "AF.51170",
+   "name": "SX vữa bê tông",
+   "unit": "100m³",
+   "machines": {
+    "M104.0408a": 0.326,
+    "M101.0403": 0.326,
+    "M101.0503": 0.163
+   },
+   "labor": 4.5
+  },
+  {
+   "code": "AF.52111",
+   "name": "V/c bê tông từ trạm trộn cự ly tb 0,5km",
+   "unit": "100m³",
+   "machines": {
+    "M106.0401": 3.7
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "CT.100.01",
+   "name": "Cốt thép cọc khoan nhồi D>18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 0.524,
+    "M112.2601": 0.155,
+    "M102.0203": 0.12
+   },
+   "labor": 9.42
+  },
+  {
+   "code": "CE.12810",
+   "name": "Thí nghiệm thử tải PDA (D1000)",
+   "unit": "lần TN/cọc TN",
+   "machines": {
+    "M102.0303": 1.5,
+    "M202.0007": 1.0,
+    "M112.4003": 2.0,
+    "M112.1702": 1.0
+   },
+   "labor": 28.0
+  },
+  {
+   "code": "AC.32120",
+   "name": "Khoan vào đất, D=1000 trên cạn, L<=30m",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.066,
+    "M102.0304": 0.066
+   },
+   "labor": 1.03
+  },
+  {
+   "code": "AC.32120",
+   "name": "Khoan vào đất, D=1000 trên cạn, L<=30m\n(kết cấu sét cứng, cát chặt, đất lẫn sỏi HSx1,2)",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.066,
+    "M102.0304": 0.066
+   },
+   "labor": 1.03
+  },
+  {
+   "code": "AC.32120",
+   "name": "Khoan vào đất, D=1000 trên cạn, L>30m\n(kết cấu sét cứng, cát chặt, đất lẫn sỏi HSx1,2) NC, Mx1,015",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.066,
+    "M102.0304": 0.066
+   },
+   "labor": 1.03
+  },
+  {
+   "code": "AC.32342",
+   "name": "Khoan vào đá, D=1000 trên cạn, L<=30m",
+   "unit": "m",
+   "machines": {
+    "M103.1103": 0.123,
+    "M102.0304": 0.123
+   },
+   "labor": 1.46
+  },
+  {
+   "code": "AC.32342",
+   "name": "Khoan vào đá, D=1000 trên cạn, L>30m\n(NC, Mx1,015)",
+   "unit": "m",
+   "machines": {
+    "M103.1103": 0.123,
+    "M102.0304": 0.123
+   },
+   "labor": 1.46
+  },
+  {
+   "code": "AB.42131",
+   "name": "V/c đất C1 cự ly 0,6km cuối",
+   "unit": "100m³/km",
+   "machines": {
+    "M106.0204": 0.256
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AF.12110",
+   "name": "Bê tông tường C16",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1301": 0.18
+   },
+   "labor": 2.49
+  },
+  {
+   "code": "AF.11210",
+   "name": "Bê tông bệ tường chắn C16",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1301": 0.089
+   },
+   "labor": 1.23
+  },
+  {
+   "code": "AB.24131",
+   "name": "Đào bóc hữu cơ",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.172,
+    "M101.0503": 0.02
+   },
+   "labor": 0.37
+  },
+  {
+   "code": "AB.64132",
+   "name": "Đắp mặt bằng công trường",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.211,
+    "M101.0503": 0.105
+   },
+   "labor": 1.05
+  },
+  {
+   "code": "AK.98110",
+   "name": "Đá dăm đệm (tận dụng đá thải)",
+   "unit": "m³",
+   "machines": {},
+   "labor": 1.48
+  },
+  {
+   "code": "AB.31131",
+   "name": "Đào đường công vụ",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.228,
+    "M101.0503": 0.027
+   },
+   "labor": 2.74
+  },
+  {
+   "code": "AB.64132",
+   "name": "Đắp đường công vụ",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.211,
+    "M101.0503": 0.105
+   },
+   "labor": 1.05
+  },
+  {
+   "code": "AB.24132",
+   "name": "Đào thanh thải đất C2",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.198,
+    "M101.0503": 0.027
+   },
+   "labor": 0.47
+  },
+  {
+   "code": "AB.24134",
+   "name": "Đào thanh thải đất C4",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.312,
+    "M101.0503": 0.046
+   },
+   "labor": 0.81
+  },
+  {
+   "code": "AB.41432",
+   "name": "V/c đất C2 cự ly 1km đầu",
+   "unit": "100m³",
+   "machines": {
+    "M106.0204": 0.769
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AB.42132",
+   "name": "V/c đất C2 cự ly 0,6km cuối",
+   "unit": "100m³",
+   "machines": {
+    "M106.0204": 0.294
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AG.11110",
+   "name": "Bê tông kê dầm C25",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1301": 0.18
+   },
+   "labor": 1.37
+  },
+  {
+   "code": "AG.32211",
+   "name": "Ván khuôn thép bê tông kê dầm",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 0.53
+   },
+   "labor": 31.76
+  },
+  {
+   "code": "AG.41610",
+   "name": "Lắp đặt CK BTĐS",
+   "unit": "cấu kiện",
+   "machines": {
+    "M102.0201": 0.015
+   },
+   "labor": 0.03
+  },
+  {
+   "code": "AA.22111",
+   "name": "Phá dỡ bệ kê dầm",
+   "unit": "m³",
+   "machines": {
+    "M112.2902": 0.3,
+    "M108.0303": 0.15,
+    "M112.4003": 0.23
+   },
+   "labor": 0.6
+  },
+  {
+   "code": "AG.11410",
+   "name": "Bê tông bệ đúc dầm C25",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095
+   },
+   "labor": 1.93
+  },
+  {
+   "code": "AG.13221",
+   "name": "Cốt thép bệ đúc dầm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.127,
+    "M112.2601": 0.32
+   },
+   "labor": 12.09
+  },
+  {
+   "code": "AG.32211",
+   "name": "Ván khuôn bệ đúc dầm",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 0.53
+   },
+   "labor": 31.76
+  },
+  {
+   "code": "AG.41511",
+   "name": "Lắp đặt CK BTĐS",
+   "unit": "cái",
+   "machines": {
+    "M102.0302": 0.018,
+    "M112.4003": 0.18
+   },
+   "labor": 0.09
+  },
+  {
+   "code": "AI.13131",
+   "name": "Sản xuất cốt thép đặt trong bê tông",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.62,
+    "M112.3703": 1.29,
+    "M112.1501": 1.29
+   },
+   "labor": 19.54
+  },
+  {
+   "code": "AI.64231",
+   "name": "Lắp đặt cốt thép đặt sẵn trong bê tông",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.05
+   },
+   "labor": 12.5
+  },
+  {
+   "code": "AF.11110",
+   "name": "Vữa xi măng chèn khe",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1101": 0.089
+   },
+   "labor": 1.07
+  },
+  {
+   "code": "AA.22111",
+   "name": "Phá dỡ bệ đúc dầm",
+   "unit": "m³",
+   "machines": {
+    "M112.2902": 0.3,
+    "M108.0303": 0.15,
+    "M112.4003": 0.23
+   },
+   "labor": 0.6
+  },
+  {
+   "code": "AI.11911",
+   "name": "Sản xuất giá lắp đặt cốt thép",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp đặt giá lắp đặt cốt thép",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ giá lắp đặt cốt thép",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AI.11911",
+   "name": "Sản xuất dầm gánh",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp đặt dầm gánh",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ dầm gánh",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AI.51111",
+   "name": "Sản xuất hệ ván khuôn ngoài chế tạo dầm",
+   "unit": "tấn",
+   "machines": {
+    "M112.2402": 1.4,
+    "M112.3101": 1.4,
+    "M112.3703": 0.92,
+    "M112.4003": 2.5
+   },
+   "labor": 13.2
+  },
+  {
+   "code": "AI.51111",
+   "name": "Sản xuất hệ ván khuôn trong chế tạo dầm",
+   "unit": "tấn",
+   "machines": {
+    "M112.2402": 1.4,
+    "M112.3101": 1.4,
+    "M112.3703": 0.92,
+    "M112.4003": 2.5
+   },
+   "labor": 13.2
+  },
+  {
+   "code": "AG.32121",
+   "name": "Lắp đặt và tháo dỡ ván khuôn trong, ngoài dầm SPT",
+   "unit": "m²",
+   "machines": {
+    "M112.4003": 0.045,
+    "M112.2601": 0.003,
+    "M102.1107": 0.01,
+    "M102.0303": 0.008
+   },
+   "labor": 0.57
+  },
+  {
+   "code": "AI.11911",
+   "name": "Sản xuất trụ đỡ ván khuôn trong",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp đặt trụ đỡ ván khuôn trong",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ trụ đỡ ván khuôn trong",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AI.11912",
+   "name": "Sản xuất hệ sàn công tác",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.6,
+    "M112.2601": 0.4,
+    "M102.0302": 0.27
+   },
+   "labor": 16.96
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng hệ sàn công tác",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ sàn công tác",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AB.25122",
+   "name": "Đào hố móng đất C2",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.276
+   },
+   "labor": 3.75
+  },
+  {
+   "code": "AB.66133",
+   "name": "Đắp cát K95",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.24,
+    "M101.0503": 0.12
+   },
+   "labor": 1.15
+  },
+  {
+   "code": "AF.11110",
+   "name": "Bê tông tạo phẳng C10",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1101": 0.089
+   },
+   "labor": 1.07
+  },
+  {
+   "code": "AC.12111",
+   "name": "Đóng cọc tre, bằng máy đào 0,5m3, chiều dài cọc ≤2,5m, đất cấp I",
+   "unit": "100m",
+   "machines": {
+    "M101.0102": 0.085
+   },
+   "labor": 0.27
+  },
+  {
+   "code": "AI.11911",
+   "name": "Sản xuất hệ dầm kích",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng hệ dầm kích",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ dầm kích",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AI.11911",
+   "name": "Sản xuất hệ thép hình cầu tạm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng hệ cầu tạm",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ cầu tạm",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AI.11131",
+   "name": "Sản xuất cọc định vị (vật liệu phụ)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.2,
+    "M112.2601": 0.5,
+    "M112.1502": 1.5,
+    "M102.0302": 0.32
+   },
+   "labor": 7.6
+  },
+  {
+   "code": "AC.22611",
+   "name": "Đóng cọc thép hình dưới nước phần ngập đất",
+   "unit": "100m",
+   "machines": {
+    "M103.0501": 2.314,
+    "M102.0304": 2.314,
+    "M109.0702": 0.135,
+    "M109.0102": 2.314
+   },
+   "labor": 5.14
+  },
+  {
+   "code": "AC.22611",
+   "name": "Đóng cọc thép hình dưới nước phần không ngập đất (NC, Mx0,75)",
+   "unit": "100m",
+   "machines": {
+    "M103.0501": 2.314,
+    "M102.0304": 2.314,
+    "M109.0702": 0.135,
+    "M109.0102": 2.314
+   },
+   "labor": 5.14
+  },
+  {
+   "code": "AC.23120",
+   "name": "Nhổ cọc thép hình dưới nước",
+   "unit": "100m cọc",
+   "machines": {
+    "M102.0304": 1.632,
+    "M109.0702": 0.06,
+    "M109.0102": 1.632
+   },
+   "labor": 3.71
+  },
+  {
+   "code": "AC.32810",
+   "name": "Bơm dung dịch bentonit",
+   "unit": "m³",
+   "machines": {
+    "M103.1501": 0.05,
+    "M103.1601": 0.05,
+    "M103.1702": 0.05
+   },
+   "labor": 0.58
+  },
+  {
+   "code": "AI.11911",
+   "name": "Sản xuất hệ đà giáo thi công \n(vật liệu phụ - SX01 bộ)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp đặt hệ đà giáo thi công mố",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ đà giáo thi công mố",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AI.11912",
+   "name": "Gia công hệ sàn đạo, sàn thao tác (vật liệu phụ)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.6,
+    "M112.2601": 0.4,
+    "M102.0302": 0.27
+   },
+   "labor": 16.96
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp đặt hệ sàn đạo, sàn thao tác thi công mố",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ sàn đạo, sàn thao tác thi công mố",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AC.27120",
+   "name": "Ép cọc cừ Larsen bằng máy ép thủy lực\n(đoạn cọc ngập đất)",
+   "unit": "100m",
+   "machines": {
+    "M103.0901": 1.296,
+    "M102.0304": 1.296
+   },
+   "labor": 11.83
+  },
+  {
+   "code": "AC.27120",
+   "name": "Ép cọc cừ Larsen bằng máy ép thủy lực  \n(đoạn cọc không ngập đất) NC,Mx0,75",
+   "unit": "100m",
+   "machines": {
+    "M103.0901": 1.296,
+    "M102.0304": 1.296
+   },
+   "labor": 11.83
+  },
+  {
+   "code": "AC.27110",
+   "name": "Nhổ cọc cừ Larsen bằng máy ép thủy lực",
+   "unit": "100m",
+   "machines": {
+    "M103.0901": 0.864,
+    "M102.0304": 0.864
+   },
+   "labor": 4.65
+  },
+  {
+   "code": "AG.11410",
+   "name": "Bê tông tấm bê tông C20",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095
+   },
+   "labor": 1.93
+  },
+  {
+   "code": "AG.32511",
+   "name": "Ván khuôn tấm bê tông",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 0.33
+   },
+   "labor": 23.06
+  },
+  {
+   "code": "AB.21132",
+   "name": "Đào san ủi mặt bằng",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.218,
+    "M101.0503": 0.029
+   },
+   "labor": 0.51
+  },
+  {
+   "code": "AB.25122",
+   "name": "Đào hố móng C2",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.276
+   },
+   "labor": 3.75
+  },
+  {
+   "code": "AB.64132",
+   "name": "Đắp trả hố móng K90",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.211,
+    "M101.0503": 0.105
+   },
+   "labor": 1.05
+  },
+  {
+   "code": "AC.32810",
+   "name": "Bơm dung dịch bentonit, trên cạn",
+   "unit": "m³",
+   "machines": {
+    "M103.1501": 0.05,
+    "M103.1601": 0.05,
+    "M103.1702": 0.05
+   },
+   "labor": 0.58
+  },
+  {
+   "code": "AI.12111",
+   "name": "Ống vách để lại ( Trụ T3, T4)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 3.2,
+    "M112.3001": 0.5,
+    "M102.0202": 0.27
+   },
+   "labor": 14.8
+  },
+  {
+   "code": "AI.11911",
+   "name": "Sản xuất hệ đà giáo thi công (vật liệu phụ)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng hệ đà giáo thi công trên cạn",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ đà giáo thi công trên cạn",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AI.62211",
+   "name": "Lắp dựng hệ đà giáo định hình",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.08
+   },
+   "labor": 7.5
+  },
+  {
+   "code": "AI.62211",
+   "name": "Tháo dỡ hệ đà giáo định hình (60% lắp dựng)",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.08
+   },
+   "labor": 7.5
+  },
+  {
+   "code": "AI.11912",
+   "name": "Sản xuất hệ sàn công tác (vật liệu phụ)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.6,
+    "M112.2601": 0.4,
+    "M102.0302": 0.27
+   },
+   "labor": 16.96
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng hệ sàn công tác trên cạn",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ sàn công tác trên cạn",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AC.22511",
+   "name": "Đóng cọc thép hình trên cạn phần ngập đất",
+   "unit": "100m",
+   "machines": {
+    "M103.0201": 1.776
+   },
+   "labor": 3.55
+  },
+  {
+   "code": "AC.22511",
+   "name": "Đóng cọc thép hình trên cạn phần không ngập đất (NC, Mx0,75)",
+   "unit": "100m",
+   "machines": {
+    "M103.0201": 1.776
+   },
+   "labor": 3.55
+  },
+  {
+   "code": "AC.23110",
+   "name": "Nhổ cọc thép hình trên cạn",
+   "unit": "100m cọc",
+   "machines": {
+    "M102.0304": 1.33
+   },
+   "labor": 2.66
+  },
+  {
+   "code": "AC.27120",
+   "name": "Ép cọc cừ Larsen đoạn cọc ngập đất",
+   "unit": "100m",
+   "machines": {
+    "M103.0901": 1.296,
+    "M102.0304": 1.296
+   },
+   "labor": 11.83
+  },
+  {
+   "code": "AC.27120",
+   "name": "Ép cọc cừ Larsen đoạn cọc không ngập đất\n(NC, Mx0,75)",
+   "unit": "100m",
+   "machines": {
+    "M103.0901": 1.296,
+    "M102.0304": 1.296
+   },
+   "labor": 11.83
+  },
+  {
+   "code": "AC.27110",
+   "name": "Nhổ cọc cừ Larsen bằng máy ép thủy lực 130 tấn",
+   "unit": "100m",
+   "machines": {
+    "M103.0901": 0.864,
+    "M102.0304": 0.864
+   },
+   "labor": 4.65
+  },
+  {
+   "code": "AI.11911",
+   "name": "Sản xuất khung chống vòng vây cọc ván thép\n(vật liệu phụ)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp đặt hệ khung chống",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ khung chống",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AF.37110",
+   "name": "Bê tông bịt đáy C16",
+   "unit": "m³",
+   "machines": {
+    "M112.0901": 0.036
+   },
+   "labor": 1.31
+  },
+  {
+   "code": "AB.25122",
+   "name": "Đào hố móng công trình, đất C2",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.276
+   },
+   "labor": 3.75
+  },
+  {
+   "code": "AB.64132",
+   "name": "Đắp đất tạo mặt bằng, đắp trả hố móng",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.211,
+    "M101.0503": 0.105
+   },
+   "labor": 1.05
+  },
+  {
+   "code": "AC.32820",
+   "name": "Bơm dung dịch bentonit",
+   "unit": "m³",
+   "machines": {
+    "M103.1501": 0.055,
+    "M103.1601": 0.055,
+    "M103.1702": 0.055,
+    "M109.0102": 0.12,
+    "M109.0702": 0.01
+   },
+   "labor": 0.64
+  },
+  {
+   "code": "AI.12111",
+   "name": "Ống vách để lại (trụ T5, T6, T7, T8, T9)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 3.2,
+    "M112.3001": 0.5,
+    "M102.0202": 0.27
+   },
+   "labor": 14.8
+  },
+  {
+   "code": "AI.12111",
+   "name": "Ống vách để lại đầu cọc",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 3.2,
+    "M112.3001": 0.5,
+    "M102.0202": 0.27
+   },
+   "labor": 14.8
+  },
+  {
+   "code": "AC.22611",
+   "name": "Đóng cọc thép hình trên cạn phần ngập đất",
+   "unit": "100m",
+   "machines": {
+    "M103.0501": 2.314,
+    "M102.0304": 2.314,
+    "M109.0702": 0.135,
+    "M109.0102": 2.314
+   },
+   "labor": 5.14
+  },
+  {
+   "code": "AC.22611",
+   "name": "Đóng cọc thép hình trên cạn phần không ngập đất (NC, Mx0,75)",
+   "unit": "100m",
+   "machines": {
+    "M103.0501": 2.314,
+    "M102.0304": 2.314,
+    "M109.0702": 0.135,
+    "M109.0102": 2.314
+   },
+   "labor": 5.14
+  },
+  {
+   "code": "AC.23120",
+   "name": "Nhổ cọc thép hình trên cạn",
+   "unit": "100m cọc",
+   "machines": {
+    "M102.0304": 1.632,
+    "M109.0702": 0.06,
+    "M109.0102": 1.632
+   },
+   "labor": 3.71
+  },
+  {
+   "code": "AI.11912",
+   "name": "Sản xuất hệ sàn đạo (vật liệu phụ)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.6,
+    "M112.2601": 0.4,
+    "M102.0302": 0.27
+   },
+   "labor": 16.96
+  },
+  {
+   "code": "AI.63321",
+   "name": "Lắp dựng hệ sàn đạo",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.083,
+    "M102.0203": 0.12,
+    "M112.4003": 4.15,
+    "M109.0102": 0.12,
+    "M109.0104": 0.12,
+    "M109.0507": 0.06
+   },
+   "labor": 11.5
+  },
+  {
+   "code": "AI.63421",
+   "name": "Tháo dỡ hệ sàn đạo",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.05,
+    "M102.0203": 0.07,
+    "M109.0102": 0.07,
+    "M109.0104": 0.07,
+    "M109.0507": 0.04
+   },
+   "labor": 6.9
+  },
+  {
+   "code": "AI.11911",
+   "name": "Gia công đà giáo thi công",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63321",
+   "name": "Lắp dựng hệ đà giáo thi công dưới nước",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.083,
+    "M102.0203": 0.12,
+    "M112.4003": 4.15,
+    "M109.0102": 0.12,
+    "M109.0104": 0.12,
+    "M109.0507": 0.06
+   },
+   "labor": 11.5
+  },
+  {
+   "code": "AI.63421",
+   "name": "Tháo dỡ hệ đà giáo thi công dưới nước",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.05,
+    "M102.0203": 0.07,
+    "M109.0102": 0.07,
+    "M109.0104": 0.07,
+    "M109.0507": 0.04
+   },
+   "labor": 6.9
+  },
+  {
+   "code": "AI.63321",
+   "name": "Lắp dựng hệ sàn công tác dưới nước",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.083,
+    "M102.0203": 0.12,
+    "M112.4003": 4.15,
+    "M109.0102": 0.12,
+    "M109.0104": 0.12,
+    "M109.0507": 0.06
+   },
+   "labor": 11.5
+  },
+  {
+   "code": "AI.63421",
+   "name": "Tháo dỡ hệ sàn công tác dưới nước",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.05,
+    "M102.0203": 0.07,
+    "M109.0102": 0.07,
+    "M109.0104": 0.07,
+    "M109.0507": 0.04
+   },
+   "labor": 6.9
+  },
+  {
+   "code": "AC.27120vd",
+   "name": "Ép cọc cừ Larsen dưới nước (đoạn cọc ngập đất)",
+   "unit": "100m",
+   "machines": {
+    "M103.0901": 1.296,
+    "M102.0304": 1.296,
+    "M109.0702": 0.135,
+    "M109.0102": 3.402
+   },
+   "labor": 11.83
+  },
+  {
+   "code": "AC.27120vd",
+   "name": "Ép cọc cừ Larsen dưới nước (đoạn cọc không ngập đất NC,Mx0,75)",
+   "unit": "100m",
+   "machines": {
+    "M103.0901": 1.296,
+    "M102.0304": 1.296,
+    "M109.0702": 0.135,
+    "M109.0102": 3.402
+   },
+   "labor": 11.83
+  },
+  {
+   "code": "AC.27110vd",
+   "name": "Nhổ cọc cừ Larsen dưới nước",
+   "unit": "100m",
+   "machines": {
+    "M103.0901": 0.864,
+    "M102.0304": 0.864,
+    "M109.0702": 0.07,
+    "M109.0102": 2.168
+   },
+   "labor": 4.65
+  },
+  {
+   "code": "AI.63321",
+   "name": "Lắp đặt hệ khung chống",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.083,
+    "M102.0203": 0.12,
+    "M112.4003": 4.15,
+    "M109.0102": 0.12,
+    "M109.0104": 0.12,
+    "M109.0507": 0.06
+   },
+   "labor": 11.5
+  },
+  {
+   "code": "AI.63421",
+   "name": "Tháo dỡ hệ khung chống",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.05,
+    "M102.0203": 0.07,
+    "M109.0102": 0.07,
+    "M109.0104": 0.07,
+    "M109.0507": 0.04
+   },
+   "labor": 6.9
+  },
+  {
+   "code": "AB.36120",
+   "name": "Xói hút bùn trong khung vây phòng nước, các trụ dưới nước",
+   "unit": "m³",
+   "machines": {
+    "M108.0308": 0.057,
+    "M112.0402": 0.057,
+    "M109.0104": 0.057,
+    "M109.0507": 0.001,
+    "M102.0501": 0.057,
+    "M112.0105": 0.057
+   },
+   "labor": 0.34
+  },
+  {
+   "code": "AB.64132",
+   "name": "Đắp hoàn trả hố móng",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.211,
+    "M101.0503": 0.105
+   },
+   "labor": 1.05
+  },
+  {
+   "code": "AG.52810vd",
+   "name": "Nâng hạ dầm từ bãi đúc sang bãi chứa",
+   "unit": "dầm",
+   "machines": {
+    "M102.0702": 0.437
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AG.52810vd",
+   "name": "Nâng hạ dầm từ bãi chứa lên xe vận chuyển",
+   "unit": "dầm",
+   "machines": {
+    "M102.0702": 0.437
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp đặt cẩu long môn nâng hạ dầm",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ cẩu long môn nâng hạ dầm",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AG.52230",
+   "name": "Di chuyển dầm",
+   "unit": "dầm",
+   "machines": {
+    "M102.0703": 0.7480000000000002
+   },
+   "labor": 11.968000000000004
+  },
+  {
+   "code": "AG.52130",
+   "name": "Lao lắp dầm SPT",
+   "unit": "dầm",
+   "machines": {
+    "M102.0701": 0.863
+   },
+   "labor": 13.69
+  },
+  {
+   "code": "AI.11911",
+   "name": "Sản xuất hệ lao dầm (vật liệu phụ)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng hệ lao dầm",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ lao dầm",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AI.11911",
+   "name": "Sản xuất hệ đà giao thi công bản mặt cầu, dầm ngang",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng hệ đà giáo thi công",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ đà giáo thi công",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AF.61120",
+   "name": "Thanh xuyên táo D16",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.12,
+    "M112.2601": 0.32
+   },
+   "labor": 7.67
+  },
+  {
+   "code": "AI.11912",
+   "name": "Gia công hệ sàn đạo, sàn thao tác",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.6,
+    "M112.2601": 0.4,
+    "M102.0302": 0.27
+   },
+   "labor": 16.96
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng hệ sàn công tác thi công dầm ngang",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ sàn công tác thi công dầm ngang",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AG.11410",
+   "name": "Bê tông tấm bản C16",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095
+   },
+   "labor": 1.93
+  },
+  {
+   "code": "AG.32211",
+   "name": "Ván khuôn tấm bản",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 0.53
+   },
+   "labor": 31.76
+  },
+  {
+   "code": "AG.42115",
+   "name": "Lắp đặt CK BTĐS",
+   "unit": "C.kiện",
+   "machines": {},
+   "labor": 0.13
+  },
+  {
+   "code": "AI.11911",
+   "name": "Sản xuất hệ khung chống thép hình",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng hệ khung chống",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AF.61130",
+   "name": "Thanh xuyên táo D32",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.27,
+    "M112.2601": 0.16
+   },
+   "labor": 5.59
+  },
+  {
+   "code": "AL.15132",
+   "name": "Làm và thả rọ đá, loại rọ 1x1x1m trên cạn",
+   "unit": "rọ",
+   "machines": {},
+   "labor": 1.6
+  },
+  {
+   "code": "AB.64132",
+   "name": "Đắp đất mố nhô",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.211,
+    "M101.0503": 0.105
+   },
+   "labor": 1.05
+  },
+  {
+   "code": "AI.11912",
+   "name": "Sản xuất hệ xe đúc (vật liệu phụ)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.6,
+    "M112.2601": 0.4,
+    "M102.0302": 0.27
+   },
+   "labor": 16.96
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng hệ xe đúc",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ xe đúc",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "TT",
+   "name": "Di chuyển hệ xe đúc lan can (Dự kiến di chuyển 1 lần hết (3h/8h*6 người)*1 xe đúc = 2,25 công, thợ bậc 4,0/7)",
+   "unit": "lần",
+   "machines": {},
+   "labor": 2.25
+  },
+  {
+   "code": "AI.11911",
+   "name": "SX hệ đà giáo thi công (vật liệu phụ)",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp đặt hệ đà giáo thi công",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AG.12210",
+   "name": "Bê tông C45 dầm SPT",
+   "unit": "m³",
+   "machines": {
+    "M112.0801": 0.035,
+    "M112.1301": 0.18,
+    "M112.1201": 0.27,
+    "M102.0606": 0.03
+   },
+   "labor": 2.27
+  },
+  {
+   "code": "AF.52161",
+   "name": "V/c vữa bê tông cự ly 4km đầu",
+   "unit": "100m³",
+   "machines": {
+    "M106.0401": 5.93
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AF.52171",
+   "name": "V/c vữa bê tông cự ly 8,4km cuối",
+   "unit": "100m³",
+   "machines": {
+    "M106.0401": 0.504
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AI.13121",
+   "name": "SX thép tấm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.92,
+    "M112.3703": 1.4,
+    "M112.1501": 1.4
+   },
+   "labor": 20.76
+  },
+  {
+   "code": "AI.64221",
+   "name": "Lắp đặt thép tấm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.16
+   },
+   "labor": 14.2
+  },
+  {
+   "code": "AD.27243",
+   "name": "V/c BTN cự ly 4km đầu",
+   "unit": "100 tấn",
+   "machines": {
+    "M106.0205": 1.89
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AD.27253",
+   "name": "V/c BTN cự ly 6,9km cuối",
+   "unit": "100 tấn",
+   "machines": {
+    "M106.0205": 0.24
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AM.12201",
+   "name": "Bốc xếp CK BTĐS <=500kg lên PTVC",
+   "unit": "cấu kiện",
+   "machines": {
+    "M102.0201": 0.02
+   },
+   "labor": 0.06
+  },
+  {
+   "code": "AM.12202",
+   "name": "Bốc xếp CK BTĐS <=500kg xuống PTVC",
+   "unit": "cấu kiện",
+   "machines": {
+    "M102.0201": 0.016
+   },
+   "labor": 0.05
+  },
+  {
+   "code": "AF.14320",
+   "name": "Bê tông gờ lan can 25MPa, đá 1x2 đổ tại chỗ",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095
+   },
+   "labor": 3.15
+  },
+  {
+   "code": "AF.61521",
+   "name": "Cốt thép gờ lan can D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.133,
+    "M112.2601": 0.32
+   },
+   "labor": 9.24
+  },
+  {
+   "code": "AF.82511",
+   "name": "Ván khuôn thép bt gờ lan can",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 0.82
+   },
+   "labor": 12.25
+  },
+  {
+   "code": "AI.13131",
+   "name": "Thép bản",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.62,
+    "M112.3703": 1.29,
+    "M112.1501": 1.29
+   },
+   "labor": 19.54
+  },
+  {
+   "code": "AI.13121",
+   "name": "Thép bản định vị",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 2.92,
+    "M112.3703": 1.4,
+    "M112.1501": 1.4
+   },
+   "labor": 20.76
+  },
+  {
+   "code": "AF.33210",
+   "name": "Bê tông ụ chống chuyển vị C30, đá 1x2",
+   "unit": "m³",
+   "machines": {
+    "M102.0202": 0.04,
+    "M112.0901": 0.04,
+    "M112.1301": 0.085
+   },
+   "labor": 2.35
+  },
+  {
+   "code": "AF.52161",
+   "name": "V/c bê tông từ trạm trộn cự ly 4km đầu",
+   "unit": "100m³",
+   "machines": {
+    "M106.0401": 5.93
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AF.52171",
+   "name": "V/c bê tông từ trạm trộn cự ly 8,4km cuối",
+   "unit": "100m³",
+   "machines": {
+    "M106.0401": 0.504
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AF.33110",
+   "name": "Bê tông móng mố, thân trụ 30MPa, đá 1x2",
+   "unit": "m³",
+   "machines": {
+    "M102.0202": 0.033,
+    "M112.0901": 0.033,
+    "M112.1301": 0.085
+   },
+   "labor": 1.55
+  },
+  {
+   "code": "AF.33210",
+   "name": "Bê tông xà mũ trụ, ụ chống xô 30MPa, đá  1x2",
+   "unit": "m³",
+   "machines": {
+    "M102.0202": 0.04,
+    "M112.0901": 0.04,
+    "M112.1301": 0.085
+   },
+   "labor": 2.35
+  },
+  {
+   "code": "BB.41305",
+   "name": "Ống nhựa PVC D48",
+   "unit": "100m",
+   "machines": {
+    "M112.4301": 0.29
+   },
+   "labor": 8.76
+  },
+  {
+   "code": "AF.35120",
+   "name": "Bê tông cọc khoan nhồi (không sd ov)",
+   "unit": "m³",
+   "machines": {
+    "M102.0203": 0.047,
+    "M112.0901": 0.047
+   },
+   "labor": 0.7
+  },
+  {
+   "code": "AF.35120",
+   "name": "Bê tông cọc khoan nhồi (sd ov)",
+   "unit": "m³",
+   "machines": {
+    "M102.0203": 0.047,
+    "M112.0901": 0.047
+   },
+   "labor": 0.7
+  },
+  {
+   "code": "CE.12820",
+   "name": "Thí nghiệm PDA",
+   "unit": "lần TN/cọc TN",
+   "machines": {
+    "M102.0304": 1.5,
+    "M202.0007": 1.5,
+    "M112.4003": 2.5,
+    "M112.1702": 1.2
+   },
+   "labor": 32.0
+  },
+  {
+   "code": "AL.55120",
+   "name": "Khoan kiểm tra, xử lý đáy cọc, lấy lõi cọc  khoan nhồi",
+   "unit": "cọc",
+   "machines": {
+    "M107.0202": 0.45,
+    "M108.0307": 0.45
+   },
+   "labor": 10.5
+  },
+  {
+   "code": "AC.32130",
+   "name": "Khoan vào đất, D=1200 trên cạn, L<=30m\n(kết cấu sét cứng, chặt vừa đến rất chặt HSx1,2)",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.073,
+    "M102.0304": 0.073
+   },
+   "labor": 1.11
+  },
+  {
+   "code": "AC.32130",
+   "name": "Khoan vào đất, D=1200 trên cạn, L>30m\n(kết cấu sét cứng, chặt vừa đến rất chặt HSx1,2); NC,Mx1,015",
+   "unit": "m",
+   "machines": {
+    "M103.1101": 0.073,
+    "M102.0304": 0.073
+   },
+   "labor": 1.11
+  },
+  {
+   "code": "AC.32343",
+   "name": "Khoan vào đá, D=1200 trên cạn, L>30m\nNC,Mx1,015",
+   "unit": "m",
+   "machines": {
+    "M103.1103": 0.137,
+    "M102.0304": 0.137
+   },
+   "labor": 1.58
+  },
+  {
+   "code": "AB.24141",
+   "name": "Đào xúc đất đổ thải lên phương tiện vận chuyển",
+   "unit": "100m³",
+   "machines": {
+    "M101.0106": 0.152,
+    "M101.0503": 0.018
+   },
+   "labor": 0.34
+  },
+  {
+   "code": "AB.41431",
+   "name": "V/c đất C1 ra bãi thải cự ly 1km đầu",
+   "unit": "100m³",
+   "machines": {
+    "M106.0204": 0.679
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AB.42131",
+   "name": "V/c đất C1 ra bãi thải cự ly 1,2km cuối",
+   "unit": "100m³",
+   "machines": {
+    "M106.0204": 0.256
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AF.35110",
+   "name": "Bê tông cọc khoan nhồi 30MPa, đá 1x2",
+   "unit": "m³",
+   "machines": {
+    "M102.0203": 0.079,
+    "M112.0901": 0.079
+   },
+   "labor": 0.83
+  },
+  {
+   "code": "AB.42134",
+   "name": "V/c đất C4 cự ly 1km cuối",
+   "unit": "100m³",
+   "machines": {
+    "M106.0204": 0.363
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AB.24131",
+   "name": "Đào đất KTH",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.172,
+    "M101.0503": 0.02
+   },
+   "labor": 0.37
+  },
+  {
+   "code": "AB.31133",
+   "name": "Đào hố móng công trình đất C3",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.311,
+    "M101.0503": 0.04
+   },
+   "labor": 4.06
+  },
+  {
+   "code": "AB.65120",
+   "name": "Đắp trả K90",
+   "unit": "100m³",
+   "machines": {
+    "M101.0803": 3.845
+   },
+   "labor": 6.19
+  },
+  {
+   "code": "AB.64134",
+   "name": "Đắp K98",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.367,
+    "M101.0503": 0.183
+   },
+   "labor": 1.44
+  },
+  {
+   "code": "AF.12110",
+   "name": "Bê tông tường 15MPa",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1301": 0.18
+   },
+   "labor": 2.49
+  },
+  {
+   "code": "AF.11310",
+   "name": "Bê tông chân khay C16, đá 1x2",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1101": 0.089
+   },
+   "labor": 1.19
+  },
+  {
+   "code": "AF.11110",
+   "name": "Bê tông lót móng C10, đá 4x6 đổ tại chỗ",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1101": 0.089
+   },
+   "labor": 1.07
+  },
+  {
+   "code": "AL.16121",
+   "name": "Vải địa kỹ thuật",
+   "unit": "100m²",
+   "machines": {},
+   "labor": 1.18
+  },
+  {
+   "code": "AD.11232",
+   "name": "Cấp phối đá dăm loại 2",
+   "unit": "100m³",
+   "machines": {
+    "M105.0401": 0.21,
+    "M101.1002": 0.626,
+    "M101.0902": 0.12,
+    "M101.1103": 0.26,
+    "M106.0502": 0.21
+   },
+   "labor": 2.87
+  },
+  {
+   "code": "AB.24133",
+   "name": "Đào xúc đất bằng máy đào 1,25m3",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.229,
+    "M101.0503": 0.031
+   },
+   "labor": 0.58
+  },
+  {
+   "code": "AB.64132",
+   "name": "Đắp đất tạo mặt bằng",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.211,
+    "M101.0503": 0.105
+   },
+   "labor": 1.05
+  },
+  {
+   "code": "AB.31131",
+   "name": "Đào đất đường công vụ",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.228,
+    "M101.0503": 0.027
+   },
+   "labor": 2.74
+  },
+  {
+   "code": "AB.64132",
+   "name": "Đắp đất đường công vụ",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.211,
+    "M101.0503": 0.105
+   },
+   "labor": 1.05
+  },
+  {
+   "code": "AB.42134",
+   "name": "V/c đất C4 cự ly 1,2km cuối",
+   "unit": "100m³/km",
+   "machines": {
+    "M106.0204": 0.363
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AG.11110",
+   "name": "Bê tông C25",
+   "unit": "m³",
+   "machines": {
+    "M104.0102": 0.095,
+    "M112.1301": 0.18
+   },
+   "labor": 1.37
+  },
+  {
+   "code": "AG.32211",
+   "name": "Ván khuông thép",
+   "unit": "100m²",
+   "machines": {
+    "M112.4003": 0.53
+   },
+   "labor": 31.76
+  },
+  {
+   "code": "AB.42134",
+   "name": "V/c đất C4 cự ly 1,2km cuối",
+   "unit": "100m³",
+   "machines": {
+    "M106.0204": 0.363
+   },
+   "labor": 0.0
+  },
+  {
+   "code": "AD.11212",
+   "name": "Cấp phối đá dăm lớp dưới",
+   "unit": "100m³",
+   "machines": {
+    "M105.0401": 0.21,
+    "M101.1006": 0.32,
+    "M101.0902": 0.12,
+    "M101.1103": 0.26,
+    "M106.0502": 0.21
+   },
+   "labor": 3.12
+  },
+  {
+   "code": "AI.11911",
+   "name": "Gia công hệ khung dàn",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 4.25,
+    "M112.2601": 0.4,
+    "M102.0302": 0.4
+   },
+   "labor": 19.88
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng hệ sàn đạo, sàn công tác",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ sàn đạo, sàn công tác",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AF.61120",
+   "name": "Cốt thép D<=18mm",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.12,
+    "M112.2601": 0.32
+   },
+   "labor": 7.67
+  },
+  {
+   "code": "AB.21133",
+   "name": "Đào san ủi mặt bằng",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.254,
+    "M101.0503": 0.033
+   },
+   "labor": 0.62
+  },
+  {
+   "code": "AB.25123",
+   "name": "Đào hố móng C3",
+   "unit": "100m³",
+   "machines": {
+    "M101.0105": 0.321
+   },
+   "labor": 4.41
+  },
+  {
+   "code": "AB.64132",
+   "name": "Đắp trả K90",
+   "unit": "100m³",
+   "machines": {
+    "M101.1106": 0.211,
+    "M101.0503": 0.105
+   },
+   "labor": 1.05
+  },
+  {
+   "code": "AI.12111",
+   "name": "Ống vách để lại",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 3.2,
+    "M112.3001": 0.5,
+    "M102.0202": 0.27
+   },
+   "labor": 14.8
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ hệ đào giáo thi công",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AI.63311",
+   "name": "Lắp dựng kết cấu thép hệ khung dàn, sàn đạo trên cạn",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.27,
+    "M112.4003": 3.0
+   },
+   "labor": 9.5
+  },
+  {
+   "code": "AI.63411",
+   "name": "Tháo dỡ sàn công tác",
+   "unit": "tấn",
+   "machines": {
+    "M102.0202": 0.16
+   },
+   "labor": 5.7
+  },
+  {
+   "code": "AG.53320",
+   "name": "Nâng hạ dầm từ bãi đúc sang bãi chứa dầm",
+   "unit": "dầm",
+   "machines": {
+    "M102.0309": 0.1
+   },
+   "labor": 0.22
+  },
+  {
+   "code": "AG.52230",
+   "name": "Di chuyển dầm",
+   "unit": "dầm/10m",
+   "machines": {
+    "M102.0703": 0.02
+   },
+   "labor": 0.32
+  },
+  {
+   "code": "AF.61120",
+   "name": "Cốt thép thanh xuyên táo D16",
+   "unit": "tấn",
+   "machines": {
+    "M112.4003": 1.12,
+    "M112.2601": 0.32
+   },
+   "labor": 7.67
+  }
+ ],
+ "machines": {
+  "MSVT": {
+   "name": "LOẠI MÁY, THIẾT BỊ",
+   "fuel_per_ca": null,
+   "fuel": null,
+   "crew": "THÀNH PHẦN CẤP BẬC THỢ ĐIỀU KHIỂN MÁY"
+  },
+  "M112.2902": {
+   "name": "Búa căn khí nén (chưa tính khí nén), tiêu hao khí nén 3,0 m3/ph",
+   "fuel_per_ca": 0.0,
+   "fuel": null,
+   "crew": null
+  },
+  "M102.0302": {
+   "name": "Cần cẩu bánh xích - sức nâng 10 T",
+   "fuel_per_ca": 36.0,
+   "fuel": "diezel",
+   "crew": "1x4/7+1x5/7"
+  },
+  "M102.0202": {
+   "name": "Cần cẩu bánh hơi - sức nâng 16 T",
+   "fuel_per_ca": 33.0,
+   "fuel": "diezel",
+   "crew": "1x4/7+1x6/7"
+  },
+  "M102.0203": {
+   "name": "Cần cẩu bánh hơi - sức nâng 25T",
+   "fuel_per_ca": 36.0,
+   "fuel": "diezel",
+   "crew": "1x4/7+1x6/7"
+  },
+  "M102.0304": {
+   "name": "Cần cẩu bánh xích - sức nâng 25 T",
+   "fuel_per_ca": 47.0,
+   "fuel": "diezel",
+   "crew": "1x4/7+1x6/7"
+  },
+  "M102.0201": {
+   "name": "Cần cẩu bánh hơi - sức nâng 6 T",
+   "fuel_per_ca": 25.0,
+   "fuel": "diezel",
+   "crew": "1x4/7+1x6/7"
+  },
+  "M102.0501": {
+   "name": "Cần cẩu nổi, kéo theo - sức nâng 30 T",
+   "fuel_per_ca": 81.0,
+   "fuel": "diezel",
+   "crew": "1 thuyền phó 1/2+3 thợ máy (2x2/4 + 1x3/4) +1 thợ điện 2/4 + 1 thủy thủ 2/4"
+  },
+  "M102.0303": {
+   "name": "Cần cẩu bánh xích - sức nâng 16 T",
+   "fuel_per_ca": 45.0,
+   "fuel": "diezel",
+   "crew": "1x4/7+1x5/7"
+  },
+  "M102.0406": {
+   "name": "Cần trục tháp - sức nâng 25 T",
+   "fuel_per_ca": 120.0,
+   "fuel": "kwh",
+   "crew": "1x3/7+1x6/7"
+  },
+  "M102.0701": {
+   "name": "Cẩu lao dầm, cẩu K33-60",
+   "fuel_per_ca": 233.0,
+   "fuel": "kwh",
+   "crew": "1x3/7+4x4/7+1x6/7"
+  },
+  "M109.0507": {
+   "name": "Ca nô, công suất 150 CV",
+   "fuel_per_ca": 23.0,
+   "fuel": "diezel",
+   "crew": "1 thuyền trưởng 1/2 + 1 máy I 1/2 +1 thủy thủ 2/4"
+  },
+  "M102.0605": {
+   "name": "Cổng trục - sức nâng 60 T",
+   "fuel_per_ca": 144.0,
+   "fuel": "kwh",
+   "crew": "1x3/7+1x7/7"
+  },
+  "M102.0606": {
+   "name": "Cổng trục - sức nâng 90 T",
+   "fuel_per_ca": 180.0,
+   "fuel": "kwh",
+   "crew": "1x3/7+1x7/7"
+  },
+  "M102.0703": {
+   "name": "Hệ thống xe goong di chuyển dầm (gồm mô tơ điện 3,5 kW và con lăn)",
+   "fuel_per_ca": 16.0,
+   "fuel": "kwh",
+   "crew": "1x4/7"
+  },
+  "M102.1307": {
+   "name": "Kích nâng 250 T",
+   "fuel_per_ca": 0.0,
+   "fuel": null,
+   "crew": "1x4/7"
+  },
+  "M102.1308": {
+   "name": "Kích nâng 500 T",
+   "fuel_per_ca": 0.0,
+   "fuel": null,
+   "crew": "1x4/7"
+  },
+  "M202.0007": {
+   "name": "Bộ thiết bị đo pda (đo biến dạng lớn)",
+   "fuel_per_ca": 0.0,
+   "fuel": null,
+   "crew": null
+  },
+  "M112.0901": {
+   "name": "Máy bơm bê tông, năng suất 40-60 m3/h",
+   "fuel_per_ca": 182.0,
+   "fuel": "kwh",
+   "crew": "1x3/7+1x5/7"
+  },
+  "M103.1702": {
+   "name": "Máy bơm dung dịch - năng suất 200 m3/h",
+   "fuel_per_ca": 50.0,
+   "fuel": "kwh",
+   "crew": "1x4/7"
+  },
+  "M112.0105": {
+   "name": "Máy bơm nước, động cơ điện - công suất 14 kW",
+   "fuel_per_ca": 34.0,
+   "fuel": "kwh",
+   "crew": null
+  },
+  "M112.0106": {
+   "name": "Máy bơm nước, động cơ điện - công suất 20 kW",
+   "fuel_per_ca": 48.0,
+   "fuel": "kwh",
+   "crew": null
+  },
+  "M112.0602": {
+   "name": "Máy bơm vữa, năng suất 9,0m3/h",
+   "fuel_per_ca": 34.0,
+   "fuel": "kwh",
+   "crew": "1x4/7"
+  },
+  "M112.0402": {
+   "name": "Máy bơm xói 4mc (75kW)",
+   "fuel_per_ca": 180.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M112.2202": {
+   "name": "Máy cắt bê tông, công suất 12 cv (MCD 218)",
+   "fuel_per_ca": 8.0,
+   "fuel": "xăng",
+   "crew": "1x3/7"
+  },
+  "M112.1901": {
+   "name": "Máy cắt cáp, công suất 10,0 kW",
+   "fuel_per_ca": 13.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M112.2402": {
+   "name": "Máy cắt tôn, công suất 15,0 kW",
+   "fuel_per_ca": 27.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M112.2601": {
+   "name": "Máy cắt uốn cốt thép, công suất 5,0 kW",
+   "fuel_per_ca": 9.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M112.3202": {
+   "name": "Máy cưa kim loại, công suất 2,7 kW",
+   "fuel_per_ca": 6.0,
+   "fuel": "kwh",
+   "crew": null
+  },
+  "M112.1101": {
+   "name": "Máy đầm bê tông, đầm bàn, công suất 1,0 kW",
+   "fuel_per_ca": 5.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M112.1201": {
+   "name": "Máy đầm bê tông, đầm cạnh, công suất 1,0 kW",
+   "fuel_per_ca": 5.0,
+   "fuel": "kwh",
+   "crew": null
+  },
+  "M101.0803": {
+   "name": "Máy đầm đất cầm tay - trọng lượng 70 kg",
+   "fuel_per_ca": 4.0,
+   "fuel": "xăng",
+   "crew": "1x3/7"
+  },
+  "M112.1301": {
+   "name": "Máy đầm bê tông, đầm dùi, công suất 1,5 kW",
+   "fuel_per_ca": 7.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M101.0102": {
+   "name": "Máy đào một gàu, bánh xích - dung tích gầu 0,50 m3",
+   "fuel_per_ca": 51.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M101.0105": {
+   "name": "Máy đào một gàu, bánh xích - dung tích gầu 1,25 m3",
+   "fuel_per_ca": 83.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M101.0106": {
+   "name": "Máy đào một gàu, bánh xích - dung tích gầu 1,60 m3",
+   "fuel_per_ca": 113.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M103.0201": {
+   "name": "Máy đóng cọc chạy trên ray -trọng lượng đầu búa 1,2 T",
+   "fuel_per_ca": null,
+   "fuel": "diezel",
+   "crew": "1x5/7"
+  },
+  "M103.0901": {
+   "name": "Máy ép thuỷ lực (KGK-130C4) - lực ép 130T",
+   "fuel_per_ca": 138.0,
+   "fuel": "kwh",
+   "crew": "1x4/7"
+  },
+  "M112.4003": {
+   "name": "Máy hàn xoay chiều công suất 23,0 kW",
+   "fuel_per_ca": 48.0,
+   "fuel": "kwh",
+   "crew": "1x4/7"
+  },
+  "M112.4301": {
+   "name": "Máy hàn nhiệt cầm tay",
+   "fuel_per_ca": 6.0,
+   "fuel": "kwh",
+   "crew": null
+  },
+  "M112.1501": {
+   "name": "Máy khoan đứng, công suất 2,5 kW",
+   "fuel_per_ca": 5.0,
+   "fuel": "kwh",
+   "crew": null
+  },
+  "M112.1702": {
+   "name": "Máy khoan bê tông cầm tay, công suất 0,75 kW",
+   "fuel_per_ca": 1.1,
+   "fuel": "kwh",
+   "crew": null
+  },
+  "M103.1101": {
+   "name": "Máy khoan xoay 80kNm÷125kNm",
+   "fuel_per_ca": 52.0,
+   "fuel": "diezel",
+   "crew": "1x6/7"
+  },
+  "M103.1103": {
+   "name": "Máy khoan xoay >200kNm÷300kNm",
+   "fuel_per_ca": 96.0,
+   "fuel": "diezel",
+   "crew": "1x6/7"
+  },
+  "M201.0002": {
+   "name": "Máy khoan XY-1A",
+   "fuel_per_ca": 0.0,
+   "fuel": null,
+   "crew": null
+  },
+  "M112.1502": {
+   "name": "Máy khoan đứng, công suất 4,5 kW",
+   "fuel_per_ca": 9.0,
+   "fuel": "kwh",
+   "crew": null
+  },
+  "M107.0202": {
+   "name": "Máy khoan xoay đập tự hành, khí nén (chưa tính khí nén)-đường kính khoan d 105 -110mm",
+   "fuel_per_ca": 0.0,
+   "fuel": null,
+   "crew": "1x3/7+1x4/7"
+  },
+  "M112.3101": {
+   "name": "Máy lốc tôn, công suất 5,0 kW",
+   "fuel_per_ca": 10.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M101.0902": {
+   "name": "Máy lu bánh hơi tự hành - trọng lượng tĩnh 16,0 T",
+   "fuel_per_ca": 38.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M101.1103": {
+   "name": "Máy lu bánh thép tự hành - trọng lượng tĩnh 10 T",
+   "fuel_per_ca": 26.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M101.1106": {
+   "name": "Máy lu bánh thép tự hành - trọng lượng tĩnh 25 T",
+   "fuel_per_ca": 47.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M101.1006": {
+   "name": "Máy lu rung tự hành - trọng lượng tĩnh 25 T",
+   "fuel_per_ca": 67.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M101.1002": {
+   "name": "Máy lu rung tự hành - trọng lượng tĩnh 12 T",
+   "fuel_per_ca": 27.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M112.3703": {
+   "name": "Máy mài, công suất 2,7 kW",
+   "fuel_per_ca": 4.0,
+   "fuel": "kwh",
+   "crew": null
+  },
+  "M108.0303": {
+   "name": "Máy nén khí, động cơ điezen, năng suất 360,0m3/h",
+   "fuel_per_ca": 35.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M108.0306": {
+   "name": "Máy nén khí, động cơ điezen, năng suất 600,0m3/h",
+   "fuel_per_ca": 47.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M108.0308": {
+   "name": "Máy nén khí, động cơ điezen, năng suất 1200,0m3/h",
+   "fuel_per_ca": 75.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M108.0307": {
+   "name": "Máy nén khí, động cơ điezen, năng suất 660,0m3/h",
+   "fuel_per_ca": 50.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M101.0503": {
+   "name": "Máy ủi - công suất 110,0 CV",
+   "fuel_per_ca": 46.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M105.0101": {
+   "name": "Máy phun nhựa đường - công suất 190 cv",
+   "fuel_per_ca": 57.0,
+   "fuel": "diezel",
+   "crew": "1x1/4 + 1x3/4 lái xe"
+  },
+  "M105.0203": {
+   "name": "Máy rải hỗn hợp bê tông nhựa - năng suất 130 cv đến 140 cv",
+   "fuel_per_ca": 63.0,
+   "fuel": "diezel",
+   "crew": "1x3/7+1x5/7"
+  },
+  "M105.0401": {
+   "name": "Máy rải cấp phối đá dăm - năng suất 50m3/h - 60m3/h",
+   "fuel_per_ca": 30.0,
+   "fuel": "diezel",
+   "crew": "1x3/7+1x5/7"
+  },
+  "M103.1601": {
+   "name": "Máy sàng lọc - năng suất 100 m3/h",
+   "fuel_per_ca": 21.0,
+   "fuel": "kwh",
+   "crew": "1x4/7"
+  },
+  "M104.0102": {
+   "name": "Máy trộn bê tông - dung tích 250 lít",
+   "fuel_per_ca": 11.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M103.1501": {
+   "name": "Máy trộn dung dịch - dung tích 750 lít",
+   "fuel_per_ca": 13.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M104.0202": {
+   "name": "Máy trộn vữa - dung tích 150 lít",
+   "fuel_per_ca": 8.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M104.0201": {
+   "name": "Máy trộn vữa - dung tích 80 lít",
+   "fuel_per_ca": 5.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M112.3001": {
+   "name": "Máy uốn ống, công suất 2,0 - 2,8 kW",
+   "fuel_per_ca": 5.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M101.0403": {
+   "name": "Máy xúc lật - dung tích gầu 1,25 m3",
+   "fuel_per_ca": 47.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M101.0406": {
+   "name": "Máy xúc lật - dung tích gầu 3,2 m3",
+   "fuel_per_ca": 134.0,
+   "fuel": "diezel",
+   "crew": "1x4/7"
+  },
+  "M106.0401": {
+   "name": "Ô tô chuyển trộn bê tông, dung tích thùng trộn 6,0 m3",
+   "fuel_per_ca": 43.0,
+   "fuel": "diezel",
+   "crew": "1x1/4 + 1x3/4 lái xe"
+  },
+  "M106.0502": {
+   "name": "Ô tô tưới nước, dung tích 5,0 m3",
+   "fuel_per_ca": 23.0,
+   "fuel": "diezel",
+   "crew": "1x3/4 lái xe"
+  },
+  "M106.0204": {
+   "name": "Ô tô tự đổ, trọng tải 10,0 T",
+   "fuel_per_ca": 57.0,
+   "fuel": "diezel",
+   "crew": "1x2/4 lái xe"
+  },
+  "M106.0205": {
+   "name": "Ô tô tự đổ, trọng tải 12,0 T",
+   "fuel_per_ca": 65.0,
+   "fuel": "diezel",
+   "crew": "1x3/4 lái xe"
+  },
+  "M106.0108": {
+   "name": "Ô tô vận tải thùng, trọng tải 12,0 T",
+   "fuel_per_ca": 41.0,
+   "fuel": "diezel",
+   "crew": "1x3/4 lái xe"
+  },
+  "M109.0102": {
+   "name": "Sà lan - trọng tải 200 T",
+   "fuel_per_ca": 0.0,
+   "fuel": null,
+   "crew": null
+  },
+  "M109.0104": {
+   "name": "Sà lan - trọng tải 400 T",
+   "fuel_per_ca": 0.0,
+   "fuel": null,
+   "crew": null
+  },
+  "M103.0501": {
+   "name": "Tàu đóng cọc - trọng lượng đầu búa 1,2 T",
+   "fuel_per_ca": 37.0,
+   "fuel": "diezel",
+   "crew": "1 thuyền phó 1/2 + 3 thợ máy (2x2/4+1x3/4) + 1 thợ điện 2/4 + 1 thủy thủ 2/4"
+  },
+  "M109.0702": {
+   "name": "Tàu kéo và phục vụ thi công thuỷ (làm neo, cấp dầu,...) - công suất 150 CV",
+   "fuel_per_ca": 95.0,
+   "fuel": "diezel",
+   "crew": "1 thuyền trưởng 2/2 + 1 thuyền phó 1/2 + 1 máy I 1/2 + 2 thợ máy (1x3/4 + 1x2/4) + 2 thuỷ thủ (1x2/4 + 1x3/4)"
+  },
+  "M102.0702": {
+   "name": "Thiết bị nâng hạ dầm 90T",
+   "fuel_per_ca": 232.0,
+   "fuel": "kwh",
+   "crew": "1x3/7+2x4/7+1x6/7"
+  },
+  "M202.0008": {
+   "name": "Bộ thiết bị siêu âm",
+   "fuel_per_ca": 0.0,
+   "fuel": null,
+   "crew": null
+  },
+  "M102.1107": {
+   "name": "Tời điện - sức kéo 5,0T",
+   "fuel_per_ca": 14.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M104.0805": {
+   "name": "Trạm trộn bê tông asphan - năng suất 120 t/h",
+   "fuel_per_ca": 714.0,
+   "fuel": "kwh",
+   "crew": "2x4/7+2x5/7+1x6/7"
+  },
+  "M104.0408a": {
+   "name": "Trạm trộn công suất ≤120m3/h",
+   "fuel_per_ca": 446.0,
+   "fuel": "kwh",
+   "crew": "2x3/7+1x5/7"
+  },
+  "M102.1001": {
+   "name": "Máy vận thăng lồng - sức nâng 3,0 T",
+   "fuel_per_ca": 47.0,
+   "fuel": "kwh",
+   "crew": "1x3/7"
+  },
+  "M112.0801": {
+   "name": "Xe bơm bê tông tự hành, năng suất 50m3/h",
+   "fuel_per_ca": 53.0,
+   "fuel": "diezel",
+   "crew": "1x1/4 + 1x3/4 lái xe"
+  },
+  "M102.0309": {
+   "name": "Cần cẩu bánh xích - sức nâng 63 T ÷ 65 T",
+   "fuel_per_ca": 56.0,
+   "fuel": "diezel",
+   "crew": "1x4/7+1x6/7"
+  },
+  "M112.1701": {
+   "name": "Máy khoan bê tông 0,62kW",
+   "fuel_per_ca": null,
+   "fuel": null,
+   "crew": null
+  }
+ }
+}

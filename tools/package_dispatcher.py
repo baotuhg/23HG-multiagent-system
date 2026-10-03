@@ -294,6 +294,8 @@ def sanitize_workbook_formulas(wb: openpyxl.Workbook, eval_cache: Dict[str, Dict
                             if 0 <= c_idx < len(row_vals):
                                 eval_val = row_vals[c_idx]
                                 if eval_val is not None:
+                                    if isinstance(eval_val, datetime.datetime) and eval_val.tzinfo is not None:
+                                        eval_val = eval_val.replace(tzinfo=None)
                                     cell.value = eval_val
                                     sanitized_cells_count += 1
     return sanitized_cells_count
@@ -988,11 +990,21 @@ class AECPackageDispatcher:
         # 4.1. Gói A: Chuẩn hóa bắt buộc 5 sheets Vincons / 23HG System
         file_camay_name = f"TDTC_CaXe_CaMay_DauDiezel_{project_name.replace(' ', '_')}.xlsx"
         path_camay = os.path.join(pkg_dirs["A"], file_camay_name)
-        build_vincons_5_sheets_fleet_workbook(
-            dest_path=path_camay,
-            project_name=project_name,
-            master_template_path=companion.get("fleet_template")
-        )
+        # Chỉ xuất Gói A khi có dữ liệu ca máy THẬT của dự án (fleet_template).
+        # Trước đây thiếu dữ liệu thì dựng mẫu cầu cứng (khoan cọc nhồi, Bauer, ngày 01/10/2026) — sai với dự án không phải cầu.
+        if companion.get("fleet_template") and os.path.exists(companion["fleet_template"]):
+            build_vincons_5_sheets_fleet_workbook(
+                dest_path=path_camay,
+                project_name=project_name,
+                master_template_path=companion.get("fleet_template")
+            )
+        else:
+            with open(os.path.join(pkg_dirs["A"], "CHUA_CO_DU_LIEU_CA_MAY.md"), "w", encoding="utf-8") as fh:
+                fh.write(f"# Gói A chưa có dữ liệu — {project_name}\n\n"
+                         "Chưa có danh sách ca máy / thiết bị / dầu diesel THẬT của dự án này, nên hệ thống "
+                         "KHÔNG dựng bảng mẫu (tránh lẫn máy móc của dự án khác, ví dụ máy khoan cọc nhồi của cầu).\n"
+                         "Cung cấp tệp ca máy (5 sheet chuẩn) qua companion `fleet_template` rồi xuất lại.\n")
+
         # XML MS Project cho Gói A
         if companion.get("fleet_xml") and os.path.exists(companion["fleet_xml"]):
             shutil.copyfile(companion["fleet_xml"], os.path.join(pkg_dirs["A"], os.path.basename(companion["fleet_xml"])))

@@ -1,0 +1,68 @@
+{
+  "project_name": "Cong Hop A5",
+  "timestamp": "2026-10-03T17:27:32.732797",
+  "framework": "23HG-AEC-MultiAgent-System v3.0",
+  "author": "Nguyen Bao Tu (@baotuhg)",
+  "standards": [
+    "Luat XD 135/2025",
+    "ND 207/2026",
+    "ND 254/2025",
+    "TT 36/2026",
+    "Vincons Fleet Standards"
+  ],
+  "tiers": {
+    "TIER_01_MACRO_MASTER": 4,
+    "TIER_02_MICRO_DOSSIERS": 12,
+    "TIER_03_HUB_AND_SPOKE": {
+      "A": 1,
+      "B": 2,
+      "C": 5,
+      "D": 4,
+      "E": 4
+    }
+  },
+  "total_files": 35,
+  "checksums_md5": {
+    "BO_HO_SO_01_MACRO_MASTER_14_SHEET\\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx": "4835d65d053b68767c4b74f7ded80c1d",
+    "BO_HO_SO_01_MACRO_MASTER_14_SHEET\\BAO_CAO_THAM_TRA_AEC_AUDIT.md": "3eb91bef69c67b153dfcad69f8e2a0a7",
+    "BO_HO_SO_01_MACRO_MASTER_14_SHEET\\CaMay_SuyLuan.xlsx": "1614b5bee20fa0796a931962f29ab1b5",
+    "BO_HO_SO_01_MACRO_MASTER_14_SHEET\\Master_Cong_Hop_A5.xlsx": "cfacaface9a6ac92217032c4c4e972ec",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\01_Phieu_Cat_Thep_Xuong_CNC.csv": "f779e67b2ea9462b33772d46f7a45085",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\03_QS_Dien_Giai_Chi_Tiet_Takeoff.xlsx": "2c265a7ba6af9742757b2ef132a93f96",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\04_Thong_Ke_Thep_Chi_Tiet_BBS.xlsx": "bb95bfbd81da8ebb5da130755263ce5a",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\05_Cap_Phoi_1m3_Va_Tan_Suat_Thi_Nghiem.xlsx": "dbc07bae4c729d26bc6c61dea5234894",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\06_Phan_Tich_Vat_Tu_Chi_Tiet_WBS.xlsx": "d83a1f668c53b8164ea0a3e1051d42c1",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\08_Du_Toan_GXD_Thong_Tu_36_2026.xlsx": "d83a1f668c53b8164ea0a3e1051d42c1",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx": "d83a1f668c53b8164ea0a3e1051d42c1",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\10_Tien_Do_Thi_Cong_CPM_Gantt_Chart.xlsx": "6bd5b52c65921743299d566d00937a7b",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\11_Danh_Muc_KCS_22_Bien_Ban_Nghiem_Thu.xlsx": "ff31c712dce4616fd58756381680f267",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\12_Mau_A4_Bien_Ban_Nghiem_Thu_Cong_Viec.xlsx": "c9ac674ddab0fd41b7de8b0a6aa34de3",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\13_Mau_A4_Bien_Ban_Nghiem_Thu_Vat_Lieu.xlsx": "c9ac674ddab0fd41b7de8b0a6aa34de3",
+    "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\\14_Mau_A4_Bien_Ban_Lay_Mau_Thi_Nghiem_R7_R28.xlsx": "c9ac674ddab0fd41b7de8b0a6aa34de3",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\BANG_PHAN_QUYEN_VA_BIEN_BAN_BAN_GIAO_5_GOI_VE_TINH.md": "754211d9218d1f4785082992760eb83e",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\BANG_PHAN_QUYEN_VA_BIEN_BAN_BAN_GIAO_5_GOI_VE_TINH.xlsx": "854b06dae9d3d0c788cbdfb9efef0dab",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\DISPATCH_MANIFEST.json": "62ee6f35dcfa231a458d980705471840",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_A_CO_GIOI_VA_DAU_DIEZEL\\TDTC_CaXe_CaMay_DauDiezel_Cong_Hop_A5.xlsx": "4835d65d053b68767c4b74f7ded80c1d",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_B_XUONG_TIEN_CHE_COT_THEP\\01_Phieu_Cat_Thep_Xuong_CNC.csv": "f779e67b2ea9462b33772d46f7a45085",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_B_XUONG_TIEN_CHE_COT_THEP\\04_Thong_Ke_Thep_Chi_Tiet_BBS.xlsx": "bb95bfbd81da8ebb5da130755263ce5a",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_C_HIEN_TRUONG_QLCL_KCS\\05_Cap_Phoi_1m3_Va_Tan_Suat_Thi_Nghiem.xlsx": "dbc07bae4c729d26bc6c61dea5234894",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_C_HIEN_TRUONG_QLCL_KCS\\11_Danh_Muc_KCS_22_Bien_Ban_Nghiem_Thu.xlsx": "ff31c712dce4616fd58756381680f267",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_C_HIEN_TRUONG_QLCL_KCS\\12_Mau_A4_Bien_Ban_Nghiem_Thu_Cong_Viec.xlsx": "c9ac674ddab0fd41b7de8b0a6aa34de3",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_C_HIEN_TRUONG_QLCL_KCS\\13_Mau_A4_Bien_Ban_Nghiem_Thu_Vat_Lieu.xlsx": "c9ac674ddab0fd41b7de8b0a6aa34de3",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_C_HIEN_TRUONG_QLCL_KCS\\14_Mau_A4_Bien_Ban_Lay_Mau_Thi_Nghiem_R7_R28.xlsx": "c9ac674ddab0fd41b7de8b0a6aa34de3",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_D_QS_DU_TOAN_THANH_TOAN\\03_QS_Dien_Giai_Chi_Tiet_Takeoff.xlsx": "2c265a7ba6af9742757b2ef132a93f96",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_D_QS_DU_TOAN_THANH_TOAN\\06_Phan_Tich_Vat_Tu_Chi_Tiet_WBS.xlsx": "d83a1f668c53b8164ea0a3e1051d42c1",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_D_QS_DU_TOAN_THANH_TOAN\\08_Du_Toan_GXD_Thong_Tu_36_2026.xlsx": "d83a1f668c53b8164ea0a3e1051d42c1",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_D_QS_DU_TOAN_THANH_TOAN\\09_Thanh_Toan_Khoi_Luong_Phu_Luc_03a.xlsx": "d83a1f668c53b8164ea0a3e1051d42c1",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_E_EXECUTIVE_DASHBOARD\\260920_TDTC_CaXe_CaMay_Cong_Hop_Tuyen_A5.xlsx": "4835d65d053b68767c4b74f7ded80c1d",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_E_EXECUTIVE_DASHBOARD\\BAO_CAO_THAM_TRA_AEC_AUDIT.md": "3eb91bef69c67b153dfcad69f8e2a0a7",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_E_EXECUTIVE_DASHBOARD\\CaMay_SuyLuan.xlsx": "1614b5bee20fa0796a931962f29ab1b5",
+    "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\\GOI_E_EXECUTIVE_DASHBOARD\\Master_Cong_Hop_A5.xlsx": "cfacaface9a6ac92217032c4c4e972ec"
+  },
+  "skipped_empty_dossiers": [],
+  "quality_gate": {
+    "zero_formula_errors": true,
+    "vincons_fleet_5_sheets": true,
+    "files_audited": 29
+  }
+}

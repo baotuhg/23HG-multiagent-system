@@ -1,0 +1,181 @@
+{
+  "status": "PENDING_APPROVAL",
+  "generated": "2026-10-03T16:27:02",
+  "sources": [
+    {
+      "project": "Cầu Km19+529.080",
+      "file": "260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx",
+      "sha256_16": "821f449a2ba87869"
+    }
+  ],
+  "norms": {
+    "DINH_VI": {
+      "unit": "điểm",
+      "prod_median": 0.5,
+      "prod_min": 0.5,
+      "prod_max": 0.5,
+      "n": 1,
+      "projects": 1,
+      "shifts_per_day": 1,
+      "crew": 6,
+      "machines": {},
+      "confidence": "THẤP (n=1), 1 dự án nguồn",
+      "from": [
+        "Cầu Km19+529.080:WBS 1.1"
+      ]
+    },
+    "DON_MAT_BANG": {
+      "unit": "m2",
+      "prod_median": 2083.3,
+      "prod_min": 2083.3,
+      "prod_max": 2083.3,
+      "n": 1,
+      "projects": 1,
+      "shifts_per_day": 1,
+      "crew": 10,
+      "machines": {
+        "MD": 1,
+        "OT": 1
+      },
+      "confidence": "THẤP (n=1), 1 dự án nguồn",
+      "from": [
+        "Cầu Km19+529.080:WBS 1.2"
+      ]
+    },
+    "DAO_DAP_VAN_CHUYEN": {
+      "unit": "m3",
+      "prod_median": 153.6,
+      "prod_min": 153.6,
+      "prod_max": 153.6,
+      "n": 1,
+      "projects": 1,
+      "shifts_per_day": 1,
+      "crew": 12,
+      "machines": {
+        "MD": 1,
+        "LU": 1,
+        "OT": 1
+      },
+      "confidence": "THẤP (n=1), 1 dự án nguồn",
+      "from": [
+        "Cầu Km19+529.080:WBS 1.3"
+      ]
+    },
+    "DAC_THU_CAU": {
+      "unit": "m",
+      "prod_median": 14.06,
+      "prod_min": 8.57,
+      "prod_max": 16.84,
+      "n": 4,
+      "projects": 1,
+      "shifts_per_day": 2,
+      "crew": 14,
+      "machines": {
+        "MK": 2,
+        "CX": 1
+      },
+      "confidence": "THẤP, 1 dự án nguồn",
+      "from": [
+        "Cầu Km19+529.080:WBS 2.2",
+        "Cầu Km19+529.080:WBS 2.3",
+        "Cầu Km19+529.080:WBS 2.4",
+        "Cầu Km19+529.080:WBS 2.5"
+      ]
+    },
+    "BE_TONG_KET_CAU": {
+      "unit": "m3",
+      "prod_median": 18.675,
+      "prod_min": 10.65,
+      "prod_max": 39.27,
+      "n": 6,
+      "projects": 1,
+      "shifts_per_day": 2,
+      "crew": 17,
+      "machines": {
+        "BM": 1,
+        "XB": 3
+      },
+      "confidence": "TRUNG BÌNH, 1 dự án nguồn",
+      "from": [
+        "Cầu Km19+529.080:WBS 3.2",
+        "Cầu Km19+529.080:WBS 3.3",
+        "Cầu Km19+529.080:WBS 3.4",
+        "Cầu Km19+529.080:WBS 3.5",
+        "Cầu Km19+529.080:WBS 5.1",
+        "Cầu Km19+529.080:WBS 5.3"
+      ]
+    }
+  },
+  "machines": {
+    "MK": {
+      "name": "Máy khoan cọc nhồi D1200 Bauer BG25",
+      "unit": "máy",
+      "diesel_l_per_ca": 145.0
+    },
+    "CX": {
+      "name": "Cần cẩu bánh xích 50T Kobelco CKE500",
+      "unit": "máy",
+      "diesel_l_per_ca": 62.0
+    },
+    "CL": {
+      "name": "Cần cẩu bánh lốp 25T Kato KR250",
+      "unit": "máy",
+      "diesel_l_per_ca": 48.0
+    },
+    "MD": {
+      "name": "Máy đào bánh xích 1.25m3 Komatsu PC200",
+      "unit": "máy",
+      "diesel_l_per_ca": 68.0
+    },
+    "OT": {
+      "name": "Ô tô tự đổ 15 tấn Howo 371HP",
+      "unit": "xe",
+      "diesel_l_per_ca": 52.0
+    },
+    "XB": {
+      "name": "Xe bồn vận chuyển bê tông 9m3",
+      "unit": "xe",
+      "diesel_l_per_ca": 42.0
+    },
+    "BM": {
+      "name": "Xe bơm bê tông cần 42m Putzmeister",
+      "unit": "xe",
+      "diesel_l_per_ca": 46.0
+    },
+    "MN": {
+      "name": "Máy nén khí 7.5m3/phút Airman PDS265",
+      "unit": "máy",
+      "diesel_l_per_ca": 38.0
+    },
+    "MH": {
+      "name": "Máy phát hàn điện 500A Denyo 500A",
+      "unit": "máy",
+      "diesel_l_per_ca": 28.0
+    },
+    "TT": {
+      "name": "Trạm trộn BTXM 60m3/h Sicoma",
+      "unit": "trạm",
+      "diesel_l_per_ca": 58.0
+    },
+    "GL": {
+      "name": "Giá lao dầm Super-T 78.88T ray P43",
+      "unit": "hệ",
+      "diesel_l_per_ca": 35.0
+    },
+    "LU": {
+      "name": "Máy lu rung 14-25T Hamm 3411",
+      "unit": "máy",
+      "diesel_l_per_ca": 45.0
+    },
+    "XT": {
+      "name": "Xe téc cấp dầu lưu động 9m3",
+      "unit": "xe",
+      "diesel_l_per_ca": 44.0
+    },
+    "MP": {
+      "name": "Máy phát điện 3 pha 250kVA",
+      "unit": "máy",
+      "diesel_l_per_ca": 55.0
+    }
+  }
+}

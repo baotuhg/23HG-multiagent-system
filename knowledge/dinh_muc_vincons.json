@@ -1,0 +1,2298 @@
+{
+ "status": "PENDING_APPROVAL",
+ "generated": "2026-10-03T16:57:05",
+ "source": {
+  "project": "Sân vận động Olympic - Cụm B9 (ĐMGK Vincons)",
+  "file": "media_1791020840571.xlsx",
+  "sha256_16": "a7f6dab758bbdb48",
+  "sheets": [
+   "MHT",
+   "VC",
+   "May"
+  ]
+ },
+ "machines": {
+  "VC.M1": {
+   "name": "Máy xúc PC200 - PC300",
+   "diesel_l_per_ca": 89.60000000000001
+  },
+  "VC.M2": {
+   "name": "Máy xúc - loại PC350-PC450",
+   "diesel_l_per_ca": 106.39999999999999
+  },
+  "VC.M3": {
+   "name": "Máy ủi D3 - D5",
+   "diesel_l_per_ca": 124.0
+  },
+  "VC.M4": {
+   "name": "Máy ủi - Loại CS 230CV",
+   "diesel_l_per_ca": 165.0
+  },
+  "VC.M5": {
+   "name": "Máy lu 12T - 16T",
+   "diesel_l_per_ca": 44.0
+  },
+  "VC.M6": {
+   "name": "Máy san",
+   "diesel_l_per_ca": 69.0
+  },
+  "VC.M7": {
+   "name": "Ô tô VC - loại  18,0m3",
+   "diesel_l_per_ca": 26.0
+  },
+  "VC.M8": {
+   "name": "Máy xúc lốp PC140 - PC150",
+   "diesel_l_per_ca": 64.0
+  },
+  "VC.M9": {
+   "name": "Xe téc",
+   "diesel_l_per_ca": 42.0
+  },
+  "VC.M10": {
+   "name": "Máy khoan xoay 80kNm÷125kNm",
+   "diesel_l_per_ca": null
+  },
+  "VC.M11": {
+   "name": "Cần cẩu 25-50T",
+   "diesel_l_per_ca": null
+  },
+  "VC.M12": {
+   "name": "Máy ép cọc 130-200T",
+   "diesel_l_per_ca": null
+  },
+  "VC.M13": {
+   "name": "Tàu xén thổi 350-500cv",
+   "diesel_l_per_ca": null
+  },
+  "VC.M14": {
+   "name": "Máy xúc - loại PC650-PC750",
+   "diesel_l_per_ca": null
+  },
+  "VC.M15": {
+   "name": "Ô tô VC - loại thùng 23,0m3",
+   "diesel_l_per_ca": 35.0
+  },
+  "VC.M16": {
+   "name": "Tàu xén thổi 500-1000cv",
+   "diesel_l_per_ca": null
+  },
+  "VC.M17": {
+   "name": "Tàu tự hành 1500m3",
+   "diesel_l_per_ca": null
+  },
+  "VC.M18": {
+   "name": "Tầu hút bụng 1200m3",
+   "diesel_l_per_ca": null
+  },
+  "VC.M19": {
+   "name": "Phà bơm 385m3/h",
+   "diesel_l_per_ca": null
+  },
+  "VC.M20": {
+   "name": "Máy xúc PC650",
+   "diesel_l_per_ca": null
+  }
+ },
+ "works": [
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 1,
+   "name": "Đào khuôn đường",
+   "desc": "Đào nền đường, khuôn đường",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 872.0,
+    "VC.M3": 1093.0
+   },
+   "team_prod_per_ca": 872,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 1,
+   "name": "Xáo sới lu K90",
+   "desc": "Xáo xới, lu lèn nền đường đạt độ chặt K90",
+   "unit": "m2",
+   "machine_prod_per_ca": {
+    "VC.M1": 6000.0,
+    "VC.M5": 3980.0
+   },
+   "team_prod_per_ca": 3000,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 2,
+   "name": "Đắp cát K95 lớp 1",
+   "desc": "Đắp cát nền đường độ chặt K95 (Lớp 1)",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M3": 1428.0,
+    "VC.M5": 255.0
+   },
+   "team_prod_per_ca": 255,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 3,
+   "name": "Đắp cát K95 lớp 2",
+   "desc": "Đắp cát nền đường độ chặt K95 (Lớp 2)",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M3": 1428.0,
+    "VC.M5": 255.0
+   },
+   "team_prod_per_ca": 255,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 4,
+   "name": "Đắp cát K98 lớp 1",
+   "desc": "Đắp cát nền đường độ chặt K98 (Lớp 1)",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M3": 2087.0,
+    "VC.M5": 234.0,
+    "VC.M7": 378.0
+   },
+   "team_prod_per_ca": 234,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 5,
+   "name": "Đắp cát K98 lớp 2",
+   "desc": "Đắp cát nền đường độ chặt K98 (Lớp 2)",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M3": 2087.0,
+    "VC.M5": 234.0,
+    "VC.M7": 378.0
+   },
+   "team_prod_per_ca": 234,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 6,
+   "name": "Rải vải địa",
+   "desc": "Trải vải địa kỹ thuật",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 847.4576271186442,
+   "workers_per_ca": 2070
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 7,
+   "name": "CPĐD2 lớp 1",
+   "desc": "Cấp phối đá dăm loại 2, độ chặt K98 (Lớp 1)",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 823.0,
+    "VC.M3": 643.0,
+    "VC.M5": 120.0,
+    "VC.M6": 560.0,
+    "VC.M7": 378.0,
+    "VC.M9": 384.6153846153846
+   },
+   "team_prod_per_ca": 411.5,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 8,
+   "name": "CPĐD2 lớp 2",
+   "desc": "Cấp phối đá dăm loại 2, độ chặt K98 (Lớp 2)",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 823.0,
+    "VC.M3": 643.0,
+    "VC.M5": 120.0,
+    "VC.M6": 560.0,
+    "VC.M7": 378.0,
+    "VC.M9": 384.6153846153846
+   },
+   "team_prod_per_ca": 411.5,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 9,
+   "name": "CPĐD2 lớp 3",
+   "desc": "Cấp phối đá dăm loại 2, độ chặt K98 (Lớp 3)",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 823.0,
+    "VC.M3": 643.0,
+    "VC.M5": 120.0,
+    "VC.M6": 560.0,
+    "VC.M7": 378.0,
+    "VC.M9": 384.6153846153846
+   },
+   "team_prod_per_ca": 411.5,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 10,
+   "name": "CPĐD1 lớp 1",
+   "desc": "Cấp phối đá dăm loại 1, độ chặt K98 (lớp 1)",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 914.0,
+    "VC.M3": 643.0,
+    "VC.M5": 120.0,
+    "VC.M6": 560.0,
+    "VC.M7": 378.0,
+    "VC.M9": 476.1904761904762
+   },
+   "team_prod_per_ca": 457,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 11,
+   "name": "CPĐD1 lớp 2",
+   "desc": "Cấp phối đá dăm loại 1, độ chặt K98 (lớp 2)",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 914.0,
+    "VC.M3": 643.0,
+    "VC.M5": 120.0,
+    "VC.M6": 560.0,
+    "VC.M7": 378.0,
+    "VC.M9": 476.1904761904762
+   },
+   "team_prod_per_ca": 457,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 12,
+   "name": "CPĐD1 lớp 3",
+   "desc": "Cấp phối đá dăm loại 1, độ chặt K98 (lớp 3)",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 914.0,
+    "VC.M3": 643.0,
+    "VC.M5": 120.0,
+    "VC.M6": 560.0,
+    "VC.M7": 378.0,
+    "VC.M9": 476.1904761904762
+   },
+   "team_prod_per_ca": 457,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 13,
+   "name": "Tưới thấm bám",
+   "desc": "Tưới nhựa thấm bám, định mức 1,0kg/m2",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 434.78260869565213,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 14,
+   "name": "Thảm BTN.C19",
+   "desc": "Rải thảm BTN chặt C19 dày 6cm",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 460.82949308755764,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 15,
+   "name": "Đào hố ga",
+   "desc": "Đào móng hố ga",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 313.55
+   },
+   "team_prod_per_ca": 185.18518518518516,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 16,
+   "name": "Đào cống",
+   "desc": "Đào móng cống",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 401.07
+   },
+   "team_prod_per_ca": 185.18518518518516,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 17,
+   "name": "Đắp cống, ga",
+   "desc": "Đắp đất/cát cống + Hố ga",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 372.0
+   },
+   "team_prod_per_ca": 222.22222222222223,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 18,
+   "name": "Lắp cống D300,400",
+   "desc": "Lắp Cống, hố ga TNM, TNT ngang đường D300, D400",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M1": 103.0
+   },
+   "team_prod_per_ca": 51.5,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 19,
+   "name": "Lắp ống PE.D300, D400",
+   "desc": "Lắp đặt HDPE Cống D300, D400 + Hố ga TNT",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M1": 149.0
+   },
+   "team_prod_per_ca": 74.5,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 20,
+   "name": "Lắp cống D600",
+   "desc": "Lắp đặt đế cống + Cống D600 + Hố ga TNM",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M1": 63.0
+   },
+   "team_prod_per_ca": 63,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 21,
+   "name": "Lắp cống D800",
+   "desc": "Lắp đặt đế cống + Cống D800 + Hố ga TNM",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M1": 52.0
+   },
+   "team_prod_per_ca": 52,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 22,
+   "name": "Lắp cống D1000",
+   "desc": "Lắp đặt đế cống + Cống D1000 + Hố ga TNM",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M1": 42.0
+   },
+   "team_prod_per_ca": 42,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 23,
+   "name": "Lắp cống D1200",
+   "desc": "Lắp đặt đế cống + Cống D1200 + Hố ga TNM",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M1": 35.0
+   },
+   "team_prod_per_ca": 35,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 24,
+   "name": "Lắp cống D1500",
+   "desc": "Lắp đặt đế cống + Cống D1500 + Hố ga TNM",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M1": 31.0
+   },
+   "team_prod_per_ca": 31,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 25,
+   "name": "Máy hỗ trợ cẩu lắp",
+   "desc": "Máy Xúc lốp trung chuyển vật tư, đầm mang cống",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M8": 100.0
+   },
+   "team_prod_per_ca": 100,
+   "workers_per_ca": 3
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 26,
+   "name": "Đắp đất mái taluy",
+   "desc": "Đắp đất bao mái taluy",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 936.0
+   },
+   "team_prod_per_ca": 468,
+   "workers_per_ca": 6
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 27,
+   "name": "Đắp đất san lấp MB",
+   "desc": "Đắp đất san lấp mặt bằng",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 797.8723404255318,
+    "VC.M3": 4000.0
+   },
+   "team_prod_per_ca": 398.9361702127659,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 28,
+   "name": "Xúc đất lên xe",
+   "desc": "Bốc xúc cát/đất xỉ lên xe",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 916.0
+   },
+   "team_prod_per_ca": 458,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 29,
+   "name": "Vận chuyển đất <5km",
+   "desc": "Vận chuyển đất đào về đắp, cự ly <5km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 571.4285714285714
+   },
+   "team_prod_per_ca": 1142.857142857143,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 30,
+   "name": "VC đất <5km ôtô 18m3",
+   "desc": "VC đất <5km ôtô 18m3",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 192.0
+   },
+   "team_prod_per_ca": 1142.857142857143,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 31,
+   "name": "Đắp đất K90",
+   "desc": "Đắp đất nền đường bằng máy lu, độ chặt yêu cầu K=0,90",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 916.0,
+    "VC.M3": 833.3333333333334,
+    "VC.M5": 2388.0
+   },
+   "team_prod_per_ca": 916,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 32,
+   "name": "Đào hữu cơ",
+   "desc": "Đào bóc lớp đất yếu, hữu cơ = máy",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 510.2,
+    "VC.M3": 3333.3333333333335
+   },
+   "team_prod_per_ca": 510.2,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 33,
+   "name": "Đào đất cấp 2=máy",
+   "desc": "Đào đất cấp 2 = máy",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 591.0,
+    "VC.M3": 2186.0
+   },
+   "team_prod_per_ca": 370.3703703703703,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 34,
+   "name": "Phát rừng = máy",
+   "desc": "Phát rừng = máy",
+   "unit": "m2",
+   "machine_prod_per_ca": {
+    "VC.M3": 3125.0
+   },
+   "team_prod_per_ca": 1562.5,
+   "workers_per_ca": null
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 35,
+   "name": "Bê tông đúc sẵn",
+   "desc": "Bê tông đúc sẵn",
+   "unit": "m3",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 1.4598540145985401,
+   "workers_per_ca": null
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 36,
+   "name": "Bê tông kè, đường",
+   "desc": "Đổ bê tông mương kè, đường dạo",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M8": 500.0
+   },
+   "team_prod_per_ca": 23.809523809523807,
+   "workers_per_ca": 6
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 37,
+   "name": "Bê tông lót",
+   "desc": "Bê tông lót móng",
+   "unit": "m3",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 9.345794392523365,
+   "workers_per_ca": 6
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 38,
+   "name": "Bê tông dầm sàn",
+   "desc": "Bê tông dầm sàn",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M11": 25.0
+   },
+   "team_prod_per_ca": 6.024096385542169,
+   "workers_per_ca": null
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 39,
+   "name": "Bê tông cột",
+   "desc": "Bê tông cột",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M11": 20.0
+   },
+   "team_prod_per_ca": 5.050505050505051,
+   "workers_per_ca": null
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 40,
+   "name": "Cào đường BTN",
+   "desc": "Cào bóc mặt đường BTN",
+   "unit": "m2",
+   "machine_prod_per_ca": {
+    "VC.M7": 195.3125,
+    "VC.M8": 390.625,
+    "VC.M9": 390.625
+   },
+   "team_prod_per_ca": 30.48780487804878,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 41,
+   "name": "Chuẩn bị thi công",
+   "desc": "Chuẩn bị thi công",
+   "unit": "m3",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 0.2,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 42,
+   "name": "Cốt thép hố ga đúc sẵn",
+   "desc": "Cốt thép hố ga đúc sẵn",
+   "unit": "kg",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 208.62308762169675,
+   "workers_per_ca": null
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 43,
+   "name": "Đào đất cấp 2=TC",
+   "desc": "Đào đất cấp 2 = TC",
+   "unit": "m3",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 1.2195121951219512,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 44,
+   "name": "Đào móng bó vỉa, rãnh",
+   "desc": "Đào móng bó vỉa rãnh đan",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M8": 200.0
+   },
+   "team_prod_per_ca": 12.195121951219512,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 45,
+   "name": "Đắp cát K90",
+   "desc": "Đắp cát nền đường độ chặt K90",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M3": 900.9009009009009,
+    "VC.M5": 448.4304932735426
+   },
+   "team_prod_per_ca": 84.74576271186442,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 46,
+   "name": "Đúc hố ga TN",
+   "desc": "Đúc hố ga thoát nước mưa, thoát nước thải",
+   "unit": "cái",
+   "machine_prod_per_ca": {
+    "VC.M8": 10.0
+   },
+   "team_prod_per_ca": 2.5,
+   "workers_per_ca": 8
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 47,
+   "name": "Gờ chắn bánh",
+   "desc": "Gờ chắn bánh",
+   "unit": "md",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 200,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 48,
+   "name": "Lắp đặt bó vỉa",
+   "desc": "Lắp đặt bó vỉa đá xẻ thô",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M7": 500.0,
+    "VC.M8": 1000.0
+   },
+   "team_prod_per_ca": 50,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 49,
+   "name": "Lắp cấu kiện BT<2,5T",
+   "desc": "Lắp cấu kiện BT<2,5T",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M8": 20.0
+   },
+   "team_prod_per_ca": 4.8076923076923075,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 50,
+   "name": "Lắp nắp hố ga",
+   "desc": "Lắp nắp hố ga",
+   "unit": "cái",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 2.7100271002710024,
+   "workers_per_ca": null
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 51,
+   "name": "Lát gạch vỉa hè",
+   "desc": "Lát gạch vỉa hè gạch xi măng",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 133.33333333333334,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 52,
+   "name": "Phá nền bê tông",
+   "desc": "Phá dỡ nền bê tông bằng búa căn khí nén",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M8": 66.66666666666667
+   },
+   "team_prod_per_ca": 2,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 53,
+   "name": "Rải đá dăm đệm",
+   "desc": "Rải đá dăm đệm",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M8": 150.0
+   },
+   "team_prod_per_ca": 100,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 54,
+   "name": "Đá rối đa sắc đường dạo",
+   "desc": "Đá rối đa sắc đường dạo",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 25,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 55,
+   "name": "San gạt mặt bằng",
+   "desc": "San gạt mặt bằng để trồng cỏ",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 1000,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 56,
+   "name": "Sơn kẻ vạch",
+   "desc": "Sơn kẻ vạch kẻ đường bằng sơn phản quang",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 10,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 57,
+   "name": "Tầng lọc nước kè",
+   "desc": "TC Tầng lọc thoát nước kè",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 200.0,
+    "VC.M8": 250.0
+   },
+   "team_prod_per_ca": 58.139534883720934,
+   "workers_per_ca": 6
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 58,
+   "name": "Thảm BTN C12.5",
+   "desc": "Rải BTN C12.5 (dày 7cm)",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 460.82949308755764,
+   "workers_per_ca": 4
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 59,
+   "name": "Ván khuôn hố ga đúc sẵn",
+   "desc": "Ván khuôn hố ga đúc sẵn",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 9.404388714733543,
+   "workers_per_ca": null
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 60,
+   "name": "Xây đá hộc",
+   "desc": "Xây đá hộc bằng vữa XM M100",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 200.0,
+    "VC.M8": 100.0
+   },
+   "team_prod_per_ca": 0.4854368932038835,
+   "workers_per_ca": 8
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 61,
+   "name": "Bơm cát san lấp MB",
+   "desc": "Bơm cát san lấp MB",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M3": 5000.0
+   },
+   "team_prod_per_ca": 2500,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 62,
+   "name": "Đào đá C3 = máy 1,6m3 + búa",
+   "desc": "Đào đá C3 = máy 1,6m3 + búa",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 50.06257822277847
+   },
+   "team_prod_per_ca": 150.1877346683354,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 63,
+   "name": "Đào đất đá tại mỏ",
+   "desc": "Đào đất đá tại mỏ",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M2": 985.2216748768473,
+    "VC.M3": 3030.30303030303,
+    "VC.M14": 1360.544217687075
+   },
+   "team_prod_per_ca": 250,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 64,
+   "name": "Đào đất=xén thổi 280m3/ca",
+   "desc": "Đào đất=xén thổi 280m3/ca",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M13": 280.0
+   },
+   "team_prod_per_ca": 280,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 65,
+   "name": "Đào nền đường đá C4 = máy 1,6m3",
+   "desc": "Đào nền đường đá C4 = máy 1,6m3",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 138.31258644536652,
+    "VC.M3": 778.2101167315175
+   },
+   "team_prod_per_ca": 138.31258644536652,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 66,
+   "name": "Đào nền đường đá C4 = máy 2,3m3",
+   "desc": "Đào nền đường đá C4 = máy 2,3m3",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M2": 166.66666666666669,
+    "VC.M3": 892.8571428571429
+   },
+   "team_prod_per_ca": 500.00000000000006,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 67,
+   "name": "Đào nền đường đá C4 = máy 4,3m3",
+   "desc": "Đào nền đường đá C4 = máy 4,3m3",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M3": 892.8571428571429,
+    "VC.M14": 375.0
+   },
+   "team_prod_per_ca": 375,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 68,
+   "name": "Đào nền đường đất C3 = máy 1,6m3",
+   "desc": "Đào nền đường đất C3 = máy 1,6m3",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 746.2686567164179,
+    "VC.M3": 2941.176470588235
+   },
+   "team_prod_per_ca": 746.2686567164179,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 69,
+   "name": "Đào nền đường đất C4 = máy 1,6m3",
+   "desc": "Đào nền đường đất C4 = máy 1,6m3",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 514.1388174807198,
+    "VC.M3": 1886.7924528301887
+   },
+   "team_prod_per_ca": 514.1388174807198,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 70,
+   "name": "Đào san đất C2 = máy 1,6m3",
+   "desc": "Đào san đất C2 = máy 1,6m3",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 1063.8297872340424,
+    "VC.M3": 4000.0
+   },
+   "team_prod_per_ca": 1063.8297872340424,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 71,
+   "name": "Đào san đất C3 = máy 1,6m3",
+   "desc": "Đào san đất C3 = máy 1,6m3",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 985.2216748768473,
+    "VC.M3": 3703.703703703704
+   },
+   "team_prod_per_ca": 985.2216748768473,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 72,
+   "name": "Đào san đất C4 = máy 1,6m3",
+   "desc": "Đào san đất C4 = máy 1,6m3",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 619.1950464396284,
+    "VC.M3": 2222.222222222222
+   },
+   "team_prod_per_ca": 619.1950464396284,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 73,
+   "name": "Đào xén thổi",
+   "desc": "Đào đất bằng tàu xén thổi",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M13": 450.0
+   },
+   "team_prod_per_ca": 225,
+   "workers_per_ca": 8
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 74,
+   "name": "Đào xúc đất C2 = máy",
+   "desc": "Đào xúc đất C2 = máy",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 1169.5906432748536,
+    "VC.M3": 4347.826086956522
+   },
+   "team_prod_per_ca": 1169.5906432748536,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 75,
+   "name": "Đào xúc đất C3 = máy",
+   "desc": "Đào xúc đất C3 = máy",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 990.09900990099,
+    "VC.M3": 3703.703703703704
+   },
+   "team_prod_per_ca": 990.09900990099,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 76,
+   "name": "Đào xúc đất C4 = máy",
+   "desc": "Đào xúc đất C4 = máy",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 680.2721088435375,
+    "VC.M3": 2325.5813953488373
+   },
+   "team_prod_per_ca": 680.2721088435375,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 77,
+   "name": "Đào xúc quăng tải cần ngắn",
+   "desc": "Quăng tải cát = máy PC200 cần ngắn",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 936.0
+   },
+   "team_prod_per_ca": 936,
+   "workers_per_ca": null
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 78,
+   "name": "Đào xúc quăng tài cần dài",
+   "desc": "Quăng tải cát = máy PC200 cần dài",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 300.0
+   },
+   "team_prod_per_ca": 300,
+   "workers_per_ca": null
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 79,
+   "name": "Đắp đất  bờ bao",
+   "desc": "Đắp đất bờ bao",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 510.2
+   },
+   "team_prod_per_ca": 510.2,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 80,
+   "name": "Hút cát = xén thổi 250m3/h",
+   "desc": "Đào đất bằng tàu xén thổi",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 4320.0,
+    "VC.M3": 4320.0,
+    "VC.M13": 2160.0
+   },
+   "team_prod_per_ca": 1080,
+   "workers_per_ca": 8
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 81,
+   "name": "Hút cát = xén thổi 385m3/h",
+   "desc": "Đào đất bằng tàu xén thổi",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 6160.0,
+    "VC.M3": 6160.0,
+    "VC.M13": 3080.0
+   },
+   "team_prod_per_ca": 1540,
+   "workers_per_ca": 8
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 82,
+   "name": "Hút cát = xén thổi 650m3/h",
+   "desc": "Đào đất bằng tàu xén thổi",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 10400.0,
+    "VC.M3": 10400.0,
+    "VC.M16": 10400.0
+   },
+   "team_prod_per_ca": 3466.6666666666665,
+   "workers_per_ca": 8
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 83,
+   "name": "Phát quang=Máy đào",
+   "desc": "Phát quang=Máy đào",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M1": 401.07
+   },
+   "team_prod_per_ca": 200.535,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 84,
+   "name": "San gạt cát = máy",
+   "desc": "San gạt cát trắng bằng máy ủi D4",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M3": 300.0
+   },
+   "team_prod_per_ca": 300,
+   "workers_per_ca": null
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 85,
+   "name": "San gạt cát = TC",
+   "desc": "San gạt cát trắng bằng thủ công",
+   "unit": "m3",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 6,
+   "workers_per_ca": 6
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 86,
+   "name": "Vận chuyển đất đá mỏ",
+   "desc": "Vận chuyển đất, đá mỏ về đắp",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 571.4285714285714,
+    "VC.M15": 730.1587301587301
+   },
+   "team_prod_per_ca": 250,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 87,
+   "name": "Vận chuyển đất đá mỏ cự ly 1km",
+   "desc": "Vận chuyển đất đá mỏ cự ly 1km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 2285.714285714286,
+    "VC.M15": 730.1587301587301
+   },
+   "team_prod_per_ca": 250,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 88,
+   "name": "VC cát tàu 1500m3-18km",
+   "desc": "VC cát tàu 1500m3-18km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M19": 3080.0
+   },
+   "team_prod_per_ca": null,
+   "workers_per_ca": 8
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 89,
+   "name": "VC cát tàu 1500m3-30km",
+   "desc": "VC cát tàu 1500m3-30km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M19": 3080.0
+   },
+   "team_prod_per_ca": null,
+   "workers_per_ca": 8
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 90,
+   "name": "VC cát, tàu hút 1200m2-18km",
+   "desc": "VC cát, tàu hút 1200m2-18km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M18": 192.0
+   },
+   "team_prod_per_ca": 96,
+   "workers_per_ca": 8
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 91,
+   "name": "VC cát, tàu hút 1200m2-30km",
+   "desc": "VC cát, tàu hút 1200m2-30km",
+   "unit": "m3",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": null,
+   "workers_per_ca": 8
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 92,
+   "name": "VC đất C2 = ô tô 22T cự ly 10km",
+   "desc": "VC đất C2 = ô tô 22T cự ly 10km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 283.68794326241135
+   },
+   "team_prod_per_ca": 5000,
+   "workers_per_ca": 1
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 93,
+   "name": "VC đất C2 = ô tô 22T cự ly 1km",
+   "desc": "VC đất C2 = ô tô 22T cự ly 1km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 875.27352297593
+   },
+   "team_prod_per_ca": 5000,
+   "workers_per_ca": 1
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 94,
+   "name": "VC đất C2 = ô tô 22T cự ly 5km",
+   "desc": "VC đất C2 = ô tô 22T cự ly 5km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 457.14285714285717
+   },
+   "team_prod_per_ca": 5000,
+   "workers_per_ca": 1
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 95,
+   "name": "VC đất C3 = ô tô 22T cự ly 10km",
+   "desc": "VC đất C3 = ô tô 22T cự ly 10km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 258.06451612903226
+   },
+   "team_prod_per_ca": 5000,
+   "workers_per_ca": 1
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 96,
+   "name": "VC đất C3 = ô tô 22T cự ly 1km",
+   "desc": "VC đất C3 = ô tô 22T cự ly 1km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 723.3273056057866
+   },
+   "team_prod_per_ca": 5000,
+   "workers_per_ca": 1
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 97,
+   "name": "VC đất C3 = ô tô 22T cự ly 5km",
+   "desc": "VC đất C3 = ô tô 22T cự ly 5km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 423.2804232804233
+   },
+   "team_prod_per_ca": 5000,
+   "workers_per_ca": 1
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 98,
+   "name": "VC đất C4 = ô tô 22T cự ly 10km",
+   "desc": "VC đất C4 = ô tô 22T cự ly 10km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 228.57142857142858
+   },
+   "team_prod_per_ca": 5000,
+   "workers_per_ca": 1
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 99,
+   "name": "VC đất C4 = ô tô 22T cự ly 1km",
+   "desc": "VC đất C4 = ô tô 22T cự ly 1km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 681.4310051107326
+   },
+   "team_prod_per_ca": 5000,
+   "workers_per_ca": 1
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 100,
+   "name": "VC đất C4 = ô tô 22T cự ly 5km",
+   "desc": "VC đất C4 = ô tô 22T cự ly 5km",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M7": 370.3703703703704
+   },
+   "team_prod_per_ca": 5000,
+   "workers_per_ca": 1
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 101,
+   "name": "Xúc bentonite = PC650",
+   "desc": "Xúc bentonite = PC650",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M20": 995.3280000000001
+   },
+   "team_prod_per_ca": 995.3280000000001,
+   "workers_per_ca": 8
+  },
+  {
+   "section": "ĐM: Vincons_ĐMGK_02-01 Hạ tầng giao thông",
+   "stt": 102,
+   "name": "Xúc đất đá mỏ lên xe",
+   "desc": "Bốc xúc đất, đá tại mỏ lên xe",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M2": 1487.0,
+    "VC.M14": 2565.0
+   },
+   "team_prod_per_ca": 250,
+   "workers_per_ca": 2
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 1,
+   "name": "Đóng cừ Larsen",
+   "desc": "Đóng cừ Larsen",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M12": 77.22007722007723
+   },
+   "team_prod_per_ca": 150,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 2,
+   "name": "Đóng cọc thép hình",
+   "desc": "Đóng cọc thép hình",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M12": 74.4047619047619
+   },
+   "team_prod_per_ca": 150,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 3,
+   "name": "Lắp thép hình",
+   "desc": "Lắp dựng thép hình, văng chống",
+   "unit": "kg",
+   "machine_prod_per_ca": {
+    "VC.M8": 3030.30303030303,
+    "VC.M11": 2702.702702702703
+   },
+   "team_prod_per_ca": 602.4096385542168,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 4,
+   "name": "Đóng cọc ly tâm 350",
+   "desc": "Đóng cọc ly tâm 350",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M11": 51.54639175257732,
+    "VC.M12": 51.54639175257732
+   },
+   "team_prod_per_ca": 10.219724067450178,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 5,
+   "name": "Lắp lan can thép",
+   "desc": "Lắp lan can thép",
+   "unit": "kg",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 99.17355371900825,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 6,
+   "name": "Khoan cọc D1200",
+   "desc": "Khoan tạo lỗ cọc trên cạn D1200",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M10": 26.315789473684212,
+    "VC.M11": 39.473684210526315
+   },
+   "team_prod_per_ca": 2.586206896551724,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 7,
+   "name": "Khoan cọc D1500",
+   "desc": "Khoan tạo lỗ cọc trên cạn D1500",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M10": 22.471910112359552,
+    "VC.M11": 33.70786516853933
+   },
+   "team_prod_per_ca": 2.3622047244094486,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 8,
+   "name": "Khoan cọc D2000",
+   "desc": "Khoan tạo lỗ cọc trên cạn D2000",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M10": 18.51851851851852,
+    "VC.M11": 27.77777777777778
+   },
+   "team_prod_per_ca": 2,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 9,
+   "name": "Cốt thép cọc KN",
+   "desc": "Gia công lắp dựng cốt thép cọc khoan nhồi",
+   "unit": "kg",
+   "machine_prod_per_ca": {
+    "VC.M11": 15384.615384615385
+   },
+   "team_prod_per_ca": 406.5040650406504,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 10,
+   "name": "Cốt thép mố, trụ cầu",
+   "desc": "Cốt thép mố trụ cầu",
+   "unit": "kg",
+   "machine_prod_per_ca": {
+    "VC.M8": 11111.111111111111
+   },
+   "team_prod_per_ca": 463.821892393321,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 11,
+   "name": "Cốt thép dầm cầu",
+   "desc": "Cốt thép dầm cầu",
+   "unit": "kg",
+   "machine_prod_per_ca": {
+    "VC.M8": 4629.62962962963
+   },
+   "team_prod_per_ca": 386.39876352395675,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 12,
+   "name": "Ván khuôn mố trụ cầu",
+   "desc": "Ván khuôn mố trụ cầu",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 57.142857142857146,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 13,
+   "name": "Ván khuôn dầm cầu",
+   "desc": "Ván khuôn dầm cầu đúc trên cạn",
+   "unit": "m2",
+   "machine_prod_per_ca": {
+    "VC.M8": 909.0909090909092
+   },
+   "team_prod_per_ca": 57.142857142857146,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 14,
+   "name": "Bê tông cọc KN",
+   "desc": "Đổ bê tông cọc khoan nhồi",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M11": 106.38297872340425
+   },
+   "team_prod_per_ca": 18,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 15,
+   "name": "Bê tông mố trụ cầu",
+   "desc": "Bê tông mố trụ cầu",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M8": 44.44444444444444
+   },
+   "team_prod_per_ca": 2.4509803921568625,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 16,
+   "name": "Bê tông dầm cầu",
+   "desc": "Bê tông dầm cầu",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M8": 57.14285714285714
+   },
+   "team_prod_per_ca": 2.2321428571428568,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 17,
+   "name": "Đập BT cọc  KN",
+   "desc": "Đập bê tông đầu cọc khoan nhồi",
+   "unit": "m3",
+   "machine_prod_per_ca": {
+    "VC.M8": 9.090909090909092
+   },
+   "team_prod_per_ca": 1.3888888888888888,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 18,
+   "name": "Tưới dính bám",
+   "desc": "Tưới dính bám",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 200,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 19,
+   "name": "Thảm BTN C19",
+   "desc": "Rải BTN C12.5 (dày 7cm)",
+   "unit": "m2",
+   "machine_prod_per_ca": {
+    "VC.M5": 909.0909090909091
+   },
+   "team_prod_per_ca": 456.62100456621005,
+   "workers_per_ca": 5
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 20,
+   "name": "Bơm lấp cát hố móng",
+   "desc": "Bơm lấp cát hố móng",
+   "unit": "m3",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 50,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 21,
+   "name": "Lao dầm <22m",
+   "desc": "Lao dầm <22m",
+   "unit": "dầm",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 0.07304601899196494,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 22,
+   "name": "Lao dầm <33m",
+   "desc": "Lao dầm <33m",
+   "unit": "dầm",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 0.07304601899196494,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 23,
+   "name": "Lao dầm <40m",
+   "desc": "Lao dầm <40m",
+   "unit": "dầm",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 0.07304601899196494,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 24,
+   "name": "Nhổ cừ Larsen",
+   "desc": "Nhổ cừ Larsen",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M11": 197.62845849802372
+   },
+   "team_prod_per_ca": 47.16981132075472,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 25,
+   "name": "Tháo văng chống",
+   "desc": "Tháo văng chống",
+   "unit": "kg",
+   "machine_prod_per_ca": {
+    "VC.M11": 15384.615384615385
+   },
+   "team_prod_per_ca": 277.0083102493075,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 26,
+   "name": "Thoát nước cầu",
+   "desc": "Thoát nước cầu",
+   "unit": "md",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 50,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 27,
+   "name": "Lắp Lan can thép",
+   "desc": "Lắp Lan can thép",
+   "unit": "kg",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 64.47453255963894,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 28,
+   "name": "Trồng cỏ (dạng tấm)",
+   "desc": "Trồng cỏ (dạng tấm)",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 50,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần CẦU GIAO THÔNG",
+   "stt": 29,
+   "name": "Trồng cây",
+   "desc": "Trồng cây",
+   "unit": "cây",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 5,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN ván khuôn",
+   "desc": "CN cốp pha",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 10,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN cốt thép",
+   "desc": "CN cốt thép",
+   "unit": "kg",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 169,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN giáo ngoài",
+   "desc": "CN giáo ngoài",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 24,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN lanh tô",
+   "desc": "CN lanh tô",
+   "unit": "md",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 3,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN bê tông",
+   "desc": "CN bê tông",
+   "unit": "m3",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 6.2,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN cán nền",
+   "desc": "CN cán nền",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 13,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN xây",
+   "desc": "CN xây",
+   "unit": "m3",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 0.6,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN chống thấm",
+   "desc": "CN chống thấm",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 10,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN trát ngoài",
+   "desc": "CN trát ngoài",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 4,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN thạch cao",
+   "desc": "CN thạch cao",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 10,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN sơn bả",
+   "desc": "CN sơn bả",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 10,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN trát trong",
+   "desc": "CN trát trong",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 6,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN ốp lát",
+   "desc": "CN ốp lát",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 7,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN TC hạ tầng (cống)",
+   "desc": "CN TC hạ tầng (cống)",
+   "unit": "md",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 15,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN bê tông cọc",
+   "desc": "CN bê tông cọc",
+   "unit": "md",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 18,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN khoan neo",
+   "desc": "CN khoan neo",
+   "unit": "md",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 25,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN cây xanh (cây bóng mát)",
+   "desc": "CN cây xanh (cây bóng mát)",
+   "unit": "cây",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 2.5,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN thảm cỏ hoa",
+   "desc": "CN thảm cỏ hoa",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 50,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN cáp DUL",
+   "desc": "CN cáp DUL",
+   "unit": "Kg",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 166,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN ốp lát đá",
+   "desc": "CN ốp lát đá",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 8,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN Bó vỉa đá",
+   "desc": "CN Bó vỉa đá",
+   "unit": "md",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 12,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN phào đúc sẵn",
+   "desc": "CN phào đúc sẵn",
+   "unit": "md",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 6,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN KCT (lan can)",
+   "desc": "CN KCT (lan can)",
+   "unit": "md",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 6,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN KCT (mái sảnh)",
+   "desc": "CN KCT (mái sảnh)",
+   "unit": "Kg",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 100,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN vách ngăn WC",
+   "desc": "CN vách ngăn WC",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 15,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN bọc alu lam nhôm trang trí",
+   "desc": "CN bọc alu lam nhôm trang trí",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 5,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN cửa thép CC",
+   "desc": "CN cửa thép CC",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 5,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN cửa cuốn",
+   "desc": "CN cửa cuốn",
+   "unit": "Bộ",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 0.8,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN cửa công nghiệp",
+   "desc": "CN cửa công nghiệp",
+   "unit": "bộ",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 2.5,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN cửa gỗ",
+   "desc": "CN cửa gỗ",
+   "unit": "bô",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 2,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN sàn gỗ",
+   "desc": "CN sàn gỗ",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 20,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN sàn vinyl",
+   "desc": "CN sàn vinyl",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 20,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN vữa tự chảy",
+   "desc": "CN vữa tự chảy",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 50,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN Ép cử",
+   "desc": "CN Ép cử",
+   "unit": "Md",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 150,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN thảm sàn",
+   "desc": "CN thảm sàn",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 80,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN rèm NT",
+   "desc": "CN rèm NT",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 80,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN rèm ngăn cháy",
+   "desc": "CN rèm ngăn cháy",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 80,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN lan can",
+   "desc": "CN lan can",
+   "unit": "md",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 6,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN giấy dán tường",
+   "desc": "CN giấy dán tường",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 50,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN nội thất các loại",
+   "desc": "CN nội thất các loại",
+   "unit": "m2 (XD)",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 1.5,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN trần kim loại- xuyên sáng- vách tiêu âm",
+   "desc": "CN trần kim loại- xuyên sáng- vách tiêu âm",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 10,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN bảng biển",
+   "desc": "CN bảng biển",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 15,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN sơn kẻ vạch",
+   "desc": "CN sơn kẻ vạch",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 30,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN sơn giả đá- sơn tĩnh điện",
+   "desc": "CN sơn giả đá- sơn tĩnh điện",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 10,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN sân thể thao- sân chơi trẻ em",
+   "desc": "CN sân thể thao- sân chơi trẻ em",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 1,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN lắp đặt trò chơi",
+   "desc": "CN lắp đặt trò chơi",
+   "unit": "m2 (LĐ)",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 5,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN lắp đặt tượng- artwork",
+   "desc": "CN lắp đặt tượng- artwork",
+   "unit": "Cái",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 1,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN đắp núi giả phù điêu",
+   "desc": "CN đắp núi giả phù điêu",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 2,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN sơn vẽ trang trí",
+   "desc": "CN sơn vẽ trang trí",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 2,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN chống mối",
+   "desc": "CN chống mối",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 500,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN vệ sinh công nghiệp",
+   "desc": "CN vệ sinh công nghiệp",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 30,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN ép cọc",
+   "desc": "CN ép cọc",
+   "unit": "CN/máy",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 4,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN nhôm kính",
+   "desc": "CN nhôm kính",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 4,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN mái di động",
+   "desc": "CN mái di động",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 15,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN lợp ngói",
+   "desc": "CN lợp ngói",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 15,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN mài bê tông",
+   "desc": "CN mài bê tông",
+   "unit": "m2",
+   "machine_prod_per_ca": {},
+   "team_prod_per_ca": 15,
+   "workers_per_ca": null
+  },
+  {
+   "section": "Định mức công tác phần XÂY DỰNG",
+   "stt": null,
+   "name": "CN đóng cọc tre",
+   "desc": "CN đóng cọc tre",
+   "unit": "md",
+   "machine_prod_per_ca": {
+    "VC.M8": 1176.4705882352941
+   },
+   "team_prod_per_ca": 49.504950495049506,
+   "workers_per_ca": null
+  }
+ ],
+ "transport": {
+  "vehicle": "Ô tô 18 m3",
+  "distance_km": 5.0,
+  "capacity_m3": 18.0,
+  "speed_loaded_kmh": 15.0,
+  "speed_empty_kmh": 20.0,
+  "cycle_time_h": 0.75,
+  "prod_per_ca_8h": 192.0,
+  "prod_per_day_20h": 480.0,
+  "formula_note": "T_chu_ky = T_boc(5p) + L/V_tai + T_do(5p) + L/V_khong_tai; NS_ca = 8h / T * Dung_tich"
+ },
+ "organization": {
+  "shifts_per_day": 2.0,
+  "driver_per_machine_per_shift": 1.0,
+  "driver_ratio_note": "1 thợ lái máy cho mỗi ca làm việc của 1 máy cơ giới (lái máy bậc 3/7 - 4/7)",
+  "direct_labor_workers_peak": 209,
+  "equipment_site_fleet": {
+   "Máy xúc PC200 - PC300": 19,
+   "Máy ủi D3 - D5": 19,
+   "Máy lu 12T - 16T": 17,
+   "Máy san": 1,
+   "Ô tô VC - loại  18,0m3": 7,
+   "Máy xúc lốp PC140 - PC150": 5,
+   "Xe téc": 1
+  }
+ }
+}

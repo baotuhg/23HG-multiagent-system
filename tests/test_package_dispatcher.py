@@ -94,14 +94,28 @@ class TestPackageDispatcher(unittest.TestCase):
             self.assertTrue(os.path.exists(micro_dir))
             self.assertTrue(os.path.exists(hub_dir))
 
-            # 2. Kiểm tra Gói A chuẩn 5 sheets Vincons
+            # 2. Gói A: thiếu dữ liệu ca máy thật => KHÔNG dựng mẫu cầu (cọc khoan nhồi...), chỉ có ghi chú
             pkg_a_dir = os.path.join(hub_dir, "GOI_A_CO_GIOI_VA_DAU_DIEZEL")
             self.assertTrue(os.path.exists(pkg_a_dir))
-            camay_files = [f for f in os.listdir(pkg_a_dir) if f.endswith(".xlsx")]
-            self.assertTrue(len(camay_files) >= 1)
+            self.assertEqual([f for f in os.listdir(pkg_a_dir) if f.endswith(".xlsx")], [])
+            self.assertTrue(os.path.exists(os.path.join(pkg_a_dir, "CHUA_CO_DU_LIEU_CA_MAY.md")))
 
-            camay_path = os.path.join(pkg_a_dir, camay_files[0])
-            wb_camay = openpyxl.load_workbook(camay_path)
+            # 2b. Có dữ liệu ca máy thật (fleet_template) => chép đúng 5 sheet Vincons
+            from tools.package_dispatcher import build_vincons_5_sheets_fleet_workbook
+            fleet_src = os.path.join(tmp_dir, "CaMay_That.xlsx")
+            build_vincons_5_sheets_fleet_workbook(dest_path=fleet_src, project_name="Cầu Thử Nghiệm")
+            out_dir2 = os.path.join(tmp_dir, "OUTPUT_DOSSIER_2")
+            AECPackageDispatcher(base_output_dir=out_dir2).dispatch_full_industrial_dossier(
+                master_excel_path=master_file,
+                project_name="Cầu Thử Nghiệm",
+                target_dir=out_dir2,
+                companion_files={"fleet_template": fleet_src},
+            )
+            pkg_a2 = os.path.join(out_dir2, "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH",
+                                  "GOI_A_CO_GIOI_VA_DAU_DIEZEL")
+            camay_files = [f for f in os.listdir(pkg_a2) if f.endswith(".xlsx")]
+            self.assertTrue(len(camay_files) >= 1)
+            wb_camay = openpyxl.load_workbook(os.path.join(pkg_a2, camay_files[0]))
             expected_vincons_sheets = [
                 "01_TienDo_CaMay_Master",
                 "02_TongHop_CaXe_CaMay_MMTB",
