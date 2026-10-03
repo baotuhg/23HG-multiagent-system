@@ -255,6 +255,11 @@ python run_state_graph.py --survey "Du_toan_khao_sat.xls"
 > - `C = NC × %`, `TL = (T + C) × %`, `Gks = T + C + TL`, `G = Gks + Glpa + Glbc + Ghmc`, `Gxd = G + GTGT`, tổng = `Gxd + Gdp`. Mọi giá trị ghi trong file được tính lại và báo lệch nếu khác quá 1 đồng.
 > - Đã kiểm bằng một dự toán khảo sát thật đã thẩm định: khớp đến từng đồng (golden test `tests/test_survey_estimate.py`).
 
+#### a3c. Quy ước tính thép & đài móng (chuẩn hóa từ bảng tính QS chuyên nghiệp):
+> - `tools/steel_qs.py` — quy ước cốt thép & kết cấu thép: khối lượng đơn vị `D²/162` (kg/m); cây 11,7 m chỉ đếm cho D > 8 (D ≤ 8 cấp dạng cuộn); số cây `= ROUND(kg / kg một cây)`; dây buộc 1,5%; thép tấm `PL` = `t·rộng·dài·7,85/10⁶`, thép hình = `kg/m · dài`. Engine cầu dùng chung quy ước này.
+> - `tools/civil_foundation_qs.py` — đo bóc đài móng (bê tông, bê tông lót, ván khuôn): đài vuông/chữ nhật, chóp cụt (công thức xấp xỉ trung bình diện tích theo QS), quả trám kiểu 1; kèm quy ước số cạnh ván khuôn vách (`WALL_FORMWORK_FACES`).
+> - Cả hai đã kiểm bằng các ô đã tính sẵn trong hồ sơ QS thật: khớp đến từng m³/kg (golden test `tests/test_steel_qs_golden.py`, `tests/test_civil_foundation_qs_golden.py`).
+
 #### a4. Lập Mẫu 03a — giá trị khối lượng hoàn thành đề nghị thanh toán (NĐ 254/2025):
 ```powershell
 python run_state_graph.py --phase payment --qs "Du_toan.xlsx" --progress "KL_ky_01.xlsx" --price-basis direct --advance-recovery-pct 20 --retention-pct 5 --period 01 --payment-out Mau_03a_ky01.xlsx
