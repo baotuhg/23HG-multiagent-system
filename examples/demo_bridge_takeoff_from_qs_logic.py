@@ -107,8 +107,8 @@ def main():
     print(f"      - Trạng thái giải toán        : {sol_d20.status}")
 
     print("\n" + "=" * 75)
-    print("✅ ĐÃ CHỨNG MINH THÀNH CÔNG: MỌI CÔNG THỨC DÂN DỤNG & KCT TRONG FOLDER 'MUA'")
-    print("   ĐÃ ĐƯỢC DIỄN BIẾN SUY LUẬN TOÀN DIỆN VÀ HOÀN HẢO SANG CẦU ĐƯỜNG BỘ!")
+    print("ℹ  Kết quả ước tính sơ bộ với tham số mặc định — chưa đối chiếu bản vẽ cầu thật.")
+    print("   Danh mục thép là giả định điển hình; khi làm thật dùng BBS thật (--phase rebar --bbs).")
     print("=" * 75)
 
 

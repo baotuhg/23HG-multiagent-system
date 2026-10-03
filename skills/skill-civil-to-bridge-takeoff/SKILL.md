@@ -1,78 +1,62 @@
 ---
 name: skill-civil-to-bridge-takeoff
-description: Chuyển giao và mở rộng nguyên lý hình học móng chóp cụt, vai cột corbel, dầm trừ giao sàn từ QS dân dụng sang mố chữ U, trụ xẻ nước mũi thuyền, xà mũ vươn hẫng hammerhead và dầm Super-T 33m theo TCVN 11823:2017 & TT 38/2026/TT-BXD.
+description: Bóc tách sơ bộ khối lượng mố cầu chữ U, trụ cầu (bệ hai đầu bo tròn, 2 cột tròn, xà mũ có cánh hẫng vát) và kết cấu nhịp dầm Super-T bằng các công thức hình học kế thừa từ bảng tính QS dân dụng. Dùng cho ước tính/kiểm tra chéo, chưa thay thế bóc tách từ bản vẽ thi công.
 ---
 
-# Kỹ năng Bóc tách Hình học Cầu Đường từ Nguyên lý QS Dân dụng (Bridge Takeoff Engine)
+# Bóc tách sơ bộ mố, trụ, kết cấu nhịp cầu (kế thừa công thức QS dân dụng)
 
-**Mã Kỹ năng:** `SKILL-CIVIL-TO-BRIDGE-TAKEOFF`  
-**Nhóm nghiệp vụ:** `QUANTITY_SURVEYING`  
-**Trạng thái:** `APPROVED` (Kỹ sư trưởng phê duyệt)  
-**Tiêu chuẩn áp dụng:** TCVN 11823:2017, TCVN 5574:2018, Thông tư 38/2026/TT-BXD, Thông tư 36/2026/TT-BXD.
+**Mã:** `SKILL-CIVIL-TO-BRIDGE-TAKEOFF` · **Nhóm:** `QUANTITY_SURVEYING`
+**Trạng thái:** `PENDING_APPROVAL` — chờ Kỹ sư trưởng duyệt. Chưa đối chiếu với bản vẽ cầu thật nào.
+**Mã nguồn:** [`tools/civil_and_bridge_takeoff_engine.py`](../../tools/civil_and_bridge_takeoff_engine.py) · **Test:** [`tests/test_civil_and_bridge_takeoff.py`](../../tests/test_civil_and_bridge_takeoff.py)
 
----
+## 1. Code thực sự tính gì
 
-## 1. Mục tiêu & Nguyên lý Đồng hình Hình học (Isomorphism)
+| Cấu kiện | Cách tính trong code | Giới hạn cần biết |
+|---|---|---|
+| Bệ trụ | Khối hộp `L×W×H` + 2 nửa trụ tròn bán kính `W/2` ở hai đầu (`calc_cutwater_pier_footing`) | Chỉ có mũi bo tròn; chưa có mũi tam giác/vát |
+| Thân trụ | `n` cột tròn `π·D²/4·H`; ván khuôn `π·D·H` | Chưa trừ phần ngàm vào bệ/xà mũ |
+| Xà mũ | Mặt đứng = đoạn giữa chữ nhật (dài `n·D + 1,2 m`) + 2 cánh hẫng hình thang, nhân bề rộng | Đoạn giữa `+1,2 m` là giả định cố định trong code |
+| Mố chữ U | Lót, bệ, thân, tường ngực, 2 tường cánh hình thang, đá kê gối, bản quá độ — đều là khối hộp/lăng trụ | Không trừ giao giữa các khối |
+| Dầm Super-T | **Nhập sẵn** thể tích, ván khuôn, thép, cáp DƯL cho **1 dầm** rồi nhân số dầm | Không tính mặt cắt dầm; số liệu 1 dầm phải lấy từ hồ sơ thiết kế |
+| Bản mặt cầu | `L × B × t`; ván khuôn đáy lấy `65% × B × L` | Hệ số 65% là giả định |
+| Cốt thép | `Bê tông × hàm lượng kg/m³` (mố 110, trụ 125, bản mặt cầu 140) | Chỉ là ước tính theo hàm lượng, không phải BBS |
+| Dây thép buộc | `1,5% × khối lượng thép` | Hệ số lấy từ bảng tính folder "Mua"; cần kỹ sư đối chiếu định mức áp dụng |
 
-Chuyển đổi các công thức bóc tách hình học truyền thống của công trình dân dụng / công nghiệp sang kết cấu hạ tầng giao thông cầu đường:
-
-1. **Móng chóp cụt & Móng Oval $\longrightarrow$ Bệ mố / Bệ trụ xẻ nước mũi thuyền**:
-   - Khối chóp cụt: $V = \frac{h}{3} (S_1 + S_2 + \sqrt{S_1 S_2})$.
-   - Mũi xẻ dòng thủy lực: Tam giác / Bán nguyệt giảm lực cản dòng chảy theo TCVN 11823-3:2017.
-2. **Vai cột Corbel $\longrightarrow$ Cánh hẫng xà mũ trụ cầu (Hammerhead)**:
-   - Thân trụ chịu lực uốn nén kết hợp cánh hẫng dạng nêm lăng trụ tam giác vươn đỡ gối chậu và dầm Super-T.
-3. **Dầm tầng trừ giao cột/sàn $\longrightarrow$ Dầm Super-T 33m & Dầm I trừ giao bản mặt cầu**:
-   - Đa giác mặt cắt chia mảnh (cánh trên, cánh dưới, sườn nghiêng).
-   - Ván khuôn thành ngoài và vòm trong trừ diện tích tiếp giáp bê tông bản mặt cầu (Zero Duplication).
-4. **Tường xây 8 công tác $\longrightarrow$ Tường thân, tường ngực & tường cánh mố chữ U**:
-   - Tự động phái sinh 6 công tác liên hoàn: Bê tông $\to$ Ván khuôn $\to$ Xử lý mạch ngừng thi công $\to$ Sơn chống thấm Bitum $\to$ Vải địa kỹ thuật lọc $\to$ Tầng phòng nước.
-
----
-
-## 2. Hướng dẫn Sử dụng Module Python
-
-Sử dụng trực tiếp trong mã nguồn từ module [`tools.civil_and_bridge_takeoff_engine`](tools/civil_and_bridge_takeoff_engine.py):
+## 2. Cách dùng (đã chạy thử)
 
 ```python
 from tools.civil_and_bridge_takeoff_engine import (
-    BridgePierEngine,
-    BridgeAbutmentEngine,
-    BridgeSupersuperstructureEngine,
+    BridgePierParams, BridgePierEngine,
+    BridgeAbutmentParams, BridgeAbutmentEngine,
+    BridgeSuperstructureParams, BridgeSuperstructureEngine,
 )
 
-# 1. Bóc tách Trụ cầu xẻ nước & Xà mũ vươn hẫng Hammerhead
-pier = BridgePierEngine(
-    footing_L=10.0, footing_W=4.5, footing_H=2.0, cutwater_len=2.25,
-    col_diam=1.5, col_H=8.5, num_cols=2,
-    cap_L=12.5, cap_W=2.2, cap_H_center=1.8, cap_H_tip=1.0, cant_L=3.5
-)
-pier_res = pier.compute_takeoff()
-print(f"Bê tông bệ trụ: {pier_res['footing']['concrete_m3']:.2f} m3")
-print(f"Bê tông xà mũ:  {pier_res['cap']['concrete_m3']:.2f} m3")
-print(f"Tổng bê tông:   {pier_res['total_concrete_m3']:.2f} m3")
-print(f"Tổng ván khuôn: {pier_res['total_formwork_m2']:.2f} m2")
+# Trụ cầu: bệ 7,0 x 3,6 x 1,8 m; 2 cột D1,5 m cao 8,5 m; xà mũ dài 9,6 m
+tru = BridgePierEngine.compute_takeoff(BridgePierParams(
+    name="Trụ T1",
+    footing_rect_L=7.0, footing_rect_W=3.6, footing_H=1.8,
+    column_dia=1.5, column_height=8.5, column_count=2,
+    cap_length=9.6, cap_width=1.8, cap_height_center=1.6, cap_height_end=1.0,
+))
+print("Bê tông trụ :", tru["total_structural_concrete_m3"], "m3")   # 118.815
+print("Ván khuôn   :", tru["total_formwork_m2"], "m2")             # 176.666
 
-# 2. Bóc tách Mố chữ U & Tường cánh vát taluy
-abutment = BridgeAbutmentEngine(
-    footing_L=11.0, footing_W=4.0, footing_H=1.5,
-    stem_H=5.5, stem_W=1.2,
-    breast_wall_H=1.6, breast_wall_W=0.4,
-    wing_L=4.5, wing_H_front=7.1, wing_H_back=2.0, wing_thick=0.4
-)
-abut_res = abutment.compute_takeoff()
-print(f"Bê tông mố: {abut_res['total_concrete_m3']:.2f} m3")
+# Mố chữ U (dùng giá trị mặc định của BridgeAbutmentParams, sửa theo bản vẽ)
+mo = BridgeAbutmentEngine.compute_takeoff(BridgeAbutmentParams(name="Mố M1"))
+print("Bê tông mố  :", mo["total_structural_concrete_m3"], "m3")
 
-# 3. Bóc tách Kết cấu nhịp Super-T 33m
-super_t = BridgeSuperstructureEngine(span_length=33.0, num_girders=4, bridge_width=10.5)
-super_res = super_t.compute_takeoff()
-print(f"Bê tông 4 dầm Super-T: {super_res['girders_concrete_c50_m3']:.2f} m3 (C50)")
-print(f"Bê tông bản mặt cầu:    {super_res['deck_concrete_c35_m3']:.2f} m3 (C35)")
-print(f"Thảm BTN C12.5 7cm:     {super_res['asphalt_wearing_m2']:.2f} m2")
+# Kết cấu nhịp: 4 dầm Super-T 33 m — số liệu 1 dầm phải lấy từ hồ sơ thiết kế
+nhip = BridgeSuperstructureEngine.compute_takeoff(BridgeSuperstructureParams(
+    bridge_length_m=33.0, deck_width_m=9.0, girder_count=4,
+    girder_volume_single_m3=23.5, girder_formwork_single_m2=145.0,
+))
+print("BT dầm đúc sẵn:", nhip["girder_concrete_m3"], "m3")  # 94.0
+print("BT bản mặt cầu:", nhip["deck_concrete_m3"], "m3")    # 59.4
 ```
 
----
+Demo đầy đủ: `python examples/demo_bridge_takeoff_from_qs_logic.py`
 
-## 3. Điều kiện Kích hoạt & Phê duyệt
+## 3. Khi nào dùng / không dùng
 
-- **Điều kiện kích hoạt:** Khi lập dự toán, bóc tách khối lượng hình học từ bản vẽ CAD/IFC hoặc rà soát bảng BoQ cầu đường.
-- **Bảo toàn Số học (Zero LLM Math Guard):** 100% phép tính thực thi bằng code Python xác định, không làm tròn trung gian, bảo toàn công thức liên kết.
+- **Dùng:** ước tính nhanh giai đoạn chuẩn bị, kiểm tra chéo bảng khối lượng của tư vấn.
+- **Không dùng:** làm khối lượng thanh toán hoặc hồ sơ pháp lý khi chưa được kỹ sư đối chiếu với bản vẽ thi công.

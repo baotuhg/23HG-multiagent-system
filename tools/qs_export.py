@@ -6,13 +6,12 @@ Giá trị là số đã tính (không phải công thức) kèm nguồn của t
 
 from __future__ import annotations
 
+from tools.money import round_vnd
 from tools.qs_loader import RATE_LABELS, QSEstimate
 
 
 def write_gxd_workbook(path: str, est: QSEstimate) -> None:
     import openpyxl
-
-from tools.money import round_vnd
     from openpyxl.styles import Alignment, Font, PatternFill
 
     def header(ws, row, values):

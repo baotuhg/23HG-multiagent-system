@@ -18,7 +18,7 @@
 - **Đọc được file thật:** BBS (Excel/CSV/JSON), tiến độ MS Project XML/Excel/CSV, bảng QS/BOQ, phiếu thí nghiệm, IFC (qua `ifcopenshell`), DXF (qua `ezdxf`).
 
 ### Những gì đã được kiểm chứng
-- `python -m unittest discover -s tests -t .`: toàn bộ test tự động đạt (**227 unit tests đạt 100%**, gồm các phép tính tay độc lập cho tiền, đo bóc hình học mố trụ dầm cầu, kết cấu thép tấm, tối ưu cắt thép, tiến độ CPM, ca máy và hồ sơ mẫu); CI chạy trên Ubuntu (Python 3.10, 3.12) và Windows (Python 3.11).
+- `python -m unittest discover -s tests -t .`: 229 test đạt (4 test bỏ qua khi thiếu thư viện tùy chọn), gồm các phép tính tay độc lập cho tiền, đo bóc và hồ sơ mẫu; CI chạy trên Ubuntu (Python 3.10, 3.12) và Windows (Python 3.11). Test chưa phủ hết: ví dụ lỗi cú pháp trong `tools/qs_export.py` (làm `--qs-out` hỏng) tồn tại từ commit `8a90ad4` mà không test nào bắt được, đến nay mới sửa và bổ sung test.
 - Chạy `--demo` đủ 8 pha (CAD → cắt thép → QS → QA/QC → Human Gate → CPM → ca máy → As-Built) không lỗi.
 - Solver cắt thép tách theo từng Ø và mác thép, tính lưỡi cắt, báo **cận dưới** số cây (`OPTIMAL` nghĩa là đã chứng minh không dùng ít hơn được).
 - Quét tĩnh các file Excel mẫu bằng `python -m tools.audit_excels_static <thư_mục>` (không cần Excel): không có mã lỗi công thức, không có tham chiếu tới sheet không tồn tại. Quality Gate khi xuất hồ sơ cũng kiểm tra điều này.
@@ -27,7 +27,8 @@
 ### Giới hạn cần biết trước khi dùng
 - **Chưa thay thế kỹ sư.** Kết quả dự toán, thanh toán và hồ sơ nghiệm thu phải được kỹ sư QS/QLCL rà soát trước khi dùng cho hồ sơ pháp lý. Các căn cứ pháp lý và công thức nêu trong tài liệu là tham chiếu của tác giả, chưa qua thẩm định độc lập.
 - **"Điểm Audit 100/100" do chính hệ thống tự chấm**, không phải đánh giá độc lập; các kiểm tra Excel ở đây là kiểm tra tĩnh, chưa đối chiếu bằng Microsoft Excel hay MS Project thật.
-- **Một số phần mới ở mức nguyên mẫu:** Thuyết minh BPTC hiện là mẫu viết sẵn (chưa có RAG); So sánh phiên bản CAD mới đọc được dữ liệu cấu kiện/diện tích đa tuyến khép kín; chưa có giao diện Web/Mobile hay ký số.
+- **Một số phần mới ở mức nguyên mẫu:** Thuyết minh BPTC hiện là mẫu viết sẵn (chưa có RAG); So sánh phiên bản CAD mới đọc được dữ liệu cấu kiện/diện tích đa tuyến khép kín; bóc tách sơ bộ cầu (mục 8b) chưa đối chiếu bản vẽ thật; chưa có giao diện Web/Mobile hay ký số.
+- **Lỗi đã biết:** `--phase fleet` / `--phase dispatch` có trong `--help` nhưng Supervisor chưa xử lý (dừng với "Phase không xác định").
 - **Hồ sơ mẫu chưa hoàn chỉnh:** Cống A5 có 8/14 hồ sơ vi mô (6 sheet trong Master ghi "CHƯA LẬP"); số liệu đầu vào là số nhập, còn sai khác cốt thép +14,4% chờ kỹ sư QS — xem `examples/HO_SO_CONG_HOP_TUYEN_A5/README.md`. Các bản sao giữa các gói là chủ ý và được test kiểm tra không lệch nhau. Phần "Tự tiến hóa" (`aec_core/experience_store.py`) là kho kinh nghiệm hiệu chuẩn định mức/mẫu cắt thép, không phải học máy.
 
 ### Căn cứ tham chiếu (cần kỹ sư xác nhận khi áp dụng)
@@ -549,63 +550,54 @@ python run_state_graph.py --level
 # =====================================================================
 # 🏆 BÁO CÁO TIẾN HÓA & CẤP ĐỘ HỆ THỐNG AEC MULTI-AGENT (LEVEL-UP)
 # =====================================================================
-  ⭐ CẤP ĐỘ HIỆN TẠI (LEVEL)      : LEVEL 5
-  🎖️ DANH HIỆU NGHỆP VỤ          : Kỹ sư Giám sát Hiện trường (Field Engineer)
-  ⚡ TỔNG ĐIỂM KINH NGHIỆM (XP)   : 715 XP
-  📈 TIẾN ĐỘ LÊN LEVEL 6       : 20.8% (715 / 1000 XP)
+  ⭐ CẤP ĐỘ HIỆN TẠI (LEVEL)      : LEVEL 3
+  🎖️ DANH HIỆU NGHỆP VỤ          : Kỹ sư Tập sự (Novice Assistant)
+  ⚡ TỔNG ĐIỂM KINH NGHIỆM (XP)   : 250 XP
+  📈 TIẾN ĐỘ LÊN LEVEL 4       : 45.0% (250 / 360 XP)
 ---------------------------------------------------------------------
   📊 THỐNG KÊ TÍCH LŨY KINH NGHIỆM THỰC CHIẾN:
-     - Số dự án đã hoàn thành          : 4 dự án (+400 XP)
-     - Quan trắc năng suất hiện trường : 5 mẫu (+50 XP)
-     - Mẫu cắt thép vàng tối ưu        : 1 mẫu (+25 XP)
+     - Số dự án đã hoàn thành          : 2 dự án (+200 XP)
+     - Quan trắc năng suất hiện trường : 0 mẫu (+0 XP)
+     - Mẫu cắt thép vàng tối ưu        : 0 mẫu (+0 XP)
      - Số lần tái sử dụng mẫu vàng     : 0 lần
-     - Bộ quy tắc miễn dịch lỗi active : 9 quy tắc (+90 XP)
-     - Kỹ năng mới đã phê duyệt (Skills): 3 kỹ năng (+150 XP)
-=====================================================================
-  ⚙️ KẾT QUẢ HIỆU CHUẨN ĐỊNH MỨC NĂNG SUẤT (FIELD CALIBRATION):
-     • duc_dam_super_t (Đúc dầm Super-T 33m): Hệ số alpha = 1.061 (từ 1 lần quan trắc thực tế)
-     • be_tong_xa_mu_hammerhead (Đổ BT xà mũ vươn hẫng): Hệ số alpha = 0.933 (từ 1 lần quan trắc thực tế)
-     • gia_cong_dam_thep_i (Gia công dầm thép liên hợp): Hệ số alpha = 1.000 (từ 1 lần quan trắc thực tế)
-     • han_dinh_neo_nelson (Hàn đinh neo chống cắt Nelson D22): Hệ số alpha = 1.200 (từ 1 lần quan trắc thực tế)
-     • lap_dung_thep_mo_tru (Lắp dựng cốt thép mố trụ D25): Hệ số alpha = 1.100 (từ 1 lần quan trắc thực tế)
----------------------------------------------------------------------
-  🎓 DANH MỤC KỸ NĂNG ĐÃ TỐT NGHIỆP (GRADUATED SKILLS):
-     ✓ [SKILL-CIVIL-TO-BRIDGE-TAKEOFF] Đồng hình bóc tách hình học kết cấu Dân dụng sang Cầu đường — Phê duyệt bởi AUTO_APPROVE
-     ✓ [SKILL-REBAR-BBS-COUPLER-OPTIMIZER] Tối ưu hóa cắt thép 1D với mối nối 40d & thép buộc 1.5% — Phê duyệt bởi AUTO_APPROVE
-     ✓ [SKILL-STEEL-PLATE-GIRDER-TAKEOFF] Bóc tách Dầm cầu thép tấm chữ I liên hợp & Đinh neo Nelson — Phê duyệt bởi AUTO_APPROVE
+     - Bộ quy tắc miễn dịch lỗi active : 5 quy tắc (+50 XP)
+     - Kỹ năng mới đã phê duyệt (Skills): 0 kỹ năng (+0 XP)
 =====================================================================
 ```
+
+> **Kho kinh nghiệm chỉ chứa dữ liệu tích lũy thật trên máy người dùng** (`.aec_state/`, không đưa lên git). Repo không kèm sẵn dữ liệu kinh nghiệm: mọi quan trắc năng suất phải đến từ nhật ký thi công thật, và mọi kỹ năng mới phải được Kỹ sư trưởng duyệt qua Human Gate. Chế độ `--human-gate auto` chỉ dùng để chạy thử.
 
 ---
 
-## 🌉 8b. Động cơ Bóc tách Cầu Đường & Kết Cấu Thép từ Nguyên lý QS Dân dụng (Civil & Bridge Takeoff Engine)
+## 🌉 8b. Bóc tách sơ bộ cầu từ công thức QS dân dụng (nguyên mẫu)
 
-Một bước đột phá quan trọng của hệ thống trong đợt cập nhật này là **chuyển giao và mở rộng nguyên lý bóc tách hình học từ 2 siêu bộ tính thương mại (QS Dân dụng 26 sheets & Thép tiền chế Zamil 25 sheets) sang công trình Cầu đường & Hạ tầng giao thông** theo chuẩn **TCVN 11823:2017**, **TCVN 5574:2018**, **TT 38/2026/TT-BXD** và **TT 36/2026/TT-BXD**.
+Module [`tools/civil_and_bridge_takeoff_engine.py`](tools/civil_and_bridge_takeoff_engine.py) dùng lại các công thức hình học trong hai bảng tính QS mua ngoài (bảng QS dân dụng và bảng kết cấu thép tiền chế) để **ước tính sơ bộ** khối lượng mố, trụ, kết cấu nhịp và dầm thép.
 
-### Bản đồ Đồng hình Hình học (Isomorphism Mapping):
+> ⚠️ **Mức nguyên mẫu, chưa đối chiếu với bản vẽ cầu thật nào.** Chỉ nên dùng để ước tính nhanh hoặc kiểm tra chéo. Không dùng làm khối lượng thanh toán khi chưa được kỹ sư rà soát.
 
-| STT | Công thức QS Dân dụng / Nhà xưởng | Suy luận tương đương sang Cầu đường | Công thức Toán học & Chuẩn kỹ thuật |
-| :--- | :--- | :--- | :--- |
-| **1** | **Móng chóp cụt & Móng Oval** | **Bệ trụ xẻ nước mũi thuyền / Bệ mố** | Thể tích chóp cụt: $V = \frac{h}{3} (S_1 + S_2 + \sqrt{S_1 S_2})$; Mũi thuyền: Bán nguyệt/tam giác xẻ dòng chảy giảm lực cản thủy lực theo TCVN 11823:2017. |
-| **2** | **Vai cột Corbel** đỡ dầm cầu trục xưởng | **Cánh hẫng xà mũ trụ cầu (Hammerhead)** đỡ dầm Super-T | Tách thành khối hộp chữ nhật trung tâm + 2 khối nêm tam giác lăng trụ 2 bên cánh hẫng: $V_{\text{hẫng}} = 2 \times \left(\frac{1}{2} \cdot \Delta h \cdot L_{\text{cant}} \cdot W_{\text{pier}}\right)$. |
-| **3** | **Dầm tầng trừ giao cột và bản sàn** | **Dầm Super-T 33m & Dầm I trừ giao bản mặt cầu** | Mặt cắt dầm Super-T đa giác chia mảnh: bản cánh trên, cánh dưới, sườn nghiêng; ván khuôn trừ diện tích đáy và mặt tiếp giáp bê tông bản mặt cầu (chỉ tính ván khuôn thành dầm, ván khuôn vòm trong). |
-| **4** | **Tường xây 8 công tác liên hoàn** (Xây, Trát trong/ngoài, Sơn trong/ngoài, Ốp) | **Tường thân, tường ngực & tường cánh mố chữ U** | Thể tích hình lăng trụ đáy hình thang; Tự động phái sinh 6 công tác liên hoàn: Bê tông $\to$ Ván khuôn $\to$ Xử lý mối nối thi công $\to$ Sơn chống thấm Bitum mặt lưng $\to$ Vải địa kỹ thuật lọc $\to$ Tầng phòng nước. |
-| **5** | **Thép tấm Zamil (`PL{t}`) & Xà gồ C/Z** | **Dầm cầu thép chữ I liên hợp & Đinh neo Nelson** | Tự động bóc tách chuỗi `PL{t}x{w}x{L}` tính khối lượng tấm: $m = t \cdot w \cdot L \cdot 7.85 \times 10^{-6}$ (tấn), diện tích sơn chống gỉ 3 lớp: $S = 2 \cdot (w+t) \cdot L \times 10^{-6}$ ($m^2$); Bóc tách đinh neo chống cắt Nelson D22x150mm. |
-| **6** | **Cốt thép BBS (Nối 40d, Thép buộc 1.5%)** | **BBS Cốt thép Cầu & Tối ưu hóa cắt thép 1D** | Tự động tính chiều dài nối buộc $40d$ cho thanh $\ge 11.7\text{m}$, tính định mức dây thép buộc $1.5\%$ khối lượng thép theo TT 38/2026/TT-BXD, nạp trực tiếp vào động cơ OR-Tools CP-SAT giải bài toán Cutting Stock. |
+| Cấu kiện | Công thức gốc trong bảng QS | Code thực sự tính | Giới hạn |
+|---|---|---|---|
+| Bệ trụ | Đài móng oval | Hộp `L×W×H` + 2 nửa trụ tròn bán kính `W/2` ở hai đầu | Chỉ có mũi bo tròn |
+| Thân trụ | Cột tròn | `n` cột `π·D²/4·H` | Chưa trừ phần ngàm |
+| Xà mũ | Cột có vai (corbel) | Đoạn giữa chữ nhật (`n·D + 1,2 m`) + 2 cánh hẫng hình thang | `+1,2 m` là giả định |
+| Mố chữ U | Móng, tường | Lót, bệ, thân, tường ngực, 2 tường cánh hình thang, đá kê gối, bản quá độ | Không trừ giao giữa các khối |
+| Dầm Super-T | — | **Nhập sẵn** thể tích, ván khuôn, thép, cáp của 1 dầm rồi nhân số dầm | Không tính mặt cắt dầm |
+| Dầm thép I | Thép tấm `PL` | `m = t·w·L·7,85/10⁶` (kg); sơn `S = 2·w·L/10⁶` (m², 2 mặt chính, chưa tính cạnh) | Chưa có bản nối, bu lông |
+| Cốt thép | — | `bê tông × hàm lượng` (110–140 kg/m³) + dây buộc 1,5% | Ước tính theo hàm lượng, không phải BBS |
 
-### Các Module Động Cơ Mới Trong Mã Nguồn:
-1. `tools/civil_and_bridge_takeoff_engine.py`:
-   - `BridgePierEngine`: Tính toán bệ mố trụ xẻ nước, thân trụ tròn đôi D1.5m, xà mũ vươn hẫng Hammerhead ($V = 168.08\text{ m}^3$, $S_{\text{vk}} = 227.12\text{ m}^2$).
-   - `BridgeAbutmentEngine`: Mố chữ U gồm bệ móng, thân mố, tường ngực, tường cánh vát taluy dốc và bản quá độ.
-   - `BridgeSuperstructureEngine`: 4 phiến dầm Super-T 33m bê tông C50 ($V = 114.52\text{ m}^3$), bản mặt cầu C35 ($V = 69.30\text{ m}^3$), cáp DƯL 15.2mm, gờ lan can và thảm BTN C12.5 ($693\text{ m}^2$).
-   - `SteelBridgeGirderEngine`: Dầm cầu thép liên hợp I 30m nặng **11.997 tấn**, diện tích sơn **146.40** $\text{m}^2$, **180** đinh neo Nelson D22.
-2. `examples/demo_bridge_takeoff_from_qs_logic.py`: Kịch bản mẫu tích hợp đo bóc hình học và tối ưu hóa cắt thép 11.7m đạt tỷ lệ hao hụt chỉ **0.83%** (`OPTIMAL`).
-3. `tests/test_civil_and_bridge_takeoff.py`: 10 unit tests độc lập kiểm định sai số tuyệt đối $< 10^{-4}$.
+Kết quả demo với tham số mặc định (`python examples/demo_bridge_takeoff_from_qs_logic.py`):
 
-```bash
-# Chạy demo bóc tách cầu đường & tối ưu hóa cắt thép OR-Tools
-python examples/demo_bridge_takeoff_from_qs_logic.py
-```
+| Hạng mục | Kết quả |
+|---|---|
+| Mố (1 mố) | 137,71 m³ bê tông kết cấu; 233,70 m² ván khuôn |
+| Trụ T1 | 118,81 m³; 176,67 m² |
+| 4 dầm Super-T 33 m (nhập 23,5 m³/dầm) | 94,00 m³; bản mặt cầu 59,40 m³ |
+| Dầm thép I 30 m | 11,997 tấn; 162,00 m² sơn |
+| Cắt thép D20 dầm Super-T | 32 cây, đề-xê 0,83%, `OPTIMAL` (trường hợp dễ: đoạn 5.800 mm cố định, cắt 2 đoạn/cây) |
+
+Danh mục thanh thép do `generate_*_rebar_demands` sinh ra là **giả định điển hình** (ví dụ 32 thanh/cột, đoạn 5.800 mm), không lấy từ bản vẽ. Với cùng một trụ, ước tính thép theo hàm lượng ra khoảng 14,9 tấn, còn danh mục thanh giả định chỉ khoảng 4,4 tấn. Khi làm thật phải dùng BBS thật (`--phase rebar --bbs ...`).
+
+Có 10 unit test trong [`tests/test_civil_and_bridge_takeoff.py`](tests/test_civil_and_bridge_takeoff.py), đối chiếu kết quả với phép tính tay. Ba kỹ năng tương ứng trong `skills/skill-*` đang ở trạng thái **chờ Kỹ sư trưởng duyệt**.
 
 ---
 
@@ -644,12 +636,13 @@ python examples/demo_bridge_takeoff_from_qs_logic.py
 ├── aec_core/                     # audit_verifier (chấm điểm tự động), experience_store (kho kinh nghiệm),
 │                                 # material_frequency (cấp phối & tần suất thí nghiệm), project_state
 ├── schemas/site_log_schema.py    # Nhật ký hiện trường & khối lượng hoàn công
-├── data/                         # Định mức ca máy, dầu diezel, hệ số vật tư; experience_store_seed.json
+├── data/                         # Định mức ca máy, dầu diezel, hệ số vật tư; PROJECT_STATE.json (JSON)
+├── docs/HUONG_DAN_VIET_PROMPT.md # Cẩm nang prompt & lệnh cho người mới (lệnh đã chạy thử)
 ├── skills/                       # Kỹ năng đóng gói chuẩn SKILL.md:
 │   ├── aec-cost-tender / aec-rebar-optimizer / aec-qlcl / aec-cad-automation
-│   ├── skill-civil-to-bridge-takeoff     # Bóc tách hình học mố trụ dầm cầu TCVN 11823:2017
-│   ├── skill-rebar-bbs-coupler-optimizer # Cắt thép 1D nối buộc 40d & thép buộc 1.5%
-│   └── skill-steel-plate-girder-takeoff  # Dầm thép tấm chữ I liên hợp & Đinh neo Nelson
+│   ├── skill-civil-to-bridge-takeoff     # Bóc tách sơ bộ mố, trụ, nhịp cầu (chờ duyệt)
+│   ├── skill-rebar-bbs-coupler-optimizer # Cắt thép cấu kiện cầu, nối 40d (chờ duyệt)
+│   └── skill-steel-plate-girder-takeoff  # Dầm thép I tổ hợp & đinh neo (chờ duyệt)
 ├── workflows/                    # Quy trình kỹ thuật 00–15 (Markdown)
 ├── templates/                    # Master Excel, tiến độ XML/MPP, biên bản KCS Word, báo cáo kiểm toán mẫu
 │
@@ -657,12 +650,12 @@ python examples/demo_bridge_takeoff_from_qs_logic.py
 │   ├── HO_SO_CONG_HOP_TUYEN_A5/  # Hồ sơ mẫu Cống hộp A5: Master, 8 hồ sơ vi mô, 5 gói Hub & Spoke (README riêng)
 │   ├── TIEN_DO_THI_CONG_CUM_B9_OLYMPIC/ # Tiến độ & ca máy Cụm B9
 │   ├── HO_SO_CAU_KM19_529/       # Tiến độ ca máy & dầu diezel Cầu Km19+529.080
-│   ├── demo_bridge_takeoff_from_qs_logic.py # Demo đo bóc cầu đường & tối ưu cắt thép 11.7m (đề-xê 0.83%)
+│   ├── demo_bridge_takeoff_from_qs_logic.py # Demo bóc tách sơ bộ cầu (nguyên mẫu, tham số mặc định)
 │   ├── _paths.py                 # repo_path / project_path (biến môi trường AEC_PROJECTS_DIR)
 │   ├── clean_a5_dossier.py       # Dọn & đối chiếu hồ sơ A5 (chạy lặp được)
 │   └── *.py                      # Script dựng hồ sơ từng dự án, demo CAD diff, runner kiểm toán
 │
-├── tests/                        # python -m unittest discover -s tests -t . (227 tests)
+├── tests/                        # python -m unittest discover -s tests -t . (229 tests)
 │   ├── golden/                   # Chỗ đặt bảng dự toán thật đã duyệt (README hướng dẫn)
 │   ├── test_civil_and_bridge_takeoff.py # 10 unit tests kiểm định hình học cầu & KCT
 │   ├── test_experience_store.py  # 10 unit tests kiểm định Level-Up, XP, Golden Pattern, Immunity Rules

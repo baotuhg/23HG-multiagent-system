@@ -1,211 +1,170 @@
-# 📘 CẨM NANG HƯỚNG DẪN VIẾT PROMPT & CÂU LỆNH CHO HỆ THỐNG 23HG-AEC
-### Dành cho Người mới bắt đầu (Quickstart Prompting & Command Guide)
+# 📘 Cẩm nang viết prompt và chạy lệnh cho người mới
+
+> Mọi lệnh trong tài liệu này đã được chạy thử trên Windows với các file mẫu có sẵn trong repo (`templates/`, `examples/`) ngày 03/10/2026. Nếu một lệnh báo lỗi, hãy chạy `python run_state_graph.py --help` để xem tham số mới nhất.
 
 ---
 
-## 🧭 1. Triết lý Vận hành: Công thức Prompt 4 Thành Tố (C-I-R-O)
+## 1. Hiểu đúng hệ thống trước khi ra lệnh
 
-Hệ thống **23HG-AEC-MultiAgent-System** vận hành theo nguyên lý **Toán học Xác định (Zero LLM Math)**: Mọi kết quả bóc tách hình học, tính tiền dự toán, tối ưu cắt thép, tiến độ CPM đều được giải bằng code Python thuần và thuật toán tối ưu (Google OR-Tools, NetworkX CPM), **không để AI đoán mò số liệu**.
-
-Do đó, một Prompt hiệu quả cần tuân thủ cấu trúc **C-I-R-O**:
-```text
-┌────────────────────────────────────────────────────────────────────────┐
-│ [C] CONTEXT (Vai trò)    : Bạn là Kỹ sư QS / Kỹ sư Cầu đường / KCS... │
-│ [I] INPUT (Dữ liệu vào)  : File Excel/CAD/JSON hoặc thông số kích thước│
-│ [R] RULES (Ràng buộc)    : Tiêu chuẩn kỹ thuật (TCVN, TT BXD, 40d...)  │
-│ [O] OUTPUT (Đầu ra)      : File Excel công thức sống / Báo cáo / Sơ đồ │
-└────────────────────────────────────────────────────────────────────────┘
-```
+- **Mọi phép tính là code Python xác định**, không do AI "tính nhẩm": OR-Tools cho cắt thép, CPM cho tiến độ, `Decimal` cho tiền. AI trợ lý (ví dụ Antigravity) chỉ nên **gọi đúng công cụ** rồi đọc kết quả.
+- **Mặc định chỉ dùng dữ liệu thật.** Thiếu file đầu vào thì hệ thống dừng và báo cần gì. Cờ `--demo` chạy bằng dữ liệu mẫu, kết quả luôn có cảnh báo *"KHÔNG DÙNG CHO HỒ SƠ THẬT"*.
+- **Human Gate:** mặc định (`--human-gate cli`) hệ thống dừng hỏi kỹ sư duyệt. `--human-gate auto` tự duyệt và **chỉ dùng để chạy thử**.
 
 ---
 
-## 🎯 2. Các Mẫu Prompt Thực Chiến Theo Từng Nghiệp Vụ
-
-### 🔹 MẪU 1: Bóc tách Khối lượng Cầu đường & Kết cấu thép
-> **Áp dụng khi:** Cần tính bê tông, ván khuôn mố trụ, dầm Super-T hoặc dầm cầu thép tấm chữ I.
+## 2. Công thức prompt 4 phần (C-I-R-O)
 
 ```text
-[VAI TRÒ]: Hãy đóng vai Kỹ sư Cầu đường và QS chuyên nghiệp của hệ thống 23HG-AEC.
-[NHIỆM VỤ]: Bóc tách khối lượng hình học cho hạng mục: Trụ cầu xẻ nước mũi thuyền và Xà mũ vươn hẫng Hammerhead.
-[THÔNG SỐ ĐẦU VÀO]:
-- Bệ trụ: Dài 10.0m, Rộng 4.5m, Cao 2.0m, Mũi xẻ nước dài 2.25m (góc vát 45 độ).
-- Thân trụ: 2 cột tròn đường kính D1.5m, Chiều cao 8.5m.
-- Xà mũ Hammerhead: Dài 12.5m, Rộng 2.2m, Chiều cao tâm 1.8m, Chiều cao mút thừa 1.0m, Cánh hẫng vươn 3.5m mỗi bên.
-[RÀNG BUỘC KỸ THUẬT]: 
-- Tuân thủ TCVN 11823:2017 và Thông tư 38/2026/TT-BXD.
-- Trừ giao thể tích chính xác giữa cột và xà mũ.
-- Ván khuôn xà mũ tính riêng đáy, thành và vát hẫng đáy.
-[ĐẦU RA MONG MUỐN]:
-- Bảng tổng hợp thể tích bê tông (m3) và diện tích ván khuôn (m2).
-- Diễn giải công thức toán học chi tiết từng cấu kiện.
+[C] VAI TRÒ     : Kỹ sư QS / kỹ sư cầu / kỹ sư KCS / kỹ sư tiến độ...
+[I] ĐẦU VÀO     : đường dẫn file thật (BBS, bảng QS, tiến độ XML...) hoặc thông số kích thước có đơn vị
+[R] RÀNG BUỘC   : tiêu chuẩn áp dụng, mác thép, tỷ lệ chi phí, lưỡi cắt...; "chỉ dùng công cụ của repo, không tự tính"
+[O] ĐẦU RA      : file xuất (.xlsx/.csv), báo cáo cần đọc, những gì phải cảnh báo
 ```
-*Lệnh CLI tương đương:*
+
+Câu nên luôn thêm vào cuối prompt:
+
+> *"Chỉ dùng lệnh/hàm có trong repo 23HG. Chạy thật và dán kết quả. Nếu thiếu dữ liệu thì hỏi lại, không tự điền số. Ghi rõ mọi cảnh báo hệ thống in ra."*
+
+---
+
+## 3. Mẫu prompt theo nghiệp vụ (kèm lệnh đã chạy thử)
+
+### 3.1. Tối ưu cắt thép từ BBS thật
+
+```text
+[VAI TRÒ] Kỹ sư quản lý cốt thép.
+[ĐẦU VÀO] BBS: examples/HO_SO_CONG_HOP_TUYEN_A5/BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO/04_Thong_Ke_Thep_Chi_Tiet_BBS_Cong_A5.xlsx
+[RÀNG BUỘC] Cây 11,7 m, lưỡi cắt 3 mm, tách theo đường kính và mác thép. Không tự nối thép nếu tôi chưa cho phép.
+[ĐẦU RA] Số cây cần mua, cận dưới, đề-xê từng Ø, phiếu cắt CSV cho xưởng.
+Chỉ dùng lệnh của repo, chạy thật và dán kết quả.
+```
+
+```bash
+python run_state_graph.py --phase rebar --bbs "duong_dan/BBS.xlsx" --kerf-mm 3 --cut-plan-out phieu_cat.csv
+# Thêm --splice nếu muốn hệ thống đề xuất phương án nối tận dụng đầu thừa (kỹ thuật phải duyệt)
+# Thêm --rebarcut-out ket_qua.xlsx để xuất theo bố cục RebarCut
+```
+
+Đọc kết quả: nếu đề-xê > 1,5% nhưng **số cây bằng cận dưới** thì hệ thống đã chứng minh không thể dùng ít cây hơn. Hao hụt khi đó là do chiều dài thanh trong BBS, không phải do solver.
+
+### 3.2. Dự toán G_XD từ bảng QS/BOQ
+
+```text
+[VAI TRÒ] Kỹ sư định giá.
+[ĐẦU VÀO] Bảng QS: templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx
+[RÀNG BUỘC] Chi phí chung 5,1% T; nhà tạm 1,2% T; KXĐ 1,0% T; TL 5,5% (T+GT); VAT 8%.
+            Nếu file đã có sheet tổng hợp thì đối chiếu và báo mọi chênh lệch.
+[ĐẦU RA] File Excel tổng hợp G_XD + chi tiết công tác.
+```
+
+```bash
+# Bước 1: chỉ kiểm tra file đọc được không (không tính, không ghi file)
+python run_state_graph.py --check-inputs --qs "bang_qs.xlsx"
+
+# Bước 2: tính và xuất
+python run_state_graph.py --phase qs --qs "bang_qs.xlsx" --rate-chung 5.1 --rate-nha-tam 1.2 --rate-kxd 1.0 --rate-tl 5.5 --vat 8 --qs-out G_XD.xlsx
+```
+
+Với file mẫu, hệ thống báo: *"G_XD ghi trong file 33.974.615.853 ≠ tính lại 33.356.895.564"*. Đây là chức năng đối chiếu đang hoạt động, không phải lỗi. Kỹ sư cần kiểm tra chênh lệch này.
+
+### 3.3. Thanh toán Mẫu 03a (NĐ 254/2025/NĐ-CP)
+
+```text
+[VAI TRÒ] Kỹ sư thanh toán hợp đồng.
+[ĐẦU VÀO] Bảng QS hợp đồng: <file>; khối lượng thực hiện (lũy kế kỳ trước, kỳ này): <file>
+[RÀNG BUỘC] Đơn giá QS là đơn giá hợp đồng trước thuế; thu hồi tạm ứng 20%; giữ lại 5%; kỳ 01.
+[ĐẦU RA] File Mẫu 03a.
+```
+
+```bash
+python run_state_graph.py --phase payment --qs "hop_dong.xlsx" --progress "kl_thuc_hien.xlsx" --price-basis contract --advance-recovery-pct 20 --retention-pct 5 --period 01 --payment-out 03a_ky01.xlsx
+
+# Chạy thử bằng dữ liệu mẫu (không dùng cho hồ sơ thật):
+python run_state_graph.py --demo --phase payment --payment-out 03a_thu.xlsx
+```
+
+### 3.4. Tiến độ CPM từ MS Project / Excel / CSV
+
+```text
+[VAI TRÒ] Kỹ sư tiến độ.
+[ĐẦU VÀO] File tiến độ: templates/Tien_Do_Thi_Cong_Cau_Km19+529.080.xml
+[RÀNG BUỘC] Nghỉ Chủ nhật; nghỉ Tết 2027-02-05 đến 2027-02-12.
+[ĐẦU RA] Bảng ES/EF/LS/LF/dự trữ, danh sách công việc găng.
+```
+
+```bash
+python run_state_graph.py --phase schedule --schedule "tien_do.xml" --non-working-days cn --holidays "2027-02-05:2027-02-12" --schedule-out cpm.csv
+```
+
+### 3.5. Đo bóc khối lượng từ bảng cấu kiện (có diễn giải)
+
+```bash
+# Mẫu cột đầu vào: templates/Mau_dau_vao_do_boc.csv
+python run_state_graph.py --takeoff "bang_cau_kien.csv" --takeoff-out do_boc.xlsx
+```
+
+### 3.6. Đánh giá phiếu thí nghiệm và điểm dừng kỹ thuật
+
+```bash
+# Mẫu: templates/Phieu_thi_nghiem_mau.csv
+python run_state_graph.py --phase qaqc --lab "phieu_thi_nghiem.csv" --lab-out danh_gia_TN.xlsx
+```
+
+### 3.7. Xuất trọn bộ hồ sơ 3 tầng (Master, hồ sơ vi mô, gói Hub & Spoke)
+
+```bash
+python run_state_graph.py --export-all --excel "Master.xlsx" --export-dir HO_SO_XUAT --project-name "Tên dự án"
+```
+
+Cuối quá trình xuất, Quality Gate tự quét lỗi công thức (`#REF!`, `#VALUE!`...) và ghi `DISPATCH_MANIFEST.json` kèm MD5.
+
+### 3.8. Bóc tách sơ bộ cầu (nguyên mẫu)
+
+```text
+[VAI TRÒ] Kỹ sư cầu.
+[NHIỆM VỤ] Dùng BridgePierParams + BridgePierEngine.compute_takeoff trong tools/civil_and_bridge_takeoff_engine.py
+           để ước tính bê tông, ván khuôn trụ: bệ 7,0 x 3,6 x 1,8 m; 2 cột D1,5 m cao 8,5 m; xà mũ 9,6 x 1,8 m,
+           cao 1,6 m tại tim, 1,0 m tại mút.
+[LƯU Ý] Đây là ước tính sơ bộ, ghi rõ các giả định trong code (xem skills/skill-civil-to-bridge-takeoff/SKILL.md).
+```
+
 ```bash
 python examples/demo_bridge_takeoff_from_qs_logic.py
 ```
 
----
+### 3.9. Kiểm tra hệ thống
 
-### 🔹 MẪU 2: Tối ưu hóa Cắt thép 1D (Rebar 1D Cutting Stock)
-> **Áp dụng khi:** Có danh mục thép cần cắt, muốn giảm phế liệu đề-xê $< 1.5\%$ bằng cây thép 11.7m.
-
-```text
-[VAI TRÒ]: Hãy đóng vai Kỹ sư Quản lý Cốt thép và Tối ưu hóa Vật tư.
-[NHIỆM VỤ]: Giải bài toán tổ hợp cắt thép 1D (Cutting Stock) từ danh mục thanh sau:
-- Thép D25, Mác CB400-V, Cây thép nguyên thương mại: 11.7m (11700mm).
-- Thanh Mark 1: Chiều dài 11.700mm - Số lượng: 24 thanh.
-- Thanh Mark 2: Chiều dài 7.500mm  - Số lượng: 48 thanh.
-- Thanh Mark 3: Chiều dài 4.200mm  - Số lượng: 48 thanh.
-[RÀNG BUỘC KỸ THUẬT]:
-- Lưỡi cắt (kerf): 5mm.
-- Mục tiêu: Tỷ lệ đề-xê phế thải <= 1.5% (đạt tiêu chuẩn Golden Rebar Pattern).
-- Tự động bổ sung định mức dây thép buộc 1.5% theo Thông tư 38/2026/TT-BXD.
-[ĐẦU RA MONG MUỐN]:
-- Số cây thép 11.7m nguyên cần xuất kho.
-- Sơ đồ cắt chi tiết từng cây (cây số mấy cắt những thanh nào, thừa bao nhiêu mm).
-- Tỷ lệ phế thải tổng thể (%) và khối lượng dây thép buộc cần mua.
-```
-*Lệnh CLI tương đương:*
 ```bash
-python -m tools.cutting_stock_solver --stock 11700 --demands "11700:24,7500:48,4200:48"
+python run_state_graph.py --solver-test               # OR-Tools và CPM hoạt động không
+python run_state_graph.py --demo                      # chạy thử đủ các pha bằng dữ liệu mẫu
+python run_state_graph.py --level                     # báo cáo kho kinh nghiệm (Level/XP)
+python -m tools.audit_excels_static "thu_muc_excel"   # quét lỗi công thức Excel (không cần Excel)
+python -m unittest discover -s tests -t .             # toàn bộ unit test
 ```
 
 ---
 
-### 🔹 MẪU 3: Lập Dự toán Xây dựng & Tính Chi phí G_XD
-> **Áp dụng khi:** Có bảng khối lượng BoQ, cần lập bảng dự toán chi phí xây dựng $G_{XD} = T + GT + TL + VAT$.
+## 4. Bảng tra nhanh
 
-```text
-[VAI TRÒ]: Hãy đóng vai Kỹ sư Định giá Xây dựng & Lập Dự toán (Cost Engineer).
-[NHIỆM VỤ]: Đọc bảng khối lượng BoQ từ file [ten_file_boq.xlsx] và tính toán Tổng chi phí xây dựng G_XD.
-[RÀNG BUỘC PHÁP LÝ & KỸ THUẬT]:
-- Áp dụng Nghị định 207/2026/NĐ-CP, Thông tư 36/2026/TT-BXD và Thông tư 38/2026/TT-BXD.
-- Công thức: G_XD = T + GT + TL + VAT.
-  + Chi phí trực tiếp: T = VL + NC + M.
-  + Chi phí gián tiếp: GT = Chi phí chung + Chi phí nhà tạm + Chi phí không xác định.
-  + Thu nhập chịu thuế tính trước: TL = (T + GT) * Định mức %.
-  + Thuế VAT: 8% hoặc 10% theo quy định hiện hành.
-- BẢO TOÀN CÔNG THỨC SỐNG: 100% ô tính phải dùng công thức Excel (=C*D, =SUM), nghiêm cấm điền số tĩnh (số chết).
-[ĐẦU RA MONG MUỐN]:
-- Xuất file Excel dự toán phân cấp WBS chuẩn Bộ Xây dựng.
-```
-*Lệnh CLI tương đương:*
-```bash
-python run_state_graph.py --phase qs --excel "du_lieu_du_an/bang_boq.xlsx"
-```
+| Việc cần làm | Lệnh |
+|---|---|
+| Kiểm tra file đầu vào | `python run_state_graph.py --check-inputs --qs <file> --bbs <file> ...` |
+| Cắt thép | `--phase rebar --bbs <file> --cut-plan-out <csv>` |
+| Dự toán G_XD | `--phase qs --qs <file> --rate-chung .. --rate-nha-tam .. --rate-kxd .. --rate-tl .. --vat .. --qs-out <xlsx>` |
+| Thanh toán 03a | `--phase payment --qs <file> --progress <file> --price-basis contract --advance-recovery-pct .. --retention-pct .. --payment-out <xlsx>` |
+| Tiến độ CPM | `--phase schedule --schedule <xml/xlsx/csv> --schedule-out <csv>` |
+| Đo bóc bảng cấu kiện | `--takeoff <csv/xlsx> --takeoff-out <xlsx>` |
+| Phiếu thí nghiệm | `--phase qaqc --lab <file> --lab-out <xlsx>` |
+| Xuất hồ sơ 3 tầng | `--export-all --excel <Master.xlsx> --export-dir <thư mục>` |
+
+> ⚠️ **Lỗi đã biết:** `--phase fleet` / `--phase dispatch` có trong `--help` nhưng Supervisor chưa xử lý pha này nên dừng ngay với thông báo *"Phase không xác định"*. Kế hoạch ca máy hiện chỉ có trong các script dựng hồ sơ ở `examples/`.
 
 ---
 
-### 🔹 MẪU 4: Lập Tiến độ Thi công CPM & Kế hoạch Ca máy - Dầu Diesel
-> **Áp dụng khi:** Cần tính toán đường găng Critical Path, nhân công, ca máy và tiêu hao nhiên liệu.
+## 5. Sai lầm thường gặp
 
-```text
-[VAI TRÒ]: Hãy đóng vai Kỹ sư Điều độ Hiện trường & Quản trị Thiết bị Thi công.
-[NHIỆM VỤ]: Lập tiến độ thi công mạng CPM và kế hoạch huy động máy thi công - dầu diesel cho dự án.
-[DỮ LIỆU ĐẦU VÀO]: File tiến độ hoặc bảng tác vụ tại [duong_dan_file_tien_do.xlsx] (gồm Mã CV, Tên CV, Thời gian, Quan hệ FS/SS/FF và Ca máy dự kiến).
-[RÀNG BUỘC KỸ THUẬT]:
-- Tính toán đúng đường găng CPM (ES, EF, LS, LF, Total Float TF).
-- Áp dụng định mức tiêu hao dầu diesel theo bảng định mức Vincons trong thư mục data/.
-- Cân bằng tài nguyên máy đào, máy ủi, lu rung chống xung đột đỉnh tải.
-[ĐẦU RA MONG MUỐN]:
-- Bảng tiến độ Gantt Chart Native Excel với công tắc tương tác tại ô C11 (Nhập 1: hiện vạch tiến độ; Nhập 2: hiện nhân công; Nhập 3: hiện ca máy).
-- Bảng cân bằng dầu Diesel từng ngày và cả đợt thi công.
-```
-*Lệnh CLI tương đương:*
-```bash
-python run_state_graph.py --phase cpm --excel "examples/HO_SO_CAU_KM19_529/260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx"
-```
-
----
-
-### 🔹 MẪU 5: Lập Bảng Thanh toán Khối lượng Hoàn thành Mẫu 03a
-> **Áp dụng khi:** Nghiệm thu giai đoạn, lập hồ sơ thanh toán A-B theo Nghị định 254/2025/NĐ-CP.
-
-```text
-[VAI TRÒ]: Hãy đóng vai Kỹ sư Quản lý Hợp đồng & Thanh toán (Payment Engineer).
-[NHIỆM VỤ]: Lập bảng thanh toán khối lượng hoàn thành Mẫu 03a (theo Nghị định 254/2025/NĐ-CP) cho Đợt thanh toán số [X].
-[DỮ LIỆU ĐẦU VÀO]: 
-- Bảng khối lượng hợp đồng đã duyệt.
-- Bảng khối lượng hoàn thành thực tế lũy kế đến kỳ này.
-- Số tiền tạm ứng hợp đồng và mức thu hồi tạm ứng theo điều khoản thanh toán.
-[RÀNG BUỘC KỸ THUẬT]:
-- Tính toán đầy đủ: Khối lượng thực hiện kỳ này, lũy kế đến hết kỳ này, giá trị thanh toán, giảm trừ tạm ứng, giữ lại bảo hành (thường 5%).
-- Không làm tròn tiền tệ trung gian, sử dụng Decimal chính xác từng đồng.
-[ĐẦU RA MONG MUỐN]:
-- Xuất bảng tính Mẫu 03a chuẩn mẫu Bộ Tài chính bằng file Excel công thức sống.
-```
-*Lệnh CLI tương đương:*
-```bash
-python run_state_graph.py --phase payment --excel "du_lieu_du_an/hop_dong_thanh_toan.xlsx"
-```
-
----
-
-### 🔹 MẪU 6: Xuất Trọn Bộ Hồ Sơ Công Nghiệp 3 Tầng (Hub & Spoke)
-> **Áp dụng khi:** Muốn xuất trọn gói 14 hồ sơ vi mô chuyên sâu và 5 gói bàn giao phân quyền.
-
-```text
-[VAI TRÒ]: Hãy đóng vai Giám đốc Kỹ thuật & Quản trị Hệ thống 23HG-AEC.
-[NHIỆM VỤ]: Kích hoạt Quy trình Xuất Hồ Sơ Công Nghiệp 3 Tầng (Industrial End-to-End Export Pipeline) cho dự án [Tên Dự Án].
-[DỮ LIỆU ĐẦU VÀO]: Tệp Master Excel tại [duong_dan_master.xlsx].
-[QUY CHUẨN XUẤT XƯỞNG]:
-- TẦNG 1: Macro Master File (Bộ tính tổng hợp gốc).
-- TẦNG 2: 14 Bộ hồ sơ vi mô độc lập (QS, BBS, Đơn giá, 03a, KCS, Ca máy, Cấp phối, Biểu đồ...).
-- TẦNG 3: Hub & Spoke 5 Gói vệ tinh phân quyền (Gói Chủ đầu tư, Gói Tư vấn Giám sát, Gói Ban Chỉ huy, Gói Thầu phụ, Gói Đội thi công).
-- QUALITY GATE: Bắt buộc chạy kiểm toán tự động trước khi xuất xưởng, đảm bảo 0 lỗi công thức (#REF!, #VALUE!, #NAME!).
-[ĐẦU RA MONG MUỐN]:
-- Đóng gói đầy đủ vào thư mục xuất xưởng và xuất báo cáo Quality Gate 100% ĐẠT.
-```
-*Lệnh CLI tương đương:*
-```bash
-python run_state_graph.py --export-all --excel "du_lieu_du_an/Master.xlsx" --export-dir "./HO_SO_XUAT_XUONG"
-```
-
----
-
-### 🔹 MẪU 7: Kiểm tra Cấp độ Tiến hóa (Level-Up) & Nạp Kinh Nghiệm Mới
-> **Áp dụng khi:** Muốn xem hệ thống đã lên Level mấy, đạt bao nhiêu XP, hoặc nạp kinh nghiệm dự án mới.
-
-```text
-[VAI TRÒ]: Quản trị viên Kho Kinh nghiệm Hệ thống (AEC Experience Agent).
-[NHIỆM VỤ]: 
-1. Hiển thị Báo cáo Cấp độ hiện tại (Level), Điểm kinh nghiệm (XP), Danh hiệu nghề nghiệp và Tiến độ lên cấp.
-2. Liệt kê các Mẫu cắt thép vàng, Quy tắc miễn dịch lỗi (Immunity Rules) và Kỹ năng mới đã được phê duyệt.
-```
-*Lệnh CLI tương đương:*
-```bash
-# Xem báo cáo Cấp độ (Level & XP)
-python run_state_graph.py --level
-
-# Chạy kiểm thử toàn bộ hệ thống (227 tests)
-python -m unittest discover -s tests -t .
-```
-
----
-
-## ⚡ 3. Bảng Tra Cứu Lệnh Dòng Lệnh Nhanh (CLI Cheat Sheet)
-
-| Nhu cầu nghiệp vụ | Câu lệnh Terminal chạy ngay |
-| :--- | :--- |
-| **Chạy demo toàn bộ 8 pha** | `python run_state_graph.py --demo` |
-| **Xem Level-Up & Cấp bậc AI** | `python run_state_graph.py --level` |
-| **Bóc tách dầm cầu & Trụ xẻ nước** | `python examples/demo_bridge_takeoff_from_qs_logic.py` |
-| **Tối ưu hóa cắt thép 1D** | `python -m tools.cutting_stock_solver --help` |
-| **Tính tiến độ CPM & Ca máy** | `python run_state_graph.py --phase cpm --excel "<file.xlsx>"` |
-| **Lập dự toán & Tính G_XD** | `python run_state_graph.py --phase qs --excel "<file.xlsx>"` |
-| **Lập bảng thanh toán 03a** | `python run_state_graph.py --phase payment --excel "<file.xlsx>"` |
-| **Xuất trọn bộ hồ sơ 3 tầng** | `python run_state_graph.py --export-all --excel "<file.xlsx>"` |
-| **Kiểm toán lỗi file Excel tĩnh** | `python -m tools.audit_excels_static "<thư_mục_excel>"` |
-| **Chạy kiểm thử 227 unit tests** | `python -m unittest discover -s tests -t .` |
-
----
-
-## ⚠️ 4. Những Sai Lầm Phổ Biến Cần Tránh Khi Viết Prompt
-
-1. ❌ **Không yêu cầu AI "tính nhẩm":** 
-   - *Sai:* "Hãy tính xem dầm cầu này hết bao nhiêu tiền?" $\to$ Dễ dính ảo giác LLM.
-   - *Đúng:* "Hãy dùng module `tools.civil_and_bridge_takeoff_engine` và `tools.qs_export` để tính khối lượng và xuất bảng dự toán G_XD bằng công thức sống."
-2. ❌ **Không bỏ sót đơn vị đo:**
-   - Khi nhập thép tấm hay kích thước hình học, luôn nói rõ: Chiều dài (mm hay m), Khối lượng (kg hay tấn).
-3. ❌ **Quên mác thép khi cắt thép:**
-   - Hệ thống tối ưu hóa cắt thép phân tách nghiêm ngặt theo từng đường kính ($\Phi$) và mác thép (CB240-T, CB300-V, CB400-V, CB500-V). Không gom chung các loại mác thép khác nhau vào cùng một mẻ cắt.
+1. **Để AI tự tính hoặc tự điền số.** Hãy yêu cầu chạy công cụ của repo và dán kết quả thật.
+2. **Thiếu đơn vị.** Luôn ghi rõ mm hay m, kg hay tấn, % của T hay của (T+GT).
+3. **Dùng `--demo` hoặc `--human-gate auto` cho hồ sơ thật.** Hai cờ này chỉ để chạy thử.
+4. **Gom chung mác thép.** Solver tách theo Ø và mác; BBS phải ghi mác thép đúng từng thanh.
+5. **Coi kết quả là hồ sơ pháp lý.** Kết quả dự toán, thanh toán, nghiệm thu phải được kỹ sư rà soát trước khi ký.

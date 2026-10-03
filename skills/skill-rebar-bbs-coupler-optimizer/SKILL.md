@@ -1,67 +1,56 @@
 ---
 name: skill-rebar-bbs-coupler-optimizer
-description: Tự động bù trừ mối nối buộc 40d cho cây thép dài > 11.7m, tự động phái sinh định mức thép buộc 1.5% theo TT 38/2026/TT-BXD và giải bài toán Cutting Stock bằng Google OR-Tools CP-SAT đạt đề-xê < 1.5%.
+description: Sinh danh mục đoạn cắt cốt thép sơ bộ cho thân trụ và dầm Super-T rồi tối ưu cắt từ cây 11,7 m bằng CuttingStockSolver (OR-Tools), có tùy chọn tách thanh dài và nối chồng 40d.
 ---
 
-# Kỹ năng Tối ưu hóa Cắt Thép 1D với Mối Nối 40d & Thép Buộc 1.5%
+# Tối ưu cắt thép 1D cho cấu kiện cầu (nối chồng 40d, dây buộc 1,5%)
 
-**Mã Kỹ năng:** `SKILL-REBAR-BBS-COUPLER-OPTIMIZER`  
-**Nhóm nghiệp vụ:** `REBAR_OPTIMIZATION`  
-**Trạng thái:** `APPROVED` (Kỹ sư trưởng phê duyệt)  
-**Tiêu chuẩn áp dụng:** TCVN 5574:2018, TCVN 1651:2018, Thông tư 38/2026/TT-BXD.
+**Mã:** `SKILL-REBAR-BBS-COUPLER-OPTIMIZER` · **Nhóm:** `REBAR_OPTIMIZATION`
+**Trạng thái:** `PENDING_APPROVAL` — chờ Kỹ sư trưởng duyệt.
+**Mã nguồn:** [`tools/cutting_stock_solver.py`](../../tools/cutting_stock_solver.py), [`tools/civil_and_bridge_takeoff_engine.py`](../../tools/civil_and_bridge_takeoff_engine.py)
 
----
+## 1. Code thực sự làm gì
 
-## 1. Mục tiêu & Bài toán Kỹ thuật
+- `generate_bridge_pier_rebar_demands(...)` sinh 2 nhóm thanh cho thân trụ: thép chủ D28 dài `H + 2×40d` (giả định **32 thanh/cột**) và đai D14 bước 150 mm.
+- `generate_super_t_rebar_demands(...)` sinh thép sườn D20, thép bầu D25 (đoạn **5.800 mm cố định**) và đai chữ U D12 dài 3.850 mm.
+- ⚠️ Các số này là **giả định điển hình trong code, không lấy từ bản vẽ**. Muốn dùng thật phải đưa BBS thật vào (`--bbs`).
+- Hai hàm trên trả về `list[dict]`, phải chuyển sang `CutDemand(**d)` trước khi đưa vào solver.
+- Solver tách theo đường kính và mác thép, tính hao hụt lưỡi cắt và báo cận dưới số cây. `OPTIMAL` nghĩa là đã chứng minh không thể dùng ít cây hơn.
+- Thanh dài hơn 11,7 m: dùng `solve(..., split_long_bars=True)`. Phương án nối tận dụng đầu thừa: `allow_splicing=True`. Nối chồng mặc định `lap_xd=40`, kỹ thuật phải duyệt vị trí nối.
 
-1. **Chiều dài thương mại cố định:** Cây thép tại Việt Nam dài cố định $11.7\text{m} = 11700\text{mm}$.
-2. **Quy tắc nối chồng $40d$:**
-   - Khi thanh cốt thép yêu cầu có chiều dài $L > 11.7\text{m}$ (ví dụ cọc khoan nhồi sâu 30-40m, cốt dọc thân trụ cao), bắt buộc chia đoạn và bổ sung chiều dài nối chồng:
-     $$L_{\text{thực}} = L + n_{\text{nối}} \times 40d$$
-   - Mối nối phải được bố trí so le theo TCVN 5574:2018, tránh vùng mô men uốn cực đại (`RULE-REBAR-003`).
-3. **Phái sinh định mức dây thép buộc 1 ly ($1.5\%$):**
-   - Theo định mức Thông tư 38/2026/TT-BXD: Khối lượng dây thép buộc $1.5\%$ tổng khối lượng cốt thép dự toán (`RULE-TIE-WIRE-008`).
-4. **Tối ưu hóa cắt thép 1D (Cutting Stock Problem):**
-   - Nạp toàn bộ danh mục thanh cần cắt (`CutDemand`) vào solver Google OR-Tools (kết hợp Column Generation / GLOP và CP-SAT).
-   - Mục tiêu: Tối thiểu hóa số cây thép nguyên 11.7m cần dùng và giảm tỷ lệ mẩu thừa phế thải đề-xê $< 1.5\%$.
-   - Khi đề-xê $< 1.5\%$, tự động lưu thành **Mẫu cắt thép vàng (Golden Rebar Pattern)** để tái sử dụng trong $O(1)$.
+> Kết quả demo "đề-xê 0,83%" là trường hợp dễ: 64 đoạn D20 dài 5.800 mm, cắt 2 đoạn mỗi cây. Không nên dùng con số này làm chỉ tiêu chung. Ví dụ thân trụ dưới đây cho kết quả **OPTIMAL nhưng đề-xê khoảng 14%**: D28 dài 10.740 mm chỉ cắt được 1 thanh mỗi cây, đai D14 cũng hao nhiều. Đó là giới hạn của chính danh mục thanh, không phải lỗi solver.
+>
+> ⚠️ Cùng một trụ, `BridgePierEngine` ước tính thép theo hàm lượng 125 kg/m³ ra khoảng **14,9 tấn**. Trong khi đó danh mục thanh giả định ở đây chỉ khoảng **4,4 tấn**. Hai cách đang không khớp nhau, phải lấy BBS thật làm chuẩn.
 
----
-
-## 2. Hướng dẫn Sử dụng Module Python
+## 2. Cách dùng (đã chạy thử)
 
 ```python
 from tools.cutting_stock_solver import CuttingStockSolver, CutDemand
-from tools.civil_and_bridge_takeoff_engine import (
-    generate_bridge_pier_rebar_demands,
-    generate_super_t_rebar_demands
-)
+from tools.civil_and_bridge_takeoff_engine import generate_bridge_pier_rebar_demands
 
-# 1. Sinh danh mục thanh thép thân trụ D25 và dầm Super-T (đã tính nối 40d)
-demands_pier = generate_bridge_pier_rebar_demands(col_diam=1.5, col_H=8.5, num_cols=2)
-demands_super_t = generate_super_t_rebar_demands(span_length=33.0, num_girders=4)
+raw = generate_bridge_pier_rebar_demands(column_height_m=8.5, column_dia_m=1.5, column_count=2)
+demands = [CutDemand(**d) for d in raw]
 
-# 2. Khởi tạo Solver Google OR-Tools CP-SAT
-solver = CuttingStockSolver(stock_length=11700, kerf=5)
-for d in demands_pier + demands_super_t:
-    solver.add_demand(d)
+solver = CuttingStockSolver(bar_length_mm=11700, kerf_mm=3)
+sol = solver.solve(demands)
 
-# 3. Giải bài toán tổ hợp tối ưu
-result = solver.solve()
-print(f"Trạng thái:            {result.status}")
-print(f"Số cây thép nguyên:    {result.stock_bars_used} cây 11.7m")
-print(f"Tỷ lệ phế liệu đề-xê:  {result.waste_pct:.2f}% (Đạt chuẩn Golden Pattern nếu < 1.5%)")
-
-# 4. Tính dây thép buộc 1 ly theo TT 38/2026/TT-BXD
-total_rebar_weight_kg = result.stock_bars_used * 11.7 * 3.853  # D25: 3.853 kg/m
-tie_wire_kg = total_rebar_weight_kg * 0.015
-print(f"Khối lượng thép D25:   {total_rebar_weight_kg:.2f} kg")
-print(f"Dây thép buộc 1.5%:    {tie_wire_kg:.2f} kg")
+print("Trạng thái :", sol.status)
+print("Số cây 11,7m:", sol.total_bars_needed, "(cận dưới", sol.lower_bound_bars, ")")
+print("Đề-xê       :", round(sol.waste_ratio_pct, 2), "%")
+print("KL thép mua :", round(sol.total_weight_kg, 1), "kg")
+print("Dây buộc 1,5%:", round(sol.total_weight_kg * 0.015, 1), "kg")
+for g in sol.groups:
+    print(f"  Ø{g.diameter_mm}: {g.total_bars_needed} cây, đề-xê {g.waste_ratio_pct:.2f}% [{g.status}]")
 ```
 
----
+Với BBS thật, dùng dòng lệnh:
 
-## 3. Điều kiện Kích hoạt & Phê duyệt
+```bash
+python run_state_graph.py --phase rebar --bbs "duong_dan/BBS.xlsx" --kerf-mm 3 --cut-plan-out phieu_cat.csv
+# thêm --splice để tính phương án nối tận dụng đầu thừa (cần kỹ thuật duyệt)
+```
 
-- **Trigger:** Khi lập bảng thống kê cốt thép (BBS), bóc tách dự toán hoặc xuất sơ đồ cắt phôi cho xưởng gia công cốt thép.
-- **Tiêu chuẩn nghiệm thu:** Tỷ lệ đề-xê phế thải $\le 1.5\%$; không nối thép tại vùng kéo căng lớn nhất.
+## 3. Lưu ý kỹ thuật
+
+- Không nối thép tại vùng mô men lớn nhất. Dùng `--splice-zone` để giới hạn vùng được nối.
+- Hệ số dây buộc 1,5% lấy từ bảng tính trong folder "Mua"; kỹ sư cần đối chiếu với định mức áp dụng cho dự án.
