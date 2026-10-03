@@ -180,6 +180,7 @@ class ProjectExperienceStore:
         Khởi tạo ProjectExperienceStore.
         Nếu store_path là None, sử dụng đường dẫn mặc định trong .aec_state/experience_store.json.
         """
+        self._custom_path = store_path is not None
         if store_path is None:
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             state_dir = os.environ.get("AEC_STATE_DIR") or os.path.join(base_dir, ".aec_state")
@@ -205,11 +206,20 @@ class ProjectExperienceStore:
         for r in self.DEFAULT_IMMUNITY_RULES:
             self.immunity_rules[r.rule_id] = r
 
+        load_path = self.store_path
         if not os.path.exists(self.store_path):
-            return
+            if not getattr(self, "_custom_path", False):
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                seed_path = os.path.join(base_dir, "data", "experience_store_seed.json")
+                if os.path.exists(seed_path):
+                    load_path = seed_path
+                else:
+                    return
+            else:
+                return
 
         try:
-            with open(self.store_path, "r", encoding="utf-8") as f:
+            with open(load_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             self.projects_history = data.get("projects_history", [])

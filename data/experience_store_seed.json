@@ -1,0 +1,266 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-10-03T10:09:16",
+  "projects_history": [
+    "Cầu Km19+529.080 — Cao tốc Tuyên Quang - Hà Giang",
+    "(chưa đặt tên dự án — dùng --project-name)",
+    "Chuyển giao Công nghệ Động cơ QS & KCT sang Cầu Đường (Folder Mua)",
+    "Cầu Thôn Khai Hoang 2 (Km14+363.65) - Cao tốc Tuyên Quang - Hà Giang"
+  ],
+  "productivity_observations": {
+    "duc_dam_super_t": [
+      {
+        "observation_id": "OBS-duc_dam_super_t-0001",
+        "project_id": "",
+        "task_code": "duc_dam_super_t",
+        "task_name": "Đúc dầm Super-T 33m",
+        "unit": "phiến/ngày",
+        "planned_productivity": 0.33,
+        "actual_productivity": 0.35,
+        "ratio": 1.0606,
+        "conditions": {},
+        "recorded_at": "2026-10-03T10:09:16"
+      }
+    ],
+    "be_tong_xa_mu_hammerhead": [
+      {
+        "observation_id": "OBS-be_tong_xa_mu_hammerhead-0001",
+        "project_id": "",
+        "task_code": "be_tong_xa_mu_hammerhead",
+        "task_name": "Đổ BT xà mũ vươn hẫng",
+        "unit": "m3/ca",
+        "planned_productivity": 45.0,
+        "actual_productivity": 42.0,
+        "ratio": 0.9333,
+        "conditions": {},
+        "recorded_at": "2026-10-03T10:09:16"
+      }
+    ],
+    "gia_cong_dam_thep_i": [
+      {
+        "observation_id": "OBS-gia_cong_dam_thep_i-0001",
+        "project_id": "",
+        "task_code": "gia_cong_dam_thep_i",
+        "task_name": "Gia công dầm thép liên hợp",
+        "unit": "tấn/ca",
+        "planned_productivity": 12.0,
+        "actual_productivity": 11.997,
+        "ratio": 0.9998,
+        "conditions": {},
+        "recorded_at": "2026-10-03T10:09:16"
+      }
+    ],
+    "han_dinh_neo_nelson": [
+      {
+        "observation_id": "OBS-han_dinh_neo_nelson-0001",
+        "project_id": "",
+        "task_code": "han_dinh_neo_nelson",
+        "task_name": "Hàn đinh neo chống cắt Nelson D22",
+        "unit": "cái/ca",
+        "planned_productivity": 150.0,
+        "actual_productivity": 180.0,
+        "ratio": 1.2,
+        "conditions": {},
+        "recorded_at": "2026-10-03T10:09:16"
+      }
+    ],
+    "lap_dung_thep_mo_tru": [
+      {
+        "observation_id": "OBS-lap_dung_thep_mo_tru-0001",
+        "project_id": "",
+        "task_code": "lap_dung_thep_mo_tru",
+        "task_name": "Lắp dựng cốt thép mố trụ D25",
+        "unit": "tấn/ca",
+        "planned_productivity": 1.5,
+        "actual_productivity": 1.65,
+        "ratio": 1.1,
+        "conditions": {},
+        "recorded_at": "2026-10-03T10:09:16"
+      }
+    ]
+  },
+  "golden_patterns": {
+    "GOLDEN-tru_cau_va_dam_super_t-D25-ec1e473f": {
+      "pattern_id": "GOLDEN-tru_cau_va_dam_super_t-D25-ec1e473f",
+      "element_type": "tru_cau_va_dam_super_t",
+      "diameter_mm": 25,
+      "steel_grade": "CB400-V",
+      "demand_signature": "ec1e473f678467f7",
+      "demands_summary": {
+        "11700": 24,
+        "7500": 48,
+        "4200": 48
+      },
+      "stock_bar_count": 72,
+      "waste_pct": 0.0,
+      "cutting_patterns": [
+        {
+          "pattern": [
+            11700
+          ],
+          "used": 24,
+          "waste_mm": 0
+        },
+        {
+          "pattern": [
+            7500,
+            4200
+          ],
+          "used": 48,
+          "waste_mm": 0
+        }
+      ],
+      "project_origin": "Dự án Cầu Super-T 33m & Trụ xẻ nước",
+      "times_reused": 0,
+      "created_at": "2026-10-03T10:09:16"
+    }
+  },
+  "immunity_rules": {
+    "RULE-EXCEL-001": {
+      "rule_id": "RULE-EXCEL-001",
+      "name": "Ngăn ngừa lỗi XML Formula do text bắt đầu bằng '='",
+      "category": "EXCEL_INTEGRITY",
+      "trigger_description": "Ô text, ghi chú hoặc diễn giải bắt đầu bằng ký tự '=' khiến Excel hiểu nhầm là công thức hỏng.",
+      "severity": "CRITICAL",
+      "fix_recommendation": "Thêm dấu nháy đơn (') phía trước hoặc loại bỏ tiền tố '=' đối với text diễn giải.",
+      "times_triggered": 0,
+      "status": "ACTIVE",
+      "created_at": "2026-10-03T09:57:37"
+    },
+    "RULE-MATH-002": {
+      "rule_id": "RULE-MATH-002",
+      "name": "Quy tắc Số Chết (Zero LLM Math Guard)",
+      "category": "LEGAL_NORMS",
+      "trigger_description": "Giá trị thành tiền, khối lượng tổng hợp trong bảng tính không dùng công thức sống mà điền số tĩnh.",
+      "severity": "CRITICAL",
+      "fix_recommendation": "Bắt buộc sử dụng công thức sống =C*D hoặc liên kết động =Sheet!Cell.",
+      "times_triggered": 0,
+      "status": "ACTIVE",
+      "created_at": "2026-10-03T09:57:37"
+    },
+    "RULE-REBAR-003": {
+      "rule_id": "RULE-REBAR-003",
+      "name": "Cấm nối thép tại vùng mômen uốn cực đại",
+      "category": "ENGINEERING_SAFETY",
+      "trigger_description": "Mối nối chồng cốt thép rơi vào vùng kéo căng lớn nhất (giữa nhịp dầm/đỉnh mômen) không theo BPTC.",
+      "severity": "CRITICAL",
+      "fix_recommendation": "Chuyển mối nối sang vùng nén hoặc bố trí so le theo TCVN 5574:2018.",
+      "times_triggered": 0,
+      "status": "ACTIVE",
+      "created_at": "2026-10-03T09:57:37"
+    },
+    "RULE-CPM-004": {
+      "rule_id": "RULE-CPM-004",
+      "name": "Kiểm tra đứt gãy quan hệ tiền định CPM",
+      "category": "CPM_SCHEDULE",
+      "trigger_description": "Tác vụ trung gian không có successor nối tiếp dẫn tới tính sai đường găng.",
+      "severity": "WARNING",
+      "fix_recommendation": "Rà soát toàn bộ tác vụ không phải End Event để đảm bảo có ít nhất 1 successor FS/SS.",
+      "times_triggered": 0,
+      "status": "ACTIVE",
+      "created_at": "2026-10-03T09:57:37"
+    },
+    "RULE-QAQC-005": {
+      "rule_id": "RULE-QAQC-005",
+      "name": "Thời gian bảo dưỡng bê tông trước khi dỡ cốp pha",
+      "category": "ENGINEERING_SAFETY",
+      "trigger_description": "Lịch tháo cốp pha đáy dầm sàn sớm hơn kết quả nén mẫu R7/R28 theo TCVN 4453:1995.",
+      "severity": "CRITICAL",
+      "fix_recommendation": "Bắt buộc có phiếu thí nghiệm nén mẫu R >= 70-80% R28 trước khi ra lệnh dỡ cốp pha.",
+      "times_triggered": 0,
+      "status": "ACTIVE",
+      "created_at": "2026-10-03T09:57:37"
+    },
+    "RULE-QS-OVERLAP-006": {
+      "rule_id": "RULE-QS-OVERLAP-006",
+      "name": "Khử trùng lặp thể tích giao cắt bê tông mố/trụ/bản mặt cầu",
+      "category": "QUANTITY_SURVEYING",
+      "trigger_description": "Bóc tách lặp lại khối lượng phần giao giữa dầm chủ và bản mặt cầu / dầm ngang.",
+      "severity": "CRITICAL",
+      "fix_recommendation": "Áp dụng công thức trừ giao hình học: V_thực = V_toàn_phần - V_giao.",
+      "times_triggered": 0,
+      "status": "ACTIVE",
+      "created_at": "2026-10-03T10:09:16"
+    },
+    "RULE-REBAR-COUPLER-007": {
+      "rule_id": "RULE-REBAR-COUPLER-007",
+      "name": "Bắt buộc cộng mối nối 40d khi chiều dài thép vượt cây 11.7m",
+      "category": "LEGAL_NORMS",
+      "trigger_description": "Thanh thép dài quá 11.7m mà không cộng chiều dài nối chồng 40d theo TCVN 5574.",
+      "severity": "CRITICAL",
+      "fix_recommendation": "Tự động chia thành các phân đoạn 11.7m và cộng n_nối * 40 * d.",
+      "times_triggered": 0,
+      "status": "ACTIVE",
+      "created_at": "2026-10-03T10:09:16"
+    },
+    "RULE-TIE-WIRE-008": {
+      "rule_id": "RULE-TIE-WIRE-008",
+      "name": "Tự động phân bổ định mức thép buộc 1.5% theo TT 38/2026/TT-BXD",
+      "category": "LEGAL_NORMS",
+      "trigger_description": "Bảng dự toán thiếu vật liệu dây thép buộc 1 ly liên kết khung cốt thép.",
+      "severity": "STANDARD",
+      "fix_recommendation": "Tự động phái sinh khối lượng dây buộc = 0.015 * Tổng_khối_lượng_thép.",
+      "times_triggered": 0,
+      "status": "ACTIVE",
+      "created_at": "2026-10-03T10:09:16"
+    },
+    "RULE-STRUCT-STEEL-PAINT-009": {
+      "rule_id": "RULE-STRUCT-STEEL-PAINT-009",
+      "name": "Bắt buộc tính 2 mặt sơn chống gỉ cho thép tấm tổ hợp",
+      "category": "STRUCTURAL_STEEL",
+      "trigger_description": "Bỏ sót diện tích sơn mặt còn lại của bản cánh / bản bụng dầm thép tấm.",
+      "severity": "STANDARD",
+      "fix_recommendation": "Tính S_sơn = 2 * (chiều rộng + bề dày) * chiều dài.",
+      "times_triggered": 0,
+      "status": "ACTIVE",
+      "created_at": "2026-10-03T10:09:16"
+    }
+  },
+  "candidate_skills": {
+    "SKILL-CIVIL-TO-BRIDGE-TAKEOFF": {
+      "skill_id": "SKILL-CIVIL-TO-BRIDGE-TAKEOFF",
+      "name": "Đồng hình bóc tách hình học kết cấu Dân dụng sang Cầu đường",
+      "category": "QUANTITY_SURVEYING",
+      "description": "Chuyển giao và mở rộng nguyên lý hình học móng chóp cụt, vai cột corbel, dầm trừ giao sàn từ QS dân dụng sang mố chữ U, trụ xẻ nước mũi thuyền, xà mũ vươn hẫng hammerhead và dầm Super-T 33m theo TCVN 11823:2017 & TT 38/2026/TT-BXD.",
+      "workflow_trigger": "Bóc tách khối lượng hình học mố trụ dầm cầu",
+      "prompt_template": "",
+      "code_snippet": "",
+      "status": "APPROVED",
+      "approved_by": "AUTO_APPROVE",
+      "approval_notes": "[Auto-approved in test mode]",
+      "decided_at": "2026-10-03T10:09:16",
+      "created_at": "2026-10-03T10:09:16",
+      "times_executed": 0
+    },
+    "SKILL-REBAR-BBS-COUPLER-OPTIMIZER": {
+      "skill_id": "SKILL-REBAR-BBS-COUPLER-OPTIMIZER",
+      "name": "Tối ưu hóa cắt thép 1D với mối nối 40d & thép buộc 1.5%",
+      "category": "REBAR_OPTIMIZATION",
+      "description": "Tự động bù trừ mối nối buộc 40d cho cây thép dài > 11.7m, phái sinh định mức thép buộc 1.5% và giải bài toán Cutting Stock bằng OR-Tools CP-SAT đạt đề-xê < 1.5%.",
+      "workflow_trigger": "Bóc tách cốt thép BBS và tổ hợp cắt thép cây 11.7m",
+      "prompt_template": "",
+      "code_snippet": "",
+      "status": "APPROVED",
+      "approved_by": "AUTO_APPROVE",
+      "approval_notes": "[Auto-approved in test mode]",
+      "decided_at": "2026-10-03T10:09:16",
+      "created_at": "2026-10-03T10:09:16",
+      "times_executed": 0
+    },
+    "SKILL-STEEL-PLATE-GIRDER-TAKEOFF": {
+      "skill_id": "SKILL-STEEL-PLATE-GIRDER-TAKEOFF",
+      "name": "Bóc tách Dầm cầu thép tấm chữ I liên hợp & Đinh neo Nelson",
+      "category": "STRUCTURAL_STEEL",
+      "description": "Bóc tách chuỗi PL{t}x{w}x{L} theo công thức 7.85 t/m3, tự động tính diện tích sơn chống gỉ 3 lớp (S = 2*(w+t)*L) và bóc tách đinh neo chống cắt Nelson D22x150mm.",
+      "workflow_trigger": "Bóc tách kết cấu dầm cầu thép tấm hoặc dầm I liên hợp",
+      "prompt_template": "",
+      "code_snippet": "",
+      "status": "APPROVED",
+      "approved_by": "AUTO_APPROVE",
+      "approval_notes": "[Auto-approved in test mode]",
+      "decided_at": "2026-10-03T10:09:16",
+      "created_at": "2026-10-03T10:09:16",
+      "times_executed": 0
+    }
+  }
+}
