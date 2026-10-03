@@ -256,6 +256,17 @@ python run_state_graph.py --survey "Du_toan_khao_sat.xls"
 > - `C = NC × %`, `TL = (T + C) × %`, `Gks = T + C + TL`, `G = Gks + Glpa + Glbc + Ghmc`, `Gxd = G + GTGT`, tổng = `Gxd + Gdp`. Mọi giá trị ghi trong file được tính lại và báo lệch nếu khác quá 1 đồng.
 > - Đã kiểm bằng một dự toán khảo sát thật đã thẩm định: khớp đến từng đồng (golden test `tests/test_survey_estimate.py`).
 
+#### a3c. Quy ước tính thép & đài móng (chuẩn hóa từ bảng tính QS chuyên nghiệp):
+> - `tools/steel_qs.py` — quy ước cốt thép & kết cấu thép: khối lượng đơn vị `D²/162` (kg/m); cây 11,7 m chỉ đếm cho D > 8 (D ≤ 8 cấp dạng cuộn); số cây `= ROUND(kg / kg một cây)`; dây buộc 1,5%; thép tấm `PL` = `t·rộng·dài·7,85/10⁶`, thép hình = `kg/m · dài`. Engine cầu dùng chung quy ước này.
+> - `tools/civil_foundation_qs.py` — đo bóc đài móng (bê tông, bê tông lót, ván khuôn): đài vuông/chữ nhật, chóp cụt (công thức xấp xỉ trung bình diện tích theo QS), quả trám kiểu 1; kèm quy ước số cạnh ván khuôn vách (`WALL_FORMWORK_FACES`).
+> - Cả hai đã kiểm bằng các ô đã tính sẵn trong hồ sơ QS thật: khớp đến từng m³/kg (golden test `tests/test_steel_qs_golden.py`, `tests/test_civil_foundation_qs_golden.py`).
+> - `tools/infra_culvert_qs.py` — đo bóc cống tròn hạ tầng: phân loại theo loại/đường kính, cọc tre đế cống, đào/đắp/vận chuyển đất rãnh (mặt cắt hình thang, trừ thân cống), hệ số mái taluy theo chiều cao đào. Khớp 4 tuyến cống trong hồ sơ thật đến từng m³ (golden test `tests/test_infra_culvert_qs_golden.py`).
+> - `tools/infra_manhole_qs.py` — đo bóc hố ga hạ tầng (kiểu 1), hố ga bê tông hoặc xây gạch: bê tông/khối xây/trát (trừ lỗ cống), bê tông lót, nắp ga (bê tông/song chắn), cọc tre, đào/đắp/vận chuyển đất hố. Khớp hố ga bê tông và xây gạch trong hồ sơ thật đến từng m³ (golden test `tests/test_infra_manhole_qs_golden.py`).
+> - `tools/infra_channel_qs.py` — đo bóc mương hộp (dòng đáy): đá dăm nền, bê tông lót/đáy, ván khuôn, nilon, chống thấm, cọc tre, đào/đắp toàn tuyến, cốt thép đáy. Golden test `tests/test_infra_channel_qs_golden.py`.
+> - `tools/infra_tank_qs.py` — đo bóc đáy bể nước ngầm (PCCC/XLNT): bê tông lót/đáy, ván khuôn, chống thấm, đào/đắp hố bể, cốt thép lưới 2 lớp. Khớp cả hai bể thật (golden test `tests/test_infra_tank_qs_golden.py`).
+> - `tools/infra_road_qs.py` — đo bóc hạ tầng đường: base cấp phối (lu lèn), asphalt/nhũ tương (R1/R2) hoặc bê tông + nilon + cốt thép (R3), bóc nền, cát san lấp. Golden test `tests/test_infra_road_qs_golden.py`.
+> - `tools/infra_fence_qs.py` — đo bóc hàng rào: móng trụ (bê tông lót/móng chóp cụt, trụ/giằng theo bề dày, đào/đắp), tường xây/trát/sơn. Golden test `tests/test_infra_fence_qs_golden.py`.
+
 #### a4. Lập Mẫu 03a — giá trị khối lượng hoàn thành đề nghị thanh toán (NĐ 254/2025):
 ```powershell
 python run_state_graph.py --phase payment --qs "Du_toan.xlsx" --progress "KL_ky_01.xlsx" --price-basis direct --advance-recovery-pct 20 --retention-pct 5 --period 01 --payment-out Mau_03a_ky01.xlsx
