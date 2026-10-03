@@ -10,6 +10,8 @@ Validates:
 """
 import argparse
 import csv
+import os
+import sys
 from datetime import datetime, timedelta
 from collections import Counter
 from typing import Dict, List, Optional, Tuple
@@ -37,11 +39,28 @@ def parse_date(v: Optional[str]):
 
 def main():
     ap = argparse.ArgumentParser(description="Audit QA/QC Dossier Master Register")
-    ap.add_argument("csv_file", help="Path to register CSV file")
+    ap.add_argument("file_path", help="Path to register CSV or Excel (.xlsx/.xlsm) file")
     ap.add_argument("--strict", action="store_true", help="Fail on warnings as well as errors")
     args = ap.parse_args()
 
-    with open(args.csv_file, newline="", encoding="utf-8-sig") as f:
+    # Nếu là file Excel, chạy bộ kiểm tra 6 Bất biến Lõi KCS Invariants Verifier
+    if args.file_path.endswith((".xlsx", ".xlsm")):
+        import sys
+        sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
+        from tools.kcs_invariants_verifier import verify_kcs_workbook
+        report = verify_kcs_workbook(args.file_path)
+        print("\n" + "═" * 70)
+        print("  AEC-QLCL: AUDIT MASTER REGISTER THEO 6 BẤT BIẾN LÕI")
+        print(f"  File: {args.file_path}")
+        print(f"  Điểm: {report.total_score}/100 | Trạng thái: {'ĐẠT' if report.passed else 'KHÔNG ĐẠT'}")
+        print("═" * 70)
+        for e in report.critical_errors:
+            print(f"  ❌ {e}")
+        for w in report.warnings:
+            print(f"  ⚠ {w}")
+        sys.exit(0 if report.passed and (not args.strict or not report.warnings) else 1)
+
+    with open(args.file_path, newline="", encoding="utf-8-sig") as f:
         rows = list(csv.DictReader(f))
 
     errors: List[str] = []

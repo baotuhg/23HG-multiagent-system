@@ -358,6 +358,10 @@ def build_parser() -> "argparse.ArgumentParser":
                      help="File phiếu thí nghiệm thật (.xlsx/.csv/.json): nén R7/R28, kéo thép, siêu âm, PDA...")
     lab.add_argument("--lab-sheet", default=None, help="Tên sheet phiếu thí nghiệm (mặc định: tự tìm)")
     lab.add_argument("--lab-out", default=None, help="Xuất báo cáo đánh giá thí nghiệm & Hold Point (.xlsx)")
+    lab.add_argument("--audit-kcs", default=None,
+                     help="Kiểm tra 6 Bất biến Lõi Hồ sơ QLCL / KCS (.xlsx/.xlsm) theo TCVN & Nghiên cứu Kè")
+    lab.add_argument("--audit-kcs-sheet", default=None, help="Tên sheet Danh mục công việc (mặc định: tự tìm)")
+
     fleet = parser.add_argument_group("Điều phối Ca xe, Ca máy & Nhiên liệu Dầu (phase fleet / dispatch)")
     fleet.add_argument("--fleet-out", default=None, help="Xuất file Master Ca máy Excel (.xlsx)")
     fleet.add_argument("--dispatch-out", default=None, help="Thư mục xuất các gói Hub & Spoke")
@@ -441,6 +445,28 @@ def main():
 
     if args.survey:
         sys.exit(run_survey(args))
+
+    if args.audit_kcs:
+        from tools.kcs_invariants_verifier import verify_kcs_workbook
+        report = verify_kcs_workbook(args.audit_kcs, dmcv_sheet=args.audit_kcs_sheet)
+        print("\n" + "═" * 70)
+        print("  KCS INVARIANTS VERIFIER — KIỂM TRA 6 BẤT BIẾN LÕI HỒ SƠ QLCL")
+        print(f"  File: {args.audit_kcs}")
+        print("═" * 70)
+        print(f"\n  [KẾT QUẢ ĐÁNH GIÁ]")
+        print(f"  Điểm chất lượng: {report.total_score}/100")
+        print(f"  Trạng thái: {'✅ ĐẠT CHUẨN KCS' if report.passed and report.total_score >= 80 else '❌ KHÔNG ĐẠT (CẦN ĐIỀU CHỈNH)'}")
+        print(f"  Tổng số công tác quét: {report.details.get('total_tasks_scanned', 0)}")
+        if report.critical_errors:
+            print(f"\n  [LỖI NGHIÊM TRỌNG BỊ CHẶN] ({len(report.critical_errors)} lỗi):")
+            for err in report.critical_errors:
+                print(f"    ❌ {err}")
+        if report.warnings:
+            print(f"\n  [CẢNH BÁO KỸ THUẬT] ({len(report.warnings)} cảnh báo):")
+            for w in report.warnings:
+                print(f"    ⚠ {w}")
+        print("\n" + "═" * 70 + "\n")
+        sys.exit(0 if report.passed and report.total_score >= 80 else 1)
 
     # --takeoff một mình: đo bóc độc lập. Kèm --phase / --demo: bảng cấu kiện đi vào Supervisor (pha CAD_TAKEOFF).
     if args.takeoff and not (args.phase or args.demo):

@@ -358,6 +358,30 @@ class QualityGate:
         result.passed = score == 100 and not result.issues
         return result
 
+    # ── GATE 6: KCS & QLCL Invariants ────────────────────────────────────────
+
+    def check_kcs_invariants(self, excel_path: str, dmcv_sheet: Optional[str] = None) -> GateCheckResult:
+        """
+        Kiểm tra 6 Bất biến Lõi Hồ sơ QLCL / KCS Thực chiến:
+          1. Bảo toàn hình học & Khối lượng sống (A x B x C == V)
+          2. Đồ thị thời gian kết cấu (DAG): PYC trước NT, Tháo ván khuôn >= 2 ngày, Nghiệm thu hoàn thành cấu kiện >= 28 ngày
+          3. Cấu trúc chùm hồ sơ (RFI + BBNT + Checklist + PLKL + Phiếu TN)
+          4. Lịch pháp lý & Khí tượng (Khóa Tết Nguyên Đán, Tết DL, Lễ, ngày mưa bão)
+          5. Đắp đất phân lớp K95 khép kín
+          6. Dung sai thực nghiệm ngẫu nhiên có kiểm soát
+        """
+        from tools.kcs_invariants_verifier import verify_kcs_workbook
+        report = verify_kcs_workbook(excel_path, dmcv_sheet=dmcv_sheet)
+        return GateCheckResult(
+            gate_name="KCS_INVARIANTS_GATE",
+            passed=report.passed and report.total_score >= 80,
+            score=report.total_score,
+            max_score=100,
+            issues=report.critical_errors,
+            warnings=report.warnings,
+            details=report.details,
+        )
+
     # ── AGGREGATE: Run all gates for a phase ─────────────────────────────────
 
     def run_phase_gate(
@@ -388,6 +412,10 @@ class QualityGate:
             results.append(self.check_qs_estimate(context.get("qs_data", {})))
             if context.get("excel_path"):
                 results.append(self.check_excel_audit(context["excel_path"]))
+
+        elif phase in {"QAQC_REVIEW", "KCS_QAQC", "BPTC_KCS"}:
+            if context.get("excel_path"):
+                results.append(self.check_kcs_invariants(context["excel_path"], context.get("dmcv_sheet")))
 
         all_passed = all(r.passed for r in results)
         return all_passed, results

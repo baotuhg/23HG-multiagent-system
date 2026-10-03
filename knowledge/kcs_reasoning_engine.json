@@ -1,0 +1,144 @@
+{
+  "module": "kcs_reasoning_engine",
+  "version": "1.0.0",
+  "source_study": "HSQLCL Kè 2026 07.07.26.xlsm",
+  "project_reference": "Dự án Kè & Đường Sông Miện (HG-CW06), TP Hà Giang",
+  "description": "Bộ quy tắc suy luận lõi và kiến trúc dữ liệu cho Agent tự động lập, kiểm tra và xuất Hồ sơ Quản lý Chất lượng (QLCL / KCS) chuẩn công trường Việt Nam",
+  "core_invariants": {
+    "invariant_1_geometric_conservation": {
+      "name": "Bảo toàn Hình học và Khối lượng sống (Single Source of Truth)",
+      "rule": "Khối lượng bê tông, ván khuôn, đào đắp bắt buộc tính từ kích thước thực tế (A x B x C) bằng công thức sống, không dùng số chết.",
+      "formula_flow": {
+        "foundation_dimensions": "A = Chiều dài phân đoạn, B = Bề rộng móng, C = Chiều cao bản móng",
+        "concrete_volume": "= A * B * C (m3)",
+        "formwork_area": "= 2 * (A + B) * C (m2)",
+        "slump_and_trucks": "= CEILING(V_concrete / V_truck, 1) mẻ trộn/chuyến xe",
+        "rebar_weight": "= SUM(N_bars * L_bar * Unit_weight) (kg)",
+        "cross_sheet_sync": "Khối lượng V_concrete phải khớp 100% giữa Sheet Data -> Danh mục công việc -> BB kiểm tra đổ BT -> BBKT cấu kiện sau tháo ván khuôn -> Bảng thanh toán đợt KCS"
+      }
+    },
+    "invariant_2_temporal_dag": {
+      "name": "Đồ thị phụ thuộc thời gian (Strict Temporal Dependency DAG)",
+      "chain_of_concrete_structure": [
+        {
+          "step": 1,
+          "name": "Đào hố móng",
+          "pyc_offset_days": -1,
+          "duration_days": 2,
+          "attachments": ["Checklist cao độ đáy móng (CL1)", "Phụ lục khối lượng đào (PLKL1)"],
+          "next_step_condition": "Đáy móng đạt cao độ thiết kế và địa chất được chấp thuận"
+        },
+        {
+          "step": 2,
+          "name": "Lắp đặt cốt thép chờ D25 liên kết",
+          "start_offset": 0,
+          "duration_days": 1,
+          "attachments": ["Checklist kích thước cốt thép chờ (CL2)"]
+        },
+        {
+          "step": 3,
+          "name": "Rải bạt xác rắn & Lắp dựng cốt thép, ván khuôn móng",
+          "start_offset": 0,
+          "duration_days": 4,
+          "attachments": ["Checklist rải bạt (CL4)", "Checklist ván khuôn móng (CL3)", "Checklist cốt thép móng BBS (CL5)"]
+        },
+        {
+          "step": 4,
+          "name": "Đổ bê tông móng chân kè",
+          "start_offset": 0,
+          "pyc_offset_days": -1,
+          "duration_days": 1,
+          "attachments": ["Checklist trước khi đổ (CL6)", "Biên bản lấy mẫu bê tông hiện trường (LMHT)", "Bảng theo dõi xe đổ bê tông (KTĐBT)"]
+        },
+        {
+          "step": 5,
+          "name": "Tháo dỡ ván khuôn & Kiểm tra cấu kiện sau tháo dỡ",
+          "fixed_delay_days_from_pour": 2,
+          "rule": "Đúng 48 giờ sau kết thúc đổ bê tông móng mới được tháo ván khuôn thành",
+          "attachments": ["Biên bản kiểm tra cấu kiện sau tháo ván khuôn (TVKM)"]
+        },
+        {
+          "step": 6,
+          "name": "Quét nhựa bitum dán bao tải chống thấm khe co giãn",
+          "fixed_delay_days_from_pour": 3,
+          "duration_days": 1
+        },
+        {
+          "step": 7,
+          "name": "Lắp dựng cốt thép & ván khuôn tường chân kè",
+          "start_after_step": 5,
+          "duration_days": 4,
+          "attachments": ["Checklist ván khuôn tường (VKT)", "Checklist cốt thép tường"]
+        },
+        {
+          "step": 8,
+          "name": "Đổ bê tông tường chân kè",
+          "pyc_offset_days": -1,
+          "duration_days": 1,
+          "attachments": ["Kiểm tra trước đổ", "Lấy mẫu bê tông tường", "Bảng theo dõi xe bê tông"]
+        },
+        {
+          "step": 9,
+          "name": "Tháo dỡ ván khuôn tường",
+          "fixed_delay_days_from_pour": 2,
+          "attachments": ["Biên bản kiểm tra cấu kiện sau tháo ván khuôn tường (TVKT)"]
+        },
+        {
+          "step": 10,
+          "name": "Nghiệm thu hoàn thành cấu kiện Bê tông móng chân kè",
+          "fixed_delay_days_from_pour": 28,
+          "rule": "Bắt buộc đúng 28 ngày (tuổi nén R28) sau ngày đổ bê tông móng, khi có Phiếu KQTN nén mẫu LAS-XD đạt mác thiết kế",
+          "pyc_offset_days": -1
+        }
+      ]
+    },
+    "invariant_3_dossier_bundle": {
+      "name": "Cấu trúc Chùm Hồ sơ (Dossier Bundle Invariant)",
+      "rule": "Không bao giờ phát hành biên bản đơn lẻ. Mỗi công tác phải kẹp đủ bộ 5 tài liệu thành phần:",
+      "bundle_components": [
+        "1. Phiếu yêu cầu nghiệm thu (RFI / PYC) - có giờ gửi, người nhận TVGS, ngày gửi trước 24h",
+        "2. Biên bản nghiệm thu công việc xây dựng (BBNT CVXD) - đánh giá chất lượng, căn cứ tiêu chuẩn TCVN, kết luận chuyển bước",
+        "3. Bảng kiểm tra kích thước hình học (Checklist) - Thiết kế vs Thực tế vs Sai số delta",
+        "4. Phụ lục đo tính khối lượng nghiệm thu (PLKL) - công thức chi tiết từng cấu kiện",
+        "5. Phiếu kết quả thí nghiệm / Chứng chỉ vật liệu liên quan (KQTN LAS-XD, CO/CQ)"
+      ]
+    },
+    "invariant_4_calendar_weather_constraints": {
+      "name": "Ràng buộc Lịch pháp lý & Khí tượng thủy văn (Calendar & Weather Exclusions)",
+      "rules": [
+        "Tết Nguyên Đán: Khóa toàn bộ 10 ngày (không nghiệm thu, không thi công công tác chính).",
+        "Tết Dương Lịch (01/01), Giỗ Tổ Hùng Vương (10/03 ÂL), 30/04-01/05, Quốc khánh (02/09): Đánh dấu nghỉ lễ.",
+        "Mưa to, mưa phùn kéo dài: Khóa nghiệm thu đắp đất K95 và đổ bê tông lộ thiên nếu không có biện pháp che chắn.",
+        "Nhật trình thi công: Ngày mưa phải ghi rõ tình trạng thời tiết (Nhiệt độ min/max, mô tả mưa) và tích KHÔNG THI CÔNG = ✓."
+      ]
+    },
+    "invariant_5_earthwork_layering": {
+      "name": "Quy tắc Đắp đất phân lớp K95 (Layered Compaction Protocol)",
+      "rules": [
+        "Đắp đất chia từng lớp dày 20 - 30cm (Lớp 1 -> Lớp N).",
+        "Mỗi lớp độc lập: Rải đất -> San gạt -> Lu lèn -> Thí nghiệm hiện trường K95 (rót cát / dao đai).",
+        "Chỉ ký BBNT lớp N khi KQTN độ chặt đạt K >= 0.95. Tuyệt đối không cho đắp lớp N+1 nếu lớp N chưa nghiệm thu."
+      ]
+    },
+    "invariant_6_controlled_tolerances": {
+      "name": "Dung sai thực nghiệm ngẫu nhiên có kiểm soát (Controlled Realistic Tolerances)",
+      "standard": "TCVN 4453:1995, TCVN 9436:2012",
+      "rules": [
+        "Kích thước thực tế = Kích thước thiết kế + Sai số ngẫu nhiên delta.",
+        "Móng bê tông: delta nằm trong khoảng [-10mm, +20mm].",
+        "Tường bê tông: chiều dày delta nằm trong khoảng [-5mm, +10mm].",
+        "Cao độ đáy móng / lớp đất: delta nằm trong khoảng [-20mm, +10mm].",
+        "Độ sụt bê tông: Thiết kế 10 +/- 2 cm -> Thực tế đo 8cm, 9cm, 10cm, 11cm."
+      ]
+    }
+  },
+  "architectural_pattern": {
+    "engine_pattern": "Dynamic Single-Template with Data Pointer (1 Phôi - N Biên bản)",
+    "sheets_classification": {
+      "master_register": ["Danh mục công việc", "Nhật trình"],
+      "database_tables": ["data_vankhuon mong", "data_cotthep", "data_betong mong", "data_dapK95", "data_KTHH daomong"],
+      "view_templates": ["NT CVXD", "Nhật ký TC", "Ván khuôn móng", "Lắp dựng cốt thép chân kè", "BB kiểm tra Đổ BT", "BBKT CK"],
+      "bundling_indices": ["Mục lục BB", "Mục lục TH", "Trang bìa", "Danh mục HSPL"]
+    }
+  }
+}

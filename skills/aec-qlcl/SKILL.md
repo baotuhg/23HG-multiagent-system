@@ -77,3 +77,14 @@ Tiêu chí kiểm tra nghiêm ngặt:
 - Không bao giờ tự động điền giá trị mác bê tông (phải ghi rõ `[CẦN THIẾT KẾ DUYỆT]` nếu người dùng chưa cung cấp).
 - Không tự suy diễn tỷ lệ cường độ R7/R28 nếu không có cấp phối thí nghiệm được duyệt.
 - Mọi tiêu chuẩn viện dẫn phải ghi rõ mã hiệu (ví dụ: `TCVN 4453:1995`, `TCVN 8859:2011`) và xác định rõ nguồn áp dụng trong hồ sơ dự án.
+
+## 5. Bàn đạp Suy luận KCS Thực chiến (Kè & Cầu đường)
+Chi tiết xem tại [`kcs_reasoning_engine.json`](file:///d:/Code/23HG-multiagent-system-main/23HG-multiagent-system-main/knowledge/kcs_reasoning_engine.json).
+Bộ 6 bất biến bắt buộc tuân thủ:
+1. **Bảo toàn hình học & Khối lượng sống:** Kích thước thực tế $A \times B \times C \implies V_{\text{bê tông}} \implies$ Số xe trạm trộn $\implies$ Phụ lục KCS $\implies$ Khối lượng thanh toán. Khớp nhau 100% bằng công thức sống.
+2. **Đồ thị thời gian kết cấu (DAG):** Đào móng $\to$ Cốt thép chờ $\to$ Ván khuôn + Cốt thép móng $\to$ Đổ bê tông & Lấy mẫu $\xrightarrow{+2\text{ ngày}}$ Tháo dỡ ván khuôn móng & Kiểm tra bề mặt $\to$ Quét bitum khe co giãn $\to$ Thi công tường $\xrightarrow{+28\text{ ngày từ ngày đổ}}$ Nghiệm thu hoàn thành cấu kiện có phiếu $R_{28}$.
+3. **Chùm hồ sơ (Bundle Invariant):** $PYC/RFI$ (trước 24h) $+$ $BBNT$ $+$ $Checklist$ $+$ $PLKL$ $+$ $KQTN/CO-CQ$.
+4. **Đồng bộ Nhật trình - Biên bản - Thời tiết:** Ngày mưa lớn / Nghỉ Tết $\implies$ `KHÔNG THI CÔNG = ✓`, chặn nghiệm thu ngoài trời. Tên công việc biên bản $\iff$ Tên công việc trong Nhật ký.
+5. **Đắp đất phân lớp K95:** Mỗi lớp dày $20 \div 30$cm độc lập, nghiệm thu độ chặt $K \ge 0.95$ xong mới mở lớp tiếp theo.
+6. **Dung sai thực nghiệm có kiểm soát:** Kích thước thực tế $=$ Thiết kế $+$ Sai số ngẫu nhiên $\delta \in [-\Delta_{\max}, +\Delta_{\max}]$ tuân thủ TCVN (ví dụ TCVN 4453:1995 cho phép $\pm 10 \div 20$mm).
+
