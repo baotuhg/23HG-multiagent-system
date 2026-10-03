@@ -17,6 +17,8 @@ import math
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+from tools import steel_qs
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. GEOMETRIC PRIMITIVES (CÁC HÌNH KHỐI CƠ BẢN TỪ FOLDER 'MUA')
@@ -186,8 +188,8 @@ def calc_structural_steel_plate(
     Formula: M = t * w * L * 7.85 * n / 10^6 (kg)
              S_son = 2 * w * L * n / 10^6 (m2)
     """
-    vol_mm3 = thickness_mm * width_mm * length_mm * count
-    weight_kg = round(vol_mm3 * (density_kg_dm3 / 1_000_000.0), 3)
+    weight_kg = round(
+        steel_qs.steel_plate_weight(thickness_mm, width_mm, length_mm, count, density_kg_dm3), 3)
     paint_area_m2 = round((2.0 * width_mm * length_mm * count) / 1_000_000.0, 3)
 
     return {
@@ -280,7 +282,7 @@ class BridgeAbutmentEngine:
 
         # Cốt thép dự toán
         total_rebar_kg = round(structural_concrete_m3 * p.rebar_ratio_kg_m3, 1)
-        tie_wire_kg = round(total_rebar_kg * 0.015, 1) # Định mức 1.5% dây thép buộc từ File 2!
+        tie_wire_kg = steel_qs.tie_wire_kg(total_rebar_kg, ndigits=1)  # 1,5% dây thép buộc — quy ước ở tools/steel_qs
 
         return {
             "component": p.name,
@@ -367,7 +369,7 @@ class BridgePierEngine:
         total_conc_m3 = round(footing_conc_m3 + columns_conc_m3 + cap_conc_m3 + ped_conc_m3, 3)
         total_fw_m2 = round(footing_fw_m2 + columns_fw_m2 + cap_fw_m2 + ped_fw_m2, 3)
         total_rebar_kg = round(total_conc_m3 * p.rebar_ratio_kg_m3, 1)
-        tie_wire_kg = round(total_rebar_kg * 0.015, 1)
+        tie_wire_kg = steel_qs.tie_wire_kg(total_rebar_kg, ndigits=1)
 
         return {
             "component": p.name,
@@ -436,7 +438,7 @@ class BridgeSuperstructureEngine:
         total_concrete_c40_c50 = girders_conc_m3 # Dầm
         total_concrete_c30_c35 = round(deck_conc_m3 + barrier_conc_m3, 3) # Mặt cầu
         total_rebar_kg = round(girders_rebar_kg + deck_rebar_kg + barrier_rebar_kg, 1)
-        tie_wire_kg = round(total_rebar_kg * 0.015, 1)
+        tie_wire_kg = steel_qs.tie_wire_kg(total_rebar_kg, ndigits=1)
 
         return {
             "girders_count": p.girder_count,
