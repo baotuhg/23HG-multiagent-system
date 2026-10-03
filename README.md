@@ -260,6 +260,7 @@ python run_state_graph.py --survey "Du_toan_khao_sat.xls"
 > - `tools/civil_foundation_qs.py` — đo bóc đài móng (bê tông, bê tông lót, ván khuôn): đài vuông/chữ nhật, chóp cụt (công thức xấp xỉ trung bình diện tích theo QS), quả trám kiểu 1; kèm quy ước số cạnh ván khuôn vách (`WALL_FORMWORK_FACES`).
 > - Cả hai đã kiểm bằng các ô đã tính sẵn trong hồ sơ QS thật: khớp đến từng m³/kg (golden test `tests/test_steel_qs_golden.py`, `tests/test_civil_foundation_qs_golden.py`).
 > - `tools/infra_culvert_qs.py` — đo bóc cống tròn hạ tầng: phân loại theo loại/đường kính, cọc tre đế cống, đào/đắp/vận chuyển đất rãnh (mặt cắt hình thang, trừ thân cống), hệ số mái taluy theo chiều cao đào. Khớp 4 tuyến cống trong hồ sơ thật đến từng m³ (golden test `tests/test_infra_culvert_qs_golden.py`).
+> - `tools/infra_manhole_qs.py` — đo bóc hố ga hạ tầng (kiểu 1), hố ga bê tông hoặc xây gạch: bê tông/khối xây/trát (trừ lỗ cống), bê tông lót, nắp ga (bê tông/song chắn), cọc tre, đào/đắp/vận chuyển đất hố. Khớp hố ga bê tông và xây gạch trong hồ sơ thật đến từng m³ (golden test `tests/test_infra_manhole_qs_golden.py`).
 
 #### a4. Lập Mẫu 03a — giá trị khối lượng hoàn thành đề nghị thanh toán (NĐ 254/2025):
 ```powershell
