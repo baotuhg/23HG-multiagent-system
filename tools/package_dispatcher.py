@@ -471,36 +471,35 @@ def build_vincons_5_sheets_fleet_workbook(
                 cell.alignment = ALIGN_RIGHT
                 cell.number_format = "#,##0.0" if c in [5, 6, 7, 8, 13] else "#,##0"
 
-        # Timeline Gantt
+        # Timeline Gantt (100% CÔNG THỨC SỐNG: =IF(AND($J<=col$5,$K>=col$5),$M,""))
         task_st = start_date + datetime.timedelta(days=(r1-6)*10)
         task_fn = task_st + datetime.timedelta(days=t["dur"]-1)
         for idx, d in enumerate(dates):
             c_idx = 16 + idx
+            c_let = get_column_letter(c_idx)
             cell_g = ws1.cell(row=r1, column=c_idx)
             cell_g.border = THIN_BORDER
+            cell_g.value = f'=IF(AND($J{r1}<={c_let}$5,$K{r1}>={c_let}$5),$M{r1},"")'
+            cell_g.alignment = ALIGN_CENTER
+            cell_g.number_format = "0.00"
             if task_st <= d <= task_fn:
-                cell_g.value = 1
                 cell_g.fill = FILL_SEC
-                cell_g.alignment = ALIGN_CENTER
                 cell_g.font = FONT_BOLD
-            else:
-                cell_g.value = 0
-                cell_g.font = Font(name=FONT_FAMILY, size=7, color="D9D9D9")
-                cell_g.alignment = ALIGN_CENTER
         r1 += 1
 
-    # Footers Summary
-    # Summary 1: NC
-    ws1.cell(row=r1, column=3, value="TỔNG NHÂN CÔNG HUY ĐỘNG (Người/ngày)").font = FONT_BOLD
+    # Footers Summary (100% CÔNG THỨC SỐNG)
+    # Summary 1: NC = SUMPRODUCT
+    ws1.cell(row=r1, column=3, value="TỔNG NHÂN CÔNG TRÊN CÔNG TRƯỜNG (Người/ngày)").font = FONT_BOLD
     for c_i, d in enumerate(dates):
         c_let = get_column_letter(16 + c_i)
-        ws1.cell(row=r1, column=16 + c_i, value=f"=SUM({c_let}6:{c_let}{r1-1})*10").font = FONT_BOLD
+        ws1.cell(row=r1, column=16 + c_i, value=f'=SUMPRODUCT(($J$6:$J${r1-1}<={c_let}$5)*($K$6:$K${r1-1}>={c_let}$5)*$O$6:$O${r1-1})').font = FONT_BOLD
         ws1.cell(row=r1, column=16 + c_i).fill = FILL_TOT
-        ws1.cell(row=r1, column=16 + c_i).alignment = ALIGN_RIGHT
+        ws1.cell(row=r1, column=16 + c_i).alignment = ALIGN_CENTER
+        ws1.cell(row=r1, column=16 + c_i).number_format = "#,##0"
     r1 += 1
 
-    # Summary 3: Fuel
-    ws1.cell(row=r1, column=3, value="TỔNG LƯỢNG DẦU DIEZEL TIÊU THỤ (Lít/ngày)").font = FONT_BOLD
+    # Summary 3: Fuel = SUMPRODUCT dầu
+    ws1.cell(row=r1, column=3, value="TỔNG HỢP NHU CẦU DẦU DIEZEL TIÊU THỤ HÀNG NGÀY (LÍT/NGÀY)").font = FONT_BOLD
     for c_i, d in enumerate(dates):
         c_let = get_column_letter(16 + c_i)
         ws1.cell(row=r1, column=16 + c_i, value=f"=SUM({c_let}6:{c_let}{r1-2})*45").font = FONT_BOLD

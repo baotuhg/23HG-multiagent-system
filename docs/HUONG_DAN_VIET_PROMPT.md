@@ -118,7 +118,41 @@ python run_state_graph.py --export-all --excel "Master.xlsx" --export-dir HO_SO_
 
 Cuối quá trình xuất, Quality Gate tự quét lỗi công thức (`#REF!`, `#VALUE!`...) và ghi `DISPATCH_MANIFEST.json` kèm MD5.
 
-### 3.8. Bóc tách sơ bộ cầu (nguyên mẫu)
+### 3.10. Kiểm toán & Rà soát Hồ sơ QLCL theo 6 Bất biến Lõi
+
+```text
+[VAI TRÒ] Kỹ sư Trưởng QLCL & Kiểm toán KCS.
+[ĐẦU VÀO] File Excel hồ sơ nghiệm thu thực tế: <đường dẫn file .xlsx hoặc .xlsm>
+[RÀNG BUỘC] Áp dụng 6 Bất biến Lõi TCVN:
+            1. Khối lượng bảo toàn (A x B x C = V).
+            2. Chu kỳ bê tông: Tháo cốp pha >= 2 ngày, Nghiệm thu hoàn thành cấu kiện >= 28 ngày (R28), PYC trước NT >= 24h.
+            3. Tuyệt đối không nghiệm thu ngoài trời vào ngày Tết Nguyên Đán, Tết DL, Lễ 30/4-1/5, Quốc khánh.
+            4. Phải kẹp đủ chùm checklist (CL, PLKL, KTĐBT, TVKM).
+[ĐẦU RA] Báo cáo chấm điểm chất lượng (thang 100) và danh sách các lỗi đá ngày / lỗi hình học cần sửa.
+```
+
+```bash
+python run_state_graph.py --audit-kcs "duong_dan_file_ho_so.xlsx"
+# Hoặc chạy qua skill AEC-QLCL:
+python skills/aec-qlcl/scripts/audit_qa_register.py "duong_dan_file_ho_so.xlsx"
+```
+
+### 3.11. Lập trọn bộ Hồ sơ Nghiệm thu QLCL / KCS Thực chiến (1 Phôi - N Biên bản)
+
+```text
+[VAI TRÒ] Kỹ sư QLCL / KCS công trường.
+[ĐẦU VÀO] Hạng mục: <Tên công trình/hạng mục, ví dụ: Cầu Khai Hoang Km14+363.65 hoặc Kè bờ tả H0+00 - H0+20>;
+          Kích thước hình học thực tế (Dài A, Rộng B, Cao C); Mác bê tông, Nhóm cốt thép;
+          Thời gian khởi công: YYYY-MM-DD đến YYYY-MM-DD.
+[RÀNG BUỘC] 1. CSDL gốc: Kích thước A x B x C liên kết bằng CÔNG THỨC SỐNG sang thể tích, diện tích ván khuôn, số chuyến xe bê tông. ZERO SỐ CHẾT.
+            2. Đồ thị thời gian kết cấu (DAG): Đào móng -> Cốt thép chờ -> Cốp pha + Thép -> Đổ BT -> Tháo cốp pha (+2 ngày) -> Nghiệm thu hoàn thành (+28 ngày có R28).
+            3. Né 100% ngày nghỉ Tết Nguyên Đán và các ngày nghỉ lễ quốc gia.
+            4. Xuất theo cơ chế "1 Phôi in - N Biên bản": Sheet phôi A4 nhảy dữ liệu theo con trỏ Pointer; kẹp đủ chùm Checklist hình học và Sheet Nhật ký thi công đồng bộ.
+[ĐẦU RA] File Excel Master QLCL hoàn chỉnh, in ấn vừa vặn trang A4 Portrait, sẵn sàng ký duyệt.
+```
+
+### 3.12. Bóc tách sơ bộ cầu (nguyên mẫu)
+
 
 ```text
 [VAI TRÒ] Kỹ sư cầu.
