@@ -987,10 +987,13 @@ class AECPackageDispatcher:
             os.makedirs(p, exist_ok=True)
 
         # 4.1. Gói A: Chuẩn hóa bắt buộc 5 sheets Vincons / 23HG System
-        file_camay_name = f"TDTC_CaXe_CaMay_DauDiezel_{project_name.replace(' ', '_')}.xlsx"
+        if companion.get("fleet_template"):
+            file_camay_name = os.path.basename(companion["fleet_template"])
+        else:
+            safe_proj = re.sub(r'[\/:*?"<>|]', '_', project_name).replace(' ', '_')
+            file_camay_name = f"TDTC_CaXe_CaMay_DauDiezel_{safe_proj}.xlsx"
         path_camay = os.path.join(pkg_dirs["A"], file_camay_name)
         # Chỉ xuất Gói A khi có dữ liệu ca máy THẬT của dự án (fleet_template).
-        # Trước đây thiếu dữ liệu thì dựng mẫu cầu cứng (khoan cọc nhồi, Bauer, ngày 01/10/2026) — sai với dự án không phải cầu.
         if companion.get("fleet_template") and os.path.exists(companion["fleet_template"]):
             build_vincons_5_sheets_fleet_workbook(
                 dest_path=path_camay,
