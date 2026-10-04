@@ -18,6 +18,7 @@ Cấu trúc:
 """
 import os
 import datetime
+from typing import List, Dict, Any, Optional
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
@@ -265,11 +266,71 @@ MACHINES = [
 ]
 
 
-def build_bep_an_3tier_fleet_workbook(output_path: str):
-    """Xây dựng tệp Gói A 5 sheets với Sheet 01 tích hợp 3 tầng đẹp mắt, 100% công thức sống."""
+def build_bep_an_3tier_fleet_workbook(
+    output_path: str,
+    project_name: Optional[str] = None,
+    short_name: Optional[str] = None,
+    custom_tasks: Optional[List[Dict[str, Any]]] = None,
+    start_date: Optional[datetime.date] = None,
+    finish_date: Optional[datetime.date] = None
+):
+    """Xây dựng tệp Gói A 5 sheets với Sheet 01 tích hợp 3 tầng đẹp mắt, 100% công thức sống chuẩn mẫu Vincons."""
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     wb = openpyxl.Workbook()
     wb.remove(wb.active)  # Xóa sheet mặc định
+
+    is_bep_an = (short_name in ["Nha_Bep_An_17_17A", None] or project_name is None)
+
+    # 1. Xác định khung thời gian (chuẩn 61 ngày)
+    if is_bep_an:
+        d_start = D_START
+        d_finish = D_FINISH
+        proj_display_name = "CẢI TẠO NHÀ BẾP ĂN (NHÀ 17 VÀ 17A)"
+    else:
+        d_start = start_date or datetime.date(2026, 3, 1)
+        d_finish = d_start + datetime.timedelta(days=60)
+        proj_display_name = project_name.upper()
+
+    dates_timeline = [d_start + datetime.timedelta(days=i) for i in range(61)]
+
+    # 2. Chuẩn bị danh sách 26 công tác (Hàng 8 đến 33)
+    if is_bep_an or not custom_tasks:
+        active_tasks = TASKS
+    else:
+        active_tasks = []
+        raw_list = custom_tasks
+        for i in range(26):
+            r_idx = 8 + i
+            src_t = raw_list[i % len(raw_list)]
+            wbs_code = src_t.get('code') or f"WBS-{i+1:02d}"
+            t_name = src_t.get('name') or f"Công tác số {i+1}"
+            t_unit = src_t.get('unit') or "m3"
+            t_qty = float(src_t.get('qty', 25.0))
+            t_crew = int(src_t.get('crew', 6))
+            t_mach = str(src_t.get('mach', 'Thiết bị cơ giới'))
+            is_crit = (i in [3, 5, 8, 12, 15, 18])
+
+            # Tính ngày bắt đầu, kết thúc trong khung 61 ngày
+            offset_start = min(50, int((i / 26.0) * 45))
+            dur = max(2, min(8, int((t_qty / 10.0)) + 2))
+            t_st = d_start + datetime.timedelta(days=offset_start)
+            t_fn = min(d_finish, t_st + datetime.timedelta(days=dur))
+            norm_val = round(t_qty / max(1, dur), 2)
+
+            active_tasks.append({
+                "row": r_idx,
+                "wbs": wbs_code,
+                "name": t_name,
+                "unit": t_unit,
+                "qty": t_qty,
+                "norm": norm_val,
+                "shifts": 1,
+                "start": t_st,
+                "finish": t_fn,
+                "mach": t_mach,
+                "crew": t_crew,
+                "critical": is_crit
+            })
 
     # =========================================================================
     # SHEET 1: 01_TienDo_CaMay_Master (TÍCH HỢP 3 TẦNG TRÊN CÙNG 1 SHEET)
@@ -279,7 +340,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
 
     # 1. Khối Tiêu đề Master (Hàng 1, 2, 3)
     ws1.merge_cells("A1:O1")
-    ws1["A1"] = "DỰ ÁN: TRƯỜNG PHỔ THÔNG LIÊN CẤP PHỐ BẢNG — CẢI TẠO NHÀ BẾP ĂN (NHÀ 17 VÀ 17A)"
+    ws1["A1"] = f"DỰ ÁN: TRƯỜNG PHỔ THÔNG LIÊN CẤP PHỐ BẢNG — {proj_display_name}"
     ws1["A1"].font = FONT_WHITE_13
     ws1["A1"].fill = FILL_NAVY
     ws1["A1"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
@@ -291,7 +352,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
     ws1["A2"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
 
     ws1.merge_cells("A3:O3")
-    ws1["A3"] = f"MỐC TIẾN ĐỘ THI CÔNG: TỪ {D_START.strftime('%d/%m/%Y')} ĐẾN {D_FINISH.strftime('%d/%m/%Y')} (61 NGÀY) — 100% CÔNG THỨC SỐNG ĐỘNG (ZERO SỐ CHẾT) — ĐIỀU PHỐI ĐỒNG BỘ 3 TẦNG"
+    ws1["A3"] = f"MỐC TIẾN ĐỘ THI CÔNG: TỪ {d_start.strftime('%d/%m/%Y')} ĐẾN {d_finish.strftime('%d/%m/%Y')} (61 NGÀY) — 100% CÔNG THỨC SỐNG ĐỘNG (ZERO SỐ CHẾT) — ĐIỀU PHỐI ĐỒNG BỘ 3 TẦNG"
     ws1["A3"].font = FONT_RED_TITLE
     ws1["A3"].fill = FILL_YELLOW
     ws1["A3"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
@@ -303,7 +364,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
     ws1["C4"].font = Font(name=FONT_NAME, size=9.5, italic=True)
 
     ws1["F4"] = "Phân đoạn thi công:"
-    ws1["G4"] = "2 Hạng mục song song: Nhà 17 (Bếp nấu, sơ chế) & Nhà 17A (Khu ăn, phụ trợ)"
+    ws1["G4"] = f"Hạng mục công trình: {proj_display_name}" if not is_bep_an else "2 Hạng mục song song: Nhà 17 (Bếp nấu, sơ chế) & Nhà 17A (Khu ăn, phụ trợ)"
     ws1["F4"].font = Font(name=FONT_NAME, size=9.5, bold=True)
     ws1["G4"].font = Font(name=FONT_NAME, size=9.5, color="001B365D")
 
@@ -321,7 +382,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
     base_headers = [
         ("STT", "A6:A7"),
         ("Mã WBS", "B6:B7"),
-        ("Nội dung công việc thi công Cải tạo Nhà bếp ăn 17 & 17A", "C6:C7"),
+        (f"Nội dung công việc thi công {proj_display_name}", "C6:C7"),
         ("ĐVT", "D6:D7"),
         ("Khối lượng thiết kế", "E6:E7"),
         ("Định mức Vincons (ĐVT/ca)", "F6:F7"),
@@ -342,19 +403,17 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
         ws1[top_cell].font = FONT_WHITE_85
         ws1[top_cell].fill = FILL_NAVY
         ws1[top_cell].alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-        # Viền cho toàn bộ ô trong merge
         c_start, r_start = top_cell[0], int(top_cell[1])
         ws1.cell(r_start, ord(c_start) - ord('A') + 1).border = THIN_BORDER
         ws1.cell(r_start + 1, ord(c_start) - ord('A') + 1).border = THIN_BORDER
 
     # Timeline headers (Cột P / 16 đến BU / 76 - 61 ngày)
-    for i, dt in enumerate(DATES):
+    for i, dt in enumerate(dates_timeline):
         col = 16 + i
         col_letter = get_column_letter(col)
         ws1.column_dimensions[col_letter].width = 6.2
         is_sun = (dt.weekday() == 6)
 
-        # Row 6: Ngày thực tế dạng Date Serial sống: P6 = mốc, Q6 = =P6+1...
         if i == 0:
             c6 = ws1.cell(6, col, dt)
         else:
@@ -367,7 +426,11 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
         c6.alignment = Alignment(horizontal="center", vertical="center")
         c6.border = THIN_BORDER
 
-        # Row 7: Thứ trong tuần
+        c7 = ws1.cell(7, col, WEEKDAYS_VN[dt.weekday()])
+        c7.font = FONT_RED_8 if is_sun else Font(name=FONT_NAME, size=8, bold=True)
+        c7.fill = FILL_CORAL_HDR if is_sun else FILL_GREY_LIGHT
+        c7.alignment = Alignment(horizontal="center", vertical="center")
+        c7.border = THIN_BORDER
         c7 = ws1.cell(7, col, WEEKDAYS_VN[dt.weekday()])
         c7.font = FONT_RED_8 if is_sun else Font(name=FONT_NAME, size=8, bold=True)
         c7.fill = FILL_CORAL_HDR if is_sun else FILL_GREY_LIGHT
@@ -378,7 +441,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
     ws1.row_dimensions[7].height = 18
 
     # 4. TẦNG 1: Ghi 26 Tasks với 100% CÔNG THỨC SỐNG TOÀN DIỆN
-    for t in TASKS:
+    for t in active_tasks:
         r = t["row"]
         ws1.row_dimensions[r].height = 19
         ws1.cell(r, 1, r - 7).alignment = Alignment(horizontal="center", vertical="center")
@@ -429,7 +492,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
                 cell.fill = row_fill
 
         # Tô Gantt cho task này = FORMULA SỐNG ĐỘNG 100%: =IF(AND($J8<=col$6,$K8>=col$6),$M8,"")
-        for i, dt in enumerate(DATES):
+        for i, dt in enumerate(dates_timeline):
             col = 16 + i
             col_letter = get_column_letter(col)
             cell = ws1.cell(r, col)
@@ -448,16 +511,16 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
     # 5. DÒNG TỔNG 1: TỔNG NHÂN CÔNG TRÊN CÔNG TRƯỜNG (Hàng 35) = SUMPRODUCT SỐNG
     r_nc = 35
     ws1.row_dimensions[r_nc].height = 22
-    ws1.cell(r_nc, 3, "TỔNG NHÂN CÔNG TRÊN CÔNG TRƯỜNG NHÀ BẾP ĂN 17 & 17A (Người/ngày)")
+    ws1.cell(r_nc, 3, f"TỔNG NHÂN CÔNG TRÊN CÔNG TRƯỜNG {proj_display_name} (Người/ngày)")
     ws1.cell(r_nc, 3).font = Font(name=FONT_NAME, size=9.5, bold=True, color="00FFFFFF")
     for col_idx in range(1, 16):
         c = ws1.cell(r_nc, col_idx)
         c.fill = FILL_NAVY
         c.border = THIN_BORDER
 
-    first_task_r = TASKS[0]["row"]
-    last_task_r = TASKS[-1]["row"]
-    for i, dt in enumerate(DATES):
+    first_task_r = active_tasks[0]["row"]
+    last_task_r = active_tasks[-1]["row"]
+    for i, dt in enumerate(dates_timeline):
         col = 16 + i
         col_letter = get_column_letter(col)
         # =SUMPRODUCT(($J$8:$J$33<=col$6)*($K$8:$K$33>=col$6)*$O$8:$O$33)
@@ -469,7 +532,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
         cell.border = THIN_BORDER
 
     # 6. TẦNG 2: BẢNG TỔNG HỢP CA MÁY & PHƯƠNG TIỆN HUY ĐỘNG THEO NGÀY (Hàng 36 đến 48)
-    ws1.cell(36, 3, "BẢNG TỔNG HỢP CA MÁY & SỐ PHƯƠNG TIỆN HUY ĐỘNG THEO NGÀY (CÔNG TRƯỜNG NHÀ BẾP ĂN 17 & 17A)")
+    ws1.cell(36, 3, f"BẢNG TỔNG HỢP CA MÁY & SỐ PHƯƠNG TIỆN HUY ĐỘNG THEO NGÀY (CÔNG TRƯỜNG {proj_display_name})")
     ws1.cell(36, 3).font = FONT_WHITE_11
     ws1.row_dimensions[36].height = 24
     for c in range(1, 16):
@@ -497,7 +560,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
     for c_i in [2, 8, 9, 10, 11, 12, 13, 14, 15]:
         ws1.cell(37, c_i).fill = FILL_BLUE
 
-    for i, dt in enumerate(DATES):
+    for i, dt in enumerate(dates_timeline):
         col = 16 + i
         col_letter = get_column_letter(col)
         c37 = ws1.cell(37, col, f"={col_letter}6")
@@ -526,7 +589,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
             if r_m % 2 == 1:
                 ws1.cell(r_m, col_idx).fill = FILL_ZEBRA
 
-        for i, dt in enumerate(DATES):
+        for i, dt in enumerate(dates_timeline):
             col = 16 + i
             col_letter = get_column_letter(col)
             cell = ws1.cell(r_m, col)
@@ -540,17 +603,31 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
             # Ta kiểm tra ngày hoạt động lý thuyết để tô sẵn màu nền
             active_flag = False
             code = m["code"]
-            if code == "M1" and (datetime.date(2026, 10, 3) <= dt <= datetime.date(2026, 10, 8) or datetime.date(2026, 10, 10) <= dt <= datetime.date(2026, 10, 13)): active_flag = True
-            elif code == "M2" and (datetime.date(2026, 10, 7) <= dt <= datetime.date(2026, 10, 11)): active_flag = True
-            elif code == "M3" and (datetime.date(2026, 10, 10) <= dt <= datetime.date(2026, 10, 20) or datetime.date(2026, 10, 27) <= dt <= datetime.date(2026, 10, 29) or datetime.date(2026, 11, 4) <= dt <= datetime.date(2026, 11, 7)): active_flag = True
-            elif code == "M4" and (datetime.date(2026, 10, 20) <= dt <= datetime.date(2026, 10, 24) or datetime.date(2026, 11, 8) <= dt <= datetime.date(2026, 11, 24)): active_flag = True
-            elif code == "M5" and (datetime.date(2026, 10, 27) <= dt <= datetime.date(2026, 11, 7) or datetime.date(2026, 11, 8) <= dt <= datetime.date(2026, 11, 18)): active_flag = True
-            elif code == "M6" and (datetime.date(2026, 10, 30) <= dt <= datetime.date(2026, 11, 4) or datetime.date(2026, 11, 7) <= dt <= datetime.date(2026, 11, 13)): active_flag = True
-            elif code == "M7" and (datetime.date(2026, 10, 22) <= dt <= datetime.date(2026, 10, 25) or datetime.date(2026, 11, 18) <= dt <= datetime.date(2026, 11, 25)): active_flag = True
-            elif code == "M8" and (datetime.date(2026, 10, 16) <= dt <= datetime.date(2026, 10, 20) or datetime.date(2026, 10, 27) <= dt <= datetime.date(2026, 10, 29) or datetime.date(2026, 11, 4) <= dt <= datetime.date(2026, 11, 7)): active_flag = True
-            elif code == "M9" and (datetime.date(2026, 10, 12) <= dt <= datetime.date(2026, 10, 16) or datetime.date(2026, 10, 24) <= dt <= datetime.date(2026, 10, 26) or datetime.date(2026, 10, 29) <= dt <= datetime.date(2026, 11, 3)): active_flag = True
-            elif code == "M10" and (datetime.date(2026, 11, 7) <= dt <= datetime.date(2026, 11, 13) or datetime.date(2026, 11, 20) <= dt <= datetime.date(2026, 11, 26)): active_flag = True
-            elif code == "M11": active_flag = True
+            if is_bep_an:
+                if code == "M1" and (datetime.date(2026, 10, 3) <= dt <= datetime.date(2026, 10, 8) or datetime.date(2026, 10, 10) <= dt <= datetime.date(2026, 10, 13)): active_flag = True
+                elif code == "M2" and (datetime.date(2026, 10, 7) <= dt <= datetime.date(2026, 10, 11)): active_flag = True
+                elif code == "M3" and (datetime.date(2026, 10, 10) <= dt <= datetime.date(2026, 10, 20) or datetime.date(2026, 10, 27) <= dt <= datetime.date(2026, 10, 29) or datetime.date(2026, 11, 4) <= dt <= datetime.date(2026, 11, 7)): active_flag = True
+                elif code == "M4" and (datetime.date(2026, 10, 20) <= dt <= datetime.date(2026, 10, 24) or datetime.date(2026, 11, 8) <= dt <= datetime.date(2026, 11, 24)): active_flag = True
+                elif code == "M5" and (datetime.date(2026, 10, 27) <= dt <= datetime.date(2026, 11, 7) or datetime.date(2026, 11, 8) <= dt <= datetime.date(2026, 11, 18)): active_flag = True
+                elif code == "M6" and (datetime.date(2026, 10, 30) <= dt <= datetime.date(2026, 11, 4) or datetime.date(2026, 11, 7) <= dt <= datetime.date(2026, 11, 13)): active_flag = True
+                elif code == "M7" and (datetime.date(2026, 10, 22) <= dt <= datetime.date(2026, 10, 25) or datetime.date(2026, 11, 18) <= dt <= datetime.date(2026, 11, 25)): active_flag = True
+                elif code == "M8" and (datetime.date(2026, 10, 16) <= dt <= datetime.date(2026, 10, 20) or datetime.date(2026, 10, 27) <= dt <= datetime.date(2026, 10, 29) or datetime.date(2026, 11, 4) <= dt <= datetime.date(2026, 11, 7)): active_flag = True
+                elif code == "M9" and (datetime.date(2026, 10, 12) <= dt <= datetime.date(2026, 10, 16) or datetime.date(2026, 10, 24) <= dt <= datetime.date(2026, 10, 26) or datetime.date(2026, 10, 29) <= dt <= datetime.date(2026, 11, 3)): active_flag = True
+                elif code == "M10" and (datetime.date(2026, 11, 7) <= dt <= datetime.date(2026, 11, 13) or datetime.date(2026, 11, 20) <= dt <= datetime.date(2026, 11, 26)): active_flag = True
+                elif code == "M11": active_flag = True
+            else:
+                day_idx = i
+                if code == "M1" and (2 <= day_idx <= 12): active_flag = True
+                elif code == "M2" and (6 <= day_idx <= 11): active_flag = True
+                elif code == "M3" and (9 <= day_idx <= 38): active_flag = True
+                elif code == "M4" and (19 <= day_idx <= 54): active_flag = True
+                elif code == "M5" and (26 <= day_idx <= 48): active_flag = True
+                elif code == "M6" and (29 <= day_idx <= 43): active_flag = True
+                elif code == "M7" and (21 <= day_idx <= 55): active_flag = True
+                elif code == "M8" and (15 <= day_idx <= 38): active_flag = True
+                elif code == "M9" and (11 <= day_idx <= 34): active_flag = True
+                elif code == "M10" and (37 <= day_idx <= 56): active_flag = True
+                elif code == "M11": active_flag = True
 
             if active_flag:
                 cell.fill = FILL_MACH_GREEN
@@ -558,7 +635,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
                 cell.fill = PatternFill(fill_type=None)
 
     # 7. TẦNG 3: BẢNG TÍNH DẦU DIEZEL TIÊU THỤ THEO TIẾN ĐỘ THI CÔNG (Hàng 50 đến 62)
-    ws1.cell(50, 3, "BẢNG TÍNH DẦU DIEZEL TIÊU THỤ THEO TIẾN ĐỘ THI CÔNG NHÀ BẾP ĂN 17 & 17A (Lít/ngày)")
+    ws1.cell(50, 3, f"BẢNG TÍNH DẦU DIEZEL TIÊU THỤ THEO TIẾN ĐỘ THI CÔNG {proj_display_name} (Lít/ngày)")
     ws1.cell(50, 3).font = FONT_WHITE_11
     ws1.row_dimensions[50].height = 24
     for c in range(1, 16):
@@ -574,7 +651,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
 
     r_f_start = MACHINES[0]["row_f"]
     r_f_end = MACHINES[-1]["row_f"]
-    for i, dt in enumerate(DATES):
+    for i, dt in enumerate(dates_timeline):
         col = 16 + i
         col_letter = get_column_letter(col)
         # Tổng lít dầu / ngày = SUM(P52:P62)
@@ -602,7 +679,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
             if r_f % 2 == 1:
                 ws1.cell(r_f, col_idx).fill = FILL_ZEBRA
 
-        for i, dt in enumerate(DATES):
+        for i, dt in enumerate(dates_timeline):
             col = 16 + i
             col_letter = get_column_letter(col)
             # Công thức tính dầu sống: ={col}row_m*$E{row_f}*1 (áp dụng 1 ca/ngày chuẩn định mức)
@@ -633,7 +710,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
     ws2["A1"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
 
     ws2.merge_cells("A2:H2")
-    ws2["A2"] = "Dự án: Cải tạo Nhà bếp ăn (Nhà 17 và 17A) - Chuẩn hóa 100% công thức sống liên kết Sheet 01"
+    ws2["A2"] = f"Dự án: {proj_display_name} - Chuẩn hóa 100% công thức sống liên kết Sheet 01"
     ws2["A2"].font = Font(name=FONT_NAME, size=10, italic=True, color="00FFFFFF")
     ws2["A2"].fill = FILL_BLUE
     ws2["A2"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
@@ -704,7 +781,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
     # Dòng Tổng Cộng
     ws2.row_dimensions[r_s2].height = 24
     ws2.merge_cells(start_row=r_s2, start_column=1, end_row=r_s2, end_column=5)
-    ws2.cell(r_s2, 1, "TỔNG CỘNG TOÀN BỘ CÔNG TRƯỜNG NHÀ BẾP ĂN 17 & 17A").alignment = Alignment(horizontal="right", vertical="center")
+    ws2.cell(r_s2, 1, f"TỔNG CỘNG TOÀN BỘ CÔNG TRƯỜNG {proj_display_name}").alignment = Alignment(horizontal="right", vertical="center")
     ws2.cell(r_s2, 1).font = FONT_BOLD_85
     ws2.cell(r_s2, 6, f"=SUM(F6:F{r_s2-1})").number_format = "#,##0.0"
     ws2.cell(r_s2, 6).font = FONT_BOLD_85
@@ -736,16 +813,33 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
     ws3["A1"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
 
     ws3.merge_cells("A2:I2")
-    ws3["A2"] = "Dự án: Cải tạo Nhà bếp ăn (Nhà 17 và 17A) - Liên kết sống 100% từ Sheet 02 & Sheet 01"
+    ws3["A2"] = f"Dự án: {proj_display_name} - Liên kết sống 100% từ Sheet 02 & Sheet 01"
     ws3["A2"].font = Font(name=FONT_NAME, size=10, italic=True, color="00FFFFFF")
     ws3["A2"].fill = FILL_NAVY
     ws3["A2"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
 
-    headers_s3 = [
-        "STT", "Chủng loại thiết bị", "Định mức (Lít/ca)", "Tổng số ca", "Tổng nhu cầu (Lít)",
-        "Kỳ 1: Phá dỡ & Móng (01/10-15/10)", "Kỳ 2: Kết cấu móng, giằng, cột (16/10-31/10)",
-        "Kỳ 3: Sàn mái & Thép hộp (01/11-15/11)", "Kỳ 4: Xây trát, MEP & Bàn giao (16/11-30/11)"
-    ]
+    if is_bep_an:
+        headers_s3 = [
+            "STT", "Chủng loại thiết bị", "Định mức (Lít/ca)", "Tổng số ca", "Tổng nhu cầu (Lít)",
+            "Kỳ 1: Phá dỡ & Móng (01/10-15/10)", "Kỳ 2: Kết cấu móng, giằng, cột (16/10-31/10)",
+            "Kỳ 3: Sàn mái & Thép hộp (01/11-15/11)", "Kỳ 4: Xây trát, MEP & Bàn giao (16/11-30/11)"
+        ]
+    else:
+        k1_s = d_start.strftime('%d/%m')
+        k1_e = (d_start + datetime.timedelta(days=14)).strftime('%d/%m')
+        k2_s = (d_start + datetime.timedelta(days=15)).strftime('%d/%m')
+        k2_e = (d_start + datetime.timedelta(days=30)).strftime('%d/%m')
+        k3_s = (d_start + datetime.timedelta(days=31)).strftime('%d/%m')
+        k3_e = (d_start + datetime.timedelta(days=45)).strftime('%d/%m')
+        k4_s = (d_start + datetime.timedelta(days=46)).strftime('%d/%m')
+        k4_e = (d_start + datetime.timedelta(days=60)).strftime('%d/%m')
+        headers_s3 = [
+            "STT", "Chủng loại thiết bị", "Định mức (Lít/ca)", "Tổng số ca", "Tổng nhu cầu (Lít)",
+            f"Kỳ 1: Phá dỡ & Đào móng ({k1_s}-{k1_e})",
+            f"Kỳ 2: Kết cấu móng & khung ({k2_s}-{k2_e})",
+            f"Kỳ 3: Sàn mái & Xà gồ thép ({k3_s}-{k3_e})",
+            f"Kỳ 4: Xây trát & Bàn giao ({k4_s}-{k4_e})"
+        ]
     for c_i, h in enumerate(headers_s3, 1):
         cell = ws3.cell(row=5, column=c_i, value=h)
         cell.font = FONT_WHITE_85
@@ -831,7 +925,7 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
     ws4["A1"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
 
     ws4.merge_cells("A2:H2")
-    ws4["A2"] = "Dự án: Cải tạo Nhà bếp ăn (Nhà 17 và 17A) - Mô hình điều phối chuẩn Vincons / 23HG"
+    ws4["A2"] = f"Dự án: {proj_display_name} - Mô hình điều phối chuẩn Vincons / 23HG"
     ws4["A2"].font = Font(name=FONT_NAME, size=10, italic=True, color="00FFFFFF")
     ws4["A2"].fill = FILL_BLUE
     ws4["A2"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
@@ -923,23 +1017,35 @@ def build_bep_an_3tier_fleet_workbook(output_path: str):
         cell.border = THIN_BORDER
     ws5.row_dimensions[5].height = 26
 
-    audit_items = [
-        (1, "G1-09", "Vận chuyển phế thải phá dỡ ra bãi tập kết (ô tô 5T)", "m3", 145.0, 145.0),
-        (2, "G2-02", "Đào đất hố móng mác đất cấp III (máy đào 0.4m3)", "m3", 85.0, 85.0),
-        (3, "G2-03", "Bê tông lót móng M100 đá 4x6 dày 100mm", "m3", 28.0, 28.0),
-        (4, "G2-04", "Cốt thép móng đơn MT1, MT2 mác CB300V", "tấn", 4.25, 4.25),
-        (5, "G2-08", "Ván khuôn móng đơn và móng băng gạch", "m2", 134.4, 134.4),
-        (6, "G2-09", "Bê tông móng đơn MT1, MT2 đá 1x2 mác 250 (B20)", "m3", 28.0, 28.0),
-        (7, "G2-10", "Bê tông giằng móng 220x400 đá 1x2 mác 250", "m3", 12.0, 12.0),
-        (8, "G2-15", "Đắp đất hoàn trả hố móng đầm cóc K90", "m3", 65.0, 65.0),
-        (9, "G2-16", "Cốt thép cột C1 mác CB300V", "tấn", 1.85, 1.85),
-        (10, "G2-18", "Bê tông cột C1 đá 1x2 mác 250", "m3", 12.0, 12.0),
-        (11, "G3-01", "Cốt thép dầm sàn tầng mái CB300V", "tấn", 3.80, 3.80),
-        (12, "G3-03", "Bê tông dầm sàn tầng mái mác 250 dày 120mm", "m3", 38.0, 38.0),
-        (13, "G3-07", "Xà gồ mái thép hộp & dầm trần hộp mạ kẽm", "tấn", 5.10, 5.10),
-        (14, "G3-12", "Xây tường ngăn phòng bếp, khu nấu vữa M75", "m3", 68.0, 68.0),
-        (15, "G3-14", "Trát tường trong, tường ngoài dày 1.5cm vữa M75", "m2", 520.0, 520.0)
-    ]
+    if is_bep_an:
+        audit_items = [
+            (1, "G1-09", "Vận chuyển phế thải phá dỡ ra bãi tập kết (ô tô 5T)", "m3", 145.0, 145.0),
+            (2, "G2-02", "Đào đất hố móng mác đất cấp III (máy đào 0.4m3)", "m3", 85.0, 85.0),
+            (3, "G2-03", "Bê tông lót móng M100 đá 4x6 dày 100mm", "m3", 28.0, 28.0),
+            (4, "G2-04", "Cốt thép móng đơn MT1, MT2 mác CB300V", "tấn", 4.25, 4.25),
+            (5, "G2-08", "Ván khuôn móng đơn và móng băng gạch", "m2", 134.4, 134.4),
+            (6, "G2-09", "Bê tông móng đơn MT1, MT2 đá 1x2 mác 250 (B20)", "m3", 28.0, 28.0),
+            (7, "G2-10", "Bê tông giằng móng 220x400 đá 1x2 mác 250", "m3", 12.0, 12.0),
+            (8, "G2-15", "Đắp đất hoàn trả hố móng đầm cóc K90", "m3", 65.0, 65.0),
+            (9, "G2-16", "Cốt thép cột C1 mác CB300V", "tấn", 1.85, 1.85),
+            (10, "G2-18", "Bê tông cột C1 đá 1x2 mác 250", "m3", 12.0, 12.0),
+            (11, "G3-01", "Cốt thép dầm sàn tầng mái CB300V", "tấn", 3.80, 3.80),
+            (12, "G3-03", "Bê tông dầm sàn tầng mái mác 250 dày 120mm", "m3", 38.0, 38.0),
+            (13, "G3-07", "Xà gồ mái thép hộp & dầm trần hộp mạ kẽm", "tấn", 5.10, 5.10),
+            (14, "G3-12", "Xây tường ngăn phòng bếp, khu nấu vữa M75", "m3", 68.0, 68.0),
+            (15, "G3-14", "Trát tường trong, tường ngoài dày 1.5cm vữa M75", "m2", 520.0, 520.0)
+        ]
+    else:
+        audit_items = []
+        for idx, t in enumerate(active_tasks[:15], 1):
+            audit_items.append((
+                idx,
+                t.get("wbs", f"WBS-{idx:02d}"),
+                t.get("name", f"Công tác {idx}"),
+                t.get("unit", "m3"),
+                float(t.get("qty", 10.0)),
+                float(t.get("qty", 10.0))
+            ))
 
     r_s5 = 6
     for it in audit_items:
