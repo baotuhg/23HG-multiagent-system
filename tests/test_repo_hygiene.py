@@ -23,6 +23,12 @@ MAX_TRACKED_BYTES = 1024 * 1024            # 1 MB
 # Chỉ thêm vào đây khi chủ dự án xác nhận cần giữ, kèm lý do; mọi file lớn khác vẫn bị chặn.
 GOI_B = ("examples/HO_SO_CAU_KM19_529/HUB/03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH/"
          "GOI_B_XUONG_TIEN_CHE_COT_THEP/")
+# Cả thư mục (tiền tố đường dẫn) được phép chứa file lớn, kèm lý do.
+ALLOWED_LARGE_PREFIXES = {
+    GOI_B + "01_HE_THONG_CAT_THEP_REBARCUT/":
+        "bộ cắt thép giao xưởng theo từng Ø: một RebarCut + một lệnh cắt CNC cho mỗi Ø, Master và bảng tổng hợp "
+        "(sinh bằng examples/generate_rebarcut_dedicated_package.py --out)",
+}
 ALLOWED_LARGE = {
     GOI_B + "01_Phieu_Cat_Thep_Cau_Km19+529.080.csv": "lệnh cắt CNC từng đoạn cắt (138.045 dòng) cho xưởng",
     GOI_B + "01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx": "bảng tổ hợp cắt thép RebarCut theo từng loại thép",
@@ -44,9 +50,11 @@ def tracked_files():
     return [p for p in out.decode("utf-8").split("\0") if p]
 
 
-def oversized(sizes, limit=MAX_TRACKED_BYTES, allowed=ALLOWED_LARGE):
+def oversized(sizes, limit=MAX_TRACKED_BYTES, allowed=ALLOWED_LARGE, allowed_prefixes=ALLOWED_LARGE_PREFIXES):
     """sizes: {đường dẫn: số byte} → danh sách (đường dẫn, byte) vượt ngưỡng và chưa được cho phép, lớn nhất trước."""
-    return sorted(((p, n) for p, n in sizes.items() if n > limit and p not in allowed), key=lambda x: -x[1])
+    return sorted(((p, n) for p, n in sizes.items()
+                   if n > limit and p not in allowed and not p.startswith(tuple(allowed_prefixes))),
+                  key=lambda x: -x[1])
 
 
 def diverged_copies(files, md5_of, per_package=PER_PACKAGE_FILES, expected=EXPECTED_DIVERGENT):
@@ -79,11 +87,18 @@ class HelperLogicTest(unittest.TestCase):
         sizes = {GOI_B + "01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx": 4_300_000, "other.xlsx": 4_300_000}
         self.assertEqual([p for p, _ in oversized(sizes)], ["other.xlsx"])
 
+    def test_allowlisted_prefix_exempts_the_folder_only(self):
+        sizes = {GOI_B + "01_HE_THONG_CAT_THEP_REBARCUT/THEO_TUNG_DUONG_KINH_PHI/x.xlsx": 5_000_000,
+                 GOI_B + "khac/x.xlsx": 5_000_000}
+        self.assertEqual([p for p, _ in oversized(sizes)], [GOI_B + "khac/x.xlsx"])
+
     def test_allowlist_has_no_stale_entries(self):
         files = tracked_files()
         if files is None:
             self.skipTest("không phải bản checkout git")
         self.assertEqual([p for p in ALLOWED_LARGE if p not in files], [], "allowlist trỏ tới file không còn tồn tại")
+        self.assertEqual([pre for pre in ALLOWED_LARGE_PREFIXES if not any(f.startswith(pre) for f in files)], [],
+                         "tiền tố trong allowlist không còn file nào")
 
     def test_diverged_copies_found_within_project(self):
         files = ["examples/P1/a/x.xlsx", "examples/P1/b/x.xlsx", "examples/P1/c/y.xlsx"]
