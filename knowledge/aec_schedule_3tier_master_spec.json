@@ -1,0 +1,57 @@
+{
+  "system_standard_name": "VINCONS_23HG_3TIER_INTEGRATED_FLEET_SCHEDULE",
+  "version": "2.0.0",
+  "status": "MANDATORY_GLOBAL_STANDARD",
+  "approved_date": "2026-10-05",
+  "rule_description": "Tiêu chuẩn bất di bất dịch cho toàn bộ hồ sơ tiến độ thi công, ca xe máy và kế hoạch cấp phát dầu diezel (Gói A) trong hệ thống Multi-Agent AEC 23HG.",
+  "single_source_of_truth_module": "tools/generate_bep_an_3tier_schedule.py",
+  "dispatcher_core_hook": "tools/package_dispatcher.py::build_vincons_5_sheets_fleet_workbook",
+  "batch_builder_hook": "tools/pho_bang_master_builder.py::build_project_fleet_workbook",
+  "workbook_structure": {
+    "total_sheets": 5,
+    "sheet_list": [
+      "01_TienDo_CaMay_Master",
+      "02_TongHop_CaXe_CaMay_MMTB",
+      "03_KeHoach_Dau_Diezel",
+      "04_KeHoach_NhanLuc",
+      "05_DoiChieu_BocTach"
+    ],
+    "sheet_01_spec": {
+      "title": "BẢNG TÍNH TOÁN CA XE, CA MÁY & TIẾN ĐỘ THI CÔNG HỢP NHẤT TOÀN DIỆN (3 TẦNG TRÊN CÙNG 1 SHEET)",
+      "base_columns_count": 15,
+      "base_columns": [
+        {"col": 1, "letter": "A", "name": "STT", "width": 6},
+        {"col": 2, "letter": "B", "name": "Mã WBS", "width": 9},
+        {"col": 3, "letter": "C", "name": "Nội dung công việc thi công", "width": 38},
+        {"col": 4, "letter": "D", "name": "ĐVT", "width": 7},
+        {"col": 5, "letter": "E", "name": "Khối lượng thiết kế", "width": 13},
+        {"col": 6, "letter": "F", "name": "Định mức Vincons (ĐVT/ca)", "width": 12},
+        {"col": 7, "letter": "G", "name": "Tổng số ca máy (ca)", "formula": "=IF(F{r}>0,ROUND(E{r}/F{r},1),0)", "width": 12},
+        {"col": 8, "letter": "H", "name": "Năng xuất ngày", "formula": "=IF(I{r}>0,ROUND(E{r}/I{r},1),0)", "width": 11},
+        {"col": 9, "letter": "I", "name": "Thời gian (ngày)", "formula": "=K{r}-J{r}+1", "width": 10},
+        {"col": 10, "letter": "J", "name": "Ngày BĐ", "format": "DD/MM/YYYY", "width": 12},
+        {"col": 11, "letter": "K", "name": "Ngày KT", "format": "DD/MM/YYYY", "width": 12},
+        {"col": 12, "letter": "L", "name": "Số ca/ngày", "width": 8},
+        {"col": 13, "letter": "M", "name": "Số máy huy động/ngày", "formula": "=IF(AND(G{r}>0,I{r}>0,L{r}>0),ROUNDUP(G{r}/(I{r}*L{r}),2),0)", "width": 11},
+        {"col": 14, "letter": "N", "name": "Chủng loại MMTB & Ghi chú", "width": 28},
+        {"col": 15, "letter": "O", "name": "NC bố trí (người)", "width": 10}
+      ],
+      "gantt_start_col": 16,
+      "gantt_start_letter": "P",
+      "gantt_cell_formula": "=IF(AND($J{r}<={col}$6,$K{r}>={col}$6),$M{r},\"\")",
+      "row_35_labor_total_formula": "=SUMPRODUCT(($J$8:$J$33<={col}$6)*($K$8:$K$33>={col}$6)*$O$8:$O$33)",
+      "tier_2_machines_range": "Row 38 to 48 (11 máy M1..M11)",
+      "tier_3_diesel_range": "Row 50 to 62 (Hàng 51 tổng lít dầu =SUM(P52:P62), hàng 52..62 ={col}row_m*$E{row_f}*1)",
+      "color_palette": {
+        "header_navy": "001B365D",
+        "header_blue": "002E75B6",
+        "header_yellow": "00FFF2CC",
+        "sunday_red": "00C00000",
+        "gantt_critical_orange": "00FCE4D6",
+        "gantt_normal_blue": "00BDD7EE",
+        "machine_active_green": "00E2EFDA",
+        "diesel_header_green": "00385723"
+      }
+    }
+  }
+}
