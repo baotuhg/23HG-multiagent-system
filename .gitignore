@@ -63,3 +63,7 @@ agents/RUNTIME_STATE.json
 
 # Hồ sơ dự án gốc trên máy (AEC_PROJECTS_DIR mặc định) — không đưa lên git
 du_lieu_du_an/
+
+# Sản phẩm sinh ra rất lớn (≈13 MB) — không commit; sinh lại bằng pipeline cắt thép (xem README, mục "Gói B Km19").
+/examples/HO_SO_CAU_KM19_529/HUB/03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH/GOI_B_XUONG_TIEN_CHE_COT_THEP/01_Phieu_Cat_Thep_Cau_Km19+529.080.csv
+/examples/HO_SO_CAU_KM19_529/HUB/03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH/GOI_B_XUONG_TIEN_CHE_COT_THEP/01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx

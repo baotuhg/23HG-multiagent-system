@@ -51,9 +51,13 @@ class FormulaCoverageTest(unittest.TestCase):
 
     def test_all_sample_formulas_evaluate_without_errors(self):
         problems = []
+        by_content = {}      # các bản sao giống hệt nhau chỉ cần tính một lần
         for folder in ("examples", "templates"):
             for p in find_xlsx(os.path.join(ROOT, folder)):
-                r = audit_file(p)
+                key = _md5(p)
+                if key not in by_content:
+                    by_content[key] = audit_file(p)
+                r = by_content[key]
                 if r["eval_unsupported"] or r["eval_error_results"]:
                     problems.append(f"{os.path.relpath(p, ROOT)}: chưa hỗ trợ {r['eval_unsupported']}, "
                                     f"lỗi {r['eval_error_results']}")
