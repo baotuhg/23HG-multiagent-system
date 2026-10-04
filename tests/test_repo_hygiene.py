@@ -19,8 +19,21 @@ import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAX_TRACKED_BYTES = 1024 * 1024            # 1 MB
+# File lớn được CHỦ Ý giữ trong repo (sản phẩm giao xưởng cắt thép theo từng loại thép của Gói B Km19).
+# Chỉ thêm vào đây khi chủ dự án xác nhận cần giữ, kèm lý do; mọi file lớn khác vẫn bị chặn.
+GOI_B = ("examples/HO_SO_CAU_KM19_529/HUB/03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH/"
+         "GOI_B_XUONG_TIEN_CHE_COT_THEP/")
+ALLOWED_LARGE = {
+    GOI_B + "01_Phieu_Cat_Thep_Cau_Km19+529.080.csv": "lệnh cắt CNC từng đoạn cắt (138.045 dòng) cho xưởng",
+    GOI_B + "01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx": "bảng tổ hợp cắt thép RebarCut theo từng loại thép",
+}
 # File hợp lệ khác nhau theo từng hub/gói (đường dẫn bên trong khác nhau) nên không bắt buộc giống nhau.
 PER_PACKAGE_FILES = {"DISPATCH_MANIFEST.json"}
+# Cặp (dự án, tên file) được phép khác nhau giữa các bản, kèm lý do. Chỉ thêm khi chủ dự án xác nhận.
+EXPECTED_DIVERGENT = {
+    ("HO_SO_CAU_KM19_529", "01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx"):
+        "Gói B giữ bản đầy đủ do bộ giải xuất (≈4,2 MB, 138.048 dòng chi tiết); bộ vi mô 14 file giữ bản nhẹ (8 KB)",
+}
 
 
 def tracked_files():
@@ -31,12 +44,12 @@ def tracked_files():
     return [p for p in out.decode("utf-8").split("\0") if p]
 
 
-def oversized(sizes, limit=MAX_TRACKED_BYTES):
-    """sizes: {đường dẫn: số byte} → danh sách (đường dẫn, byte) vượt ngưỡng, lớn nhất trước."""
-    return sorted(((p, n) for p, n in sizes.items() if n > limit), key=lambda x: -x[1])
+def oversized(sizes, limit=MAX_TRACKED_BYTES, allowed=ALLOWED_LARGE):
+    """sizes: {đường dẫn: số byte} → danh sách (đường dẫn, byte) vượt ngưỡng và chưa được cho phép, lớn nhất trước."""
+    return sorted(((p, n) for p, n in sizes.items() if n > limit and p not in allowed), key=lambda x: -x[1])
 
 
-def diverged_copies(files, md5_of, per_package=PER_PACKAGE_FILES):
+def diverged_copies(files, md5_of, per_package=PER_PACKAGE_FILES, expected=EXPECTED_DIVERGENT):
     """
     Nhóm theo (dự án, tên file) trong examples/ — dự án là thư mục cấp 1 dưới examples/ — và trả các nhóm có
     >1 bản nhưng nội dung khác nhau. Hai dự án khác nhau được phép có file trùng tên khác nội dung.
@@ -46,7 +59,8 @@ def diverged_copies(files, md5_of, per_package=PER_PACKAGE_FILES):
         parts = f.replace("\\", "/").split("/")
         if parts[0] == "examples" and len(parts) > 2 and parts[-1] not in per_package:
             groups[(parts[1], parts[-1])].append(f)
-    return {k: v for k, v in groups.items() if len(v) > 1 and len({md5_of(p) for p in v}) > 1}
+    return {k: v for k, v in groups.items()
+            if k not in expected and len(v) > 1 and len({md5_of(p) for p in v}) > 1}
 
 
 def _md5(rel_path):
@@ -61,6 +75,16 @@ class HelperLogicTest(unittest.TestCase):
         sizes = {"a.py": 10, "big.csv": 9_000_000, "mid.xlsx": 4_300_000, "edge.bin": MAX_TRACKED_BYTES}
         self.assertEqual([p for p, _ in oversized(sizes)], ["big.csv", "mid.xlsx"])   # đúng ngưỡng thì chưa vượt
 
+    def test_allowlisted_large_file_is_not_flagged_but_others_are(self):
+        sizes = {GOI_B + "01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx": 4_300_000, "other.xlsx": 4_300_000}
+        self.assertEqual([p for p, _ in oversized(sizes)], ["other.xlsx"])
+
+    def test_allowlist_has_no_stale_entries(self):
+        files = tracked_files()
+        if files is None:
+            self.skipTest("không phải bản checkout git")
+        self.assertEqual([p for p in ALLOWED_LARGE if p not in files], [], "allowlist trỏ tới file không còn tồn tại")
+
     def test_diverged_copies_found_within_project(self):
         files = ["examples/P1/a/x.xlsx", "examples/P1/b/x.xlsx", "examples/P1/c/y.xlsx"]
         content = {"examples/P1/a/x.xlsx": "v1", "examples/P1/b/x.xlsx": "v2", "examples/P1/c/y.xlsx": "v1"}
@@ -70,6 +94,13 @@ class HelperLogicTest(unittest.TestCase):
     def test_same_name_in_different_projects_is_allowed(self):
         files = ["examples/P1/x.xlsx", "examples/P2/x.xlsx"]
         self.assertEqual(diverged_copies(files, {"examples/P1/x.xlsx": "v1", "examples/P2/x.xlsx": "v2"}.get), {})
+
+    def test_expected_divergence_is_exempt_only_for_that_file(self):
+        files = ["examples/P1/a/x.xlsx", "examples/P1/b/x.xlsx", "examples/P1/a/y.xlsx", "examples/P1/b/y.xlsx"]
+        content = {"examples/P1/a/x.xlsx": "v1", "examples/P1/b/x.xlsx": "v2",
+                   "examples/P1/a/y.xlsx": "v1", "examples/P1/b/y.xlsx": "v2"}
+        found = diverged_copies(files, content.get, expected={("P1", "x.xlsx"): "lý do"})
+        self.assertEqual(list(found), [("P1", "y.xlsx")])
 
     def test_identical_copies_and_per_package_files_pass(self):
         files = ["examples/P1/a/x.xlsx", "examples/P1/b/x.xlsx",

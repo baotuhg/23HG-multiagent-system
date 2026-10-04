@@ -46,6 +46,10 @@ class NoPersonalPathsTest(unittest.TestCase):
         self.assertEqual(hits, [], "đường dẫn máy cá nhân trong repo")
 
 
+# File dữ liệu xuất từ bộ giải (vd RebarCut 4 MB, 0 công thức) không cần quét công thức; quét mất ~40 giây.
+_HEAVY_BYTES = 1024 * 1024
+
+
 class FormulaCoverageTest(unittest.TestCase):
     """Mọi ô công thức trong hồ sơ mẫu phải tính được bằng tools/excel_eval và không ra lỗi Excel."""
 
@@ -54,6 +58,8 @@ class FormulaCoverageTest(unittest.TestCase):
         by_content = {}      # các bản sao giống hệt nhau chỉ cần tính một lần
         for folder in ("examples", "templates"):
             for p in find_xlsx(os.path.join(ROOT, folder)):
+                if os.path.getsize(p) > _HEAVY_BYTES:
+                    continue
                 key = _md5(p)
                 if key not in by_content:
                     by_content[key] = audit_file(p)
@@ -98,7 +104,8 @@ class ExamplesLayoutTest(unittest.TestCase):
 class A5ExamplesTest(unittest.TestCase):
 
     def test_no_empty_shell_workbooks(self):
-        empties = [p for p in find_xlsx(os.path.join(ROOT, "examples")) if audit_file(p, try_eval=False)["empty_shell"]]
+        empties = [p for p in find_xlsx(os.path.join(ROOT, "examples"))
+                   if os.path.getsize(p) <= _HEAVY_BYTES and audit_file(p, try_eval=False)["empty_shell"]]
         self.assertEqual(empties, [], "file Excel chỉ có tiêu đề, không dữ liệu")
 
     def test_same_named_copies_are_identical(self):

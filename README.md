@@ -229,10 +229,10 @@ python run_state_graph.py --phase rebar --bbs "BBS_du_an.xlsx" --cut-plan-out ph
 > - **Giới hạn cho tổ cắt:** `--max-pieces-per-bar 4 --max-marks-per-bar 2`. **Cắt đầu cây:** `--end-trim-mm 50`. **Lưỡi cắt:** `--kerf-mm 3`. **Đầu thừa** được phân loại *Tái sử dụng* (≥ 100D, đổi bằng `--reuse-xd`), *Đầu thừa ngắn* (≥ 20D) hoặc *Phế*.
 > - **Phương án nối thép tận dụng đầu thừa** (`--splice`), đưa phép nối vào ngay mô hình tối ưu OR-Tools, chặt hơn PA4 của RebarCut.
 > - **Xuất theo bố cục RebarCut Pro Excel:** `--rebarcut-out ket_qua.xlsx`, gồm các sheet INPUT, SO_SANH, PA_TOI_UU, PA_NOI, MOI_NOI, REMAIN, CHI_TIET.
-> - **Sinh lại sản phẩm cắt thép lớn của Gói B Km19** (xlsx RebarCut ≈ 4,2 MB và CSV từng đoạn cắt ≈ 9 MB không còn được commit, đã nằm trong `.gitignore`): chạy khoảng 20 giây, mẫu BBS có 10 dòng đường kính sai nên cần `--bbs-skip-invalid`:
+> - **Sản phẩm cắt thép theo từng loại thép của Gói B Km19** (xlsx RebarCut ≈ 4,2 MB và CSV từng đoạn cắt ≈ 9 MB, giao xưởng) được **giữ trong repo có chủ ý**. Nếu cần sinh lại bằng pipeline (khoảng 20 giây; BBS mẫu có 10 dòng đường kính sai nên cần `--bbs-skip-invalid`):
 >   `python run_state_graph.py --phase rebar --bbs "templates/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx" --bbs-sheet THONG_KE_THEP_CHI_TIET --bbs-skip-invalid --rebarcut-out 01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx`.
->   CSV là bản xuất phẳng của sheet `CHI_TIET`. **Lưu ý:** bộ giải có thể cho phương án cắt khác bản đã từng commit (cùng số thanh, khác cách ghép), nên nếu cần đúng phương án đã giao xưởng thì phải lưu bản đó ngoài git. Bản đã commit trước đây vẫn lấy lại được từ lịch sử git (commit `76f2607`).
-> - Repo có test chặn commit file lớn hơn 1 MB và chặn các bản sao cùng tên bị lệch nhau (`tests/test_repo_hygiene.py`).
+>   **Lưu ý:** bộ giải có thể cho phương án cắt khác bản đã giao xưởng (cùng số thanh, khác cách ghép), vì vậy **đừng ghi đè** bản đã commit khi chưa chủ ý đổi phương án.
+> - Repo có test chặn commit file lớn hơn 1 MB (trừ danh sách ngoại lệ có lý do, hiện là 2 file nói trên) và chặn các bản sao cùng tên bị lệch nhau (`tests/test_repo_hygiene.py`).
 
 #### a2. Tính tiến độ CPM từ file tiến độ thật:
 ```powershell
