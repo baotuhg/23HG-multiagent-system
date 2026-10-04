@@ -46,14 +46,30 @@ class NoPersonalPathsTest(unittest.TestCase):
         self.assertEqual(hits, [], "đường dẫn máy cá nhân trong repo")
 
 
+# File dữ liệu xuất từ bộ giải cắt thép (RebarCut: tools/rebarcut_export.py không ghi công thức nào, các file có
+# 0 công thức) không cần quét công thức; quét các file lớn mất tới ~40 giây. Bỏ qua file > 1 MB và cả thư mục kết quả.
+_HEAVY_BYTES = 1024 * 1024
+_SOLVER_OUTPUT_DIR = "01_HE_THONG_CAT_THEP_REBARCUT"
+
+
+def _skip_audit(path):
+    return os.path.getsize(path) > _HEAVY_BYTES or _SOLVER_OUTPUT_DIR in path.replace("\\", "/").split("/")
+
+
 class FormulaCoverageTest(unittest.TestCase):
     """Mọi ô công thức trong hồ sơ mẫu phải tính được bằng tools/excel_eval và không ra lỗi Excel."""
 
     def test_all_sample_formulas_evaluate_without_errors(self):
         problems = []
+        by_content = {}      # các bản sao giống hệt nhau chỉ cần tính một lần
         for folder in ("examples", "templates"):
             for p in find_xlsx(os.path.join(ROOT, folder)):
-                r = audit_file(p)
+                if _skip_audit(p):
+                    continue
+                key = _md5(p)
+                if key not in by_content:
+                    by_content[key] = audit_file(p)
+                r = by_content[key]
                 if r["eval_unsupported"] or r["eval_error_results"]:
                     problems.append(f"{os.path.relpath(p, ROOT)}: chưa hỗ trợ {r['eval_unsupported']}, "
                                     f"lỗi {r['eval_error_results']}")
@@ -94,7 +110,8 @@ class ExamplesLayoutTest(unittest.TestCase):
 class A5ExamplesTest(unittest.TestCase):
 
     def test_no_empty_shell_workbooks(self):
-        empties = [p for p in find_xlsx(os.path.join(ROOT, "examples")) if audit_file(p, try_eval=False)["empty_shell"]]
+        empties = [p for p in find_xlsx(os.path.join(ROOT, "examples"))
+                   if not _skip_audit(p) and audit_file(p, try_eval=False)["empty_shell"]]
         self.assertEqual(empties, [], "file Excel chỉ có tiêu đề, không dữ liệu")
 
     def test_same_named_copies_are_identical(self):
