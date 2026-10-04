@@ -3,6 +3,7 @@ Cập nhật tiến độ toàn tuyến Cống hộp A5 sang mốc: 05/09/2026 �
 100% CÔNG THỨC SỐNG ĐỘNG (ZERO SỐ CHẾT) trên cả 3 tầng của Sheet 01 và liên kết xuyên suốt Sheet 02-05.
 """
 import os
+import shutil
 import datetime
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -438,10 +439,32 @@ def update_workbook_live_formulas(wb_path: str):
     print(f"[OK] Đã nạp thành công 100% CÔNG THỨC SỐNG cho: {wb_path}")
 
 
+A5_TREE = os.path.join(ROOT, "examples", "HO_SO_CONG_HOP_TUYEN_A5")
+
+
+def sync_same_named_copies(updated_path):
+    """Chép bản vừa cập nhật đè lên mọi bản sao CÙNG TÊN trong cây hồ sơ A5.
+
+    Cùng một file có mặt ở nhiều gói (Gói A, Macro Master, Executive Dashboard...). Nếu chỉ cập nhật
+    một bản thì các bản còn lại cũ đi và lệch nhau (tests/test_examples_consistency.py bắt lỗi này).
+    """
+    name = os.path.basename(updated_path)
+    synced = []
+    for dirpath, _dirs, files in os.walk(A5_TREE):
+        if name in files:
+            target = os.path.join(dirpath, name)
+            if os.path.abspath(target) != os.path.abspath(updated_path):
+                shutil.copyfile(updated_path, target)
+                synced.append(target)
+    return synced
+
+
 def main():
     for f in SRC_FILES:
         if os.path.exists(f):
             update_workbook_live_formulas(f)
+            for copy in sync_same_named_copies(f):
+                print(f"[OK] Đồng bộ bản sao: {os.path.relpath(copy, ROOT)}")
         else:
             print(f"[!] Không tìm thấy tệp: {f}")
 
