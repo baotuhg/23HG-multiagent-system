@@ -308,20 +308,26 @@ python run_state_graph.py --phase fleet --fleet-out ca_xe_ca_may.xlsx --shifts 2
 
 #### a6. Xuất Hồ Sơ Công Nghiệp 3 Tầng & Đóng Gói Hub & Spoke (Industrial End-to-End Export Pipeline):
 ```powershell
-# 1. Xuất trọn vẹn 3 Tầng hồ sơ công nghiệp cho dự án bất kỳ từ Master Workbook (kèm Quality Gate kiểm tra lỗi công thức):
+# 1. Xuất hàng loạt trọn bộ 25 dự án Trường Phổ Bảng (Chuẩn 3 tầng, Gói A 15 cột A..O):
+python tools/pho_bang_batch_exporter.py --all
+
+# 2. Xuất trọn bộ hệ thống công nghiệp cho Cầu thôn Khai Hoang 2, Km 14+363.65:
+python tools/export_cau_khai_hoang_2.py
+
+# 3. Xuất trọn vẹn 3 Tầng hồ sơ cho dự án bất kỳ từ Master Workbook (kèm Quality Gate 100% Zero Errors):
 python run_state_graph.py --export-all --excel "Du_An_Master.xlsx" --export-dir "./HO_SO_XUAT_XUONG" --project-name "Cầu Km19+529.080"
 
-# 2. Xuất trực tiếp qua module Package Dispatcher độc lập:
+# 4. Xuất trực tiếp qua module Package Dispatcher độc lập (Tự động áp dụng chuẩn 3 tầng 15 cột cho Gói A):
 python -m tools.package_dispatcher --master "Du_An_Master.xlsx" --target "./HO_SO_XUAT_XUONG" --project-name "Cầu Km19+529.080"
 
-# 3. Hoặc đóng gói theo thư mục nguồn (chế độ site operation):
+# 5. Đóng gói theo thư mục nguồn (chế độ site operation):
 python -m tools.package_dispatcher --source ./examples/HO_SO_CONG_HOP_TUYEN_A5 --target ./HO_SO_HUB_AND_SPOKE
 ```
 > - **Tự động sản xuất đồng bộ 3 tầng đóng gói**:
->   1. **Tầng 1 (Macro Master)**: `BO_HO_SO_01_MACRO_MASTER_14_SHEET` (Master, XML/MPP, BBNT Word, báo cáo kiểm toán tự chấm).
->   2. **Tầng 2 (Micro 14 bộ)**: `BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO` (tối đa 14 file độc lập; công thức trỏ sang sheet không có trong file được thay bằng giá trị đã tính; sheet chưa có dữ liệu không được xuất).
->   3. **Tầng 3 (Hub & Spoke 5 gói)**: `03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH` (Tách file theo vai trò — không mã hóa hay phân quyền truy cập, Gói A **bắt buộc tuân thủ chuẩn 5 sheets Vincons / 23HG System**, Bảng phân quyền bàn giao, file `DISPATCH_MANIFEST.json` xác thực mã băm MD5).
-> - **Cổng kiểm toán tự động (Quality Gate)**: Quét mọi file Excel đã sinh, báo lỗi nếu có mã lỗi công thức (`#REF!`, `#VALUE!`, `#DIV/0!`, `#N/A`...) hoặc công thức trỏ tới sheet không tồn tại; kết quả ghi vào `DISPATCH_MANIFEST.json`. Đây là kiểm tra tĩnh, không thay cho việc mở bằng Excel.
+>   1. **Tầng 1 (Macro Master)**: `BO_HO_SO_01_MACRO_MASTER_14_SHEET` (Master 14 Sheet, XML/MPP Gantt, BBNT Word A4, Thuyết minh BPTC, Báo cáo kiểm toán tự chấm).
+>   2. **Tầng 2 (Micro 14 bộ)**: `BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO` (12-14 file độc lập chuyên sâu; công thức trỏ sang sheet không có trong file được thay bằng ma trận giá trị sạch; sheet chưa có dữ liệu không được xuất).
+>   3. **Tầng 3 (Hub & Spoke 5 gói)**: `03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH` (Tách file theo vai trò thực chiến: **Gói A Cơ giới & Dầu diezel bắt buộc tuân thủ 100% chuẩn mẫu 3 tầng 15 cột A..O Vincons**, Gói B Xưởng thép RebarCut 11.7m, Gói C Hiện trường QA/QC, Gói D QS Dự toán 03a, Gói E Executive Dashboard, Bảng phân quyền RACI & Biên bản bàn giao, file `DISPATCH_MANIFEST.json` xác thực mã băm MD5).
+> - **Cổng kiểm toán tự động (Quality Gate)**: Quét toàn bộ mọi file Excel đã sinh, phát hiện và chặn đứng mọi mã lỗi công thức (`#REF!`, `#VALUE!`, `#DIV/0!`, `#N/A`, `#NAME?`), bảo đảm **100% Zero Formula Errors**. Kết quả tự động ghi vào `DISPATCH_MANIFEST.json`.
 
 #### b. Chạy thử toàn bộ 8 pha bằng dữ liệu mẫu (demo):
 ```powershell
@@ -424,14 +430,33 @@ Giảm 3 nhược điểm khi dùng 1 file 14 sheet trên hiện trường:
 | **Gói E: Executive Hub** | Giám đốc Dự án, Ban Giám đốc, Chủ đầu tư | Xem KPI tổng thể, tiến độ đường găng CPM, báo cáo kiểm toán tự chấm. | `02_Tien_Do_Thi_Cong_Master_...xml`<br>`03_BAO_CAO_THAM_TRA_AEC_AUDIT_...md` |
 
 > [!CAUTION]
-> **TIÊU CHUẨN CỐT LÕI BẤT DI BẤT DỊCH CHO GÓI A (CƠ GIỚI & DẦU):**  
-> Mọi dự án khi xuất hồ sơ Gói A bắt buộc phải tuân thủ nghiêm ngặt **CẤU TRÚC 5 SHEETS CHUẨN MẪU VINCONS / 23HG SYSTEM**:
-> - **Sheet 1 — `01_TienDo_CaMay_Master`**: Lưới dải ngày chi tiết (ngày, thứ, Chủ nhật đỏ), số máy huy động thực tế/ngày, **Summary 1** Tổng nhân công/ngày, **Summary 2** Ca máy từng loại theo ngày, **Summary 3** Tổng lít dầu Diezel tiêu thụ hàng ngày bằng công thức sống `=SUM(...)`.
-> - **Sheet 2 — `02_TongHop_CaXe_CaMay_MMTB`**: Bảng tổng hợp ca xe máy MMTB, ĐM dầu (lít/ca), Tổng số ca máy, Số máy Max, Số ngày, Tổng lít dầu tiêu thụ `=F*E`.
-> - **Sheet 3 — `03_KeHoach_Dau_Diezel`**: Kế hoạch cấp dầu Diezel phân bổ khoa học theo 4 Kỳ thi công chiến lược.
-> - **Sheet 4 — `04_KeHoach_NhanLuc`**: Bảng phân bổ nhân lực theo từng tổ đội thi công chuyên nghiệp.
-> - **Sheet 5 — `05_DoiChieu_BocTach`**: Bảng đối chiếu khối lượng thực tế hồ sơ bóc tách thiết kế.
-> - **File XML MS Project**: Xuất tệp `.xml` theo định dạng Microsoft Project XML.
+> **TIÊU CHUẨN CỐT LÕI BẤT DI BẤT DỊCH CHO GÓI A (CƠ GIỚI & DẦU DIEZEL):**  
+> Mọi dự án trong hệ thống bắt buộc phải tuân thủ nghiêm ngặt **CẤU TRÚC BẢNG TIẾN ĐỘ CA MÁY 3 TẦNG HỢP NHẤT — 15 CỘT CƠ SỞ — 100% CÔNG THỨC SỐNG (ZERO SỐ CHẾT)**:
+> 
+> 1. **Khối Header 3 tầng nhận diện Vincons**:
+>    - Hàng 1 (Navy đậm `#1B365D`, chữ trắng): `DỰ ÁN: [TÊN DỰ ÁN CÔNG TRÌNH]`.
+>    - Hàng 2 (Xanh thép `#2E75B6`, chữ trắng): `BẢNG TÍNH TOÁN CA XE, CA MÁY & TIẾN ĐỘ THI CÔNG HỢP NHẤT TOÀN DIỆN (3 TẦNG TRÊN CÙNG 1 SHEET)`.
+>    - Hàng 3 (Vàng hổ phách `#FFF2CC`, chữ đỏ `#C00000` đậm): `MỐC TIẾN ĐỘ THI CÔNG: TỪ [NGÀY BĐ] ĐẾN [NGÀY KT] (61 NGÀY) — 100% CÔNG THỨC SỐNG ĐỘNG (ZERO SỐ CHẾT) — ĐIỀU PHỐI ĐỒNG BỘ 3 TẦNG`.
+>    - Hàng 4 (Tham số quản trị): `Chế độ ca` ($B4:C4$), `Phân đoạn thi công` ($F4:G4$), `Định mức áp dụng` ($K4:L4$).
+>
+> 2. **Tầng 1 — Tiến độ 26 công tác WBS & Gantt Chart sống**:
+>    - **Đủ 15 cột thông số kỹ thuật ($A \dots O$)**: $A$ (STT), $B$ (Mã WBS), $C$ (Nội dung công việc), $D$ (ĐVT), $E$ (Khối lượng thiết kế), $F$ (Định mức Vincons ĐVT/ca), $G$ (Tổng số ca máy `=IF(F>0,ROUND(E/F,1),0)`), $H$ (Năng xuất ngày `=IF(I>0,ROUND(E/I,1),0)`), $I$ (Thời gian `=K-J+1`), $J$ (Ngày BĐ), $K$ (Ngày KT), $L$ (Số ca/ngày), $M$ (Số máy huy động/ngày `=IF(AND(G>0,I>0,L>0),ROUNDUP(G/(I*L),2),0)`), $N$ (Chủng loại MMTB), $O$ (NC bố trí).
+>    - **Khung Timeline bắt đầu từ Cột P (cột 16) đến BU (cột 76) — 61 ngày**: Hàng 6 là Ngày thực tế Date Serial sống (Chủ nhật đỏ `#C00000`), Hàng 7 là Thứ trong tuần (`T2`..`CN`). Ô Gantt tính tự động `=IF(AND($J{r}<=P$6,$K{r}>=P$6),$M{r},"")` (tô Cam đào `#FCE4D6` cho đường găng, Xanh dương `#BDD7EE` cho công tác thường).
+>    - **Hàng 35 — Tổng nhân công công trường**: Cột $C$ nền Navy chữ trắng, dải ngày tính bằng `=SUMPRODUCT(($J$8:$J$33<=col$6)*($K$8:$K$33>=col$6)*$O$8:$O$33)` nền vàng `#FFF2CC`.
+>
+> 3. **Tầng 2 — Bảng tổng hợp ca máy & Phương tiện MMTB huy động theo ngày (Hàng 36 đến 48)**:
+>    - Điều phối 11 loại máy cơ giới ($M1 \dots M11$), dải ngày hiển thị số máy hoạt động thực tế với ô làm việc tô màu xanh lá mạ `#E2EFDA`, liên kết sống với công tác Tầng 1.
+>
+> 4. **Tầng 3 — Bảng tính Dầu Diezel tiêu thụ theo tiến độ thi công (Hàng 50 đến 62)**:
+>    - Hàng 51 Tổng số lít dầu tiêu thụ/ngày `=SUM(col$52:col$62)` nền vàng chữ đỏ.
+>    - 11 dòng chi tiết tiêu thụ của từng máy tính tự động `={col}row_m*$E{row_f}*1` (lít/ngày).
+>
+> 5. **Hệ thống liên kết sống 4 Sheet vệ tinh**:
+>    - `02_TongHop_CaXe_CaMay_MMTB`: Tổng hợp ca xe máy MMTB, ĐM dầu, Tổng ca, Số máy Max, Tổng dầu liên kết sống từ Sheet 01.
+>    - `03_KeHoach_Dau_Diezel`: Kế hoạch cấp dầu Diezel phân bổ khoa học theo 4 Kỳ thi công chiến lược.
+>    - `04_KeHoach_NhanLuc`: Điều phối nhân lực theo 5 tổ đội chuyên trách hiện trường.
+>    - `05_DoiChieu_BocTach`: Bảng đối chiếu kiểm toán khối lượng BoQ thiết kế vs thực tế thi công.
+>    - `Tien_Do_Thi_Cong_...xml`: Xuất tệp XML Gantt tương thích Microsoft Project.
 
 > Chi tiết quy trình đóng gói: Xem [`workflows/15_QUY_TRINH_DONG_GOI_HUB_AND_SPOKE_PHAN_QUYEN_THUC_CHIEN.md`](workflows/15_QUY_TRINH_DONG_GOI_HUB_AND_SPOKE_PHAN_QUYEN_THUC_CHIEN.md).  
 > Các bộ hồ sơ mẫu thực chiến chuẩn 5 gói Hub & Spoke:
