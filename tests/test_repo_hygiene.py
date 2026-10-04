@@ -25,7 +25,7 @@ GOI_B = ("examples/HO_SO_CAU_KM19_529/HUB/03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GO
          "GOI_B_XUONG_TIEN_CHE_COT_THEP/")
 # Cả thư mục (tiền tố đường dẫn) được phép chứa file lớn, kèm lý do.
 ALLOWED_LARGE_PREFIXES = {
-    GOI_B + "01_HE_THONG_CAT_THEP_REBARCUT/":
+    "examples/HO_SO_CAU_KM19_529/01_HE_THONG_CAT_THEP_REBARCUT/":
         "bộ cắt thép giao xưởng theo từng Ø: một RebarCut + một lệnh cắt CNC cho mỗi Ø, Master và bảng tổng hợp "
         "(sinh bằng examples/generate_rebarcut_dedicated_package.py --out)",
 }
@@ -33,6 +33,10 @@ ALLOWED_LARGE = {
     GOI_B + "01_Phieu_Cat_Thep_Cau_Km19+529.080.csv": "lệnh cắt CNC từng đoạn cắt (138.045 dòng) cho xưởng",
     GOI_B + "01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx": "bảng tổ hợp cắt thép RebarCut theo từng loại thép",
 }
+# Windows giới hạn đường dẫn 260 ký tự cho TOÀN BỘ đường dẫn (mặc định, git không bật long paths): runner CI dùng
+# tiền tố 51 ký tự, máy người dùng thường 55–70. Đường dẫn dài nhất đã có là 188 ký tự, nên khóa ở 190: không file nào
+# mới được dài hơn mức hiện có. (PR đưa bộ cắt thép vào sâu trong Gói B — 209 ký tự — làm CI Windows chết khi checkout.)
+MAX_PATH_CHARS = 190
 # File hợp lệ khác nhau theo từng hub/gói (đường dẫn bên trong khác nhau) nên không bắt buộc giống nhau.
 PER_PACKAGE_FILES = {"DISPATCH_MANIFEST.json"}
 # Cặp (dự án, tên file) được phép khác nhau giữa các bản, kèm lý do. Chỉ thêm khi chủ dự án xác nhận.
@@ -48,6 +52,11 @@ def tracked_files():
     except (OSError, subprocess.CalledProcessError):
         return None
     return [p for p in out.decode("utf-8").split("\0") if p]
+
+
+def too_long_paths(paths, limit=MAX_PATH_CHARS):
+    """Danh sách (đường dẫn, độ dài) dài quá giới hạn, dài nhất trước."""
+    return sorted(((p, len(p)) for p in paths if len(p) > limit), key=lambda x: -x[1])
 
 
 def oversized(sizes, limit=MAX_TRACKED_BYTES, allowed=ALLOWED_LARGE, allowed_prefixes=ALLOWED_LARGE_PREFIXES):
@@ -88,9 +97,9 @@ class HelperLogicTest(unittest.TestCase):
         self.assertEqual([p for p, _ in oversized(sizes)], ["other.xlsx"])
 
     def test_allowlisted_prefix_exempts_the_folder_only(self):
-        sizes = {GOI_B + "01_HE_THONG_CAT_THEP_REBARCUT/THEO_TUNG_DUONG_KINH_PHI/x.xlsx": 5_000_000,
-                 GOI_B + "khac/x.xlsx": 5_000_000}
-        self.assertEqual([p for p, _ in oversized(sizes)], [GOI_B + "khac/x.xlsx"])
+        sizes = {"examples/HO_SO_CAU_KM19_529/01_HE_THONG_CAT_THEP_REBARCUT/THEO_TUNG_DUONG_KINH_PHI/x.xlsx": 5_000_000,
+                 "examples/HO_SO_CAU_KM19_529/khac/x.xlsx": 5_000_000}
+        self.assertEqual([p for p, _ in oversized(sizes)], ["examples/HO_SO_CAU_KM19_529/khac/x.xlsx"])
 
     def test_allowlist_has_no_stale_entries(self):
         files = tracked_files()
@@ -124,6 +133,12 @@ class HelperLogicTest(unittest.TestCase):
         self.assertEqual(diverged_copies(files, content.get), {})
 
 
+class PathLengthLogicTest(unittest.TestCase):
+    def test_too_long_paths_flagged_at_limit(self):
+        paths = ["a" * MAX_PATH_CHARS, "b" * (MAX_PATH_CHARS + 1), "c" * (MAX_PATH_CHARS + 20)]
+        self.assertEqual([n for _, n in too_long_paths(paths)], [MAX_PATH_CHARS + 20, MAX_PATH_CHARS + 1])
+
+
 class RepoHygieneTest(unittest.TestCase):
     def setUp(self):
         self.files = tracked_files()
@@ -136,6 +151,12 @@ class RepoHygieneTest(unittest.TestCase):
         big = oversized(sizes)
         self.assertEqual(big, [], "file theo dõi vượt 1 MB — thêm vào .gitignore, đừng commit: "
                                   + ", ".join(f"{p} ({n // 1024} KB)" for p, n in big))
+
+    def test_paths_fit_the_windows_limit(self):
+        long = too_long_paths(self.files)
+        self.assertEqual(long, [], f"đường dẫn dài hơn {MAX_PATH_CHARS} ký tự sẽ lỗi 'Filename too long' khi checkout trên "
+                                   "Windows — rút ngắn tên thư mục/đặt nông hơn: "
+                                   + "; ".join(f"{n} ký tự: ...{p[-60:]}" for p, n in long[:3]))
 
     def test_same_named_copies_in_a_project_are_identical(self):
         existing = [p for p in self.files if os.path.isfile(os.path.join(ROOT, p))]
