@@ -582,7 +582,24 @@ def build_bep_an_3tier_fleet_workbook(
         ws1.cell(r_m, 5, m["fuel_l"]).number_format = "#,##0.0"
         ws1.cell(r_m, 5).alignment = Alignment(horizontal="right", vertical="center")
         ws1.cell(r_m, 6, m["max_m"]).alignment = Alignment(horizontal="center", vertical="center")
-        ws1.cell(r_m, 7, m["desc"]).font = Font(name=FONT_NAME, size=8, italic=True)
+        desc_text = m["desc"]
+        if not is_bep_an:
+            gen_desc_map = {
+                "M1": "Chở phế thải, đất đào, vật liệu xây dựng",
+                "M2": "Đào hố móng, đắp đất, xúc chuyển vật liệu",
+                "M3": "Trộn bê tông lót, bệ, thân mố trụ, kết cấu",
+                "M4": "Trộn vữa xây móng, hoàn thiện, phụ trợ",
+                "M5": "Nâng vật tư, thiết bị lên các cao độ",
+                "M6": "Cẩu lắp thiết bị, cấu kiện, kết cấu nhịp",
+                "M7": "Đầm đất nền hố móng, K90, K95 sau mố",
+                "M8": "Đầm bê tông kết cấu, bệ, thân mố trụ",
+                "M9": "Gia công uốn cắt cốt thép các hạng mục",
+                "M10": "Hàn lắp đà giáo, ván khuôn, lan can cầu",
+                "M11": "Cấp điện thi công, chạy bơm nước, chiếu sáng"
+            }
+            desc_text = gen_desc_map.get(m["code"], desc_text)
+            
+        ws1.cell(r_m, 7, desc_text).font = Font(name=FONT_NAME, size=8, italic=True)
 
         for col_idx in range(1, 16):
             ws1.cell(r_m, col_idx).border = THIN_BORDER
