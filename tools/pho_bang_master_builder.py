@@ -92,7 +92,8 @@ WEEKDAYS_VN = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"]
 
 
 def title_block(ws, project_name: str, title: str, subtitle: str, ncols: int):
-    ws["A1"] = f"DỰ ÁN: TRƯỜNG PHỔ THÔNG NỘI TRÚ LIÊN CẤP PHỐ BẢNG — {project_name.upper()}"
+    master_title = "CẦU THÔN KHAI HOANG 2" if "Khai Hoang" in project_name else "TRƯỜNG PTNT LC PHỐ BẢNG"
+    ws["A1"] = f"DỰ ÁN: {master_title} — {project_name.upper()}"
     ws["A1"].font = FONT_SUBTITLE
     ws["A2"] = title
     ws["A2"].font = FONT_TITLE
@@ -952,7 +953,7 @@ def build_project_master_workbook(
     ws12.merge_cells("B7:C7")
 
     bb_info = [
-        (9, "1. Công trình:", "Trường PT Dân tộc nội trú liên cấp TH&THCS Phố Bảng"),
+        (9, "1. Công trình:", ("Cầu thôn Khai Hoang 2" if "Khai_Hoang" in getattr(proj, "short_name", "") else "Trường PT Dân tộc nội trú liên cấp TH&THCS Phố Bảng")),
         (10, "2. Hạng mục:", proj.full_name),
         (11, "3. Thành phần nghiệm thu:", "Đại diện Chủ đầu tư / Ban QLDA, TVGS, Nhà thầu thi công"),
         (12, "4. Tên công việc nghiệm thu:", "=DANH_MUC_CONG_VIEC!C6"),
@@ -994,7 +995,7 @@ def build_project_master_workbook(
     ws13.merge_cells("B7:C7")
 
     bb_vt = [
-        (9, "1. Công trình:", "Trường PT Dân tộc nội trú liên cấp TH&THCS Phố Bảng"),
+        (9, "1. Công trình:", ("Cầu thôn Khai Hoang 2" if "Khai_Hoang" in getattr(proj, "short_name", "") else "Trường PT Dân tộc nội trú liên cấp TH&THCS Phố Bảng")),
         (10, "2. Hạng mục:", proj.full_name),
         (11, "3. Thành phần nghiệm thu:", "Đại diện CĐT / Ban QLDA, TVGS, Nhà thầu thi công"),
         (12, "4. Tên vật liệu nghiệm thu:", "=DANH_MUC_VAT_TU!B6"),
@@ -1025,7 +1026,7 @@ def build_project_master_workbook(
     # SHEET 14: THANH_TOAN_DOT_03A
     ws14 = wb.create_sheet(title="THANH_TOAN_DOT_03A")
     title_block(ws14, proj.full_name, "BẢNG XÁC ĐỊNH GIÁ TRỊ KHỐI LƯỢNG CÔNG VIỆC HOÀN THÀNH (MẪU 03a)",
-                "Kèm theo Hợp đồng thi công xây dựng dự án Trường PTTHNT Liên cấp Phố Bảng", 8)
+                f"Kèm theo Hợp đồng thi công xây dựng dự án {'Cầu Khai Hoang 2' if 'Khai_Hoang' in getattr(proj, 'short_name', '') else 'Trường PTTHNT Liên cấp Phố Bảng'}", 8)
     h14 = ["STT", "Nội dung công việc", "Đơn vị", "Khối lượng hợp đồng", "Đơn giá hợp đồng (đ)",
            "Khối lượng thực hiện kỳ này", "Thành tiền kỳ này (VNĐ)", "Lũy kế đến hết kỳ này (VNĐ)"]
     for c_i, h in enumerate(h14, 1):
@@ -1127,7 +1128,8 @@ def build_project_companion_files(
     # 1. XML MS Project
     project = ET.Element("Project", xmlns="http://schemas.microsoft.com/project")
     ET.SubElement(project, "Name").text = f"Tiến độ thi công - {proj.full_name}"
-    ET.SubElement(project, "Title").text = f"DỰ ÁN TRƯỜNG PHỔ THÔNG LIÊN CẤP PHỐ BẢNG - {proj.full_name.upper()}"
+    master_title = "CẦU KHAI HOANG 2" if "Khai_Hoang" in getattr(proj, "short_name", "") else "TRƯỜNG PTNT LC PHỐ BẢNG"
+    ET.SubElement(project, "Title").text = f"DỰ ÁN {master_title} - {proj.full_name.upper()}"
     ET.SubElement(project, "StartDate").text = f"{proj.start_date}T08:00:00"
     ET.SubElement(project, "FinishDate").text = f"{proj.finish_date}T17:00:00"
     ET.SubElement(project, "ScheduleFromStart").text = "1"
@@ -1178,7 +1180,9 @@ def build_project_companion_files(
 
     p_sub = doc.add_paragraph()
     p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_sub = p_sub.add_run(f"Công trình: Xây dựng trường phổ thông nội trú liên cấp tiểu học và THCS Phố Bảng\nĐịa điểm: Phố Là, xã Phố Bảng, tỉnh Tuyên Quang\nTiêu chuẩn áp dụng: Nghị định 06/2021/NĐ-CP & Nghị định 207/2026/NĐ-CP\n")
+    p_name = "Cầu thôn Khai Hoang 2" if "Khai_Hoang" in getattr(proj, "short_name", "") else "Xây dựng trường phổ thông nội trú liên cấp tiểu học và THCS Phố Bảng"
+    loc = "Huyện Đồng Văn, tỉnh Hà Giang" if "Khai_Hoang" in getattr(proj, "short_name", "") else "Phố Là, xã Phố Bảng, tỉnh Tuyên Quang"
+    r_sub = p_sub.add_run(f"Công trình: {p_name}\nĐịa điểm: {loc}\nTiêu chuẩn áp dụng: Nghị định 06/2021/NĐ-CP & Nghị định 207/2026/NĐ-CP\n")
     r_sub.font.name = FONT_FAMILY
     r_sub.font.size = Pt(10)
     r_sub.font.italic = True
@@ -1211,7 +1215,8 @@ def build_project_companion_files(
     # 4. Thuyết minh BPTC MD
     bptc_md = f"""# THUYẾT MINH BIỆN PHÁP THI CÔNG KỸ THUẬT
 ## {proj.full_name.upper()}
-### DỰ ÁN: XÂY DỰNG TRƯỜNG PHỔ THÔNG NỘI TRÚ LIÊN CẤP TIỂU HỌC VÀ THCS PHỐ BẢNG
+    p_name = "CẦU THÔN KHAI HOANG 2" if "Khai_Hoang" in getattr(proj, "short_name", "") else "XÂY DỰNG TRƯỜNG PHỔ THÔNG NỘI TRÚ LIÊN CẤP TIỂU HỌC VÀ THCS PHỐ BẢNG"
+    md_content += f"### DỰ ÁN: {p_name}\n\n"
 
 ---
 ### CHƯƠNG 1: GIỚI THIỆU CHUNG VÀ CĂN CỨ PHÁP LÝ KỸ THUẬT
