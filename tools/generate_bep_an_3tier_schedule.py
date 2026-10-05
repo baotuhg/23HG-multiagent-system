@@ -835,10 +835,10 @@ def build_bep_an_3tier_fleet_workbook(
         k4_e = (d_start + datetime.timedelta(days=60)).strftime('%d/%m')
         headers_s3 = [
             "STT", "Chủng loại thiết bị", "Định mức (Lít/ca)", "Tổng số ca", "Tổng nhu cầu (Lít)",
-            f"Kỳ 1: Phá dỡ & Đào móng ({k1_s}-{k1_e})",
-            f"Kỳ 2: Kết cấu móng & khung ({k2_s}-{k2_e})",
-            f"Kỳ 3: Sàn mái & Xà gồ thép ({k3_s}-{k3_e})",
-            f"Kỳ 4: Xây trát & Bàn giao ({k4_s}-{k4_e})"
+            f"Kỳ 1: GĐ Chuẩn bị & Thi công phần ngầm ({k1_s}-{k1_e})",
+            f"Kỳ 2: GĐ Thi công kết cấu phần dưới ({k2_s}-{k2_e})",
+            f"Kỳ 3: GĐ Thi công kết cấu phần trên ({k3_s}-{k3_e})",
+            f"Kỳ 4: GĐ Hoàn thiện & Bàn giao ({k4_s}-{k4_e})"
         ]
     for c_i, h in enumerate(headers_s3, 1):
         cell = ws3.cell(row=5, column=c_i, value=h)
@@ -943,13 +943,22 @@ def build_bep_an_3tier_fleet_workbook(
         cell.border = THIN_BORDER
     ws4.row_dimensions[5].height = 26
 
-    crews_data = [
-        (1, "Tổ Cơ giới & Lái máy thi công", 4, 8, "1 ca/ngày", "Vận hành máy đào, ô tô 5T, máy đầm cóc, vận thăng", "Nguyễn Văn Hùng", "Bảo hộ lao động, kiểm định an toàn máy"),
-        (2, "Tổ Cốt thép & Tiền chế RebarCut", 8, 12, "1-2 ca/ngày", "Cắt uốn thép 11.7m theo phôi RebarCut, gia công móng, cột, dầm sàn", "Trần Bá Thắng", "Mối nối buộc & hàn chuẩn TCVN 5574"),
-        (3, "Tổ Cốp pha & Bê tông hiện trường", 10, 16, "1-2 ca/ngày", "Lắp dựng ván khuôn phủ phim, đổ đầm bê tông móng, giằng, cột, sàn mái", "Lê Văn Cường", "Đảm bảo độ sụt, lấy mẫu nén R7, R28"),
-        (4, "Tổ Thợ nề Xây trát & Hoàn thiện", 12, 18, "1 ca/ngày", "Xây móng, xây tường ngăn, trát tường, lát nền Granite, ốp tường bếp", "Phạm Văn Long", "Độ phẳng thước 2m, mạch ốp lát chuẩn"),
-        (5, "Tổ Cơ điện MEP & Kết cấu thép", 6, 10, "1 ca/ngày", "Hàn lắp xà gồ dầm trần, cấp thoát nước, bẫy mỡ, điện chiếu sáng", "Hoàng Đình Trọng", "Thử áp lực ống nước, đo điện trở nối đất")
-    ]
+    if is_bep_an:
+        crews_data = [
+            (1, "Tổ Cơ giới & Lái máy thi công", 4, 8, "1 ca/ngày", "Vận hành máy đào, ô tô 5T, máy đầm cóc, vận thăng", "Nguyễn Văn Hùng", "Bảo hộ lao động, kiểm định an toàn máy"),
+            (2, "Tổ Cốt thép & Tiền chế RebarCut", 8, 12, "1-2 ca/ngày", "Cắt uốn thép 11.7m theo phôi RebarCut, gia công móng, cột, dầm sàn", "Trần Bá Thắng", "Mối nối buộc & hàn chuẩn TCVN 5574"),
+            (3, "Tổ Cốp pha & Bê tông hiện trường", 10, 16, "1-2 ca/ngày", "Lắp dựng ván khuôn phủ phim, đổ đầm bê tông móng, giằng, cột, sàn mái", "Lê Văn Cường", "Đảm bảo độ sụt, lấy mẫu nén R7, R28"),
+            (4, "Tổ Thợ nề Xây trát & Hoàn thiện", 12, 18, "1 ca/ngày", "Xây móng, xây tường ngăn, trát tường, lát nền Granite, ốp tường bếp", "Phạm Văn Long", "Độ phẳng thước 2m, mạch ốp lát chuẩn"),
+            (5, "Tổ Cơ điện MEP & Kết cấu thép", 6, 10, "1 ca/ngày", "Hàn lắp xà gồ dầm trần, cấp thoát nước, bẫy mỡ, điện chiếu sáng", "Hoàng Đình Trọng", "Thử áp lực ống nước, đo điện trở nối đất")
+        ]
+    else:
+        crews_data = [
+            (1, "Tổ Cơ giới & Lái máy thi công", 4, 8, "1 ca/ngày", "Vận hành thiết bị cơ giới thi công, máy đào, ô tô, cần cẩu", "Nguyễn Văn Hùng", "Bảo hộ lao động, kiểm định an toàn máy"),
+            (2, "Tổ Cốt thép & Tiền chế RebarCut", 8, 12, "1-2 ca/ngày", "Cắt uốn thép, gia công lắp dựng cốt thép các kết cấu chính", "Trần Bá Thắng", "Mối nối buộc & hàn chuẩn TCVN 5574"),
+            (3, "Tổ Cốp pha & Bê tông hiện trường", 10, 16, "1-2 ca/ngày", "Lắp dựng hệ ván khuôn, đà giáo, đổ đầm bê tông các cấu kiện", "Lê Văn Cường", "Đảm bảo độ sụt, lấy mẫu nén R7, R28"),
+            (4, "Tổ Thi công kết cấu phần trên & Hoàn thiện", 12, 18, "1 ca/ngày", "Thi công kết cấu phần trên, hoàn thiện và các hạng mục phụ trợ", "Phạm Văn Long", "Đảm bảo kích thước hình học, sai số cho phép"),
+            (5, "Tổ Các công tác khác & Phụ trợ", 6, 10, "1 ca/ngày", "Lắp đặt điện chiếu sáng, an toàn giao thông, và các công tác khác", "Hoàng Đình Trọng", "Tuân thủ nghiêm ngặt quy trình kỹ thuật")
+        ]
 
     r_s4 = 6
     for c_item in crews_data:
