@@ -1103,7 +1103,8 @@ def build_project_fleet_workbook(
         short_name=proj.short_name,
         custom_tasks=tasks,
         start_date=proj.start_date,
-        finish_date=proj.finish_date
+        finish_date=proj.finish_date,
+        project_type=proj.project_type
     )
     print(f"  [OK] Đã tạo Gói A 3 tầng chuẩn 100% theo bản mẫu media_1791156284723: {output_path}")
 
