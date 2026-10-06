@@ -1181,6 +1181,7 @@ def build_project_companion_files(
     p_sub = doc.add_paragraph()
     p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
+    p_name = proj.full_name
     loc = "Theo hồ sơ thiết kế"
     r_sub = p_sub.add_run(f"Công trình: {p_name}\nĐịa điểm: {loc}\nTiêu chuẩn áp dụng: Nghị định 06/2021/NĐ-CP & Nghị định 207/2026/NĐ-CP\n")
     r_sub.font.name = FONT_FAMILY

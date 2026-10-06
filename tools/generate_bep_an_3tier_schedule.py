@@ -280,6 +280,8 @@ def build_bep_an_3tier_fleet_workbook(
     wb.remove(wb.active)  # Xóa sheet mặc định
 
     is_bep_an = (short_name in ["Nha_Bep_An_17_17A", None] or project_name is None)
+    is_culvert = any(k in (project_name or "").lower() for k in ["cống", "cong", "thoát nước", "ha tang", "hạ tầng"]) or any(k in (short_name or "").lower() for k in ["cong", "ch_"])
+    is_bridge = any(k in (project_name or "").lower() for k in ["cầu", "cau"]) or any(k in (short_name or "").lower() for k in ["cau", "bridge"])
 
     # 1. Xác định khung thời gian (chuẩn 61 ngày)
     if is_bep_an:
@@ -287,11 +289,89 @@ def build_bep_an_3tier_fleet_workbook(
         d_finish = D_FINISH
         proj_display_name = "CẢI TẠO NHÀ BẾP ĂN (NHÀ 17 VÀ 17A)"
     else:
-        d_start = start_date or datetime.date(2026, 3, 1)
+        d_start = start_date or datetime.date(2026, 10, 1)
+        if isinstance(d_start, datetime.datetime):
+            d_start = d_start.date()
         d_finish = d_start + datetime.timedelta(days=60)
         proj_display_name = project_name.upper()
 
     dates_timeline = [d_start + datetime.timedelta(days=i) for i in range(61)]
+
+    # Cấu hình danh sách máy móc thích ứng động theo loại công trình
+    import copy
+    local_machines = copy.deepcopy(MACHINES)
+    if is_culvert:
+        culvert_names = {
+            "M1": "Ô tô tự đổ 5T - 7T chở đất đào & VLXD",
+            "M2": "Máy đào gầu nghịch bánh xích 0.8 m3",
+            "M3": "Máy trộn bê tông quả lê 350 Lít",
+            "M4": "Máy trộn vữa xây trát 80 Lít",
+            "M5": "Máy bơm nước hố móng cống D80 - D100",
+            "M6": "Cần cẩu tự hành 5T - 8T",
+            "M7": "Máy đầm cóc 70kg động cơ xăng",
+            "M8": "Máy đầm dùi bê tông 1.5 kW",
+            "M9": "Máy uốn, cắt cốt thép công nghiệp",
+            "M10": "Máy hàn điện 250A công nghiệp",
+            "M11": "Máy phát điện dự phòng 15 - 25 kVA",
+        }
+        culvert_descs = {
+            "M1": "Chở đất đào hố móng cống, cát đệm, vật liệu xây dựng",
+            "M2": "Đào hố móng tuyến cống, đào mở rãnh, xúc đất hoàn trả",
+            "M3": "Trộn bê tông lót móng cống, bê tông chèn khe, cổ ga",
+            "M4": "Trộn vữa xây gạch hố ga thu thăm, trát hoàn thiện cổ ga",
+            "M5": "Bơm hạ mực nước ngầm hố móng cống, thoát nước bề mặt",
+            "M6": "Cẩu lắp tấm đan BTCT giảm tải, nắp ga gang, ván khuôn thép",
+            "M7": "Đầm cóc hố móng cống, đầm đất hẹp hai bên hông cống K95",
+            "M8": "Đầm dùi bê tông bản đáy, thành và bản nắp cống hộp M250",
+            "M9": "Gia công uốn cắt cốt thép cống hộp, tấm đan và hố ga",
+            "M10": "Hàn liên kết cốt thép, gia công ván khuôn thép định hình",
+            "M11": "Cấp điện thi công, chiếu sáng ban đêm & chạy máy bơm chìm",
+        }
+        for m in local_machines:
+            if m["code"] in culvert_names:
+                m["name"] = culvert_names[m["code"]]
+            if m["code"] in culvert_descs:
+                m["desc"] = culvert_descs[m["code"]]
+            # Ánh xạ công thức kích hoạt theo mốc ngày cống hộp
+            if m["code"] == "M1":
+                m["fml_active"] = lambda c: f"=IF(AND($J$10<={c}$6,$K$13>={c}$6),2,0)"
+            elif m["code"] == "M2":
+                m["fml_active"] = lambda c: f"=IF(OR(AND($J$9<={c}$6,$K$12>={c}$6),AND($J$33<={c}$6,$K$33>={c}$6)),1,0)"
+            elif m["code"] == "M3":
+                m["fml_active"] = lambda c: f"=IF(OR(AND($J$16<={c}$6,$K$17>={c}$6),AND($J$30<={c}$6,$K$30>={c}$6)),1,0)"
+            elif m["code"] == "M4":
+                m["fml_active"] = lambda c: f"=IF(AND($J$30<={c}$6,$K$30>={c}$6),1,0)"
+            elif m["code"] == "M5":
+                m["fml_active"] = lambda c: f"=IF(AND($J$14<={c}$6,$K$14>={c}$6),1,0)"
+            elif m["code"] == "M6":
+                m["fml_active"] = lambda c: f"=IF(OR(AND($J$24<={c}$6,$K$24>={c}$6),AND($J$31<={c}$6,$K$31>={c}$6)),1,0)"
+            elif m["code"] == "M7":
+                m["fml_active"] = lambda c: f"=IF(OR(AND($J$15<={c}$6,$K$15>={c}$6),AND($J$32<={c}$6,$K$33>={c}$6)),2,0)"
+            elif m["code"] == "M8":
+                m["fml_active"] = lambda c: f"=IF(OR(AND($J$21<={c}$6,$K$21>={c}$6),AND($J$25<={c}$6,$K$25>={c}$6)),2,0)"
+            elif m["code"] == "M9":
+                m["fml_active"] = lambda c: f"=IF(OR(AND($J$18<={c}$6,$K$19>={c}$6),AND($J$23<={c}$6,$K$23>={c}$6)),1,0)"
+            elif m["code"] == "M10":
+                m["fml_active"] = lambda c: f"=IF(OR(AND($J$18<={c}$6,$K$18>={c}$6),AND($J$20<={c}$6,$K$20>={c}$6),AND($J$23<={c}$6,$K$23>={c}$6)),1,0)"
+            elif m["code"] == "M11":
+                m["fml_active"] = lambda c: f"=IF(AND($J$8<={c}$6,$K$33>={c}$6),1,0)"
+    elif is_bridge:
+        bridge_descs = {
+            "M1": "Chở phế thải, đất đào hố móng mố trụ, vật liệu xây dựng",
+            "M2": "Đào hố móng mố M1, M2, đắp đất, xúc chuyển vật liệu",
+            "M3": "Trộn bê tông lót, bệ, thân mố trụ, kết cấu",
+            "M4": "Trộn vữa xây móng, tứ nón hoàn thiện, phụ trợ",
+            "M5": "Bơm thoát nước hố móng mố trụ thi công",
+            "M6": "Cẩu lắp thiết bị, cấu kiện, kết cấu nhịp dầm",
+            "M7": "Đầm đất nền hố móng, đắp đất K95, K98 sau mố",
+            "M8": "Đầm bê tông kết cấu bệ, thân mố trụ, xà mũ",
+            "M9": "Gia công uốn cắt cốt thép các hạng mục",
+            "M10": "Hàn lắp đà giáo, ván khuôn, lan can cầu",
+            "M11": "Cấp điện thi công, chạy bơm nước, chiếu sáng",
+        }
+        for m in local_machines:
+            if m["code"] in bridge_descs:
+                m["desc"] = bridge_descs[m["code"]]
 
     # 2. Chuẩn bị danh sách 26 công tác (Hàng 8 đến 33)
     if is_bep_an or not custom_tasks:
@@ -308,14 +388,22 @@ def build_bep_an_3tier_fleet_workbook(
             t_qty = float(src_t.get('qty', 25.0))
             t_crew = int(src_t.get('crew', 6))
             t_mach = str(src_t.get('mach', 'Thiết bị cơ giới'))
-            is_crit = (i in [3, 5, 8, 12, 15, 18])
+            is_crit = src_t.get('critical', (i in [3, 5, 8, 12, 15, 18]))
 
-            # Tính ngày bắt đầu, kết thúc trong khung 61 ngày
-            offset_start = min(50, int((i / 26.0) * 45))
-            dur = max(2, min(8, int((t_qty / 10.0)) + 2))
-            t_st = d_start + datetime.timedelta(days=offset_start)
-            t_fn = min(d_finish, t_st + datetime.timedelta(days=dur))
-            norm_val = round(t_qty / max(1, dur), 2)
+            # Lấy ngày chuẩn từ src_t nếu có
+            src_st = src_t.get('start')
+            src_fn = src_t.get('finish')
+            if isinstance(src_st, (datetime.date, datetime.datetime)) and isinstance(src_fn, (datetime.date, datetime.datetime)):
+                t_st = src_st.date() if isinstance(src_st, datetime.datetime) else src_st
+                t_fn = src_fn.date() if isinstance(src_fn, datetime.datetime) else src_fn
+            else:
+                offset_start = min(50, int((i / 26.0) * 45))
+                dur = max(2, min(8, int((t_qty / 10.0)) + 2))
+                t_st = d_start + datetime.timedelta(days=offset_start)
+                t_fn = min(d_finish, t_st + datetime.timedelta(days=dur))
+
+            dur_days = max(1, (t_fn - t_st).days + 1)
+            norm_val = float(src_t.get('norm', round(t_qty / dur_days, 2)))
 
             active_tasks.append({
                 "row": r_idx,
@@ -572,7 +660,7 @@ def build_bep_an_3tier_fleet_workbook(
     ws1.row_dimensions[37].height = 18
 
     # Chi tiết 11 máy móc (Hàng 38 đến 48)
-    for m in MACHINES:
+    for m in local_machines:
         r_m = m["row_m"]
         ws1.row_dimensions[r_m].height = 18
         ws1.cell(r_m, 1, m["code"]).alignment = Alignment(horizontal="center", vertical="center")
@@ -583,22 +671,6 @@ def build_bep_an_3tier_fleet_workbook(
         ws1.cell(r_m, 5).alignment = Alignment(horizontal="right", vertical="center")
         ws1.cell(r_m, 6, m["max_m"]).alignment = Alignment(horizontal="center", vertical="center")
         desc_text = m["desc"]
-        if not is_bep_an:
-            gen_desc_map = {
-                "M1": "Chở phế thải, đất đào, vật liệu xây dựng",
-                "M2": "Đào hố móng, đắp đất, xúc chuyển vật liệu",
-                "M3": "Trộn bê tông lót, bệ, thân mố trụ, kết cấu",
-                "M4": "Trộn vữa xây móng, hoàn thiện, phụ trợ",
-                "M5": "Nâng vật tư, thiết bị lên các cao độ",
-                "M6": "Cẩu lắp thiết bị, cấu kiện, kết cấu nhịp",
-                "M7": "Đầm đất nền hố móng, K90, K95 sau mố",
-                "M8": "Đầm bê tông kết cấu, bệ, thân mố trụ",
-                "M9": "Gia công uốn cắt cốt thép các hạng mục",
-                "M10": "Hàn lắp đà giáo, ván khuôn, lan can cầu",
-                "M11": "Cấp điện thi công, chạy bơm nước, chiếu sáng"
-            }
-            desc_text = gen_desc_map.get(m["code"], desc_text)
-            
         ws1.cell(r_m, 7, desc_text).font = Font(name=FONT_NAME, size=8, italic=True)
 
         for col_idx in range(1, 16):
@@ -666,8 +738,8 @@ def build_bep_an_3tier_fleet_workbook(
         ws1.cell(51, c).fill = FILL_YELLOW
         ws1.cell(51, c).border = THIN_BORDER
 
-    r_f_start = MACHINES[0]["row_f"]
-    r_f_end = MACHINES[-1]["row_f"]
+    r_f_start = local_machines[0]["row_f"]
+    r_f_end = local_machines[-1]["row_f"]
     for i, dt in enumerate(dates_timeline):
         col = 16 + i
         col_letter = get_column_letter(col)
@@ -680,7 +752,7 @@ def build_bep_an_3tier_fleet_workbook(
         c51.border = THIN_BORDER
 
     # Chi tiết tiêu thụ dầu của từng máy (Hàng 52 đến 62)
-    for m in MACHINES:
+    for m in local_machines:
         r_f = m["row_f"]
         r_m = m["row_m"]
         ws1.row_dimensions[r_f].height = 18
@@ -745,22 +817,37 @@ def build_bep_an_3tier_fleet_workbook(
     ws2.row_dimensions[5].height = 26
 
     # Ánh xạ các công tác trên Sheet 01 tương ứng từng máy
-    mach_to_tasks_map = {
-        "M1": ["G12", "G14"],                   # Ô tô 5T: Task 12 & 14
-        "M2": ["G13"],                          # Máy đào: Task 13
-        "M3": ["G14", "G17", "G18", "G23", "G26"], # Máy trộn 250L: Task 14, 17, 18, 23, 26
-        "M4": ["G19", "G29", "G30"],            # Máy trộn 80L: Task 19, 29, 30
-        "M5": ["G23", "G26", "G29"],            # Vận thăng 500kg: Task 23, 26, 29
-        "M6": ["G25", "G27"],                   # Cần cẩu 5T: Task 25, 27
-        "M7": ["G20", "G31"],                   # Máy đầm cóc: Task 20, 31
-        "M8": ["G17", "G18", "G23", "G26"],     # Đầm dùi: Task 17, 18, 23, 26
-        "M9": ["G15", "G21", "G24"],            # Máy uốn cắt thép: Task 15, 21, 24
-        "M10": ["G27", "G32"],                  # Máy hàn 250A: Task 27, 32
-        "M11": ["G8"]                           # Máy phát điện: Hoạt động suốt kỳ
-    }
+    if is_culvert:
+        mach_to_tasks_map = {
+            "M1": ["G10", "G11", "G12", "G13"],         # Ô tô 7T: Chở đất đào Task 3, 4, 5, 6
+            "M2": ["G9", "G10", "G11", "G12", "G33"],    # Máy đào: Task 2, 3, 4, 5, 26
+            "M3": ["G16", "G17", "G30"],                # Máy trộn 350L: Task 9, 10, 23
+            "M4": ["G30"],                               # Máy trộn vữa 80L: Task 23 (ga thu thăm)
+            "M5": ["G14"],                               # Máy bơm nước: Task 7 (bơm hố móng)
+            "M6": ["G24", "G31"],                        # Cần cẩu 5T: Task 17, 24 (cẩu ván khuôn, tấm đan)
+            "M7": ["G15", "G32", "G33"],                 # Máy đầm cóc: Task 8, 25, 26 (đầm cát đệm, hông cống, hoàn trả)
+            "M8": ["G21", "G25"],                        # Máy đầm dùi: Task 14, 18 (đổ BT đáy & thành nắp)
+            "M9": ["G18", "G19", "G23"],                 # Máy uốn cắt thép: Task 11, 12, 16
+            "M10": ["G18", "G20", "G23"],                # Máy hàn: Task 11, 13, 16
+            "M11": ["G8"]                                # Máy phát điện: Hoạt động toàn kỳ
+        }
+    else:
+        mach_to_tasks_map = {
+            "M1": ["G12", "G14"],                   # Ô tô 5T: Task 12 & 14
+            "M2": ["G13"],                          # Máy đào: Task 13
+            "M3": ["G14", "G17", "G18", "G23", "G26"], # Máy trộn 250L: Task 14, 17, 18, 23, 26
+            "M4": ["G19", "G29", "G30"],            # Máy trộn 80L: Task 19, 29, 30
+            "M5": ["G23", "G26", "G29"],            # Vận thăng 500kg: Task 23, 26, 29
+            "M6": ["G25", "G27"],                   # Cần cẩu 5T: Task 25, 27
+            "M7": ["G20", "G31"],                   # Máy đầm cóc: Task 20, 31
+            "M8": ["G17", "G18", "G23", "G26"],     # Đầm dùi: Task 17, 18, 23, 26
+            "M9": ["G15", "G21", "G24"],            # Máy uốn cắt thép: Task 15, 21, 24
+            "M10": ["G27", "G32"],                  # Máy hàn 250A: Task 27, 32
+            "M11": ["G8"]                           # Máy phát điện: Hoạt động suốt kỳ
+        }
 
     r_s2 = 6
-    for idx, m in enumerate(MACHINES, 1):
+    for idx, m in enumerate(local_machines, 1):
         ws2.row_dimensions[r_s2].height = 20
         ws2.cell(r_s2, 1, idx).alignment = Alignment(horizontal="center", vertical="center")
         ws2.cell(r_s2, 2, m["code"]).alignment = Alignment(horizontal="center", vertical="center")
@@ -881,7 +968,7 @@ def build_bep_an_3tier_fleet_workbook(
     }
 
     r_s3 = 6
-    for idx, m in enumerate(MACHINES, 1):
+    for idx, m in enumerate(local_machines, 1):
         ws3.row_dimensions[r_s3].height = 20
         ws3.cell(r_s3, 1, idx).alignment = Alignment(horizontal="center", vertical="center")
         ws3.cell(r_s3, 2, m["name"]).font = FONT_REGULAR_85
