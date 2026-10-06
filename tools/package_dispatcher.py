@@ -38,6 +38,7 @@ import hashlib
 import re
 import datetime
 import csv
+import unicodedata
 from copy import copy
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -323,6 +324,37 @@ def find_missing_sheet_refs(formula: str, sheetnames) -> List[str]:
     return missing
 
 
+def normalize_dispatch_key(text: Optional[str]) -> str:
+    """Khóa so khớp tên dự án: bỏ dấu tiếng Việt, hạ chữ thường, gộp mọi ký tự phân cách thành một dấu cách.
+
+    '_norm' của bộ sinh Excel không xử lý gạch dưới, nên tên như 'Cau_Khai_Hoang_2'
+    sẽ không khớp 'cau khai hoang 2' nếu thiếu bước gộp phân cách ở đây.
+    """
+    if not text:
+        return ""
+    s = unicodedata.normalize("NFD", str(text).lower())
+    s = "".join(ch for ch in s if unicodedata.category(ch) != "Mn")
+    s = s.replace("đ", "d")
+    s = re.sub(r"[^a-z0-9]+", " ", s)
+    return s.strip()
+
+
+def project_name_tokens(project_name: Optional[str], short_name: Optional[str] = None) -> List[str]:
+    """Các mảnh tên dự án đủ dài để nhận diện (>=3 ký tự), dùng cho bộ lọc theo dự án."""
+    key = normalize_dispatch_key(f"{project_name or ''} {short_name or ''}")
+    return [t for t in key.split() if len(t) >= 3]
+
+
+def is_within_dir(path: str, parent_dir: str) -> bool:
+    """True nếu path nằm trong parent_dir (hoặc chính là parent_dir)."""
+    p = os.path.abspath(os.path.normpath(path))
+    q = os.path.abspath(os.path.normpath(parent_dir))
+    try:
+        return os.path.commonpath([p, q]) == q
+    except ValueError:  # khác ổ đĩa trên Windows
+        return False
+
+
 def audit_all_exported_excels(directories: List[str]) -> Tuple[int, int, List[str]]:
     """
     Quét và kiểm toán toàn diện tất cả tệp .xlsx trong danh sách thư mục.
@@ -523,6 +555,11 @@ class AECPackageDispatcher:
         """
         Đóng gói theo mô hình thực chiến công trường (Hub & Spoke - Phân quyền vai trò).
         Giữ nguyên 100% tính tương thích ngược cho các unit tests và workflows cũ.
+
+        Chốt chặn chống lẫn hồ sơ dự án khác:
+        - Chỉ nhận tệp nằm TRONG chính thư mục dự án (artifacts_source_dir), không quét
+          các thư mục cha/anh em mà người dùng vô tình trỏ vào.
+        - Bỏ qua mọi tệp mang tên dự án khác (khớp theo tên dự án hiện tại hoặc alias).
         """
         sub = custom_subfolder or f"GOI_THI_CONG_THUC_CHIEN_{project_name.upper().replace(' ', '_')}"
         target_root = os.path.join(self.base_output_dir, sub)
@@ -542,9 +579,31 @@ class AECPackageDispatcher:
         packages_created = list(folders.keys())
         pkgs_stats = {k: 0 for k in folders.keys()}
 
+        # Tên nhận diện dự án hiện tại (dùng cả tên thư mục đích làm nguồn phụ).
+        own_tokens = set()
+        for alias in [project_name, custom_subfolder]:
+            own_tokens.update(project_name_tokens(alias))
+
         target_root_norm = os.path.normpath(target_root)
+        effective_src = artifacts_source_dir
+
         if os.path.exists(artifacts_source_dir):
-            for root, _, files in os.walk(artifacts_source_dir):
+            # Nếu người dùng trỏ vào thư mục mẹ chứa nhiều dự án, chỉ đi vào đúng thư mục
+            # con mang tên dự án này; không có thư mục con nào khớp thì quét tại chỗ như cũ.
+            matched_children = [
+                d for d in os.listdir(artifacts_source_dir)
+                if os.path.isdir(os.path.join(artifacts_source_dir, d))
+                and set(normalize_dispatch_key(d).split()) & own_tokens
+            ]
+            if matched_children:
+                effective_src = os.path.join(artifacts_source_dir, matched_children[0])
+                print(f"  [i] Nguồn chứa nhiều dự án — chỉ đóng gói thư mục: {matched_children[0]}")
+
+        if os.path.exists(effective_src):
+            for root, _, files in os.walk(effective_src):
+                # Chốt chặn: không bao giờ quét ngược ra ngoài thư mục nguồn hiệu lực.
+                if not is_within_dir(root, effective_src):
+                    continue
                 if os.path.normpath(root).startswith(target_root_norm):
                     continue
                 for f in files:
@@ -588,6 +647,7 @@ class AECPackageDispatcher:
                 "packages": packages_created,
                 "packages_stats": pkgs_stats,
                 "total_files": copied_count,
+                "source_dir": effective_src,
                 "timestamp": str(os.path.getmtime(target_root))
             }, mf, ensure_ascii=False, indent=2)
 
@@ -639,14 +699,17 @@ class AECPackageDispatcher:
         # 1. ĐÓNG GÓI TẦNG 1: MACRO MASTER
         # ---------------------------------------------------------------------
         print("  [1/4] Đang đóng gói TẦNG 1 (Macro Master)...")
+        macro_files: List[str] = []
         master_dest = os.path.join(dir_macro, os.path.basename(master_excel_path))
         shutil.copyfile(master_excel_path, master_dest)
+        macro_files.append(os.path.basename(master_excel_path))
 
         # Copy các companion files nếu có (XML, MPP, DOCX, MD)
         for k, src_f in companion.items():
             if src_f and os.path.exists(src_f):
                 dst_f = os.path.join(dir_macro, os.path.basename(src_f))
                 shutil.copyfile(src_f, dst_f)
+                macro_files.append(os.path.basename(src_f))
 
         # ---------------------------------------------------------------------
         # 2. TRÍCH XUẤT EVAL CACHE SẠCH TỪ MASTER
@@ -808,11 +871,13 @@ class AECPackageDispatcher:
             if os.path.exists(src_f):
                 shutil.copy2(src_f, os.path.join(pkg_dirs["D"], f))
 
-        # 4.5. Gói E: Executive Control Hub
-        for f in os.listdir(dir_macro):
-            src_f = os.path.join(dir_macro, f)
+        # 4.5. Gói E: Executive Control Hub — chỉ chép ĐÚNG các tệp thân chủ do
+        # chính dự án này sinh ra ở Tầng 1 (không quét cả thư mục, tránh mang theo
+        # tệp lạ nếu thư mục xuất từng được dùng chung).
+        for f_name in macro_files:
+            src_f = os.path.join(dir_macro, f_name)
             if os.path.isfile(src_f):
-                shutil.copy2(src_f, os.path.join(pkg_dirs["E"], f))
+                shutil.copy2(src_f, os.path.join(pkg_dirs["E"], f_name))
 
         # 4.6. Bảng phân quyền & bàn giao (Excel + MD)
         build_permission_and_handover_workbooks(dir_hub, project_name)
@@ -875,14 +940,30 @@ class AECPackageDispatcher:
         # ---------------------------------------------------------------------
         if sync_nested_dirs:
             for n_dir in sync_nested_dirs:
-                if os.path.exists(n_dir) and os.path.abspath(n_dir) != os.path.abspath(root_dir):
-                    print(f"  [*] Đang đồng bộ sang thư mục con: {n_dir}...")
-                    for sub_name in ["BO_HO_SO_01_MACRO_MASTER_14_SHEET", "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO", "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH"]:
-                        src_s = os.path.join(root_dir, sub_name)
-                        dst_s = os.path.join(n_dir, sub_name)
-                        if os.path.exists(dst_s):
-                            shutil.rmtree(dst_s)
-                        shutil.copytree(src_s, dst_s)
+                # Chốt chặn an toàn: tuyệt đối không đồng bộ khi thư mục đích là
+                # chính thư mục xuất, là thư mục CHA của nó, hoặc nằm ngoài nó.
+                if not os.path.exists(n_dir):
+                    print(f"  [!] Bỏ qua '{n_dir}': thư mục không tồn tại.")
+                    continue
+                if os.path.abspath(n_dir) == os.path.abspath(root_dir):
+                    continue
+                if is_within_dir(root_dir, n_dir):
+                    print(f"  [!] TỪ CHỐI đồng bộ vào '{n_dir}': đây là thư mục cha của thư mục xuất — thao tác sẽ ghi đè chính hồ sơ vừa tạo.")
+                    continue
+                print(f"  [*] Đang đồng bộ sang thư mục con: {n_dir}...")
+                for sub_name in ["BO_HO_SO_01_MACRO_MASTER_14_SHEET", "BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO", "03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH"]:
+                    src_s = os.path.join(root_dir, sub_name)
+                    if not os.path.isdir(src_s):
+                        continue
+                    dst_s = os.path.join(n_dir, sub_name)
+                    # Đích phải nằm trong thư mục đích đã khai báo, và phải đúng
+                    # tên thư mục con của bộ hồ sơ — không xóa gì khác.
+                    if os.path.basename(dst_s) != sub_name or not is_within_dir(dst_s, n_dir):
+                        print(f"  [!] Bỏ qua đích bất thường: {dst_s}")
+                        continue
+                    if os.path.exists(dst_s):
+                        shutil.rmtree(dst_s)
+                    shutil.copytree(src_s, dst_s)
 
         summary_msg = (
             f"Đã hoàn thành xuất xưởng trọn vẹn 3 Tầng hồ sơ công nghiệp cho dự án '{project_name}':\n"
