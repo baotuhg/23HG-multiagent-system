@@ -340,7 +340,7 @@ def build_bep_an_3tier_fleet_workbook(
 
     # 1. Khối Tiêu đề Master (Hàng 1, 2, 3)
     ws1.merge_cells("A1:O1")
-    ws1["A1"] = f"DỰ ÁN: TRƯỜNG PHỔ THÔNG LIÊN CẤP PHỐ BẢNG — {proj_display_name}"
+    ws1["A1"] = f"DỰ ÁN: {proj_display_name}"
     ws1["A1"].font = FONT_WHITE_13
     ws1["A1"].fill = FILL_NAVY
     ws1["A1"].alignment = Alignment(horizontal="left", vertical="center", indent=1)

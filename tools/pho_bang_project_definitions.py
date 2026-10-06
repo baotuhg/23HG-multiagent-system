@@ -272,7 +272,7 @@ PROJECTS_PHO_BANG: List[ProjectDefinition] = [
         hm_code="HM18",
         qlcl_filename="HO_SO_QLCL_DUONG_GIAO_THONG_TIENG_VIET_CO_DAU.xlsx",
     ),
-    , ProjectDefinition(
+    ProjectDefinition(
         folder_name="Cầu thôn Khai Hoang 2, Km 14+363.65_Marker_2",
         short_name="Cau_Khai_Hoang_2",
         full_name="Cầu thôn Khai Hoang 2, Km 14+363.65 (Nhịp dầm T L=15m, Mố BTCT)",
