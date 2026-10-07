@@ -75,13 +75,13 @@ def load_khai_hoang_2_data(target_dir: str):
             "stt": 3, "code": "G1-03", "name": "Đào đất đá hố móng mố M1 bằng máy đào 0.8m3 kết hợp thủ công",
             "unit": "m3", "qty": 185.0, "norm": 37.0, "shifts": 1,
             "start": d_st + datetime.timedelta(days=5), "finish": d_st + datetime.timedelta(days=10),
-            "mach": "Máy đào 0.8m3 + Ô tô 7T", "crew": 6, "critical": True
+            "mach": "Máy đào 0.8m3 + Ô tô 7T + Máy bơm nước hút hố móng D80", "crew": 6, "critical": True
         },
         {
             "stt": 4, "code": "G1-04", "name": "Đào đất đá hố móng mố M2 bằng máy đào 0.8m3 kết hợp thủ công",
             "unit": "m3", "qty": 195.0, "norm": 39.0, "shifts": 1,
             "start": d_st + datetime.timedelta(days=7), "finish": d_st + datetime.timedelta(days=12),
-            "mach": "Máy đào 0.8m3 + Ô tô 7T", "crew": 6, "critical": True
+            "mach": "Máy đào 0.8m3 + Ô tô 7T + Máy bơm nước hút hố móng D80", "crew": 6, "critical": True
         },
         {
             "stt": 5, "code": "G1-05", "name": "Đệm cát & Đổ bê tông lót móng M100 đá 4x6 dày 100mm mố M1, M2",
