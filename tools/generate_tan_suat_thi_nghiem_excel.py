@@ -6,9 +6,9 @@ Tuân thủ Luật Xây dựng 135/2025/QH15, Nghị định 207/2026/NĐ-CP, Th
 TCVN 1651:2018, TCVN 4453:1995, ASTM A416 Gr270.
 
 GỒM 3 SHEET CHUYÊN NGHIỆP:
-1. Sheet 'Theo_Doi_Tan_Suat_Be_Tong': 83 cấu kiện bê tông chi tiết (30 cọc khoan nhồi C1..Cn, bệ mố, bệ trụ, thân trụ các đốt, xà mũ, 15 dầm Super-T, dầm ngang, BMC, bản quá độ, gờ lan can). Tự động tính R7, R28, lũy kế XM/Cát/Đá, cảnh báo tần suất XM 50T, Cát 200m3, Đá 350m3.
-2. Sheet 'Theo_Doi_Tan_Suat_Cot_Thep': BÓC TÁCH RIÊNG TỪNG LOẠI TỪNG THANH THÉP (hơn 800 thanh chi tiết) và THEO DÕI RIÊNG TỪNG LOẠI ĐƯỜNG KÍNH Ø (Ø10, Ø12, Ø14, Ø16, Ø18, Ø20, Ø22, Ø25, Ø28, Ø32, Cáp 15.2mm) kèm cột số lô CO-CQ riêng từng Ø và cảnh báo tần suất kéo/uốn 20 TẤN/LẦN cho từng loại Ø độc lập.
-3. Sheet 'Tong_Hop_Tan_Suat_Vat_Lieu': Bảng tổng hợp toàn diện kế hoạch thí nghiệm vật liệu đầu vào bóc tách riêng từng loại Ø theo TCVN 1651:2018 và các phép thử kiểm định hiện trường.
+1. Sheet 'Theo_Doi_Tan_Suat_Be_Tong': 79 cấu kiện bê tông chi tiết (26 cọc khoan nhồi C1..Cn, bệ mố, bệ trụ, thân trụ các đốt, xà mũ, 15 dầm Super-T, dầm ngang, BMC, bản quá độ, gờ lan can). Tự động tính R7, R28, lũy kế XM/Cát/Đá, cảnh báo tần suất XM 50T, Cát 200m3, Đá 350m3.
+2. Sheet 'Theo_Doi_Tan_Suat_Cot_Thep': BÓC TÁCH RIÊNG TỪNG LOẠI TỪNG THANH THÉP (bao gồm thanh P11-D16 treo lồng cọc cho toàn bộ 26 cọc) và THEO DÕI RIÊNG TỪNG LOẠI ĐƯỜNG KÍNH Ø (Ø10, Ø12, Ø14, Ø16, Ø18, Ø20, Ø22, Ø25, Ø28, Ø32, Cáp 15.2mm) kèm cột số lô CO-CQ riêng từng Ø và cảnh báo tần suất kéo/uốn 20 TẤN/LẦN cho từng loại Ø độc lập.
+3. Sheet 'Tong_Hop_Tan_Suat_Vat_Lieu': Bảng tổng hợp toàn diện kế hoạch thí nghiệm vật liệu đầu vào bóc tách riêng từng loại Ø theo TCVN 1651:2018 và các phép thử kiểm định hiện trường (156 mặt cắt siêu âm / 26 cọc).
 """
 
 import os
@@ -109,15 +109,11 @@ def build_sheet_concrete(ws):
             else: cell.font = FONT_HDR
 
     items = [
-        # --- PHẦN I: CỌC KHOAN NHỒI D1.2M (30 CỌC TOÀN CẦU) ---
-        ("SECTION", "I. HẠNG MỤC CỌC KHOAN NHỒI D1.2M (C30 ĐỘ SỤT 18±2CM)"),
+        # --- PHẦN I: CỌC KHOAN NHỒI D1.2M (26 CỌC TOÀN CẦU: M1=3, T1=8, T2=8, M2=7) ---
+        ("SECTION", "I. HẠNG MỤC CỌC KHOAN NHỒI D1.2M (C30 ĐỘ SỤT 18±2CM) - 26 CỌC (L=872M)"),
         ("Bê tông cọc khoan nhồi - C1 mố M1 (L=20m)", 24.71, "18"),
         ("Bê tông cọc khoan nhồi - C2 mố M1 (L=20m)", 24.71, "18"),
         ("Bê tông cọc khoan nhồi - C3 mố M1 (L=20m)", 24.71, "18"),
-        ("Bê tông cọc khoan nhồi - C4 mố M1 (L=20m)", 24.71, "18"),
-        ("Bê tông cọc khoan nhồi - C5 mố M1 (L=20m)", 24.71, "18"),
-        ("Bê tông cọc khoan nhồi - C6 mố M1 (L=20m)", 24.71, "18"),
-        ("Bê tông cọc khoan nhồi - C7 mố M1 (L=20m)", 24.71, "18"),
 
         ("Bê tông cọc khoan nhồi - C1 trụ T1 (L=40m)", 47.01, "18"),
         ("Bê tông cọc khoan nhồi - C2 trụ T1 (L=40m)", 47.01, "18"),
@@ -481,11 +477,11 @@ def build_sheet_rebar(ws, bsl_path, thep_cat_path, tmpl_path):
 
     rebar_entries = []
 
-    # === PHẦN I: TOÀN BỘ 30 CỌC KHOAN NHỒI D1.2M BÓC TÁCH TỪNG THANH ===
-    rebar_entries.append(("SECTION", "PHẦN I: KẾT CẤU CỌC KHOAN NHỒI D1.2M (30 CỌC TOÀN CẦU)"))
+    # === PHẦN I: TOÀN BỘ 26 CỌC KHOAN NHỒI D1.2M BÓC TÁCH TỪNG THANH ===
+    rebar_entries.append(("SECTION", "PHẦN I: KẾT CẤU CỌC KHOAN NHỒI D1.2M (26 CỌC TOÀN CẦU: M1=3, T1=8, T2=8, M2=7)"))
 
     pile_configs = [
-        ("Mố M1", 7, 20.0, 34),
+        ("Mố M1", 3, 20.0, 34),
         ("Trụ T1", 8, 40.0, 40),
         ("Trụ T2", 8, 30.0, 43),
         ("Mố M2", 7, 36.0, 37),
@@ -504,6 +500,34 @@ def build_sheet_rebar(ws, bsl_path, thep_cat_path, tmpl_path):
                 shape = "Đai xoắn tròn" if "P1" in mark else ("Thanh thẳng nối ren/hàn" if dia >= 25 else "Móc neo / Vòng đai")
                 sub = "Thép đai xoắn lồng cọc" if "P1" in mark else ("Cốt thép chủ chịu lực cọc" if dia >= 25 else "Đai tăng cường / Con kê bảo vệ")
                 bars_1_pile.append((mark, sub, dia, grade, shape, length_m, qty, unit_w))
+
+                # Bổ sung thanh thép treo lồng cọc P11-D16 ngay sau P10 (4 thanh/cọc, L = cọc + 1.2m neo bệ)
+                if mark == "P10":
+                    hanging_len = round(length + 1.2, 3)
+                    bars_1_pile.append((
+                        "P11",
+                        "Thanh thép treo lồng cọc",
+                        16,
+                        "CB400-V",
+                        "Thanh thẳng uốn móc treo neo vào bệ",
+                        hanging_len,
+                        4,
+                        1.578
+                    ))
+
+        # Đảm bảo P11 luôn có mặt nếu bảng số liệu thiếu P10
+        if not any(b[0] == "P11" for b in bars_1_pile):
+            hanging_len = round(length + 1.2, 3)
+            bars_1_pile.append((
+                "P11",
+                "Thanh thép treo lồng cọc",
+                16,
+                "CB400-V",
+                "Thanh thẳng uốn móc treo neo vào bệ",
+                hanging_len,
+                4,
+                1.578
+            ))
 
         for p_num in range(1, count + 1):
             pile_title = f"Cọc khoan nhồi C{p_num} {loc} (D1.2m, L={length}m)"
@@ -913,11 +937,11 @@ def build_sheet_summary(ws, r_tot_concrete, r_end_rebar):
         # Nhóm III: Thí nghiệm kiểm tra hiện trường & Cấu kiện hoàn thiện
         ("SECTION", "III. KIỂM ĐỊNH HIỆN TRƯỜNG & NGHIỆM THU CHẤT LƯỢNG"),
         (18, "Thí nghiệm nén mẫu bê tông hiện trường R7, R28", "TCVN 3118:2022", "1 tổ 3 mẫu / cấu kiện <=20m3", "Tổ mẫu",
-         83, None, None,
-         "Cường độ chịu nén R7 ngày và R28 ngày (MPa)", "Kèm biên bản nghiệm thu KCS (249 viên mẫu)"),
+         79, None, None,
+         "Cường độ chịu nén R7 ngày và R28 ngày (MPa)", "Kèm biên bản nghiệm thu KCS (237 viên mẫu)"),
         (19, "Thí nghiệm siêu âm cọc khoan nhồi D1.2m", "TCVN 9395:2012", "100% các cọc khoan nhồi", "Mặt cắt",
          156, None, None,
-         "Độ đồng nhất, vận tốc truyền sóng, khuyết tật thân cọc", "4 ống siêu âm / cọc (156 mặt cắt / 30 cọc)"),
+         "Độ đồng nhất, vận tốc truyền sóng, khuyết tật thân cọc", "4 ống siêu âm / cọc (156 mặt cắt / 26 cọc)"),
         (20, "Thử động biến dạng lớn PDA (Sức chịu tải cọc)", "ASTM D4945", "Tối thiểu 2 cọc đại diện", "Cọc",
          2, None, None,
          "Sức chịu tải giới hạn cọc, ứng suất nén/kéo khi đóng", "Đơn vị kiểm định độc lập (M1-C1 và T1-C1)"),
@@ -985,9 +1009,9 @@ def build_sheet_summary(ws, r_tot_concrete, r_end_rebar):
         elif stt_num == 17:
             test_cnt_formula = '4 lần (mỗi lô 3 mẫu kéo)'
         elif stt_num == 18:
-            test_cnt_formula = '83 tổ mẫu (249 viên)'
+            test_cnt_formula = '79 tổ mẫu (237 viên)'
         elif stt_num == 19:
-            test_cnt_formula = '156 mặt cắt siêu âm (30 cọc)'
+            test_cnt_formula = '156 mặt cắt siêu âm (26 cọc)'
         elif stt_num == 20:
             test_cnt_formula = '2 cọc (M1-C1 và T1-C1)'
         elif stt_num == 21:
@@ -1050,6 +1074,7 @@ if __name__ == "__main__":
         r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Cau_Km19.xlsx",
         r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_C_HIEN_TRUONG_QLCL_KCS\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx",
         r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx",
+        r"d:\Code\23HG-multiagent-system-main\23HG-multiagent-system-main\examples\HO_SO_CAU_KM19_529\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx",
     ]
     for p in extra_paths:
         try:
