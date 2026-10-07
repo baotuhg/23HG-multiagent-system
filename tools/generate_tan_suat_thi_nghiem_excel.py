@@ -1041,8 +1041,12 @@ def build_sheet_summary(ws, r_tot_concrete, r_end_rebar):
 def build_tan_suat_master_workbook(output_path: str):
     """Tạo toàn bộ Master Workbook gồm cả 3 Sheet chuyên nghiệp"""
     base_marker = r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker"
-    bsl_path = os.path.join(base_marker, "bang_so_lieu.json")
-    thep_cat_path = os.path.join(base_marker, "thep_cho_to_hop_cat.json")
+    bsl_path = os.path.join(base_marker, "05_DU_LIEU_GOC_SCAN_MARKER", "bang_so_lieu.json")
+    if not os.path.exists(bsl_path):
+        bsl_path = os.path.join(base_marker, "bang_so_lieu.json")
+    thep_cat_path = os.path.join(base_marker, "05_DU_LIEU_GOC_SCAN_MARKER", "thep_cho_to_hop_cat.json")
+    if not os.path.exists(thep_cat_path):
+        thep_cat_path = os.path.join(base_marker, "thep_cho_to_hop_cat.json")
     tmpl_path = r"d:\Code\23HG-multiagent-system-main\23HG-multiagent-system-main\templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx"
 
     wb = openpyxl.Workbook()
@@ -1064,22 +1068,16 @@ def build_tan_suat_master_workbook(output_path: str):
     print(f"[OK] Đã xuất bản thành công Bộ hồ sơ tần suất thí nghiệm chuẩn: {output_path}")
 
 if __name__ == "__main__":
-    out_master = r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx"
+    base_marker = r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker"
+    out_master = os.path.join(base_marker, "01_HIEN_TRUONG_QLCL_KCS", "Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx")
     build_tan_suat_master_workbook(out_master)
 
-    # Xuất bản song song cho các gói hồ sơ thực chiến
-    extra_paths = [
-        r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Cot_Thep_Cau_Km19.xlsx",
-        r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Tong_Hop_Cau_Km19.xlsx",
-        r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Cau_Km19.xlsx",
-        r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker\03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH\GOI_C_HIEN_TRUONG_QLCL_KCS\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx",
-        r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker\BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx",
-        r"d:\Code\23HG-multiagent-system-main\23HG-multiagent-system-main\examples\HO_SO_CAU_KM19_529\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx",
-    ]
-    for p in extra_paths:
-        try:
-            import shutil
-            shutil.copy2(out_master, p)
-            print(f"[OK] Đã đồng bộ sang: {p}")
-        except Exception as e:
-            print(f"[NOTE] Không thể ghi đè sang {os.path.basename(p)}: {e}")
+    # Đồng bộ sang kho mã nguồn git repo
+    repo_sync_path = r"d:\Code\23HG-multiagent-system-main\23HG-multiagent-system-main\examples\HO_SO_CAU_KM19_529\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx"
+    try:
+        import shutil
+        os.makedirs(os.path.dirname(repo_sync_path), exist_ok=True)
+        shutil.copy2(out_master, repo_sync_path)
+        print(f"[OK] Đã đồng bộ sang git repo: {repo_sync_path}")
+    except Exception as e:
+        print(f"[NOTE] Không thể đồng bộ sang repo: {e}")
