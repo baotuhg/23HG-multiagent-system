@@ -90,9 +90,9 @@ def generate_html_dashboard(output_path: str):
             <div class="text-[11px] text-emerald-500 font-medium">Hoàn thành 100%</div>
           </div>
           <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-3 text-center">
-            <div class="text-xs text-slate-400 font-medium">Thân trụ & mố</div>
-            <div class="text-xl font-bold text-amber-400 mt-1">Đốt 1 T1,T2 & M2</div>
-            <div class="text-[11px] text-amber-400/90 font-medium">Đang triển khai Đốt 2</div>
+            <div class="text-xs text-slate-400 font-medium">Dầm Super-T (15 phiến)</div>
+            <div class="text-xl font-bold text-slate-300 mt-1">0/15 phiến</div>
+            <div class="text-[11px] text-cyan-400 font-semibold">KH đúc: 25/10 (7 ngày/phiến)</div>
           </div>
         </div>
       </div>
@@ -178,19 +178,19 @@ def generate_html_dashboard(output_path: str):
                     <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold">LÊN BỆ MỐ</span>
                   </td>
                   <td class="p-2 border border-slate-700">
-                    <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold">ĐÚC BÃI 4/5</span>
+                    <span class="px-2 py-0.5 rounded bg-slate-700 text-slate-300 border border-slate-600 text-[10px] font-bold">KH: 25/10/2026</span>
                   </td>
                   <td class="p-2 border border-slate-700">
                     <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">XONG ĐỐT 1</span>
                   </td>
                   <td class="p-2 border border-slate-700">
-                    <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold">ĐÚC BÃI 3/5</span>
+                    <span class="px-2 py-0.5 rounded bg-slate-700 text-slate-300 border border-slate-600 text-[10px] font-bold">KH: 29/11/2026</span>
                   </td>
                   <td class="p-2 border border-slate-700">
                     <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">XONG ĐỐT 1</span>
                   </td>
                   <td class="p-2 border border-slate-700">
-                    <span class="px-2 py-0.5 rounded bg-slate-700 text-slate-400 text-[10px] font-bold">CHUẨN BỊ</span>
+                    <span class="px-2 py-0.5 rounded bg-slate-700 text-slate-300 border border-slate-600 text-[10px] font-bold">KH: 03/01/2027</span>
                   </td>
                   <td class="p-2 border border-slate-700">
                     <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">ĐÃ LÊN THÂN</span>
@@ -398,23 +398,23 @@ def generate_html_dashboard(output_path: str):
             <!-- ======================================================== -->
             <!-- NHỊP 1 (M1 - T1) -->
             <g id="grp_span1" class="svg-node" onclick="inspectElem('SPAN1')">
-              <rect x="142" y="98" width="171" height="15" rx="2" fill="url(#gradProgress)" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
-              <text x="227" y="109" fill="#fef08a" font-size="9.5" text-anchor="middle" font-weight="bold">DẦM SUPER-T NHỊP 1 (ĐÚC BÃI 4/5)</text>
-              <rect x="138" y="90" width="175" height="7" fill="url(#gradNotDone)" stroke="#94a3b8" stroke-width="1"/>
+              <rect x="142" y="98" width="171" height="15" rx="2" fill="url(#gradNotDone)" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,2"/>
+              <text x="227" y="109" fill="#cbd5e1" font-size="9" text-anchor="middle">DẦM SUPER-T NHỊP 1 (KH ĐÚC: 25/10/2026)</text>
+              <rect x="138" y="90" width="175" height="7" fill="url(#gradNotDone)" stroke="#64748b" stroke-width="1"/>
             </g>
 
             <!-- NHỊP 2 (T1 - T2) -->
             <g id="grp_span2" class="svg-node" onclick="inspectElem('SPAN2')">
-              <rect x="415" y="98" width="178" height="15" rx="2" fill="url(#gradProgress)" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
-              <text x="504" y="109" fill="#fef08a" font-size="9.5" text-anchor="middle" font-weight="bold">DẦM SUPER-T NHỊP 2 (ĐÚC BÃI 3/5)</text>
-              <rect x="415" y="90" width="178" height="7" fill="url(#gradNotDone)" stroke="#94a3b8" stroke-width="1"/>
+              <rect x="415" y="98" width="178" height="15" rx="2" fill="url(#gradNotDone)" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,2"/>
+              <text x="504" y="109" fill="#cbd5e1" font-size="9" text-anchor="middle">DẦM SUPER-T NHỊP 2 (KH ĐÚC: 29/11/2026)</text>
+              <rect x="415" y="90" width="178" height="7" fill="url(#gradNotDone)" stroke="#64748b" stroke-width="1"/>
             </g>
 
             <!-- NHỊP 3 (T2 - M2) -->
             <g id="grp_span3" class="svg-node" onclick="inspectElem('SPAN3')">
-              <rect x="695" y="98" width="177" height="15" rx="2" fill="url(#gradNotDone)" stroke="#94a3b8" stroke-width="1.5"/>
-              <text x="783" y="109" fill="#cbd5e1" font-size="9.5" text-anchor="middle">DẦM SUPER-T NHỊP 3 (CHƯA ĐÚC)</text>
-              <rect x="695" y="90" width="177" height="7" fill="url(#gradNotDone)" stroke="#94a3b8" stroke-width="1"/>
+              <rect x="695" y="98" width="177" height="15" rx="2" fill="url(#gradNotDone)" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,2"/>
+              <text x="783" y="109" fill="#cbd5e1" font-size="9" text-anchor="middle">DẦM SUPER-T NHỊP 3 (KH ĐÚC: 03/01/2027)</text>
+              <rect x="695" y="90" width="177" height="7" fill="url(#gradNotDone)" stroke="#64748b" stroke-width="1"/>
             </g>
 
             <!-- Ghi chú nhịp kích thước phía trên -->
@@ -500,47 +500,58 @@ def generate_html_dashboard(output_path: str):
           </div>
         </div>
 
-        <!-- 4. TIẾN ĐỘ DẦM SUPER-T PHÂN NHỊP -->
+        <!-- 4. TIẾN ĐỘ DẦM SUPER-T PHÂN NHỊP & CHU KỲ ĐÚC 7 NGÀY/PHIẾN -->
         <div class="mt-4 pt-3 border-t border-slate-700/80">
           <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
-            <span class="flex items-center gap-2"><span>🏗️</span> Tiến Độ Thi Công Hệ Dầm Super-T (Bãi Đúc & Lao Lắp)</span>
+            <span class="flex items-center gap-2"><span>🏗️</span> Kế Hoạch Bãi Đúc Dầm Super-T (Khởi Công: 25/10/2026 — Chu Kỳ: 7 Ngày / 1 Phiến)</span>
+            <span class="text-slate-400 font-semibold text-xs">Hiện tại: 0/15 phiến (Chưa thi công)</span>
           </div>
 
           <div class="grid grid-cols-3 gap-3 text-xs text-center">
-            <div class="bg-slate-900 border border-amber-500/40 rounded-xl p-3">
-              <div class="font-bold text-amber-300">NHỊP 1 (M1 - T1, L=38.20M)</div>
-              <div class="text-[11px] text-slate-300 mt-1">Đã đúc xong 4/5 phiến Super-T</div>
+            <div class="bg-slate-900 border border-slate-700 rounded-xl p-3">
+              <div class="font-bold text-slate-300">NHỊP 1 (M1 - T1, L=38.20M)</div>
+              <div class="text-[11px] text-amber-400 font-semibold mt-1">Khởi công đúc: 25/10/2026</div>
               <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mt-2">
-                <div class="bg-amber-400 h-full rounded-full" style="width: 80%"></div>
+                <div class="bg-blue-500 h-full rounded-full" style="width: 0%"></div>
               </div>
               <div class="flex justify-between text-[10px] text-slate-400 mt-1">
-                <span>Bãi đúc: 80%</span>
-                <span class="text-amber-400 font-semibold">Chờ xà mũ để lao lắp</span>
-              </div>
-            </div>
-
-            <div class="bg-slate-900 border border-amber-500/40 rounded-xl p-3">
-              <div class="font-bold text-amber-300">NHỊP 2 (T1 - T2, L=38.20M)</div>
-              <div class="text-[11px] text-slate-300 mt-1">Đã đúc xong 3/5 phiến Super-T</div>
-              <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mt-2">
-                <div class="bg-amber-400 h-full rounded-full" style="width: 60%"></div>
-              </div>
-              <div class="flex justify-between text-[10px] text-slate-400 mt-1">
-                <span>Bãi đúc: 60%</span>
-                <span class="text-amber-400 font-semibold">Đang căng kéo cáp DƯL</span>
+                <span>0/5 phiến (0%)</span>
+                <span class="text-slate-400">Dự kiến xong: 29/11/2026</span>
               </div>
             </div>
 
             <div class="bg-slate-900 border border-slate-700 rounded-xl p-3">
-              <div class="font-bold text-slate-400">NHỊP 3 (T2 - M2, L=38.20M)</div>
-              <div class="text-[11px] text-slate-400 mt-1">Chuẩn bị cốt thép & ống ghen</div>
+              <div class="font-bold text-slate-300">NHỊP 2 (T1 - T2, L=38.20M)</div>
+              <div class="text-[11px] text-slate-400 mt-1">Đúc nối tiếp sau Nhịp 1</div>
               <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mt-2">
-                <div class="bg-slate-600 h-full rounded-full" style="width: 15%"></div>
+                <div class="bg-blue-500 h-full rounded-full" style="width: 0%"></div>
               </div>
               <div class="flex justify-between text-[10px] text-slate-400 mt-1">
-                <span>Bãi đúc: 15%</span>
-                <span class="text-slate-500">Chưa bắt đầu đúc đại trà</span>
+                <span>0/5 phiến (0%)</span>
+                <span class="text-slate-400">Dự kiến: 29/11 - 03/01/2027</span>
               </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-700 rounded-xl p-3">
+              <div class="font-bold text-slate-300">NHỊP 3 (T2 - M2, L=38.20M)</div>
+              <div class="text-[11px] text-slate-400 mt-1">Đúc nối tiếp sau Nhịp 2</div>
+              <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mt-2">
+                <div class="bg-blue-500 h-full rounded-full" style="width: 0%"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                <span>0/5 phiến (0%)</span>
+                <span class="text-slate-400">Dự kiến: 03/01 - 07/02/2027</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- BẢNG CHI TIẾT CHU KỲ 7 NGÀY / 1 PHIẾN -->
+          <div class="mt-3 bg-slate-950/70 p-2.5 rounded-xl border border-slate-800 text-[11px] text-slate-300 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              ⏱️ <strong>Chu kỳ 7 ngày / 1 phiến:</strong> Ngày 1-2 (Lắp cốt thép & ống ghen) → Ngày 3 (Ghép ván khuôn & đổ BT C45) → Ngày 4-5 (Bảo dưỡng đạt 85% R28) → Ngày 6 (Căng kéo cáp DƯL 15.2mm & bơm vữa) → Ngày 7 (Cẩu dầm ra bãi chứa luân chuyển bệ đúc).
+            </div>
+            <div class="text-cyan-400 font-bold">
+              Tổng 15 phiến: 105 ngày (1 bệ đúc) hoặc 53 ngày (2 bệ đúc song song)
             </div>
           </div>
         </div>
@@ -601,7 +612,7 @@ def generate_html_dashboard(output_path: str):
             <li class="flex items-start gap-2 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
               <span class="text-blue-400 font-bold mt-0.5">4.</span>
               <div>
-                <strong class="text-white">Bãi đúc dầm Super-T:</strong> Đã hoàn thành 7/15 phiến dầm. Kiểm soát chặt chẽ lực căng kéo cáp DƯL và độ vồng dầm trước khi cấp phép cẩu lắp.
+                <strong class="text-white">Bãi đúc dầm Super-T (Kế hoạch 25/10/2026):</strong> Hiện chưa đúc phiến nào. Tập trung hoàn thiện bệ đúc, kiểm định kích thủy lực căng kéo cáp DƯL 15.2mm, tập kết cốt thép và nghiệm thu trạm trộn bê tông C45 để sẵn sàng bấm nút khởi công đúc ngày 25/10 theo chu kỳ 7 ngày/phiến.
               </div>
             </li>
           </ul>
@@ -691,42 +702,51 @@ def generate_html_dashboard(output_path: str):
       'SPAN1': {
         icon: '🌉',
         title: 'KẾT CẤU NHỊP 1 (M1 - T1, L=38.2M)',
-        badge: 'ĐÃ ĐÚC 4/5 PHIẾN DẦM',
-        badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+        badge: 'CHƯA THI CÔNG (KH: 25/10/2026)',
+        badgeClass: 'bg-slate-700 text-slate-300 border-slate-600',
         content: `
           <div class="space-y-2">
             <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Quy cách dầm:</span> <span class="text-white font-bold">5 phiến Super-T 38.2m C45</span></div>
-            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Đã đúc tại bãi:</span> <span class="text-emerald-400 font-bold">Phiến D1, D2, D3, D4 (115.96 m³)</span></div>
-            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Phiến D5 biên:</span> <span class="text-amber-400 font-bold">Đang lắp cốt thép bệ đúc</span></div>
-            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Bản mặt cầu:</span> <span class="text-slate-400 font-bold">85.00 m³ C35 (Chưa thi công)</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Tình trạng hiện tại:</span> <span class="text-slate-300 font-bold">Chưa thi công (0/5 phiến)</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Kế hoạch khởi công:</span> <span class="text-amber-400 font-bold">25/10/2026</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Chu kỳ công nghệ:</span> <span class="text-cyan-400 font-bold">7 ngày / 1 phiến</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Dự kiến hoàn thành:</span> <span class="text-emerald-400 font-bold">29/11/2026 (35 ngày)</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Tổng BT 5 phiến:</span> <span class="text-white font-bold">144.95 m³</span></div>
+            <div class="p-2.5 bg-slate-900 rounded-lg text-slate-300 text-[11px] leading-relaxed">
+              💡 <strong>Kế hoạch 5 phiến Nhịp 1:</strong> D1 (25/10-01/11) → D2 (01/11-08/11) → D3 (08/11-15/11) → D4 (15/11-22/11) → D5 (22/11-29/11).
+            </div>
           </div>
         `
       },
       'SPAN2': {
         icon: '🌉',
         title: 'KẾT CẤU NHỊP 2 (T1 - T2, L=38.2M)',
-        badge: 'ĐÃ ĐÚC 3/5 PHIẾN DẦM',
-        badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+        badge: 'CHƯA THI CÔNG (KH: 29/11/2026)',
+        badgeClass: 'bg-slate-700 text-slate-300 border-slate-600',
         content: `
           <div class="space-y-2">
             <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Quy cách dầm:</span> <span class="text-white font-bold">5 phiến Super-T 38.2m C45</span></div>
-            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Đã đúc tại bãi:</span> <span class="text-emerald-400 font-bold">Phiến D1, D2, D3 (86.97 m³)</span></div>
-            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Phiến D4 & D5:</span> <span class="text-amber-400 font-bold">Đang chuẩn bị cáp DƯL 15.2mm</span></div>
-            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Bản mặt cầu:</span> <span class="text-slate-400 font-bold">85.00 m³ C35 (Chưa thi công)</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Tình trạng hiện tại:</span> <span class="text-slate-300 font-bold">Chưa thi công (0/5 phiến)</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Kế hoạch đúc:</span> <span class="text-amber-400 font-bold">Đúc nối tiếp sau Nhịp 1</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Chu kỳ công nghệ:</span> <span class="text-cyan-400 font-bold">7 ngày / 1 phiến</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Dự kiến đúc:</span> <span class="text-emerald-400 font-bold">29/11/2026 - 03/01/2027 (35 ngày)</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Tổng BT 5 phiến:</span> <span class="text-white font-bold">144.95 m³</span></div>
           </div>
         `
       },
       'SPAN3': {
         icon: '🌉',
         title: 'KẾT CẤU NHỊP 3 (T2 - M2, L=38.2M)',
-        badge: 'CHUẨN BỊ BÃI ĐÚC',
+        badge: 'CHƯA THI CÔNG (KH: 03/01/2027)',
         badgeClass: 'bg-slate-700 text-slate-300 border-slate-600',
         content: `
           <div class="space-y-2">
             <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Quy cách dầm:</span> <span class="text-white font-bold">5 phiến Super-T 38.2m C45</span></div>
-            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Tình trạng:</span> <span class="text-slate-300 font-bold">Chờ luân chuyển bệ đúc nhịp 1</span></div>
-            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Tổng bê tông dầm:</span> <span class="text-slate-300 font-bold">144.95 m³</span></div>
-            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Bản mặt cầu:</span> <span class="text-slate-400 font-bold">85.00 m³ C35 (Chưa thi công)</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Tình trạng hiện tại:</span> <span class="text-slate-300 font-bold">Chưa thi công (0/5 phiến)</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Kế hoạch đúc:</span> <span class="text-amber-400 font-bold">Đúc nối tiếp sau Nhịp 2</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Chu kỳ công nghệ:</span> <span class="text-cyan-400 font-bold">7 ngày / 1 phiến</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Dự kiến đúc:</span> <span class="text-emerald-400 font-bold">03/01/2027 - 07/02/2027 (35 ngày)</span></div>
+            <div class="flex justify-between border-b border-slate-700/60 pb-1.5"><span class="text-slate-400">Tổng BT 5 phiến:</span> <span class="text-white font-bold">144.95 m³</span></div>
           </div>
         `
       }
@@ -860,10 +880,10 @@ def generate_excel_dashboard(output_path: str):
         ("Tường đỉnh & cánh M2", "Mố M2", "Tường ngực, tường cánh", "C30", 24.46, "05/10 - 10/10", "05/10/2026", "Chưa xong", "ĐANG TRIỂN KHAI", "Đang gia công", "Đang ghép ván khuôn"),
 
         # Kết cấu nhịp
-        ("Đúc dầm Super-T Nhịp 1", "Bãi đúc", "5 Phiến L=38.2m", "C45", 144.95, "15/09 - 15/10", "15/09/2026", "Chưa xong", "ĐANG TRIỂN KHAI", "Đã xong 4 phiến", "Còn 1 phiến D5 biên"),
-        ("Đúc dầm Super-T Nhịp 2", "Bãi đúc", "5 Phiến L=38.2m", "C45", 144.95, "25/09 - 25/10", "25/09/2026", "Chưa xong", "ĐANG TRIỂN KHAI", "Đã xong 3 phiến", "Còn 2 phiến D4, D5"),
-        ("Đúc dầm Super-T Nhịp 3", "Bãi đúc", "5 Phiến L=38.2m", "C45", 144.95, "05/10 - 05/11", "Chưa đúc", "Chưa xong", "CHƯA THI CÔNG", "Chưa", "Chờ giải phóng bệ đúc"),
-        ("Lao lắp nhịp & Bản mặt cầu", "Trên nhịp", "3 Nhịp Super-T", "C35", 282.88, "20/10 - 20/11", "Chưa làm", "Chưa xong", "CHƯA THI CÔNG", "Chưa", "Chờ xong xà mũ T1, T2")
+        ("Đúc dầm Super-T Nhịp 1", "Bãi đúc", "5 Phiến L=38.2m", "C45", 144.95, "25/10 - 29/11/2026", "25/10/2026 (KH)", "29/11/2026 (KH)", "CHƯA THI CÔNG", "Chưa đúc (0/5)", "KH bắt đầu đúc 25/10/2026, chu kỳ 7 ngày/phiến (35 ngày)"),
+        ("Đúc dầm Super-T Nhịp 2", "Bãi đúc", "5 Phiến L=38.2m", "C45", 144.95, "29/11 - 03/01/2027", "29/11/2026 (KH)", "03/01/2027 (KH)", "CHƯA THI CÔNG", "Chưa đúc (0/5)", "KH đúc sau Nhịp 1, chu kỳ 7 ngày/phiến (35 ngày)"),
+        ("Đúc dầm Super-T Nhịp 3", "Bãi đúc", "5 Phiến L=38.2m", "C45", 144.95, "03/01 - 07/02/2027", "03/01/2027 (KH)", "07/02/2027 (KH)", "CHƯA THI CÔNG", "Chưa đúc (0/5)", "KH đúc sau Nhịp 2, chu kỳ 7 ngày/phiến (35 ngày)"),
+        ("Lao lắp nhịp & Bản mặt cầu", "Trên nhịp", "3 Nhịp Super-T", "C35", 282.88, "10/02 - 10/03/2027", "Chưa làm", "Chưa xong", "CHƯA THI CÔNG", "Chưa", "Chờ hoàn thành xà mũ T1, T2 & đủ dầm")
     ]
 
     for row_idx, rdata in enumerate(data_rows, 7):
