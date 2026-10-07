@@ -35,7 +35,7 @@ from tools.pho_bang_master_builder import (
 from tools.package_dispatcher import AECPackageDispatcher
 
 
-TARGET_DIR = r"C:\Users\baotu\Downloads\Documents\Cầu thôn Khai Hoang 2, Km 14+363.65_Marker_2"
+TARGET_DIR = os.environ.get("AEC_PROJECTS_DIR", os.path.join(os.path.expanduser("~"), "Downloads", "Documents", "Cầu thôn Khai Hoang 2, Km 14+363.65_Marker_2"))
 
 
 def get_khai_hoang_2_project_def() -> ProjectDefinition:

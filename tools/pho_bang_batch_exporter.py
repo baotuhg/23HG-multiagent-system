@@ -35,7 +35,7 @@ from tools.package_dispatcher import AECPackageDispatcher
 
 
 BASE_MARKDOWN_DIR = r"D:\Tú\Trường PTTHNT LCTH&THCS Phố Bảng\1. Hồ sơ KCS PDF\Hồ sơ markdown"
-DL_DIR = r"c:\Users\baotu\Downloads\Documents\Trường liên cấp phố bảng_Marker"
+DL_DIR = os.environ.get("AEC_DL_DIR", os.path.join(os.path.expanduser("~"), "Downloads", "Documents", "Trường liên cấp phố bảng_Marker"))
 MASTER_XLSM_PATH = r"D:\Tú\Trường PTTHNT LCTH&THCS Phố Bảng\1. Trường liên cấp Phố Bảng 02.08.26.xlsm"
 
 

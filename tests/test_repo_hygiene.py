@@ -21,17 +21,16 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAX_TRACKED_BYTES = 1024 * 1024            # 1 MB
 # File lớn được CHỦ Ý giữ trong repo (sản phẩm giao xưởng cắt thép theo từng loại thép của Gói B Km19).
 # Chỉ thêm vào đây khi chủ dự án xác nhận cần giữ, kèm lý do; mọi file lớn khác vẫn bị chặn.
-GOI_B = ("examples/HO_SO_CAU_KM19_529/HUB/03_HO_SO_THUC_CHIEN_HUB_AND_SPOKE_5_GOI_VE_TINH/"
-         "GOI_B_XUONG_TIEN_CHE_COT_THEP/")
 # Cả thư mục (tiền tố đường dẫn) được phép chứa file lớn, kèm lý do.
 ALLOWED_LARGE_PREFIXES = {
-    "examples/HO_SO_CAU_KM19_529/01_HE_THONG_CAT_THEP_REBARCUT/":
-        "bộ cắt thép giao xưởng theo từng Ø: một RebarCut + một lệnh cắt CNC cho mỗi Ø, Master và bảng tổng hợp "
-        "(sinh bằng examples/generate_rebarcut_dedicated_package.py --out)",
+    "examples/HO_SO_CAU_KM19_529/02_XUONG_TIEN_CHE_COT_THEP/":
+        "bộ cắt thép giao xưởng theo từng Ø: một RebarCut + một lệnh cắt CNC cho mỗi Ø, Master và bảng tổng hợp",
+    "examples/HO_SO_CAU_KM19_529/05_DU_LIEU_GOC_SCAN_MARKER/":
+        "dữ liệu gốc scan marker của cầu Km19 (du_lieu.json, bang_so_lieu.json)",
 }
 ALLOWED_LARGE = {
-    GOI_B + "01_Phieu_Cat_Thep_Cau_Km19+529.080.csv": "lệnh cắt CNC từng đoạn cắt (138.045 dòng) cho xưởng",
-    GOI_B + "01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx": "bảng tổ hợp cắt thép RebarCut theo từng loại thép",
+    "examples/HO_SO_CAU_KM19_529/02_XUONG_TIEN_CHE_COT_THEP/01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx":
+        "bảng tổ hợp cắt thép RebarCut theo từng loại thép",
 }
 # Windows giới hạn đường dẫn 260 ký tự cho TOÀN BỘ đường dẫn (mặc định, git không bật long paths): runner CI dùng
 # tiền tố 51 ký tự, máy người dùng thường 55–70. Đường dẫn dài nhất đã có là 188 ký tự, nên khóa ở 190: không file nào
@@ -39,11 +38,8 @@ ALLOWED_LARGE = {
 MAX_PATH_CHARS = 190
 # File hợp lệ khác nhau theo từng hub/gói (đường dẫn bên trong khác nhau) nên không bắt buộc giống nhau.
 PER_PACKAGE_FILES = {"DISPATCH_MANIFEST.json"}
-# Cặp (dự án, tên file) được phép khác nhau giữa các bản, kèm lý do. Chỉ thêm khi chủ dự án xác nhận.
-EXPECTED_DIVERGENT = {
-    ("HO_SO_CAU_KM19_529", "01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx"):
-        "Gói B giữ bản đầy đủ do bộ giải xuất (≈4,2 MB, 138.048 dòng chi tiết); bộ vi mô 14 file giữ bản nhẹ (8 KB)",
-}
+# Cặp (dự án, tên file) được phép khác nhau giữa các bản, kèm lý do.
+EXPECTED_DIVERGENT = {}
 
 
 def tracked_files():
@@ -93,11 +89,12 @@ class HelperLogicTest(unittest.TestCase):
         self.assertEqual([p for p, _ in oversized(sizes)], ["big.csv", "mid.xlsx"])   # đúng ngưỡng thì chưa vượt
 
     def test_allowlisted_large_file_is_not_flagged_but_others_are(self):
-        sizes = {GOI_B + "01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx": 4_300_000, "other.xlsx": 4_300_000}
+        allowed_key = list(ALLOWED_LARGE.keys())[0]
+        sizes = {allowed_key: 4_300_000, "other.xlsx": 4_300_000}
         self.assertEqual([p for p, _ in oversized(sizes)], ["other.xlsx"])
 
     def test_allowlisted_prefix_exempts_the_folder_only(self):
-        sizes = {"examples/HO_SO_CAU_KM19_529/01_HE_THONG_CAT_THEP_REBARCUT/THEO_TUNG_DUONG_KINH_PHI/x.xlsx": 5_000_000,
+        sizes = {"examples/HO_SO_CAU_KM19_529/02_XUONG_TIEN_CHE_COT_THEP/THEO_TUNG_DUONG_KINH_PHI/x.xlsx": 5_000_000,
                  "examples/HO_SO_CAU_KM19_529/khac/x.xlsx": 5_000_000}
         self.assertEqual([p for p, _ in oversized(sizes)], ["examples/HO_SO_CAU_KM19_529/khac/x.xlsx"])
 

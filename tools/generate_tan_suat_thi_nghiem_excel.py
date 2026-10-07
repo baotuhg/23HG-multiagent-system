@@ -1040,14 +1040,15 @@ def build_sheet_summary(ws, r_tot_concrete, r_end_rebar):
 
 def build_tan_suat_master_workbook(output_path: str):
     """Tạo toàn bộ Master Workbook gồm cả 3 Sheet chuyên nghiệp"""
-    base_marker = r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker"
+    base_marker = os.environ.get("AEC_PROJECTS_DIR", os.path.join(os.path.expanduser("~"), "Downloads", "HSTK Cầu Km19+529.080_Marker"))
     bsl_path = os.path.join(base_marker, "05_DU_LIEU_GOC_SCAN_MARKER", "bang_so_lieu.json")
     if not os.path.exists(bsl_path):
         bsl_path = os.path.join(base_marker, "bang_so_lieu.json")
     thep_cat_path = os.path.join(base_marker, "05_DU_LIEU_GOC_SCAN_MARKER", "thep_cho_to_hop_cat.json")
     if not os.path.exists(thep_cat_path):
         thep_cat_path = os.path.join(base_marker, "thep_cho_to_hop_cat.json")
-    tmpl_path = r"d:\Code\23HG-multiagent-system-main\23HG-multiagent-system-main\templates\Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx"
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    tmpl_path = os.path.join(repo_root, "templates", "Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx")
 
     wb = openpyxl.Workbook()
     # Sheet 1: Bê tông
@@ -1068,12 +1069,13 @@ def build_tan_suat_master_workbook(output_path: str):
     print(f"[OK] Đã xuất bản thành công Bộ hồ sơ tần suất thí nghiệm chuẩn: {output_path}")
 
 if __name__ == "__main__":
-    base_marker = r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker"
+    base_marker = os.environ.get("AEC_PROJECTS_DIR", os.path.join(os.path.expanduser("~"), "Downloads", "HSTK Cầu Km19+529.080_Marker"))
     out_master = os.path.join(base_marker, "01_HIEN_TRUONG_QLCL_KCS", "Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx")
     build_tan_suat_master_workbook(out_master)
 
     # Đồng bộ sang kho mã nguồn git repo
-    repo_sync_path = r"d:\Code\23HG-multiagent-system-main\23HG-multiagent-system-main\examples\HO_SO_CAU_KM19_529\Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx"
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    repo_sync_path = os.path.join(repo_root, "examples", "HO_SO_CAU_KM19_529", "01_HIEN_TRUONG_QLCL_KCS", "Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx")
     try:
         import shutil
         os.makedirs(os.path.dirname(repo_sync_path), exist_ok=True)

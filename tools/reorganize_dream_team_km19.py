@@ -8,7 +8,7 @@ import os
 import shutil
 import glob
 
-BASE_DIR = r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker"
+BASE_DIR = os.environ.get("AEC_PROJECTS_DIR", os.path.join(os.path.expanduser("~"), "Downloads", "HSTK Cầu Km19+529.080_Marker"))
 
 DREAM_TEAM_STRUCTURE = {
     "00_BAN_CHI_HUY_MASTER": [

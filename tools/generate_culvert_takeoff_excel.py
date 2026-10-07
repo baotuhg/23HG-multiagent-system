@@ -12,7 +12,7 @@ import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
-output_file = r"C:\Users\baotu\Downloads\Documents\2026.09.12.OLP_SD_HT_ChiTietCongHop+TamGiamTai Model (1)_Marker\Boc_Tach_Khoi_Luong_1m_Dot_Cong_A5.xlsx"
+output_file = os.environ.get("AEC_OUTPUT_FILE", os.path.join(os.path.expanduser("~"), "Downloads", "Documents", "2026.09.12.OLP_SD_HT_ChiTietCongHop+TamGiamTai Model (1)_Marker", "Boc_Tach_Khoi_Luong_1m_Dot_Cong_A5.xlsx"))
 
 wb = openpyxl.Workbook()
 wb.remove(wb.active)  # Remove default sheet

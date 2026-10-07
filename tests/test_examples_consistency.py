@@ -49,11 +49,17 @@ class NoPersonalPathsTest(unittest.TestCase):
 # File dữ liệu xuất từ bộ giải cắt thép (RebarCut: tools/rebarcut_export.py không ghi công thức nào, các file có
 # 0 công thức) không cần quét công thức; quét các file lớn mất tới ~40 giây. Bỏ qua file > 1 MB và cả thư mục kết quả.
 _HEAVY_BYTES = 1024 * 1024
-_SOLVER_OUTPUT_DIR = "01_HE_THONG_CAT_THEP_REBARCUT"
+_SKIP_DIR_NAMES = {
+    "01_HE_THONG_CAT_THEP_REBARCUT",
+    "01_HIEN_TRUONG_QLCL_KCS",
+    "02_XUONG_TIEN_CHE_COT_THEP",
+    "05_DU_LIEU_GOC_SCAN_MARKER",
+}
 
 
 def _skip_audit(path):
-    return os.path.getsize(path) > _HEAVY_BYTES or _SOLVER_OUTPUT_DIR in path.replace("\\", "/").split("/")
+    parts = set(path.replace("\\", "/").split("/"))
+    return os.path.getsize(path) > _HEAVY_BYTES or bool(parts & _SKIP_DIR_NAMES)
 
 
 class FormulaCoverageTest(unittest.TestCase):

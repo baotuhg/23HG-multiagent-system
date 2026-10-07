@@ -18,7 +18,7 @@
 - **Đọc được file thật:** BBS (Excel/CSV/JSON), tiến độ MS Project XML/Excel/CSV, bảng QS/BOQ, phiếu thí nghiệm, IFC (qua `ifcopenshell`), DXF (qua `ezdxf`).
 
 ### Những gì đã được kiểm chứng
-- `python -m unittest discover -s tests -t .`: 270 test đạt (4 test bỏ qua khi thiếu thư viện tùy chọn), gồm các phép tính tay độc lập cho tiền, đo bóc và hồ sơ mẫu; CI chạy trên Ubuntu (Python 3.10, 3.12) và Windows (Python 3.11). Test chưa phủ hết: ví dụ lỗi cú pháp trong `tools/qs_export.py` (làm `--qs-out` hỏng) tồn tại từ commit `8a90ad4` mà không test nào bắt được, đến nay mới sửa và bổ sung test.
+- `python -m unittest discover -s tests -t .`: 310 test đạt (4 test bỏ qua khi thiếu thư viện tùy chọn), gồm các phép tính tay độc lập cho tiền, đo bóc và hồ sơ mẫu; CI chạy trên Ubuntu (Python 3.10, 3.12) và Windows (Python 3.11). Test chưa phủ hết: ví dụ lỗi cú pháp trong `tools/qs_export.py` (làm `--qs-out` hỏng) tồn tại từ commit `8a90ad4` mà không test nào bắt được, đến nay mới sửa và bổ sung test.
 - Chạy `--demo` đủ 8 pha (CAD → cắt thép → QS → QA/QC → Human Gate → CPM → ca máy → As-Built) không lỗi.
 - Solver cắt thép tách theo từng Ø và mác thép, tính lưỡi cắt, báo **cận dưới** số cây (`OPTIMAL` nghĩa là đã chứng minh không dùng ít hơn được).
 - Quét tĩnh các file Excel mẫu bằng `python -m tools.audit_excels_static <thư_mục>` (không cần Excel): không có mã lỗi công thức, không có tham chiếu tới sheet không tồn tại. Quality Gate khi xuất hồ sơ cũng kiểm tra điều này.
@@ -229,7 +229,7 @@ python run_state_graph.py --phase rebar --bbs "BBS_du_an.xlsx" --cut-plan-out ph
 > - **Giới hạn cho tổ cắt:** `--max-pieces-per-bar 4 --max-marks-per-bar 2`. **Cắt đầu cây:** `--end-trim-mm 50`. **Lưỡi cắt:** `--kerf-mm 3`. **Đầu thừa** được phân loại *Tái sử dụng* (≥ 100D, đổi bằng `--reuse-xd`), *Đầu thừa ngắn* (≥ 20D) hoặc *Phế*.
 > - **Phương án nối thép tận dụng đầu thừa** (`--splice`), đưa phép nối vào ngay mô hình tối ưu OR-Tools, chặt hơn PA4 của RebarCut.
 > - **Xuất theo bố cục RebarCut Pro Excel:** `--rebarcut-out ket_qua.xlsx`, gồm các sheet INPUT, SO_SANH, PA_TOI_UU, PA_NOI, MOI_NOI, REMAIN, CHI_TIET.
-> - **Bộ cắt thép giao xưởng theo từng Ø (Gói B Km19)** nằm trong repo tại `examples/HO_SO_CAU_KM19_529/01_HE_THONG_CAT_THEP_REBARCUT/` (gốc thư mục dự án Km19, đúng bố cục mặc định của script; đặt nông có chủ ý vì Windows giới hạn đường dẫn 260 ký tự) (≈ 18 MB, 26 file): `00_BANG_TONG_HOP_CAT_THEP_THEO_PHI.xlsx` (nhìn tổng theo Ø), `00_RebarCut_MASTER_TOAN_CAU_11M7.xlsx`, `THEO_TUNG_DUONG_KINH_PHI/` (mỗi Ø một file RebarCut, Ø8 → Ø32, kèm cáp DƯL 15,2) và `LENH_CAT_CNC_CSV/` (mỗi Ø một lệnh cắt CNC), cùng `README_QUY_TRINH_VAN_HANH_BAI_THEP.md`. Sinh lại (khoảng 30 giây):
+> - **Bộ cắt thép giao xưởng theo từng Ø (Gói B Km19)** nằm trong repo tại `examples/HO_SO_CAU_KM19_529/02_XUONG_TIEN_CHE_COT_THEP/` (thư mục Gói B thuộc quy hoạch Dream Team Km19) (≈ 18 MB, 26 file): `00_BANG_TONG_HOP_CAT_THEP_THEO_PHI.xlsx` (nhìn tổng theo Ø), `01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx`, `THEO_TUNG_DUONG_KINH_PHI/` (mỗi Ø một file RebarCut, Ø8 → Ø32, kèm cáp DƯL 15,2) và `LENH_CAT_CNC_CSV/` (mỗi Ø một lệnh cắt CNC), cùng `README_QUY_TRINH_VAN_HANH_BAI_THEP.md`. Sinh lại:
 >   `python examples/generate_rebarcut_dedicated_package.py --out "<thư mục đích>"` (không có `--out` thì ghi vào thư mục dự án `AEC_PROJECTS_DIR`; `--bbs` đổi file BBS nguồn). Mọi số trong hướng dẫn vận hành được tính từ BBS, không gõ cứng.
 > - **Hai file gộp** (xlsx RebarCut ≈ 4,2 MB và CSV từng đoạn cắt ≈ 9 MB, mã cây đánh số liên tục) là bản tổng của mọi Ø, giữ trong repo từ trước. Chúng và bộ theo từng Ø **cùng số lượng** (33.212 cây 11,7 m; tổng chiều dài cắt từng Ø khớp tuyệt đối) nhưng **cách ghép từng đoạn lên từng cây và mã cây khác nhau**; xưởng cần dùng một bộ cho nhất quán.
 > - **Chạy lại có đổi kết quả không?** Trên cùng máy cho kết quả giống hệt, và bộ giải chứng minh tối ưu (`OPTIMAL`) cho cả 11 Ø nên số cây không phụ thuộc tốc độ máy. Cách ghép đoạn lên cây có thể khác giữa các phiên bản bộ giải. Nếu xưởng đã cắt theo một bản cụ thể thì **đừng ghi đè** bản đó.
@@ -464,9 +464,32 @@ Giảm 3 nhược điểm khi dùng 1 file 14 sheet trên hiện trường:
 >    - `Tien_Do_Thi_Cong_...xml`: Xuất tệp XML Gantt tương thích Microsoft Project.
 
 > Chi tiết quy trình đóng gói: Xem [`workflows/15_QUY_TRINH_DONG_GOI_HUB_AND_SPOKE_PHAN_QUYEN_THUC_CHIEN.md`](workflows/15_QUY_TRINH_DONG_GOI_HUB_AND_SPOKE_PHAN_QUYEN_THUC_CHIEN.md).  
-> Các bộ hồ sơ mẫu thực chiến chuẩn 5 gói Hub & Spoke:
+> Các bộ hồ sơ mẫu thực chiến chuẩn phân quyền:
 > - **Cống hộp Tuyến A5**: [`examples/HO_SO_CONG_HOP_TUYEN_A5/HO_SO_THUC_CHIEN_HUB_AND_SPOKE_CONG_A5/`](examples/HO_SO_CONG_HOP_TUYEN_A5/HO_SO_THUC_CHIEN_HUB_AND_SPOKE_CONG_A5/)
-> - **Cầu Km19+529.080 (3 Nhịp Super-T)**: Được sinh tự động qua [`examples/build_km19_529_hub_and_spoke_packages.py`](examples/build_km19_529_hub_and_spoke_packages.py) & [`examples/generate_km19_machine_schedule.py`](examples/generate_km19_machine_schedule.py).
+> - **Cầu Km19+529.080 (3 Nhịp Super-T, L=113m)**: Toàn bộ dữ liệu được quy hoạch theo chuẩn **Đội hình Dream Team 5 Gói Chuyên Môn Tinh Gọn** ([`examples/HO_SO_CAU_KM19_529/`](examples/HO_SO_CAU_KM19_529/)), loại bỏ 124 tệp rác trùng lặp và vận hành tự động qua [`tools/reorganize_dream_team_km19.py`](tools/reorganize_dream_team_km19.py).
+
+### 4. ĐỘI HÌNH THỰC CHIẾN "DREAM TEAM 5 GÓI" & QUẢN LÝ TẦN SUẤT THÍ NGHIỆM (CẦU KM19+529.080)
+
+Kho dữ liệu Cầu Km19+529.080 được chuẩn hóa thành 6 thư mục nghiệp vụ chuyên sâu, giải quyết triệt để vấn đề phân mảnh file và chống xung đột:
+
+1. **`00_BAN_CHI_HUY_MASTER`**: Bảng phân quyền RACI & bàn giao ([.xlsx](examples/HO_SO_CAU_KM19_529/00_BAN_CHI_HUY_MASTER/BANG_PHAN_QUYEN_VA_BIEN_BAN_BAN_GIAO_5_GOI_VE_TINH.xlsx)), Macro Master tích hợp ([.xlsx](examples/HO_SO_CAU_KM19_529/00_BAN_CHI_HUY_MASTER/Ho_So_KCS_QS_TienDo_Cau_Km19+529.080.xlsx)), Thuyết minh BPTC và Tiến độ Gantt (.xml/.mpp).
+2. **`01_HIEN_TRUONG_QLCL_KCS`**: Hệ thống QLCL khép kín gồm 22 Biên bản nghiệm thu KCS chuẩn A4, danh mục KCS và **Sổ tay Quản lý Tần suất Thí nghiệm & Kiểm định Bê tông / Thép** ([.xlsx](examples/HO_SO_CAU_KM19_529/01_HIEN_TRUONG_QLCL_KCS/Bang_Theo_Doi_Tan_Suat_Thi_Nghiem_Be_Tong_Va_Thep_Cau_Km19.xlsx)).
+3. **`02_XUONG_TIEN_CHE_COT_THEP`**: Bảng tổ hợp cắt thép 11.7m RebarCut ([.xlsx](examples/HO_SO_CAU_KM19_529/02_XUONG_TIEN_CHE_COT_THEP/01_To_Hop_Cat_Thep_11m7_RebarCut.xlsx)), Thống kê thép chi tiết 396 dòng BBS ([.xlsx](examples/HO_SO_CAU_KM19_529/02_XUONG_TIEN_CHE_COT_THEP/04_Thong_Ke_Thep_Chi_Tiet_BBS_396_Dong.xlsx)), 12 bộ cắt thép chuyên sâu cho 11 đường kính phi ($\varnothing 8 \dots \varnothing 32$ + Cáp DƯL 15.2mm) và 11 tệp lệnh cắt CNC CSV nạp trực tiếp cho xưởng uốn cắt.
+4. **`03_KINH_TE_QS_DU_TOAN_THANH_TOAN`**: Bóc tách hình học Takeoff, Đào đắp mặt cắt, Phân tích vật tư chi tiết WBS, BOM 4 giai đoạn, Dự toán $G_{XD}$ và Thanh toán Phụ lục 03a.
+5. **`04_CO_GIOI_THIET_BI_VA_DAU_DIEZEL`**: Tiến độ ca máy 3 tầng hợp nhất 15 cột A..O Vincons và kế hoạch cấp phát nhiên liệu dầu Diezel theo ca/ngày ([.xlsx](examples/HO_SO_CAU_KM19_529/04_CO_GIOI_THIET_BI_VA_DAU_DIEZEL/260920_TDTC_CaXe_CaMay_DauDiezel_Cau_Km19+529.080.xlsx)).
+6. **`05_DU_LIEU_GOC_SCAN_MARKER`**: 13 tệp dữ liệu gốc CAD / bảng số liệu scan / OCR trích xuất chuẩn.
+
+#### Điểm sáng kỹ thuật: Hệ thống Quản lý Tần suất Thí nghiệm Bê tông & Cốt thép Động (3 Sheets):
+Hệ thống được sinh tự động qua [`tools/generate_tan_suat_thi_nghiem_excel.py`](tools/generate_tan_suat_thi_nghiem_excel.py), thiết kế riêng để kỹ sư hiện trường tự điền ngày tháng và số lô thực tế:
+- **Sheet 1 (`01_TAN_SUAT_THEP_11_LOAI_PHI`)**: Tách bạch 11 loại đường kính ($\varnothing 8, \varnothing 10, \varnothing 12, \varnothing 14, \varnothing 16, \varnothing 18, \varnothing 20, \varnothing 22, \varnothing 25, \varnothing 28, \varnothing 32$), định mức kiểm định 20 Tấn / lô theo TCVN 1651:2018. Tự động tính số lô tối thiểu cần lấy mẫu và công thức động so sánh với số lô thực tế tại hiện trường (`ĐẠT` / `THIẾU` / `CHƯA ĐIỀN`).
+- **Sheet 2 (`02_TAN_SUAT_BE_TONG_79_DOT`)**: Theo dõi 79 cấu kiện / đợt đổ bê tông toàn cầu. Bóc tách chi tiết:
+  - **26 cọc khoan nhồi**: Mố M1 chuẩn xác **3 cọc** ($C1, C2, C3$), Mố M2 **3 cọc** ($C1, C2, C3$), Trụ T1 **10 cọc** ($C1 \dots C10$), Trụ T2 **10 cọc** ($C1 \dots C10$).
+  - Bệ mố M1, M2, Bệ trụ T1, T2; Thân mố, tường ngực, tường cánh, thân trụ đặc, xà mũ, đá kê gối.
+  - 20 phiến dầm Super-T 33m (3 nhịp), bản mặt cầu 3 nhịp, lan can và gờ chắn bánh.
+  - Tần suất: 1 tổ mẫu (3 viên) / 20 m³ hoặc mỗi đợt cọc/đốt; kiểm tra độ sụt, R7 và R28.
+- **Sheet 3 (`03_SIEU_AM_VA_THEP_TREO_LONG`)**:
+  - Bổ sung đầy đủ **4 thanh thép treo lồng $P11-\varnothing 16$** cho toàn bộ 26 cọc khoan nhồi ($L=872\text{ m}$ thép treo, tổng $1.376,02\text{ kg}$).
+  - Kế hoạch siêu âm **156 mặt cắt** ống siêu âm cọc (3 ống / cọc $\varnothing 1000$ mố M1/M2 = 18 mặt cắt; 4 ống / cọc $\varnothing 1200$ trụ T1/T2 = 120 mặt cắt; tổng kiểm định PDA/PIT theo TCVN 9395:2012).
 
 
 ---
@@ -690,13 +713,19 @@ Có 10 unit test trong [`tests/test_civil_and_bridge_takeoff.py`](tests/test_civ
 ├── examples/
 │   ├── HO_SO_CONG_HOP_TUYEN_A5/  # Hồ sơ mẫu Cống hộp A5: Master, 8 hồ sơ vi mô, 5 gói Hub & Spoke (README riêng)
 │   ├── TIEN_DO_THI_CONG_CUM_B9_OLYMPIC/ # Tiến độ & ca máy Cụm B9
-│   ├── HO_SO_CAU_KM19_529/       # Tiến độ ca máy & dầu diezel Cầu Km19+529.080
+│   ├── HO_SO_CAU_KM19_529/       # Đội hình Dream Team Cầu Km19+529.080 (3 nhịp Super-T, 6 gói tinh gọn)
+│   │   ├── 00_BAN_CHI_HUY_MASTER/          # RACI, bàn giao, Master 14 sheet, BPTC, Gantt
+│   │   ├── 01_HIEN_TRUONG_QLCL_KCS/        # 22 BBNT A4, Sổ theo dõi tần suất TN bê tông & thép 3 sheet
+│   │   ├── 02_XUONG_TIEN_CHE_COT_THEP/     # RebarCut 11.7m theo 11 phi, BBS 396 dòng, lệnh CNC CSV
+│   │   ├── 03_KINH_TE_QS_DU_TOAN_THANH_TOAN/# Takeoff, đào đắp, dự toán G_XD, 03a, BOM WBS
+│   │   ├── 04_CO_GIOI_THIET_BI_VA_DAU_DIEZEL/# Ca máy 3 tầng 15 cột A..O Vincons, cấp phát dầu
+│   │   └── 05_DU_LIEU_GOC_SCAN_MARKER/     # Dữ liệu gốc bản vẽ scan / OCR Marker sạch
 │   ├── demo_bridge_takeoff_from_qs_logic.py # Demo bóc tách sơ bộ cầu (nguyên mẫu, tham số mặc định)
 │   ├── _paths.py                 # repo_path / project_path (biến môi trường AEC_PROJECTS_DIR)
 │   ├── clean_a5_dossier.py       # Dọn & đối chiếu hồ sơ A5 (chạy lặp được)
 │   └── *.py                      # Script dựng hồ sơ từng dự án, demo CAD diff, runner kiểm toán
 │
-├── tests/                        # python -m unittest discover -s tests -t . (270 tests)
+├── tests/                        # python -m unittest discover -s tests -t . (310 tests)
 │   ├── golden/                   # Chỗ đặt bảng dự toán thật đã duyệt (README hướng dẫn)
 │   ├── test_civil_and_bridge_takeoff.py # 10 unit tests kiểm định hình học cầu & KCT
 │   ├── test_experience_store.py  # 10 unit tests kiểm định Level-Up, XP, Golden Pattern, Immunity Rules
