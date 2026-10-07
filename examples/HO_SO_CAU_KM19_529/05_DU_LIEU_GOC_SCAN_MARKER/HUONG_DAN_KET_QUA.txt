@@ -1,0 +1,10 @@
+noi_dung.md: Markdown toàn bộ tài liệu (mục lục bản vẽ ở đầu, mỗi trang '## [Trang N]').
+noi_dung.txt: văn bản thuần theo trang.
+du_lieu.json: dữ liệu đầy đủ theo trang (metadata khung tên, bảng, chữ độ tin cậy thấp).
+bang_so_lieu.json: TẤT CẢ bảng số liệu đã phân loại (Cốt thép, BoQ, Danh mục, Tọa độ) kèm audit.
+bang_so_lieu.xlsx: BẢNG TÍNH EXCEL chuẩn AEC đa cấp (Mục lục hyperlink, Sheet tổng hợp thép/BoQ/tọa độ, Sheet chi tiết).
+thep_cho_to_hop_cat.json: Danh sách thanh cốt thép chuẩn format nạp thẳng vào aec-rebar-optimizer.
+tien_luong_du_toan_boq.json: Bảng khối lượng chuẩn format nạp vào aec-cost-tender.
+chia_doan.jsonl: các đoạn ~3000 ký tự kèm nguồn/trang/bản vẽ để nạp RAG.
+can_kiem_tra.md: danh sách chữ/số cần đối chiếu PDF gốc.
+goi_y_cho_AI.txt: hướng dẫn đọc cho AI (định dạng số, ký hiệu).
