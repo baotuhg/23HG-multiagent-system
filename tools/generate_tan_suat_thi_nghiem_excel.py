@@ -7,8 +7,8 @@ TCVN 1651:2018, TCVN 4453:1995, ASTM A416 Gr270.
 
 GỒM 3 SHEET CHUYÊN NGHIỆP:
 1. Sheet 'Theo_Doi_Tan_Suat_Be_Tong': 83 cấu kiện bê tông chi tiết (30 cọc khoan nhồi C1..Cn, bệ mố, bệ trụ, thân trụ các đốt, xà mũ, 15 dầm Super-T, dầm ngang, BMC, bản quá độ, gờ lan can). Tự động tính R7, R28, lũy kế XM/Cát/Đá, cảnh báo tần suất XM 50T, Cát 200m3, Đá 350m3.
-2. Sheet 'Theo_Doi_Tan_Suat_Cot_Thep': BÓC TÁCH RIÊNG TỪNG LOẠI TỪNG THANH THÉP (hơn 800 thanh chi tiết) cho toàn bộ 30 cọc khoan nhồi (C1..C7 M1, C1..C8 T1, C1..C8 T2, C1..C7 M2), bệ mố, bệ trụ, thân trụ, xà mũ, dầm Super-T, BMC, bản quá độ, gờ lan can, khe co giãn. Lũy kế nhóm D<=10, 10<D<=18, D>18, Cáp DƯL 15.2mm và tự động cảnh báo lấy mẫu thí nghiệm cơ lý kéo/uốn 20 TẤN/LẦN.
-3. Sheet 'Tong_Hop_Tan_Suat_Vat_Lieu': Bảng tổng hợp toàn diện tần suất vật liệu đầu vào và các phép thử kiểm định hiện trường.
+2. Sheet 'Theo_Doi_Tan_Suat_Cot_Thep': BÓC TÁCH RIÊNG TỪNG LOẠI TỪNG THANH THÉP (hơn 800 thanh chi tiết) và THEO DÕI RIÊNG TỪNG LOẠI ĐƯỜNG KÍNH Ø (Ø10, Ø12, Ø14, Ø16, Ø18, Ø20, Ø22, Ø25, Ø28, Ø32, Cáp 15.2mm) kèm cột số lô CO-CQ riêng từng Ø và cảnh báo tần suất kéo/uốn 20 TẤN/LẦN cho từng loại Ø độc lập.
+3. Sheet 'Tong_Hop_Tan_Suat_Vat_Lieu': Bảng tổng hợp toàn diện kế hoạch thí nghiệm vật liệu đầu vào bóc tách riêng từng loại Ø theo TCVN 1651:2018 và các phép thử kiểm định hiện trường.
 """
 
 import os
@@ -381,13 +381,30 @@ def build_sheet_concrete(ws):
     ws.freeze_panes = "C3"
     return r_tot
 
+# BẢNG ĐỊNH NGHĨA 11 LOẠI ĐƯỜNG KÍNH Ø BÓC TÁCH CHI TIẾT
+# Cột tích lũy P..Z (16..26) và Cột tần suất AA..AK (27..37)
+DIA_LIST = [
+    # (dia_val, col_acc_idx, col_freq_idx, label_short, label_full, grade_std)
+    (10,   16, 27, "Ø10",       "Ø10 (kèm Ø8)\n(CB240-T)", "TCVN 1651-1:2018"),
+    (12,   17, 28, "Ø12",       "Ø12\n(CB400-V)",          "TCVN 1651-2:2018"),
+    (14,   18, 29, "Ø14",       "Ø14\n(CB400-V)",          "TCVN 1651-2:2018"),
+    (16,   19, 30, "Ø16",       "Ø16\n(CB400-V)",          "TCVN 1651-2:2018"),
+    (18,   20, 31, "Ø18",       "Ø18\n(CB400-V)",          "TCVN 1651-2:2018"),
+    (20,   21, 32, "Ø20",       "Ø20\n(CB400-V)",          "TCVN 1651-2:2018"),
+    (22,   22, 33, "Ø22",       "Ø22\n(CB400-V)",          "TCVN 1651-2:2018"),
+    (25,   23, 34, "Ø25",       "Ø25\n(CB400-V)",          "TCVN 1651-2:2018"),
+    (28,   24, 35, "Ø28",       "Ø28\n(CB400-V)",          "TCVN 1651-2:2018"),
+    (32,   25, 36, "Ø32",       "Ø32\n(CB400-V)",          "TCVN 1651-2:2018"),
+    (15.2, 26, 37, "Cáp 15.2", "Cáp DƯL 15.2\n(ASTM A416)", "ASTM A416 Gr270"),
+]
+
 def build_sheet_rebar(ws, bsl_path, thep_cat_path, tmpl_path):
-    """Xây dựng Sheet 2: Theo dõi tần suất Cốt thép bóc tách chi tiết từng thanh"""
+    """Xây dựng Sheet 2: Theo dõi tần suất Cốt thép bóc tách chi tiết từng thanh và riêng từng loại Ø"""
     ws.title = "Theo_Doi_Tan_Suat_Cot_Thep"
     ws.views.sheetView[0].showGridLines = True
 
     # 1. HÀNG TIÊU ĐỀ (Row 1 & 2)
-    # Merges
+    # Merges cơ bản
     ws.merge_cells("A1:A2") # STT
     ws.merge_cells("B1:B2") # HẠNG MỤC CẤU KIỆN
     ws.merge_cells("C1:C2") # BỘ PHẬN / VỊ TRÍ
@@ -401,10 +418,16 @@ def build_sheet_rebar(ws, bsl_path, thep_cat_path, tmpl_path):
     ws.merge_cells("K1:K2") # TỔNG KL (kg)
     ws.merge_cells("L1:L2") # KHỐI LƯỢNG (Tấn)
     ws.merge_cells("M1:M2") # N/T/N LẮP DỰNG
-    ws.merge_cells("N1:Q1") # KHỐI LƯỢNG LŨY KẾ THEO NHÓM ĐƯỜNG KÍNH (TẤN)
-    ws.merge_cells("R1:U1") # TẦN SUẤT THÍ NGHIỆM KÉO/UỐN (20 TẤN/LẦN THEO TCVN 1651:2018)
-    ws.merge_cells("V1:V2") # SỐ LÔ / CHỨNG CHỈ (CO/CQ)
-    ws.merge_cells("W1:W2") # KẾT LUẬN NGHIỆM THU
+    ws.merge_cells("N1:N2") # SỐ LÔ / CO-CQ RIÊNG TỪNG Ø
+    ws.merge_cells("O1:O2") # CẢNH BÁO LẤY MẪU TN (20T/LẦN)
+
+    # Merges 11 cột lũy kế (P1..Z1)
+    ws.merge_cells("P1:Z1")
+    # Merges 11 cột tần suất (AA1..AK1)
+    ws.merge_cells("AA1:AK1")
+
+    # Merge kết luận (AL1..AL2)
+    ws.merge_cells("AL1:AL2")
 
     # Values Row 1
     ws["A1"] = "STT"
@@ -420,33 +443,33 @@ def build_sheet_rebar(ws, bsl_path, thep_cat_path, tmpl_path):
     ws["K1"] = "TỔNG KL\n(kg)"
     ws["L1"] = "KHỐI LƯỢNG\n(Tấn)"
     ws["M1"] = "N/T/N\nLẮP DỰNG"
-    ws["N1"] = "Khối lượng vật tư cốt thép lũy kế (Tấn)"
-    ws["R1"] = "Tần suất thí nghiệm cơ lý kéo / uốn (20 Tấn / lần - TCVN 1651:2018)"
-    ws["V1"] = "Số lô /\nChứng chỉ CO-CQ"
-    ws["W1"] = "Đánh giá &\nKết luận"
+    ws["N1"] = "SỐ LÔ / HEAT NO\nCO-CQ RIÊNG TỪNG Ø"
+    ws["O1"] = "CẢNH BÁO LẤY MẪU TN\nKÉO/UỐN (20T/LẦN)"
+    ws["P1"] = "KHỐI LƯỢNG LŨY KẾ THEO TỪNG LOẠI ĐƯỜNG KÍNH Ø (TẤN)"
+    ws["AA1"] = "TẦN SUẤT THÍ NGHIỆM CƠ LÝ KÉO / UỐN RIÊNG TỪNG Ø (20 TẤN / LẦN - TCVN 1651:2018)"
+    ws["AL1"] = "ĐÁNH GIÁ &\nKẾT LUẬN"
 
-    # Values Row 2
-    ws["N2"] = "Thép ≤ 10mm\n(CB240-T)"
-    ws["O2"] = "10 < Ø ≤ 18mm\n(CB400-V)"
-    ws["P2"] = "Thép > 18mm\n(CB400/CB500)"
-    ws["Q2"] = "Cáp DƯL 15.2mm\n(ASTM A416)"
-    ws["R2"] = "Thép ≤ 10mm\n20T / Lần"
-    ws["S2"] = "10 < Ø ≤ 18mm\n20T / Lần"
-    ws["T2"] = "Thép > 18mm\n20T / Lần"
-    ws["U2"] = "Cáp DƯL 15.2mm\n20T / Lần"
+    # Values Row 2 cho 11 loại đường kính Ø
+    for dia_val, c_acc_idx, c_freq_idx, l_short, l_full, grade_std in DIA_LIST:
+        ws.cell(2, c_acc_idx, l_full)
+        ws.cell(2, c_freq_idx, f"TN {l_short}\n20T / Lần")
 
-    # Style Header
+    # Style Header Rows 1 & 2
     for r in [1, 2]:
-        ws.row_dimensions[r].height = 28 if r == 2 else 24
-        for c in range(1, 24):
+        ws.row_dimensions[r].height = 30 if r == 2 else 24
+        for c in range(1, 39):
             cell = ws.cell(r, c)
             cell.alignment = ALIGN_CENTER
             cell.border = THIN_BORDER
             cell.fill = FILL_HDR
-            if c in [18, 20]: cell.font = FONT_HDR_RED
-            elif c in [19]: cell.font = FONT_HDR_GREEN
-            elif c in [21]: cell.font = FONT_HDR_PURPLE
-            else: cell.font = FONT_HDR
+            if c == 15: # Cột cảnh báo
+                cell.font = FONT_HDR_RED
+            elif 16 <= c <= 26: # Lũy kế từng Ø
+                cell.font = FONT_HDR_GREEN
+            elif 27 <= c <= 37: # Tần suất từng Ø
+                cell.font = FONT_HDR_RED
+            else:
+                cell.font = FONT_HDR
 
     # 2. LOAD VÀ XÂY DỰNG TOÀN BỘ CỐT THÉP BÓC TÁCH CHI TIẾT TỪNG THANH
     with open(bsl_path, encoding='utf-8') as f:
@@ -541,23 +564,23 @@ def build_sheet_rebar(ws, bsl_path, thep_cat_path, tmpl_path):
     for entry in rebar_entries:
         if entry[0] == "SECTION":
             ws.row_dimensions[cur_row].height = 23
-            ws.merge_cells(start_row=cur_row, start_column=1, end_row=cur_row, end_column=23)
+            ws.merge_cells(start_row=cur_row, start_column=1, end_row=cur_row, end_column=38)
             sc = ws.cell(cur_row, 1, entry[1])
             sc.font = Font(name=FONT_NAME, size=10, bold=True, color="1B365D")
             sc.alignment = Alignment(horizontal="left", vertical="center")
             sc.fill = FILL_SECTION
-            for c in range(1, 24): ws.cell(cur_row, c).border = THIN_BORDER
+            for c in range(1, 39): ws.cell(cur_row, c).border = THIN_BORDER
             cur_row += 1
             continue
 
         if entry[0] == "SUBSECTION":
             ws.row_dimensions[cur_row].height = 20
-            ws.merge_cells(start_row=cur_row, start_column=1, end_row=cur_row, end_column=23)
+            ws.merge_cells(start_row=cur_row, start_column=1, end_row=cur_row, end_column=38)
             ssc = ws.cell(cur_row, 1, entry[1])
             ssc.font = Font(name=FONT_NAME, size=9, bold=True, color="203764")
             ssc.alignment = Alignment(horizontal="left", vertical="center")
             ssc.fill = FILL_SUBSECTION
-            for c in range(1, 24): ws.cell(cur_row, c).border = THIN_BORDER
+            for c in range(1, 39): ws.cell(cur_row, c).border = THIN_BORDER
             cur_row += 1
             continue
 
@@ -637,75 +660,89 @@ def build_sheet_rebar(ws, bsl_path, thep_cat_path, tmpl_path):
         cell_t.border = THIN_BORDER
         cell_t.number_format = "#,##0.000"
 
-        # M: N/T/N Lắp dựng / Nghiệm thu (Để mở)
+        # M: N/T/N Lắp dựng / Nghiệm thu (Để mở trống)
         cell_m = ws.cell(r, 13)
         cell_m.alignment = ALIGN_CENTER
         cell_m.font = FONT_REG
         cell_m.border = THIN_BORDER
         cell_m.number_format = "DD/MM/YYYY"
 
-        # N, O, P, Q: Khối lượng lũy kế theo nhóm đường kính (Tấn)
-        # N: D <= 10mm (CB240-T)
-        # O: 10 < D <= 18mm (CB400-V)
-        # P: D > 18mm (CB400/CB500)
-        # Q: Cáp DƯL 15.2mm (ASTM A416)
-        if prev_r is None:
-            ws.cell(r, 14, f'=IF(AND(E{r}<=10, F{r}<>"ASTM A416"), L{r}, 0)')
-            ws.cell(r, 15, f'=IF(AND(E{r}>10, E{r}<=18, F{r}<>"ASTM A416"), L{r}, 0)')
-            ws.cell(r, 16, f'=IF(AND(E{r}>18, F{r}<>"ASTM A416"), L{r}, 0)')
-            ws.cell(r, 17, f'=IF(F{r}="ASTM A416", L{r}, 0)')
-        else:
-            p = prev_r
-            ws.cell(r, 14, f'=ROUND(N{p} + IF(AND(E{r}<=10, F{r}<>"ASTM A416"), L{r}, 0), 3)')
-            ws.cell(r, 15, f'=ROUND(O{p} + IF(AND(E{r}>10, E{r}<=18, F{r}<>"ASTM A416"), L{r}, 0), 3)')
-            ws.cell(r, 16, f'=ROUND(P{p} + IF(AND(E{r}>18, F{r}<>"ASTM A416"), L{r}, 0), 3)')
-            ws.cell(r, 17, f'=ROUND(Q{p} + IF(F{r}="ASTM A416", L{r}, 0), 3)')
+        # N: Số lô / Heat No / CO-CQ riêng từng loại Ø (Để mở trống)
+        cell_n = ws.cell(r, 14)
+        cell_n.alignment = ALIGN_CENTER
+        cell_n.font = FONT_REG
+        cell_n.border = THIN_BORDER
 
-        for c_acc in range(14, 18):
-            ca = ws.cell(r, c_acc)
+        # P..Z: 11 CỘT TÍCH LŨY LŨY KẾ THEO TỪNG LOẠI Ø
+        for dia_val, c_acc_idx, c_freq_idx, l_short, l_full, grade_std in DIA_LIST:
+            acc_col_letter = get_column_letter(c_acc_idx)
+            if dia_val == 10:
+                match_cond = f'IF(AND(E{r}<=10, F{r}<>"ASTM A416"), L{r}, 0)'
+            elif dia_val == 15.2:
+                match_cond = f'IF(F{r}="ASTM A416", L{r}, 0)'
+            else:
+                match_cond = f'IF(AND(E{r}={dia_val}, F{r}<>"ASTM A416"), L{r}, 0)'
+
+            if prev_r is None:
+                ws.cell(r, c_acc_idx, f'={match_cond}')
+            else:
+                ws.cell(r, c_acc_idx, f'=ROUND({acc_col_letter}{prev_r} + {match_cond}, 3)')
+
+            ca = ws.cell(r, c_acc_idx)
             ca.alignment = ALIGN_RIGHT
             ca.font = FONT_REG
             ca.border = THIN_BORDER
             ca.number_format = "#,##0.000"
 
-        # R, S, T, U: Tần suất thí nghiệm kéo / uốn 20 TẤN / LẦN (TCVN 1651:2018)
+        # AA..AK: 11 CỘT TẦN SUẤT THÍ NGHIỆM 20T/LẦN CHO TỪNG LOẠI Ø
+        for dia_val, c_acc_idx, c_freq_idx, l_short, l_full, grade_std in DIA_LIST:
+            acc_col_letter = get_column_letter(c_acc_idx)
+            if prev_r is None:
+                ws.cell(r, c_freq_idx, f'=IF({acc_col_letter}{r}=0, "", IF(INT({acc_col_letter}{r}/20)>0, "Lần " & INT({acc_col_letter}{r}/20), ""))')
+            else:
+                ws.cell(r, c_freq_idx, f'=IF(INT({acc_col_letter}{r}/20)>INT({acc_col_letter}{prev_r}/20), "Lần " & INT({acc_col_letter}{r}/20), "")')
+
+            cf = ws.cell(r, c_freq_idx)
+            cf.alignment = ALIGN_CENTER
+            cf.font = FONT_RED
+            cf.border = THIN_BORDER
+
+        # O: CẢNH BÁO LẤY MẪU THÍ NGHIỆM (20T/LẦN) TẠI DÒNG NÀY
+        # Tự động hiển thị "Lấy mẫu TN Ø... (Lần ...)" khi dòng này làm lũy kế của Ø đó vượt ngưỡng 20T
         if prev_r is None:
-            ws.cell(r, 18, f'=IF(N{r}=0, "", IF(INT(N{r}/20)>0, "Lần " & INT(N{r}/20), ""))')
-            ws.cell(r, 19, f'=IF(O{r}=0, "", IF(INT(O{r}/20)>0, "Lần " & INT(O{r}/20), ""))')
-            ws.cell(r, 20, f'=IF(P{r}=0, "", IF(INT(P{r}/20)>0, "Lần " & INT(P{r}/20), ""))')
-            ws.cell(r, 21, f'=IF(Q{r}=0, "", IF(INT(Q{r}/20)>0, "Lần " & INT(Q{r}/20), ""))')
+            ws.cell(r, 15, "")
         else:
             p = prev_r
-            ws.cell(r, 18, f'=IF(INT(N{r}/20)>INT(N{p}/20), "Lần " & INT(N{r}/20), "")')
-            ws.cell(r, 19, f'=IF(INT(O{r}/20)>INT(O{p}/20), "Lần " & INT(O{r}/20), "")')
-            ws.cell(r, 20, f'=IF(INT(P{r}/20)>INT(P{p}/20), "Lần " & INT(P{r}/20), "")')
-            ws.cell(r, 21, f'=IF(INT(Q{r}/20)>INT(Q{p}/20), "Lần " & INT(Q{r}/20), "")')
+            warn_parts = []
+            for dia_val, c_acc_idx, c_freq_idx, l_short, l_full, grade_std in DIA_LIST:
+                acc_l = get_column_letter(c_acc_idx)
+                if dia_val == 10:
+                    c_if = f'AND(E{r}<=10, F{r}<>"ASTM A416", INT({acc_l}{r}/20)>INT({acc_l}{p}/20))'
+                elif dia_val == 15.2:
+                    c_if = f'AND(F{r}="ASTM A416", INT({acc_l}{r}/20)>INT({acc_l}{p}/20))'
+                else:
+                    c_if = f'AND(E{r}={dia_val}, INT({acc_l}{r}/20)>INT({acc_l}{p}/20))'
+                warn_parts.append(f'IF({c_if}, "TN {l_short} (Lần " & INT({acc_l}{r}/20) & ")", ')
+            warn_formula = "=" + "".join(warn_parts) + '""' + (")" * len(DIA_LIST))
+            ws.cell(r, 15, warn_formula)
 
-        ws.cell(r, 18).font = FONT_RED
-        ws.cell(r, 19).font = FONT_GREEN
-        ws.cell(r, 20).font = FONT_RED
-        ws.cell(r, 21).font = FONT_PURPLE
-        for c_fq in range(18, 22):
-            ws.cell(r, c_fq).alignment = ALIGN_CENTER
-            ws.cell(r, c_fq).border = THIN_BORDER
+        cell_warn = ws.cell(r, 15)
+        cell_warn.alignment = ALIGN_CENTER
+        cell_warn.font = FONT_HDR_RED
+        cell_warn.border = THIN_BORDER
 
-        # V: Số lô / CO-CQ (để mở)
-        ws.cell(r, 22, "").alignment = ALIGN_CENTER
-        ws.cell(r, 22).font = FONT_REG
-        ws.cell(r, 22).border = THIN_BORDER
-
-        # W: Kết luận
-        ws.cell(r, 23, "ĐẠT TCVN 1651:2018").alignment = ALIGN_CENTER
-        ws.cell(r, 23).font = FONT_REG
-        ws.cell(r, 23).border = THIN_BORDER
+        # AL: KẾT LUẬN NGHIỆM THU
+        ws.cell(r, 38, "ĐẠT TCVN 1651:2018").alignment = ALIGN_CENTER
+        ws.cell(r, 38).font = FONT_REG
+        ws.cell(r, 38).border = THIN_BORDER
 
         prev_r = r
         stt_cnt += 1
         cur_row += 1
 
-    # Dòng Tổng cộng cuối Sheet 2
+    # DÒNG TỔNG CỘNG CUỐI SHEET 2
     r_end = cur_row
-    ws.row_dimensions[r_end].height = 25
+    ws.row_dimensions[r_end].height = 26
     ws.merge_cells(start_row=r_end, start_column=1, end_row=r_end, end_column=10)
     ws.cell(r_end, 1, "TỔNG CỘNG KHỐI LƯỢNG CỐT THÉP & CÁP DƯL TOÀN BỘ CÔNG TRÌNH").alignment = ALIGN_CENTER
     ws.cell(r_end, 1).font = FONT_HDR
@@ -719,57 +756,58 @@ def build_sheet_rebar(ws, bsl_path, thep_cat_path, tmpl_path):
     ws.cell(r_end, 12).number_format = "#,##0.000"
 
     ws.cell(r_end, 13, "").alignment = ALIGN_CENTER
+    ws.cell(r_end, 14, "").alignment = ALIGN_CENTER
+    ws.cell(r_end, 15, "").alignment = ALIGN_CENTER
 
     if prev_r:
-        ws.cell(r_end, 14, f"=N{prev_r}").number_format = "#,##0.000"
-        ws.cell(r_end, 15, f"=O{prev_r}").number_format = "#,##0.000"
-        ws.cell(r_end, 16, f"=P{prev_r}").number_format = "#,##0.000"
-        ws.cell(r_end, 17, f"=Q{prev_r}").number_format = "#,##0.000"
-        for ck in range(14, 18):
-            ws.cell(r_end, ck).font = FONT_HDR
-            ws.cell(r_end, ck).alignment = ALIGN_RIGHT
+        for dia_val, c_acc_idx, c_freq_idx, l_short, l_full, grade_std in DIA_LIST:
+            acc_col_letter = get_column_letter(c_acc_idx)
+            # Tổng lũy kế
+            c_acc_tot = ws.cell(r_end, c_acc_idx, f"={acc_col_letter}{prev_r}")
+            c_acc_tot.font = FONT_HDR
+            c_acc_tot.alignment = ALIGN_RIGHT
+            c_acc_tot.number_format = "#,##0.000"
 
-        ws.cell(r_end, 18, f'="Tổng: " & INT(N{prev_r}/20) & " lần"').alignment = ALIGN_CENTER
-        ws.cell(r_end, 19, f'="Tổng: " & INT(O{prev_r}/20) & " lần"').alignment = ALIGN_CENTER
-        ws.cell(r_end, 20, f'="Tổng: " & INT(P{prev_r}/20) & " lần"').alignment = ALIGN_CENTER
-        ws.cell(r_end, 21, f'="Tổng: " & INT(Q{prev_r}/20) & " lần"').alignment = ALIGN_CENTER
-        for cf in range(18, 22):
-            ws.cell(r_end, cf).font = FONT_HDR
+            # Tổng số lần thí nghiệm
+            c_freq_tot = ws.cell(r_end, c_freq_idx, f'="Tổng: " & INT({acc_col_letter}{prev_r}/20) & " lần"')
+            c_freq_tot.font = FONT_HDR
+            c_freq_tot.alignment = ALIGN_CENTER
 
-    ws.cell(r_end, 22, "").alignment = ALIGN_CENTER
-    ws.cell(r_end, 23, "100% ĐẠT CHUẨN").alignment = ALIGN_CENTER
-    ws.cell(r_end, 23).font = FONT_HDR
+    ws.cell(r_end, 38, "100% ĐẠT CHUẨN").alignment = ALIGN_CENTER
+    ws.cell(r_end, 38).font = FONT_HDR
 
-    for c in range(1, 24):
+    for c in range(1, 39):
         cell = ws.cell(r_end, c)
         cell.border = THIN_BORDER
         cell.fill = FILL_TOTAL
 
+    # ĐỘ RỘNG CỘT CHO 38 CỘT
     col_widths_rebar = {
         1: 6,   # STT
-        2: 38,  # HẠNG MỤC CẤU KIỆN
-        3: 32,  # BỘ PHẬN CHI TIẾT
+        2: 36,  # HẠNG MỤC CẤU KIỆN
+        3: 30,  # BỘ PHẬN CHI TIẾT
         4: 12,  # KÝ HIỆU THANH
-        5: 12,  # Ø
-        6: 14,  # MÁC THÉP
-        7: 24,  # HÌNH DẠNG
-        8: 14,  # CHIỀU DÀI
-        9: 11,  # SỐ LƯỢNG
-        10: 13, # TRỌNG LƯỢNG 1M
-        11: 14, # TỔNG KL KG
+        5: 11,  # Ø
+        6: 13,  # MÁC THÉP
+        7: 22,  # HÌNH DẠNG
+        8: 13,  # CHIỀU DÀI
+        9: 10,  # SỐ LƯỢNG
+        10: 12, # TRỌNG LƯỢNG 1M
+        11: 13, # TỔNG KL KG
         12: 13, # KL TẤN
         13: 13, # N/T/N
-        14: 14, # LŨY KẾ <=10
-        15: 14, # LŨY KẾ 10<D<=18
-        16: 14, # LŨY KẾ >18
-        17: 14, # LŨY KẾ CÁP
-        18: 13, # TẦN SUẤT <=10
-        19: 13, # TẦN SUẤT 10<D<=18
-        20: 13, # TẦN SUẤT >18
-        21: 13, # TẦN SUẤT CÁP
-        22: 18, # SỐ LÔ CO-CQ
-        23: 18  # KẾT LUẬN
+        14: 20, # SỐ LÔ CO-CQ
+        15: 22, # CẢNH BÁO LẤY MẪU
     }
+    # 11 cột lũy kế (16..26)
+    for c_idx in range(16, 27):
+        col_widths_rebar[c_idx] = 13
+    # 11 cột tần suất (27..37)
+    for c_idx in range(27, 38):
+        col_widths_rebar[c_idx] = 13
+    # Cột kết luận
+    col_widths_rebar[38] = 18
+
     for col_idx, width in col_widths_rebar.items():
         ws.column_dimensions[get_column_letter(col_idx)].width = width
 
@@ -777,7 +815,7 @@ def build_sheet_rebar(ws, bsl_path, thep_cat_path, tmpl_path):
     return r_end
 
 def build_sheet_summary(ws, r_tot_concrete, r_end_rebar):
-    """Xây dựng Sheet 3: Bảng tổng hợp tần suất vật liệu đầu vào và kiểm định hiện trường"""
+    """Xây dựng Sheet 3: Bảng tổng hợp tần suất vật liệu đầu vào bóc tách riêng từng loại Ø"""
     ws.title = "Tong_Hop_Tan_Suat_Vat_Lieu"
     ws.views.sheetView[0].showGridLines = True
 
@@ -802,7 +840,7 @@ def build_sheet_summary(ws, r_tot_concrete, r_end_rebar):
         ("TỔNG KHỐI LƯỢNG DỰ ÁN", 22),
         ("SỐ LẦN THÍ NGHIỆM DỰ KIẾN", 24),
         ("CHỈ TIÊU CƠ LÝ KIỂM TRA CHÍNH", 36),
-        ("GHI CHÚ / QUY ĐỊNH PHÁP LÝ", 28)
+        ("GHI CHÚ / QUY ĐỊNH PHÁP LÝ", 30)
     ]
 
     ws.row_dimensions[4].height = 28
@@ -818,53 +856,74 @@ def build_sheet_summary(ws, r_tot_concrete, r_end_rebar):
         # Nhóm I: Vật liệu Bê tông & Cấp phối
         ("SECTION", "I. NHÓM VẬT LIỆU ĐẦU VÀO BÊ TÔNG XI MĂNG"),
         (1, "Xi măng Poóc lăng hỗn hợp PCB40", "TCVN 6260:2020", "50 Tấn / lần lấy mẫu", "Tấn",
-         f"=Theo_Doi_Tan_Suat_Be_Tong!M{r_tot_concrete}", '=IF(F6="","",IF(F6=0,"1 lần",INT(F6/50)+1 & " lần"))',
+         f"=Theo_Doi_Tan_Suat_Be_Tong!M{r_tot_concrete}", 6, 50,
          "Độ mịn, thời gian đông kết, giới hạn bền nén, độ ổn định thể tích", "TCVN 2682/6260, NĐ 207/2026"),
         (2, "Cát vàng đổ bê tông (Mô đun độ lớn Mk >= 2.0)", "TCVN 7570:2006", "200 m3 / lần lấy mẫu", "m3",
-         f"=Theo_Doi_Tan_Suat_Be_Tong!N{r_tot_concrete}", '=IF(F7="","",IF(F7=0,"1 lần",INT(F7/200)+1 & " lần"))',
+         f"=Theo_Doi_Tan_Suat_Be_Tong!N{r_tot_concrete}", 7, 200,
          "Thành phần hạt, hàm lượng bùn bụi sét, tạp chất hữu cơ, khối lượng thể tích", "TCVN 7570, Chỉ dẫn kỹ thuật"),
         (3, "Đá dăm bê tông (Đá 1x2 cho C30/C35/C45)", "TCVN 7570:2006", "350 m3 / lần lấy mẫu", "m3",
-         f"=Theo_Doi_Tan_Suat_Be_Tong!O{r_tot_concrete}", '=IF(F8="","",IF(F8=0,"1 lần",INT(F8/350)+1 & " lần"))',
+         f"=Theo_Doi_Tan_Suat_Be_Tong!O{r_tot_concrete}", 8, 350,
          "Thành phần hạt, hàm lượng thoi dẹt, độ nén dập trong ống hình trụ, độ hút nước", "TCVN 7570, TCVN 1771"),
         (4, "Nước trộn bê tông", "TCVN 4506:2012", "1 nguồn cấp / toàn dự án", "Nguồn",
-         1, '1 lần (định kỳ 6 tháng)',
+         1, None, None,
          "Độ pH, hàm lượng muối hòa tan, ion Cl-, SO4(2-), cặn không tan", "Kiểm tra trước khi thi công"),
         (5, "Phụ gia giảm nước / siêu dẻo bê tông", "TCVN 8826:2011", "5 Tấn / lô vật liệu", "Tấn",
-         12.5, '3 lần',
+         12.5, None, None,
          "Khả năng giảm nước, độ chảy xòe, độ pH, hàm lượng chất rắn", "Chứng chỉ xuất xưởng + thử nghiệm"),
 
-        # Nhóm II: Cốt thép & Cáp DƯL
-        ("SECTION", "II. NHÓM CỐT THÉP VÀ CÁP DỰ ỨNG LỰC"),
-        (6, "Thép tròn trơn Ø <= 10mm (CB240-T)", "TCVN 1651-1:2018", "20 Tấn / lô đường kính", "Tấn",
-         f"=Theo_Doi_Tan_Suat_Cot_Thep!N{r_end_rebar}", '=IF(F12="","",IF(F12=0,"1 lần",INT(F12/20)+1 & " lần"))',
-         "Giới hạn chảy, độ bền kéo, độ giãn dài tương đối, uốn nguội 180°", "1 tổ 3 kéo + 3 uốn / lô 20T"),
-        (7, "Thép thanh vằn 10 < Ø <= 18mm (CB400-V)", "TCVN 1651-2:2018", "20 Tấn / lô đường kính", "Tấn",
-         f"=Theo_Doi_Tan_Suat_Cot_Thep!O{r_end_rebar}", '=IF(F13="","",IF(F13=0,"1 lần",INT(F13/20)+1 & " lần"))',
-         "Giới hạn chảy, độ bền kéo, tỷ số Rmt/ReH, độ giãn dài, uốn nguội 180°", "1 tổ 3 kéo + 3 uốn / lô 20T"),
-        (8, "Thép thanh vằn Ø > 18mm (CB400-V, CB500-V)", "TCVN 1651-2:2018", "20 Tấn / lô đường kính", "Tấn",
-         f"=Theo_Doi_Tan_Suat_Cot_Thep!P{r_end_rebar}", '=IF(F14="","",IF(F14=0,"1 lần",INT(F14/20)+1 & " lần"))',
-         "Giới hạn chảy, độ bền kéo, độ giãn dài, uốn nguội 180°, sai số kích thước", "Thép chủ cọc, bệ, thân, xà mũ"),
-        (9, "Cáp dự ứng lực 15.2mm 7 sợi xoắn", "ASTM A416 Gr270", "20 Tấn / lô kéo rút", "Tấn",
-         f"=Theo_Doi_Tan_Suat_Cot_Thep!Q{r_end_rebar}", '=IF(F15="","",IF(F15=0,"1 lần",INT(F15/20)+1 & " lần"))',
-         "Giới hạn bền kéo đứt, độ giãn dài, mô đun đàn hồi Ep, diện tích tiết diện", "Cáp dầm Super-T L=38.2m"),
-        (10, "Mối nối cóc nối ren coupler / hàn đối đầu", "TCVN 8163:2009", "500 mối nối / lô", "Mối nối",
-         1840, '4 lần (mỗi lô 3 mẫu kéo)',
-         "Độ bền kéo mối nối, độ dãn dư, khả năng chịu biến dạng dẻo", "Mối nối thép chủ cọc khoan nhồi"),
+        # Nhóm II: Cốt thép & Cáp DƯL (BÓC TÁCH RIÊNG TỪNG LOẠI ĐƯỜNG KÍNH Ø)
+        ("SECTION", "II. NHÓM CỐT THÉP VÀ CÁP DỰ ỨNG LỰC (BÓC TÁCH CHI TIẾT RIÊNG TỪNG LOẠI Ø)"),
+        (6, "Cốt thép tròn trơn Ø10 (CB240-T, kèm Ø8)", "TCVN 1651-1:2018", "20 Tấn / lô xuất xưởng", "Tấn",
+         f"=Theo_Doi_Tan_Suat_Cot_Thep!P{r_end_rebar}", 12, 20,
+         "Giới hạn chảy, độ bền kéo, độ giãn dài, uốn nguội 180°", "1 tổ 3 kéo + 3 uốn / lô 20T, số lô CO-CQ riêng"),
+        (7, "Cốt thép thanh vằn Ø12 (CB400-V)", "TCVN 1651-2:2018", "20 Tấn / lô xuất xưởng", "Tấn",
+         f"=Theo_Doi_Tan_Suat_Cot_Thep!Q{r_end_rebar}", 13, 20,
+         "Giới hạn chảy, độ bền kéo, độ giãn dài, uốn nguội 180°", "Thép đai dầm Super-T, đai cọc, số lô CO-CQ riêng"),
+        (8, "Cốt thép thanh vằn Ø14 (CB400-V)", "TCVN 1651-2:2018", "20 Tấn / lô xuất xưởng", "Tấn",
+         f"=Theo_Doi_Tan_Suat_Cot_Thep!R{r_end_rebar}", 14, 20,
+         "Giới hạn chảy, độ bền kéo, độ giãn dài, uốn nguội 180°", "Thép sườn dầm, lưới BMC, gờ lan can, số lô riêng"),
+        (9, "Cốt thép thanh vằn Ø16 (CB400-V)", "TCVN 1651-2:2018", "20 Tấn / lô xuất xưởng", "Tấn",
+         f"=Theo_Doi_Tan_Suat_Cot_Thep!S{r_end_rebar}", 15, 20,
+         "Giới hạn chảy, độ bền kéo, độ giãn dài, uốn nguội 180°", "Thép lưới BMC, bản quá độ, đai cọc, xà mũ, số lô riêng"),
+        (10, "Cốt thép thanh vằn Ø18 (CB400-V)", "TCVN 1651-2:2018", "20 Tấn / lô xuất xưởng", "Tấn",
+         f"=Theo_Doi_Tan_Suat_Cot_Thep!T{r_end_rebar}", 16, 20,
+         "Giới hạn chảy, độ bền kéo, độ giãn dài, uốn nguội 180°", "Thép phân bố bệ, thân, mố, số lô CO-CQ riêng"),
+        (11, "Cốt thép thanh vằn Ø20 (CB400-V)", "TCVN 1651-2:2018", "20 Tấn / lô xuất xưởng", "Tấn",
+         f"=Theo_Doi_Tan_Suat_Cot_Thep!U{r_end_rebar}", 17, 20,
+         "Giới hạn chảy, độ bền kéo, độ giãn dài, uốn nguội 180°", "Thép con kê bảo vệ, đai tăng cường, số lô riêng"),
+        (12, "Cốt thép thanh vằn Ø22 (CB400-V)", "TCVN 1651-2:2018", "20 Tấn / lô xuất xưởng", "Tấn",
+         f"=Theo_Doi_Tan_Suat_Cot_Thep!V{r_end_rebar}", 18, 20,
+         "Giới hạn chảy, độ bền kéo, độ giãn dài, uốn nguội 180°", "Thép bản quá độ mố A2, cọc nối PDA, số lô riêng"),
+        (13, "Cốt thép thanh vằn Ø25 (CB400-V)", "TCVN 1651-2:2018", "20 Tấn / lô xuất xưởng", "Tấn",
+         f"=Theo_Doi_Tan_Suat_Cot_Thep!W{r_end_rebar}", 19, 20,
+         "Giới hạn chảy, độ bền kéo, độ giãn dài, uốn nguội 180°", "Thép chủ cọc khoan nhồi M1, T1, T2, M2, số lô riêng"),
+        (14, "Cốt thép thanh vằn Ø28 (CB400-V)", "TCVN 1651-2:2018", "20 Tấn / lô xuất xưởng", "Tấn",
+         f"=Theo_Doi_Tan_Suat_Cot_Thep!X{r_end_rebar}", 20, 20,
+         "Giới hạn chảy, độ bền kéo, độ giãn dài, uốn nguội 180°", "Thép chủ mố M1, M2, xà mũ, cọc M2, số lô riêng"),
+        (15, "Cốt thép thanh vằn Ø32 (CB400-V)", "TCVN 1651-2:2018", "20 Tấn / lô xuất xưởng", "Tấn",
+         f"=Theo_Doi_Tan_Suat_Cot_Thep!Y{r_end_rebar}", 21, 20,
+         "Giới hạn chảy, độ bền kéo, độ giãn dài, uốn nguội 180°", "Thép chủ bệ trụ T1, T2, thân trụ, xà mũ, số lô riêng"),
+        (16, "Cáp dự ứng lực 15.2mm 7 sợi xoắn", "ASTM A416 Gr270", "20 Tấn / lô kéo rút", "Tấn",
+         f"=Theo_Doi_Tan_Suat_Cot_Thep!Z{r_end_rebar}", 22, 20,
+         "Giới hạn bền kéo đứt, độ giãn dài, mô đun Ep", "Cáp kéo trước dầm Super-T L=38.2m, chứng chỉ cuộn riêng"),
+        (17, "Mối nối cóc nối ren coupler / hàn đối đầu", "TCVN 8163:2009", "500 mối nối / lô", "Mối nối",
+         1840, None, None,
+         "Độ bền kéo mối nối, độ dãn dư, khả năng biến dạng", "Mối nối thép chủ cọc khoan nhồi (mỗi lô 3 kéo)"),
 
         # Nhóm III: Thí nghiệm kiểm tra hiện trường & Cấu kiện hoàn thiện
         ("SECTION", "III. KIỂM ĐỊNH HIỆN TRƯỜNG & NGHIỆM THU CHẤT LƯỢNG"),
-        (11, "Thí nghiệm nén mẫu bê tông hiện trường R7, R28", "TCVN 3118:2022", "1 tổ 3 mẫu / cấu kiện <=20m3", "Tổ mẫu",
-         83, '83 tổ mẫu (249 viên)',
-         "Cường độ chịu nén R7 ngày và R28 ngày (MPa)", "Kèm biên bản nghiệm thu KCS"),
-        (12, "Thí nghiệm siêu âm cọc khoan nhồi D1.2m", "TCVN 9395:2012", "100% các cọc khoan nhồi", "Mặt cắt",
-         156, '156 mặt cắt siêu âm (30 cọc)',
-         "Độ đồng nhất, vận tốc truyền sóng, phát hiện khuyết tật bê tông thân cọc", "4 ống siêu âm / cọc (6 mặt cắt)"),
-        (13, "Thử động biến dạng lớn PDA (Sức chịu tải cọc)", "ASTM D4945", "Tối thiểu 2 cọc đại diện", "Cọc",
-         2, '2 cọc (M1-C1 và T1-C1)',
-         "Sức chịu tải giới hạn cọc, ứng suất nén/kéo khi đóng, độ toàn vẹn thân cọc", "Đơn vị kiểm định độc lập"),
-        (14, "Thí nghiệm độ sụt bê tông tươi tại hiện trường", "TCVN 3106:2022", "100% các xe bê tông trạm trộn", "Xe bồn",
-         285, '285 xe (mỗi xe 1 lần)',
-         "Độ sụt cọc nhồi (18±2cm), độ sụt kết cấu (14±2cm), nhiệt độ bê tông tươi", "Kiểm tra trước khi đổ"),
+        (18, "Thí nghiệm nén mẫu bê tông hiện trường R7, R28", "TCVN 3118:2022", "1 tổ 3 mẫu / cấu kiện <=20m3", "Tổ mẫu",
+         83, None, None,
+         "Cường độ chịu nén R7 ngày và R28 ngày (MPa)", "Kèm biên bản nghiệm thu KCS (249 viên mẫu)"),
+        (19, "Thí nghiệm siêu âm cọc khoan nhồi D1.2m", "TCVN 9395:2012", "100% các cọc khoan nhồi", "Mặt cắt",
+         156, None, None,
+         "Độ đồng nhất, vận tốc truyền sóng, khuyết tật thân cọc", "4 ống siêu âm / cọc (156 mặt cắt / 30 cọc)"),
+        (20, "Thử động biến dạng lớn PDA (Sức chịu tải cọc)", "ASTM D4945", "Tối thiểu 2 cọc đại diện", "Cọc",
+         2, None, None,
+         "Sức chịu tải giới hạn cọc, ứng suất nén/kéo khi đóng", "Đơn vị kiểm định độc lập (M1-C1 và T1-C1)"),
+        (21, "Thí nghiệm độ sụt bê tông tươi tại hiện trường", "TCVN 3106:2022", "100% các xe bê tông trạm trộn", "Xe bồn",
+         285, None, None,
+         "Độ sụt cọc nhồi (18±2cm), độ sụt kết cấu (14±2cm)", "Kiểm tra trước khi đổ (285 lượt xe)"),
     ]
 
     r_cur = 5
@@ -880,7 +939,7 @@ def build_sheet_summary(ws, r_tot_concrete, r_end_rebar):
             r_cur += 1
             continue
 
-        stt_num, mat_name, std_name, freq_rule, unit_txt, total_val, test_cnt_formula, params_txt, note_txt = item
+        stt_num, mat_name, std_name, freq_rule, unit_txt, total_val, f_row_idx, denom, params_txt, note_txt = item
         ws.row_dimensions[r_cur].height = 20
 
         # A: STT
@@ -917,6 +976,25 @@ def build_sheet_summary(ws, r_tot_concrete, r_end_rebar):
             cell_tot.number_format = "#,##0.00" if isinstance(total_val, float) else "#,##0"
 
         # G: Số lần thí nghiệm dự kiến
+        if f_row_idx and denom:
+            test_cnt_formula = f'=IF(F{r_cur}="","",IF(F{r_cur}=0,"1 lần",INT(F{r_cur}/{denom})+1 & " lần"))'
+        elif stt_num == 4:
+            test_cnt_formula = '1 lần (định kỳ 6 tháng)'
+        elif stt_num == 5:
+            test_cnt_formula = '3 lần'
+        elif stt_num == 17:
+            test_cnt_formula = '4 lần (mỗi lô 3 mẫu kéo)'
+        elif stt_num == 18:
+            test_cnt_formula = '83 tổ mẫu (249 viên)'
+        elif stt_num == 19:
+            test_cnt_formula = '156 mặt cắt siêu âm (30 cọc)'
+        elif stt_num == 20:
+            test_cnt_formula = '2 cọc (M1-C1 và T1-C1)'
+        elif stt_num == 21:
+            test_cnt_formula = '285 xe (mỗi xe 1 lần)'
+        else:
+            test_cnt_formula = '1 lần'
+
         cell_tc = ws.cell(r_cur, 7, test_cnt_formula)
         cell_tc.alignment = ALIGN_CENTER
         cell_tc.font = FONT_RED
@@ -937,7 +1015,7 @@ def build_sheet_summary(ws, r_tot_concrete, r_end_rebar):
     ws.freeze_panes = "C5"
 
 def build_tan_suat_master_workbook(output_path: str):
-    """Tạo toàn bộ Workbook gồm cả 3 Sheet chuyên nghiệp"""
+    """Tạo toàn bộ Master Workbook gồm cả 3 Sheet chuyên nghiệp"""
     base_marker = r"C:\Users\baotu\Downloads\HSTK Cầu Km19+529.080_Marker"
     bsl_path = os.path.join(base_marker, "bang_so_lieu.json")
     thep_cat_path = os.path.join(base_marker, "thep_cho_to_hop_cat.json")
@@ -948,7 +1026,7 @@ def build_tan_suat_master_workbook(output_path: str):
     ws1 = wb.active
     r_tot = build_sheet_concrete(ws1)
 
-    # Sheet 2: Cốt thép bóc tách chi tiết từng thanh
+    # Sheet 2: Cốt thép bóc tách chi tiết từng thanh và riêng từng loại Ø
     ws2 = wb.create_sheet("Theo_Doi_Tan_Suat_Cot_Thep")
     r_end = build_sheet_rebar(ws2, bsl_path, thep_cat_path, tmpl_path)
 
@@ -979,5 +1057,4 @@ if __name__ == "__main__":
             shutil.copy2(out_master, p)
             print(f"[OK] Đã đồng bộ sang: {p}")
         except Exception as e:
-            print(f"[NOTE] Không thể ghi đè sang {os.path.basename(p)} (có thể file đang được mở trong Excel): {e}")
-
+            print(f"[NOTE] Không thể ghi đè sang {os.path.basename(p)}: {e}")
