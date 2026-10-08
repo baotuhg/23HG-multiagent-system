@@ -1,0 +1,23 @@
+﻿ma;cong_viec;bat_dau;nghiem_thu;dieu_kien;tham_chieu
+BBNT-01;Bàn giao tim mốc VN2000, cao độ quốc gia & tim mốc cầu;01/10/2026;02/10/2026;Mốc ban đầu;
+BBNT-02;Dọn dẹp mặt bằng, thi công đường công vụ nhánh 6 & 6A;03/10/2026;18/10/2026;BBNT-01 + 1 ngày;BBNT-01
+BBNT-03;Kiểm tra nghiệm thu vật liệu đầu vào (Thép, Cáp DUL, Xi măng);15/10/2026;20/10/2026;Trước khi thi công cọc;
+BBNT-04;Nghiệm thu trạm trộn BTXM 90m3/h, trạm biến áp & bệ đúc dầm;12/10/2026;24/10/2026;Trước khi đổ BT cọc;
+BBNT-05;Định vị tim cọc & hạ ống vách thép dẫn hướng D1300mm;25/10/2026;28/10/2026;BBNT-02, BBNT-04;BBNT-02,BBNT-04
+BBNT-06;Khoan thăm dò hang Karst sâu 5m dưới mũi 26 cọc vào đá liền khối;25/10/2026;05/11/2026;BBNT-05 + Khoan cọc;BBNT-05
+BBNT-07;Nghiệm thu hố khoan cọc D1200mm, thổi rửa lắng cặn & bentonite;26/10/2026;06/11/2026;Sau khi khoan dò Karst;BBNT-06
+BBNT-08;Gia công, lắp dựng lồng cốt thép D25/D16 & ống siêu âm kín nước;27/10/2026;07/11/2026;Trước khi đổ bê tông;
+BBNT-09;Đổ bê tông 26 cọc khoan nhồi C30/37 bằng ống tremie (1100.86 m3);06/11/2026;12/12/2026;Ngay sau khi hạ lồng thép;BBNT-08
+BBNT-10;Thí nghiệm siêu âm 156 MC cọc, khoan lấy lõi & thử tải PDA (9434 kN);13/12/2026;20/12/2026;Cọc đổ xong >= 7-14 ngày;BBNT-09
+BBNT-11;Đào hố móng bệ, đập đầu 26 cọc nhồi & đổ bê tông lót bệ mác C10;21/12/2026;27/12/2026;Sau khi có kết quả BBNT-10;BBNT-10
+BBNT-12;Cốt thép, ván khuôn & đổ bê tông bệ móng mố M1, M2 & bệ trụ T1, T2 C30;28/12/2026;08/01/2027;Sau khi đổ BT lót BBNT-11;BBNT-11
+BBNT-13;Thi công thân mố chân dê M1 và thân mố chữ U M2 bê tông C30;06/01/2027;18/01/2027;Sau khi bệ mố đạt R7;BBNT-12
+BBNT-14;Thi công thân đặc trụ T1, T2 (H=14.5m & 11.4m) bê tông C30;09/01/2027;22/01/2027;Sau khi bệ trụ đạt R7;BBNT-12
+BBNT-15;Cốt thép, ván khuôn & đổ bê tông xà mũ trụ T1, T2, đá kê gối C30;23/01/2027;30/01/2027;Sau khi thân trụ đạt R14;BBNT-14
+BBNT-16;Cốt thép, ván khuôn & đổ bê tông C45 15 phiến dầm Super-T tại bãi đúc;26/12/2026;15/01/2027;Song song tại bãi đúc;
+BBNT-17;Căng kéo cáp DUL 15.2mm & bơm vữa không co ngót ống gen dầm;16/01/2027;25/01/2027;Sau khi dầm Super-T đạt R28;BBNT-16
+BBNT-18;Lắp đặt 30 gối chậu cao su & lao lắp 15 phiến dầm Super-T (giá lao 78.88T);31/01/2027;14/02/2027;Sau BBNT-15 & BBNT-17;BBNT-15,BBNT-17
+BBNT-19;Đổ bê tông dầm ngang & mối nối liên tục nhiệt đỉnh trụ T1, T2 C35;15/02/2027;19/02/2027;Sau khi dầm yên vị trên gối;BBNT-18
+BBNT-20;Lắp 510 tấm ván khuôn đúc sẵn, cốt thép & đổ bê tông bản mặt cầu C35;20/02/2027;02/03/2027;Sau khi dầm ngang đạt R7;BBNT-19
+BBNT-21;Khe co giãn răng lược D=100mm, gờ lan can C25 & thảm BTN C16 dày 7cm;07/03/2027;19/03/2027;Sau khi bản mặt cầu đạt R14;BBNT-20
+BBNT-22;Thử tải tĩnh/động toàn cầu & nghiệm thu hoàn thành đưa vào sử dụng;20/03/2027;28/03/2027;Bê tông toàn cầu đạt 100% R28;BBNT-21
