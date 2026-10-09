@@ -48,13 +48,22 @@ class TestIFCLoader(unittest.TestCase):
             return
 
         f = ifcopenshell.file(schema="IFC4")
-        f.create_entity("IfcProject", ifcopenshell.guid.new(), None, "DuAnCauKhaiHoang2")
+        u_len = f.create_entity("IfcSIUnit", UnitType="LENGTHUNIT", Name="METRE", Prefix="MILLI")
+        u_area = f.create_entity("IfcSIUnit", UnitType="AREAUNIT", Name="SQUARE_METRE")
+        u_vol = f.create_entity("IfcSIUnit", UnitType="VOLUMEUNIT", Name="CUBIC_METRE")
+        ua = f.create_entity("IfcUnitAssignment", Units=[u_len, u_area, u_vol])
+        f.create_entity("IfcProject", ifcopenshell.guid.new(), None, "DuAnCauKhaiHoang2", UnitsInContext=ua)
 
-        # Cấu kiện Bê tông: 1 Dầm, 1 Cột, 1 Móng, 1 Bản mặt cầu
-        f.create_entity("IfcBeam", ifcopenshell.guid.new(), None, "Dam_SuperT_Nhip1")
-        f.create_entity("IfcColumn", ifcopenshell.guid.new(), None, "Tru_T1")
-        f.create_entity("IfcFooting", ifcopenshell.guid.new(), None, "Mong_Tru_T1")
-        f.create_entity("IfcSlab", ifcopenshell.guid.new(), None, "Ban_Mat_Cau")
+        # Cấu kiện Bê tông: 1 Dầm, 1 Cột, 1 Móng, 1 Bản mặt cầu kèm Qto Thể tích
+        beam = f.create_entity("IfcBeam", ifcopenshell.guid.new(), None, "Dam_SuperT_Nhip1")
+        col = f.create_entity("IfcColumn", ifcopenshell.guid.new(), None, "Tru_T1")
+        foot = f.create_entity("IfcFooting", ifcopenshell.guid.new(), None, "Mong_Tru_T1")
+        slab = f.create_entity("IfcSlab", ifcopenshell.guid.new(), None, "Ban_Mat_Cau")
+
+        for elem, vol in [(beam, 36.1), (col, 15.2), (foot, 45.0), (slab, 28.8)]:
+            q = f.create_entity("IfcQuantityVolume", Name="NetVolume", VolumeValue=vol)
+            qto = f.create_entity("IfcElementQuantity", GlobalId=ifcopenshell.guid.new(), Name="Qto_BaseQuantities", Quantities=[q])
+            f.create_entity("IfcRelDefinesByProperties", GlobalId=ifcopenshell.guid.new(), RelatedObjects=[elem], RelatingPropertyDefinition=qto)
 
         # Cốt thép 3D: D25 và D12
         for i in range(5):
