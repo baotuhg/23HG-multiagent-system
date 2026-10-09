@@ -38,6 +38,8 @@ Luật Xây dựng 135/2025/QH15, NĐ 207/2026/NĐ-CP, NĐ 254/2025/NĐ-CP (than
 Phát hành theo **[MIT License](LICENSE)**. Tác giả & duy trì: **Nguyễn Bảo Tú** ([@baotuhg](https://github.com/baotuhg)). Kho chính thức: <https://github.com/baotuhg/23HG-multiagent-system>. Khi sao chép hoặc kế thừa, vui lòng giữ nguyên thông báo bản quyền và giấy phép MIT.
 
 > 📘 **Tài liệu hữu ích cho người mới:** Xem ngay [Cẩm nang Hướng dẫn Viết Prompt & Câu Lệnh Thực Chiến](docs/HUONG_DAN_VIET_PROMPT.md) để biết cách ra lệnh chính xác cho AI và chạy các tác vụ kỹ thuật chuẩn xác.
+>
+> 🌟 **CHIẾN TÍCH THỰC CHIẾN (OCTOBER 2026):** Xem ngay [Báo cáo Bóc tách CAD & Vạch trần sai lệch 4,5 km cống Thoát nước thải Cụm B9](docs/CASE_STUDY_CAD_TAKEOFF_B9_THOAT_NUOC_THAI.md) kèm [Bộ hồ sơ Master Excel 100% công thức sống](examples/BOC_TACH_THOAT_NUOC_THAI_B9_CAD_TAKEOFF/README.md) — 23HG quét 100% hình học 990 hố ga, 967 tuyến cống, phát hiện 1.285 dimension bị gán `DIMLFAC = 0.8` làm hụt 4.466m cống và ép TVTK phải cập nhật lại hồ sơ!
 
 ---
 
@@ -361,7 +363,16 @@ python -m unittest tests/test_equipment_fleet_scheduler.py tests/test_package_di
 python examples/run_cad_diff_demo.py
 ```
 
-#### e. Chạy Kiểm toán Độc lập trên Workbook 14 Sheet Master (điểm tự chấm):
+#### e. Bóc Tách Hình Học CAD Mạng Lưới Thoát Nước Thải & Đối Soát Chéo (Cụm B9 Olympic):
+```powershell
+python examples/BOC_TACH_THOAT_NUOC_THAI_B9_CAD_TAKEOFF/generate_cad_takeoff_master.py
+```
+> - **Quy mô:** Quét trực tiếp 100% hình học từ bản vẽ CAD `261008.MB TNT LÔ B9.2-3-4.dwg` gồm **990 hố ga TB41** và **967 tuyến cống** (tổng chiều dài $22.016,90\text{ m}$).
+> - **Phát hiện bất thường (Red Flag):** Vạch trần toàn bộ 1.285 dimension bị gán hệ số `DIMLFAC = 0.8` (Line vẽ thật $23.8\text{m}$ nhưng Text ghi nhãn `D300-L19M`), phát hiện chênh lệch thiếu hụt lên tới **$4.466,45\text{ m}$ cống** ($20\%$). Ép bên Tư vấn Thiết kế phải cập nhật lại hồ sơ.
+> - **Sản phẩm bàn giao:** File Master Excel [Boc_Tach_Khoi_Luong_Cong_HoGa_B9_CAD_Master.xlsx](examples/BOC_TACH_THOAT_NUOC_THAI_B9_CAD_TAKEOFF/Boc_Tach_Khoi_Luong_Cong_HoGa_B9_CAD_Master.xlsx) 5 Sheets, 100% công thức sống, tích hợp đầy đủ tọa độ trắc địa VN-2000 (Trục X, Y) và 15 đầu việc BoQ chuẩn TT 36/2026/TT-BXD.
+> - Chi tiết toàn văn: Xem [Báo cáo Thực chiến Case Study](docs/CASE_STUDY_CAD_TAKEOFF_B9_THOAT_NUOC_THAI.md).
+
+#### f. Chạy Kiểm toán Độc lập trên Workbook 14 Sheet Master (điểm tự chấm):
 ```powershell
 python examples/run_pipeline.py
 ```
