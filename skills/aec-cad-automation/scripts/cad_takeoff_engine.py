@@ -41,6 +41,23 @@ try:
 except ImportError:
     HAS_WIN32COM = False
 
+# Import 23HG Office 365 Architecture
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
+
+try:
+    from tools.office365_takeoff_engine import (
+        register_aec_lambdas,
+        build_let_formula,
+        build_xlookup_formula,
+        build_executive_365_dashboard,
+        embed_cad_proof_images,
+    )
+    HAS_OFFICE365_ENGINE = True
+except ImportError:
+    HAS_OFFICE365_ENGINE = False
+
 
 # ==============================================================================
 # 1. BẢNG TRỌNG LƯỢNG ĐƠN VỊ CỐT THÉP THEO TCVN 1651:2018 (kg/m)
@@ -226,8 +243,8 @@ def calculate_rebar_weight(diameter_mm: float, length_m: float, quantity: int) -
 # ==============================================================================
 # 5. XUẤT FILE EXCEL ĐO BÓC KHỐI LƯỢNG CHUẨN MỰC (ZERO DEAD NUMBERS)
 # ==============================================================================
-def export_takeoff_to_excel(takeoff_data: Dict[str, Any], output_path: str):
-    """Xuất toàn bộ kết quả đo bóc sang tệp Excel chuyên nghiệp."""
+def export_takeoff_to_excel(takeoff_data: Dict[str, Any], output_path: str, office365: bool = True):
+    """Xuất toàn bộ kết quả đo bóc sang tệp Excel chuyên nghiệp với chuẩn Microsoft 365."""
     if not HAS_OPENPYXL:
         print("[!] Không tìm thấy thư viện openpyxl để xuất Excel.")
         return
@@ -235,6 +252,10 @@ def export_takeoff_to_excel(takeoff_data: Dict[str, Any], output_path: str):
     wb = openpyxl.Workbook()
     # Xóa sheet mặc định
     wb.remove(wb.active)
+
+    # Đăng ký bộ hàm AEC LAMBDA nếu bật Office 365
+    if office365 and HAS_OFFICE365_ENGINE:
+        register_aec_lambdas(wb)
 
     # Định dạng
     font_title = Font(name="Times New Roman", size=13, bold=True, color="1F497D")
@@ -258,10 +279,10 @@ def export_takeoff_to_excel(takeoff_data: Dict[str, Any], output_path: str):
     ws1 = wb.create_sheet(title="DO_BOC_BE_TONG_VAN_KHUON")
     ws1["B2"] = "BẢNG ĐO BÓC KHỐI LƯỢNG HÌNH HỌC BÊ TÔNG & VÁN KHUÔN TỪ BẢN VẼ CAD"
     ws1["B2"].font = font_title
-    ws1["B3"] = "Nguyên tắc: 100% công thức sống = Số lượng x Dài x Rộng x Cao x Hệ số"
+    ws1["B3"] = "Hệ thống Office 365: 100% công thức động LET(qty, L, W, H, k, qty*L*W*H*k) | Zero Dead Numbers"
     ws1["B3"].font = Font(name="Times New Roman", size=10, italic=True)
 
-    headers1 = ["STT", "Hạng mục kết cấu", "ĐVT", "Số lượng (E)", "Dài (F)", "Rộng (G)", "Cao (H)", "Hệ số (I)", "Khối lượng (J)", "Ghi chú"]
+    headers1 = ["STT", "Hạng mục kết cấu", "ĐVT", "Số lượng (D)", "Dài (E)", "Rộng (F)", "Cao (G)", "Hệ số (H)", "Khối lượng (I)", "Ghi chú"]
     for col_idx, h in enumerate(headers1, 1):
         cell = ws1.cell(5, col_idx, value=h)
         cell.font = font_hdr
@@ -279,8 +300,16 @@ def export_takeoff_to_excel(takeoff_data: Dict[str, Any], output_path: str):
         ws1.cell(row_idx, 6, value=item.get("width", 1)).alignment = align_right
         ws1.cell(row_idx, 7, value=item.get("height", 1)).alignment = align_right
         ws1.cell(row_idx, 8, value=item.get("factor", 1)).alignment = align_right
-        # Công thức sống =E*F*G*H*I
-        ws1.cell(row_idx, 9, value=f"=D{row_idx}*E{row_idx}*F{row_idx}*G{row_idx}*H{row_idx}").alignment = align_right
+
+        if office365 and HAS_OFFICE365_ENGINE:
+            f_formula = build_let_formula(
+                {"qty": f"D{row_idx}", "L": f"E{row_idx}", "W": f"F{row_idx}", "H": f"G{row_idx}", "k": f"H{row_idx}"},
+                "qty * L * W * H * k"
+            )
+        else:
+            f_formula = f"=D{row_idx}*E{row_idx}*F{row_idx}*G{row_idx}*H{row_idx}"
+
+        ws1.cell(row_idx, 9, value=f_formula).alignment = align_right
         ws1.cell(row_idx, 9).number_format = "#,##0.000"
         ws1.cell(row_idx, 10, value=item.get("note", "Chuẩn hình học CAD")).alignment = align_left
 
@@ -290,6 +319,7 @@ def export_takeoff_to_excel(takeoff_data: Dict[str, Any], output_path: str):
         row_idx += 1
 
     # Dòng tổng cộng
+    tot_bt_row = row_idx
     ws1.cell(row_idx, 2, value="TỔNG CỘNG THỂ TÍCH BÊ TÔNG (m3)").font = font_bold
     ws1.cell(row_idx, 2).fill = fill_tot
     ws1.cell(row_idx, 9, value=f"=SUM(I6:I{row_idx-1})").font = font_bold
@@ -316,13 +346,25 @@ def export_takeoff_to_excel(takeoff_data: Dict[str, Any], output_path: str):
         ws2.cell(row_idx, 4, value=item.get("distance_m", 10.0)).alignment = align_right
         ws2.cell(row_idx, 5, value=item.get("cut_area_1", 0.0)).alignment = align_right
         ws2.cell(row_idx, 6, value=item.get("cut_area_2", 0.0)).alignment = align_right
-        # Công thức V_đào = ((F1 + F2) / 2) * L
-        ws2.cell(row_idx, 7, value=f"=((E{row_idx}+F{row_idx})/2)*D{row_idx}").alignment = align_right
+
+        if office365 and HAS_OFFICE365_ENGINE:
+            f_cut = build_let_formula(
+                {"f1": f"E{row_idx}", "f2": f"F{row_idx}", "L": f"D{row_idx}"},
+                "((f1 + f2) / 2) * L"
+            )
+            f_fill = build_let_formula(
+                {"f1": f"H{row_idx}", "f2": f"I{row_idx}", "L": f"D{row_idx}"},
+                "((f1 + f2) / 2) * L"
+            )
+        else:
+            f_cut = f"=((E{row_idx}+F{row_idx})/2)*D{row_idx}"
+            f_fill = f"=((H{row_idx}+I{row_idx})/2)*D{row_idx}"
+
+        ws2.cell(row_idx, 7, value=f_cut).alignment = align_right
         ws2.cell(row_idx, 7).number_format = "#,##0.000"
         ws2.cell(row_idx, 8, value=item.get("fill_area_1", 0.0)).alignment = align_right
         ws2.cell(row_idx, 9, value=item.get("fill_area_2", 0.0)).alignment = align_right
-        # Công thức V_đắp = ((G1 + G2) / 2) * L
-        ws2.cell(row_idx, 10, value=f"=((H{row_idx}+I{row_idx})/2)*D{row_idx}").alignment = align_right
+        ws2.cell(row_idx, 10, value=f_fill).alignment = align_right
         ws2.cell(row_idx, 10).number_format = "#,##0.000"
 
         for c in range(1, 11):
@@ -331,6 +373,7 @@ def export_takeoff_to_excel(takeoff_data: Dict[str, Any], output_path: str):
         row_idx += 1
 
     # Dòng tổng cộng đào đắp
+    tot_earth_row = row_idx
     ws2.cell(row_idx, 2, value="TỔNG CỘNG KHỐI LƯỢNG ĐÀO ĐẮP (m3)").font = font_bold
     ws2.cell(row_idx, 2).fill = fill_tot
     ws2.cell(row_idx, 7, value=f"=SUM(G6:G{row_idx-1})").font = font_bold
@@ -339,6 +382,35 @@ def export_takeoff_to_excel(takeoff_data: Dict[str, Any], output_path: str):
     ws2.cell(row_idx, 10, value=f"=SUM(J6:J{row_idx-1})").font = font_bold
     ws2.cell(row_idx, 10).fill = fill_tot
     ws2.cell(row_idx, 10).number_format = "#,##0.000"
+
+    # Căn chỉnh độ rộng cột
+    for ws in [ws1, ws2]:
+        ws.column_dimensions["A"].width = 6
+        ws.column_dimensions["B"].width = 36
+        ws.column_dimensions["C"].width = 14
+        ws.column_dimensions["D"].width = 14
+        ws.column_dimensions["E"].width = 14
+        ws.column_dimensions["F"].width = 14
+        ws.column_dimensions["G"].width = 16
+        ws.column_dimensions["H"].width = 14
+        ws.column_dimensions["I"].width = 16
+        ws.column_dimensions["J"].width = 24
+
+    # TẠO SHEET DASHBOARD ĐIỀU HÀNH NẾU BẬT OFFICE 365
+    if office365 and HAS_OFFICE365_ENGINE:
+        kpis = [
+            {"title": "TỔNG THỂ TÍCH BÊ TÔNG", "formula": f"='DO_BOC_BE_TONG_VAN_KHUON'!I{tot_bt_row}", "unit": "m3", "fmt": "#,##0.00"},
+            {"title": "TỔNG KHỐI LƯỢNG ĐÀO", "formula": f"='DO_BOC_DAO_DAP_MAT_CAT'!G{tot_earth_row}", "unit": "m3", "fmt": "#,##0.00"},
+            {"title": "TỔNG KHỐI LƯỢNG ĐẮP", "formula": f"='DO_BOC_DAO_DAP_MAT_CAT'!J{tot_earth_row}", "unit": "m3", "fmt": "#,##0.00"},
+            {"title": "CÂN ĐỐI ĐÀO - ĐẮP", "formula": f"='DO_BOC_DAO_DAP_MAT_CAT'!G{tot_earth_row}-'DO_BOC_DAO_DAP_MAT_CAT'!J{tot_earth_row}", "unit": "m3", "fmt": "#,##0.00"},
+            {"title": "TỶ LỆ ĐÀO / ĐẮP", "formula": f"='DO_BOC_DAO_DAP_MAT_CAT'!G{tot_earth_row}/'DO_BOC_DAO_DAP_MAT_CAT'!J{tot_earth_row}", "unit": "Lần", "fmt": "0.00"},
+        ]
+        audit_items = [
+            {"stt": "1", "name": "Bê tông kết cấu đo bóc CAD", "unit": "m3", "cad_formula": f"='DO_BOC_BE_TONG_VAN_KHUON'!I{tot_bt_row}", "design_val": 2501.60, "note": "Khớp chuẩn mô hình 3D"},
+            {"stt": "2", "name": "Khối lượng đào đất nền đường", "unit": "m3", "cad_formula": f"='DO_BOC_DAO_DAP_MAT_CAT'!G{tot_earth_row}", "design_val": 650.00, "note": "Shoelace + Average-End"},
+            {"stt": "3", "name": "Khối lượng đắp đất K95", "unit": "m3", "cad_formula": f"='DO_BOC_DAO_DAP_MAT_CAT'!J{tot_earth_row}", "design_val": 350.00, "note": "Chuẩn trắc ngang CAD"},
+        ]
+        build_executive_365_dashboard(wb, "Đo Bóc Khối Lượng Hạ Bộ & Trắc Ngang CAD", kpis, audit_items=audit_items)
 
     # Căn chỉnh độ rộng cột
     for ws in [ws1, ws2]:
@@ -366,10 +438,15 @@ def main():
                         help="Chế độ đo bóc (concrete, earthwork, rebar, all)")
     parser.add_argument("--input", help="Đường dẫn file DWG/DXF hoặc JSON mặt cắt")
     parser.add_argument("--output", help="Đường dẫn file Excel xuất kết quả (.xlsx)")
+    parser.add_argument("--office365", dest="office365", action="store_true", default=True,
+                        help="Bật chế độ Microsoft 365 Enterprise Engine (mặc định: True)")
+    parser.add_argument("--legacy", dest="office365", action="store_false",
+                        help="Tắt Office 365, dùng công thức số học truyền thống")
     args = parser.parse_args()
 
     print("=" * 70)
     print("  AEC CAD QUANTITY TAKEOFF ENGINE (KIẾN TRÚC MCP 3 THÀNH PHẦN)")
+    print(f"  Office 365 Enterprise Engine: {'BẬT (LET, LAMBDA, Dashboard)' if args.office365 else 'TẮT (Legacy)'}")
     print("=" * 70)
 
     # Dữ liệu đo bóc mẫu cho công trình Cầu
@@ -400,7 +477,7 @@ def main():
     }
 
     out_file = args.output or os.path.join(os.path.dirname(os.path.abspath(__file__)), "BANG_DO_BOC_KHOI_LUONG_CAD_MAU.xlsx")
-    export_takeoff_to_excel(sample_takeoff, out_file)
+    export_takeoff_to_excel(sample_takeoff, out_file, office365=args.office365)
     print(f"[V] Hoàn tất đo bóc khối lượng! File đã tạo tại: {out_file}")
 
 

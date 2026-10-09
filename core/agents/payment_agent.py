@@ -140,8 +140,9 @@ class PaymentAgent(BaseAgent):
             },
         })
         if self.payment_out:
-            write_payment_workbook(self.payment_out, result, bus._state.project_name)
-            print(f"  [PaymentAgent] Đã xuất Mẫu 03a: {self.payment_out}")
+            bus.defer_legal_export(self.payment_out,
+                lambda path: write_payment_workbook(path, result, bus._state.project_name))
+            print(f"  [PaymentAgent] Mẫu 03a chờ duyệt trước khi xuất: {self.payment_out}")
         return True
 
 

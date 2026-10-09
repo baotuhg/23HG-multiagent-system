@@ -94,12 +94,11 @@ def main():
 
     # --- BƯỚC 5: TỔNG HỢP VÀO BLACKBOARD STATE (PROJECT_STATE.JSON) ---
     print("\n--- BƯỚC 5: TỔNG HỢP VÀO BLACKBOARD ARCHITECTURE (PROJECT_STATE.JSON) ---")
-    target_state = os.path.join(root_dir, "templates", "PROJECT_STATE.json")
-    state = aggregator.synthesize_to_project_state(design_base, target_state)
-    print(f"  -> Đã tổng hợp thành công Single Source of Truth:")
-    print(f"     * Thống kê thép BBS: {state['detailed_rebar_bbs_summary']['total_rebar_marks_count']} số hiệu thanh ({state['detailed_rebar_bbs_summary']['total_steel_and_cable_tons']:.3f} tấn)")
-    print(f"     * Bê tông các loại: {state['concrete_mix_design_summary']['total_concrete_volume_m3']:.3f} m3 ({state['concrete_mix_design_summary']['total_cement_pcb40_tons']:.2f} tấn Xi măng)")
-    print(f"     * Ma trận tần suất KCS: {state['qaqc_testing_frequency_summary']['total_mandatory_tests_and_samples']} tổ mẫu kiểm tra bắt buộc")
+    target_state = os.path.join(os.environ.get("AEC_STATE_DIR") or os.path.join(root_dir, ".aec_state"), "PROJECT_STATE.json")
+    state = aggregator.synthesize_to_project_state(design_base, target_state,
+        cad_data=cad_scan, office_data=wb_res, md_data=md_res)
+    print(f"  -> Đã lưu nguồn trích xuất: {target_state}")
+    print(f"  -> Đối chiếu: {state['meta']['cross_check_status']} ({state['meta']['checks_performed']} chỉ tiêu)")
 
     print("\n" + "=" * 80)
     print("  [V] HOÀN TẤT THU NHẬN & ĐỐI SOÁT ĐA PHƯƠNG THỨC 3 THÀNH PHẦN!")

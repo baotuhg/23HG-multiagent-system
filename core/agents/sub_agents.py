@@ -251,8 +251,8 @@ class QSAgent(BaseAgent):
 
         if self.qs_out:
             from tools.qs_export import write_gxd_workbook
-            write_gxd_workbook(self.qs_out, est)
-            print(f"  [QSAgent] Đã xuất bảng dự toán G_XD: {self.qs_out}")
+            bus.defer_legal_export(self.qs_out, lambda path: write_gxd_workbook(path, est))
+            print(f"  [QSAgent] Dự toán chờ duyệt trước khi xuất: {self.qs_out}")
         return True
 
 

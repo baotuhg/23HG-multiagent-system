@@ -134,15 +134,32 @@ class AECSupervisor:
             ProjectPhase.ASBUILT_LOOP,
             ProjectPhase.PAYMENT_03A,
         ]
-        run_phases = phases if phases else all_phases
+        run_phases = list(phases if phases else all_phases)
+        # Review final QS/payment results, including results produced after the old gate position.
+        needs_gate = ProjectPhase.HUMAN_GATE in run_phases
+        run_phases = [p for p in run_phases if p != ProjectPhase.HUMAN_GATE]
+        self.bus.discard_legal_exports()
 
         for phase in run_phases:
             success = self._run_phase(phase)
             if not success:
+                self.bus.discard_legal_exports()
                 self.bus.set_phase(ProjectPhase.ERROR)
                 print(f"\n  ✗ SUPERVISOR: Dừng tại phase {phase} — xem log để biết chi tiết")
                 self.bus.print_status_board()
                 return False
+
+        if needs_gate or self.bus.pending_legal_exports():
+            if not self._run_phase(ProjectPhase.HUMAN_GATE):
+                self.bus.discard_legal_exports()
+                self.bus.set_phase(ProjectPhase.ERROR)
+                return False
+        try:
+            self.bus.publish_legal_exports()
+        except Exception as exc:
+            self.bus.push_error(f"Không xuất được hồ sơ đã duyệt: {exc}")
+            self.bus.set_phase(ProjectPhase.ERROR)
+            return False
 
         self.bus.set_phase(ProjectPhase.COMPLETED)
         self.bus.print_status_board()
@@ -337,6 +354,8 @@ class AECSupervisor:
             "Phiếu thí nghiệm": (
                 "{total} phiếu — {pass} đạt / {fail} không đạt / {pending} chờ".format(**qaqc.lab_summary)
                 if getattr(qaqc, "lab_summary", None) else "Chưa đánh giá"),
+            "Thanh toán kỳ này (VNĐ)": getattr(qs, "payment_period_03a_vnd", 0),
+            "Tệp chờ xuất": self.bus.pending_legal_exports(),
             "Số lỗi hệ thống": len(errors),
         }
 

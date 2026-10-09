@@ -31,6 +31,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 try:
     import ifcopenshell
     import ifcopenshell.util.element
+    import ifcopenshell.util.unit
     HAS_IFCOPENSHELL = True
 except ImportError:
     HAS_IFCOPENSHELL = False
@@ -147,6 +148,8 @@ class IFCTakeoffResult:
         Chuyển đổi trực tiếp toàn bộ cốt thép trong mô hình IFC thành danh sách CutDemand
         để nạp thẳng vào Google OR-Tools Cutting Stock Solver (cắt cây nguyên 11.7m).
         """
+        if self.errors:
+            raise ValueError("IFC chưa đủ dữ liệu để cắt thép: " + "; ".join(self.errors))
         demands: List[CutDemand] = []
         for r in self.rebar_elements:
             if r.length_mm > 0 and r.quantity > 0 and r.diameter_mm > 0:
@@ -203,6 +206,10 @@ class IFCLoader:
         """Trích xuất khối lượng bằng thư viện chuẩn IfcOpenShell."""
         model = ifcopenshell.open(file_path)
         schema_version = getattr(model, "schema", "IFC4")
+        if ifcopenshell.util.unit.get_project_unit(model, "LENGTHUNIT") is None:
+            raise ValueError("IFC thiếu đơn vị LENGTHUNIT; không suy đoán mét/mm")
+        length_scale = ifcopenshell.util.unit.calculate_unit_scale(model, "LENGTHUNIT")
+
 
         # Lấy tên dự án
         project_name = "Dự án Hạ tầng OpenBIM"
@@ -219,7 +226,11 @@ class IFCLoader:
         # 1. BÓC TÁCH CẤU KIỆN BÊ TÔNG
         seen_concrete_ids = set()
         for c_type in self.CONCRETE_TYPES:
-            for elem in model.by_type(c_type):
+            try:
+                elements = model.by_type(c_type)
+            except RuntimeError:  # Entity không tồn tại trong schema này (vd IFC2X3).
+                continue
+            for elem in elements:
                 elem_id = str(elem.id())
                 if elem_id in seen_concrete_ids:
                     continue
@@ -227,9 +238,13 @@ class IFCLoader:
                 global_id = str(elem.GlobalId) if hasattr(elem, "GlobalId") else elem_id
                 name = str(elem.Name or f"{c_type}_{elem_id}")
 
-                volume_m3 = self._extract_element_volume(elem)
-                formwork_area_m2 = self._extract_element_area(elem)
+                volume_m3 = self._extract_quantity(elem, model, "IfcQuantityVolume", "VolumeValue", "VOLUMEUNIT")
+                formwork_area_m2 = self._extract_quantity(elem, model, "IfcQuantityArea", "AreaValue", "AREAUNIT")
+                if volume_m3 is None:
+                    result.errors.append(f"{name}: thiếu thể tích hoặc đơn vị thể tích đã khai báo")
+                    volume_m3 = 0.0
                 length_m, width_m, height_m = self._extract_element_dimensions(elem)
+                length_m, width_m, height_m = (v * length_scale for v in (length_m, width_m, height_m))
                 material = self._extract_material_name(elem)
 
                 # Xác định tầng / phân đoạn
@@ -248,7 +263,7 @@ class IFCLoader:
                         name=name,
                         ifc_type=c_type,
                         volume_m3=volume_m3,
-                        formwork_area_m2=formwork_area_m2,
+                        formwork_area_m2=formwork_area_m2 or 0.0,
                         length_m=length_m,
                         width_m=width_m,
                         height_m=height_m,
@@ -260,7 +275,11 @@ class IFCLoader:
         # 2. BÓC TÁCH CỐT THÉP 3D
         seen_rebar_ids = set()
         for r_type in self.REBAR_TYPES:
-            for r_elem in model.by_type(r_type):
+            try:
+                elements = model.by_type(r_type)
+            except RuntimeError:
+                continue
+            for r_elem in elements:
                 elem_id = str(r_elem.id())
                 if elem_id in seen_rebar_ids:
                     continue
@@ -271,25 +290,14 @@ class IFCLoader:
                 # Đường kính danh định Ø (mm)
                 dia = 0.0
                 if hasattr(r_elem, "NominalDiameter") and r_elem.NominalDiameter:
-                    dia = float(r_elem.NominalDiameter)
+                    dia = float(r_elem.NominalDiameter) * length_scale * 1000
                 elif hasattr(r_elem, "NominalBarDiameter") and r_elem.NominalBarDiameter:
-                    dia = float(r_elem.NominalBarDiameter)
-                else:
-                    # Parse từ Name (ví dụ D25, phi25, T25)
-                    match_dia = re.search(r"[DdØø](\d{1,2})", mark)
-                    if match_dia:
-                        dia = float(match_dia.group(1))
-
-                # Chiều dài thanh L (mm)
-                length_mm = 0.0
-                if hasattr(r_elem, "BarLength") and r_elem.BarLength:
-                    length_mm = float(r_elem.BarLength)
-                    if length_mm < 20.0:  # Nếu đơn vị là mét
-                        length_mm = length_mm * 1000.0
-                else:
-                    match_len = re.search(r"L\s*=\s*(\d+)", mark, re.IGNORECASE)
-                    if match_len:
-                        length_mm = float(match_len.group(1))
+                    dia = float(r_elem.NominalBarDiameter) * length_scale * 1000
+                # Không suy luận kích thước từ tên hay độ lớn của con số.
+                length_mm = float(getattr(r_elem, "BarLength", 0) or 0) * length_scale * 1000
+                if not all(math.isfinite(v) and v > 0 for v in (dia, length_mm)):
+                    result.errors.append(f"{mark}: thiếu/sai đường kính hoặc chiều dài thanh")
+                    continue
 
                 # Số lượng thanh
                 quantity = 1
@@ -316,45 +324,33 @@ class IFCLoader:
 
         return result
 
-    def _extract_element_volume(self, elem) -> float:
-        """Trích xuất thể tích từ Qto (Quantity Set) hoặc thuộc tính hình học."""
-        # 1. Tra cứu trong Qto / IfcElementQuantity
-        if hasattr(elem, "IsDefinedBy"):
-            for rel in elem.IsDefinedBy:
-                if rel.is_a("IfcRelDefinesByProperties"):
-                    prop_set = rel.RelatingPropertyDefinition
-                    if prop_set and prop_set.is_a("IfcElementQuantity"):
-                        for q in getattr(prop_set, "Quantities", []):
-                            if q.is_a("IfcQuantityVolume"):
-                                v = q.VolumeValue
-                                if v and v > 0:
-                                    return round(float(v), 3)
-
-        # 2. Dự phòng: Tra các thuộc tính Name có NetVolume / GrossVolume
-        try:
-            psets = ifcopenshell.util.element.get_psets(elem)
-            for pset_name, pset_data in psets.items():
-                for key in ["NetVolume", "GrossVolume", "Volume", "Thể tích"]:
-                    if key in pset_data and float(pset_data[key]) > 0:
-                        return round(float(pset_data[key]), 3)
-        except Exception:
-            pass
-
-        return 0.0
-
-    def _extract_element_area(self, elem) -> float:
-        """Trích xuất diện tích ván khuôn từ Qto (IfcQuantityArea)."""
-        if hasattr(elem, "IsDefinedBy"):
-            for rel in elem.IsDefinedBy:
-                if rel.is_a("IfcRelDefinesByProperties"):
-                    prop_set = rel.RelatingPropertyDefinition
-                    if prop_set and prop_set.is_a("IfcElementQuantity"):
-                        for q in getattr(prop_set, "Quantities", []):
-                            if q.is_a("IfcQuantityArea"):
-                                a = q.AreaValue
-                                if a and a > 0:
-                                    return round(float(a), 2)
-        return 0.0
+    @staticmethod
+    def _extract_quantity(elem, model, entity_type, value_attr, unit_type):
+        """Đổi Qto sang SI, tôn trọng cả đơn vị riêng của quantity."""
+        candidates = []
+        for rel in getattr(elem, "IsDefinedBy", ()):
+            if not rel.is_a("IfcRelDefinesByProperties"):
+                continue
+            pset = rel.RelatingPropertyDefinition
+            if not pset or not pset.is_a("IfcElementQuantity"):
+                continue
+            for q in pset.Quantities:
+                if not q.is_a(entity_type):
+                    continue
+                # Diện tích mặt bằng/diện tích sàn không phải diện tích ván khuôn.
+                name = str(q.Name or "").lower()
+                if unit_type == "AREAUNIT" and "formwork" not in name:
+                    continue
+                unit = q.Unit or ifcopenshell.util.unit.get_project_unit(model, unit_type)
+                if unit is None:
+                    continue
+                value = float(getattr(q, value_attr))
+                target = model.create_entity("IfcSIUnit", UnitType=unit_type,
+                    Name={"VOLUMEUNIT": "CUBIC_METRE", "AREAUNIT": "SQUARE_METRE"}[unit_type])
+                value = ifcopenshell.util.unit.convert_unit(value, unit, target)
+                if math.isfinite(value) and value >= 0:
+                    candidates.append((0 if name == "netvolume" else 1, value))
+        return min(candidates, key=lambda v: v[0])[1] if candidates else None
 
     def _extract_element_dimensions(self, elem) -> Tuple[float, float, float]:
         """Trích xuất kích thước Dài, Rộng, Cao."""
@@ -389,66 +385,8 @@ class IFCLoader:
         Bộ đọc ISO 10303-21 STEP thuần Python (Zero Dependency Fallback).
         Phân tích dòng văn bản tệp IFC để trích xuất cấu kiện và cốt thép khi không có C++ runtime.
         """
-        result = IFCTakeoffResult(
-            source_file=file_path,
-            schema_version="ISO-10303-21 (STEP Fallback)",
-            project_name="Dự án OpenBIM (Fallback)",
-        )
-
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-            content = f.read()
-
-        # Đọc Header tìm schema
-        schema_match = re.search(r"FILE_SCHEMA\s*\(\s*\(\s*'([^']+)'\s*\)\s*\)", content)
-        if schema_match:
-            result.schema_version = schema_match.group(1)
-
-        # Quét các dòng entity dạng: #123= IFCTYPE(...)
-        pattern = re.compile(r"#(\d+)\s*=\s*(IFC[A-Z0-9_]+)\s*\((.*?)\);", re.DOTALL)
-        for match in pattern.finditer(content):
-            ent_id = match.group(1)
-            ent_type = match.group(2).upper()
-            args_str = match.group(3)
-
-            # Cấu kiện Bê tông
-            if ent_type in [t.upper() for t in self.CONCRETE_TYPES]:
-                # Tách chuỗi tham số cơ bản
-                name_match = re.search(r"'([^']*)'", args_str)
-                name = name_match.group(1) if name_match else f"{ent_type}_{ent_id}"
-                result.concrete_elements.append(
-                    IFCConcreteElement(
-                        element_id=ent_id,
-                        global_id=f"STEP_{ent_id}",
-                        name=name,
-                        ifc_type=ent_type,
-                        volume_m3=1.0,  # Ước lượng mặc định khi parse thô
-                    )
-                )
-
-            # Cốt thép IfcReinforcingBar
-            elif ent_type in ["IFCREINFORCINGBAR", "IFCREINFORCINGELEMENT"]:
-                name_match = re.search(r"'([^']*)'", args_str)
-                name = name_match.group(1) if name_match else f"RB-{ent_id}"
-
-                # Quét số thực trong args tìm NominalDiameter và Length
-                floats = [float(x) for x in re.findall(r"[-+]?\d*\.\d+|\d+", args_str)]
-                dia = 16.0  # Mặc định
-                length = 11700.0  # Mặc định
-                for val in floats:
-                    if val in STANDARD_DIAMETERS:
-                        dia = val
-                    elif val > 100.0 and val <= 12000.0:
-                        length = val
-
-                result.rebar_elements.append(
-                    IFCRebarElement(
-                        element_id=ent_id,
-                        global_id=f"STEP_{ent_id}",
-                        mark=name,
-                        diameter_mm=dia,
-                        length_mm=length,
-                        quantity=1,
-                    )
-                )
-
-        return result
+        # Parser thô không đọc được UnitsInContext/Qto và quan hệ STEP một cách tin cậy.
+        # Trả lỗi có cấu trúc, tuyệt đối không tạo khối lượng hay thanh thép giả.
+        return IFCTakeoffResult(source_file=file_path, errors=[
+            "Không thể bóc IFC bằng parser dự phòng. Cần IfcOpenShell và mô hình hợp lệ có đơn vị/Qto."
+        ])

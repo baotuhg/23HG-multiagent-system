@@ -28,6 +28,7 @@ class StateBus:
     """
 
     def __init__(self, state: ProjectSharedState, persist_path: Optional[str] = None):
+        self._legal_exports = []
         self._state = state
         self._lock = threading.RLock()
         self._persist_path = persist_path  # JSON file để lưu trạng thái liên phiên
@@ -43,6 +44,38 @@ class StateBus:
     # ─────────────────────────────────────────────────────────────────────────
     # READ operations (thread-safe)
     # ─────────────────────────────────────────────────────────────────────────
+
+    def defer_legal_export(self, path, writer) -> None:
+        """Queue an in-memory result; no destination is written before approval."""
+        with self._lock:
+            self._legal_exports.append((os.path.abspath(path), writer))
+
+    def pending_legal_exports(self):
+        with self._lock:
+            return [path for path, _ in self._legal_exports]
+
+    def discard_legal_exports(self):
+        with self._lock:
+            self._legal_exports.clear()
+
+    def publish_legal_exports(self):
+        """Only the supervisor calls this after approval and successful phases."""
+        import tempfile
+        staged = []
+        try:
+            for path, writer in self._legal_exports:
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                fd, tmp = tempfile.mkstemp(suffix=".xlsx", dir=os.path.dirname(path))
+                os.close(fd)
+                staged.append((tmp, path))
+                writer(tmp)
+            for tmp, path in staged:
+                os.replace(tmp, path)
+        finally:
+            for tmp, _ in staged:
+                if os.path.exists(tmp):
+                    os.unlink(tmp)
+            self.discard_legal_exports()
 
     def get_phase(self) -> str:
         with self._lock:

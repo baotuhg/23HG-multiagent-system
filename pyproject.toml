@@ -21,6 +21,9 @@ classifiers = [
 ]
 dependencies = [
     "openpyxl>=3.1.5",
+    "xlrd>=2.0.1",
+    "python-dotenv>=1.0.0",
+    "lxml>=5.0.0",
     "python-docx>=1.2.0",
     "ezdxf>=1.4.0",
     "ifcopenshell>=0.9.0",
@@ -33,3 +36,20 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/baotuhg/23HG-multiagent-system"
 "Bug Tracker" = "https://github.com/baotuhg/23HG-multiagent-system/issues"
+
+[project.scripts]
+23hg-aec = "run_state_graph:main"
+
+[tool.setuptools]
+py-modules = ["run_state_graph"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*", "aec_core*", "tools*", "schemas*", "skills*", "data", "knowledge", "templates"]
+exclude = ["tests*", "examples*", "scratch*", "du_lieu_du_an*"]
+
+[tool.setuptools.package-data]
+data = ["*.json"]
+knowledge = ["*.json"]
+templates = ["*.csv", "*.json", "*.xlsx", "*.xml", "*.mpp", "*.docx", "*.md"]
+"*" = ["SKILL.md", "*.json"]

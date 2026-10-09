@@ -74,11 +74,22 @@ Agent có thể sử dụng các công cụ từ 2 kênh MCP:
 3. Tính trọng lượng cốt thép theo TCVN 1651:2018:
    $$W = L \times N \times \left(0.006165 \times d^2\right) \quad (\text{kg})$$
 
-### Bước 5: Xuất Bảng tính Excel Đo bóc Chuẩn hóa
-Gọi script động cơ đo bóc CAD chuyên dụng:
+### Bước 5: Xuất Bảng tính Excel Đo bóc Chuẩn hóa (Microsoft 365 Enterprise Engine)
+Gọi script động cơ đo bóc CAD chuyên dụng tích hợp chuẩn Office 365:
 ```bash
-python skills/aec-cad-automation/scripts/cad_takeoff_engine.py --mode all --output templates/BANG_DO_BOC_KHOI_LUONG_CAD.xlsx
+# Xuất với động cơ Office 365 hiện đại (LET, LAMBDA, 00_DASHBOARD_365)
+python skills/aec-cad-automation/scripts/cad_takeoff_engine.py --mode all --office365 --output templates/BANG_DO_BOC_KHOI_LUONG_CAD.xlsx
+
+# Xuất chế độ công thức truyền thống (Legacy)
+python skills/aec-cad-automation/scripts/cad_takeoff_engine.py --mode all --legacy --output templates/BANG_DO_BOC_KHOI_LUONG_CAD_LEGACY.xlsx
 ```
+
+**Tính năng Office 365 Enterprise tích hợp:**
+- **Custom AEC LAMBDAs:** Tự động đăng ký 8 hàm hình học (`V_PRISM`, `V_CYLINDER`, `V_FRUSTUM`, `S_FORMWORK_BOX`, `S_FORMWORK_TRI`, `STEEL_RATIO`, `V_AVERAGE_END`, `REBAR_WEIGHT`) vào Excel Name Manager.
+- **Mô hình hóa hàm `LET()`:** Tự diễn giải hình học qua tên biến rõ ràng, tối ưu hóa tốc độ và không lặp lại phép tính.
+- **Truy vấn liên sheet `XLOOKUP()`:** Khớp chuỗi ký tự đại diện wildcard (`"*...*"`), chống đứt gãy công thức khi chèn/xóa dòng.
+- **Trang bìa `00_DASHBOARD_365`:** Tự động tạo 5 thẻ KPI điều hành thời gian thực và Bảng kiểm toán đối soát chéo (Audit Reconciliation Grid) với hồ sơ duyệt.
+- **Visual Proof Anchoring:** Chèn trực tiếp ảnh trích xuất từ bản vẽ CAD vào bảng tính để làm minh chứng đối soát.
 
 ---
 

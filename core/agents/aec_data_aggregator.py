@@ -38,90 +38,51 @@ class AECDataAggregator:
         print(f"[{self.name}] Bắt đầu đối chiếu chéo dữ liệu đa phương thức (Cross-modal Reconciliation)...")
         discrepancies = []
 
-        # 1. Đối chiếu số lượng cọc khoan nhồi
-        piles_md = md_data.get("technical_specs", {}).get("key_parameters", {}).get("piles_count")
-        piles_cad = cad_data.get("summary_quantities", {}).get("piles_d1200_count")
-
-        if piles_md and piles_cad and piles_md != piles_cad:
-            discrepancies.append({
-                "parameter": "Số lượng cọc khoan nhồi D1200",
-                "severity": "WARNING",
-                "source_markdown": piles_md,
-                "source_cad": piles_cad,
-                "resolution": "Lấy theo Bảng tính Khối lượng tổng hợp đã được Chủ đầu tư duyệt"
-            })
-
-        # 2. Đối chiếu sơ đồ nhịp
-        span_md = md_data.get("technical_specs", {}).get("key_parameters", {}).get("span_schema")
-        span_cad = cad_data.get("summary_quantities", {}).get("span_length_m")
-        print(f"  -> Sơ đồ nhịp trích xuất từ Markdown: {span_md}")
-        print(f"  -> Chiều dài dầm trích xuất từ CAD: {span_cad}m")
+        cad = cad_data.get("summary_quantities", {})
+        md = md_data.get("technical_specs", {}).get("key_parameters", {})
+        self.checks_performed = 0
+        piles_md, piles_cad = md.get("piles_count"), cad.get("piles_d1200_count")
+        if piles_md is not None and piles_cad is not None:
+            self.checks_performed += 1
+            if piles_md != piles_cad:
+                discrepancies.append({"parameter": "Số lượng cọc khoan nhồi D1200",
+                    "severity": "WARNING", "source_markdown": piles_md, "source_cad": piles_cad,
+                    "resolution": "Cần kỹ sư đối chiếu nguồn đã duyệt"})
 
         self.discrepancies = discrepancies
         if not discrepancies:
-            print(f"[{self.name}] [V] Đối chiếu hoàn tất: 100% số liệu KHỚP CHUẨN, KHÔNG CÓ XUNG ĐỘT!")
+            print(f"[{self.name}] Đã đối chiếu {self.checks_performed} chỉ tiêu; các chỉ tiêu khác chưa kiểm tra.")
         else:
             print(f"[{self.name}] [!] Phát hiện {len(discrepancies)} điểm cần rà soát!")
 
         return discrepancies
 
-    def synthesize_to_project_state(self, project_dir: str, output_state_path: str = None) -> Dict[str, Any]:
-        """Tổng hợp toàn bộ dữ liệu vào Blackboard State chuẩn hóa."""
-        print(f"[{self.name}] Đang tổng hợp dữ liệu dự án từ: {project_dir}")
-
+    def synthesize_to_project_state(self, project_dir: str, output_state_path: str = None,
+                                    *, cad_data=None, office_data=None, md_data=None) -> Dict[str, Any]:
+        """Lưu dữ liệu đã trích xuất và phạm vi đối chiếu; không tạo số liệu thay thế."""
+        from copy import deepcopy
+        if not os.path.isdir(project_dir):
+            raise ValueError(f"Không tìm thấy thư mục dự án: {project_dir}")
+        sources = {"cad": cad_data, "office": office_data, "markdown": md_data}
+        if not any(sources.values()):
+            raise ValueError("Chưa có dữ liệu đã trích xuất để hợp nhất; cần CAD/Office/Markdown thật")
+        if any(v is not None and not isinstance(v, dict) for v in sources.values()):
+            raise ValueError("Dữ liệu trích xuất phải là dictionary")
+        discrepancies = self.reconcile_sources(cad_data or {}, office_data or {}, md_data or {})
+        status = "MISMATCH" if discrepancies else ("MATCHED_CHECKED_FIELDS" if self.checks_performed else "NOT_CHECKED")
         state = {
-            "meta": {
-                "version": "2.2.0",
-                "system": "AEC Master Multi-Agent Architecture",
-                "ingestion_engine": "Multi-Modal Ingestion & Cross-Modal Fusion",
-                "cross_check_status": "PASSED (Zero Discrepancies)"
-            },
-            "project_identity": {
-                "project_name": "Cao tốc Tuyên Quang - Hà Giang (Giai đoạn 1)",
-                "structure_name": "CẦU KM19+529.080",
-                "span_schema": "39.1m + 40.0m + 39.1m (Tổng nhịp 118.2m)",
-                "total_girders": 15,
-                "girder_type": "Dầm Super-T BTCT DƯL đúc sẵn L=38.2m",
-                "total_bored_piles": 26
-            },
-            "detailed_rebar_bbs_summary": {
-                "total_rebar_marks_count": 390,
-                "total_steel_and_cable_tons": 883.902,
-                "group_D_le_10mm_tons": 12.187,
-                "group_10_lt_D_le_18mm_tons": 458.566,
-                "group_D_gt_18mm_tons": 385.365,
-                "group_strand_15_2mm_tons": 27.784,
-                "standard": "TCVN 1651:2018 / ASTM A416 Grade 270"
-            },
-            "concrete_mix_design_summary": {
-                "total_concrete_volume_m3": 3460.667,
-                "total_cement_pcb40_tons": 1406.26,
-                "total_sand_gold_m3": 1565.06,
-                "total_crushed_stone_1x2_m3": 2925.37,
-                "total_water_m3": 595.48,
-                "total_admixture_liters": 13804.9,
-                "grades": ["C10", "C25", "C30_Tremie", "C30_Substructure", "C35_Superstructure", "C45_Precast_SuperT", "C40_Non_Shrink"]
-            },
-            "qaqc_testing_frequency_summary": {
-                "total_mandatory_tests_and_samples": 809,
-                "rebar_tensile_and_bending_tests": 16,
-                "cement_chemical_physical_tests": 15,
-                "sand_aggregate_tests": 8,
-                "crushed_stone_tests": 15,
-                "slump_tests_on_site": 432,
-                "concrete_cube_compressive_samples": 163,
-                "sonic_logging_cross_sections_D1200": 156,
-                "high_strain_dynamic_pda_tests": 1,
-                "pile_coring_inspection_tests": 4
-            }
+            "meta": {"version": "3.0.0", "source_dir": os.path.abspath(project_dir),
+                     "cross_check_status": status, "checks_performed": self.checks_performed,
+                     "unchecked": "Chỉ đối chiếu số lượng cọc khi cả CAD và Markdown có dữ liệu"},
+            "sources": deepcopy({k: v for k, v in sources.items() if v is not None}),
+            "discrepancies": deepcopy(discrepancies),
         }
-
-        self.canonical_state = state
-
         if output_state_path:
-            os.makedirs(os.path.dirname(output_state_path), exist_ok=True)
-            with open(output_state_path, "w", encoding="utf-8") as f:
+            target = os.path.abspath(output_state_path)
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            tmp = f"{target}.{os.getpid()}.tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
                 json.dump(state, f, ensure_ascii=False, indent=2)
-            print(f"[{self.name}] [V] Đã lưu Blackboard State tại: {output_state_path}")
-
+            os.replace(tmp, target)
+        self.canonical_state = state
         return state

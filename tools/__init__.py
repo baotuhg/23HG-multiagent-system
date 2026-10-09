@@ -33,6 +33,14 @@ from tools.civil_and_bridge_takeoff_engine import (
     SteelBridgeGirderSegment,
     SteelBridgeGirderEngine,
 )
+from tools.office365_takeoff_engine import (
+    AEC_LAMBDA_DEFINITIONS,
+    register_aec_lambdas,
+    build_let_formula,
+    build_xlookup_formula,
+    build_executive_365_dashboard,
+    embed_cad_proof_images,
+)
 
 __all__ = [
     "EquipmentFleetScheduler",
@@ -59,4 +67,10 @@ __all__ = [
     "BridgeSuperstructureEngine",
     "SteelBridgeGirderSegment",
     "SteelBridgeGirderEngine",
+    "AEC_LAMBDA_DEFINITIONS",
+    "register_aec_lambdas",
+    "build_let_formula",
+    "build_xlookup_formula",
+    "build_executive_365_dashboard",
+    "embed_cad_proof_images",
 ]

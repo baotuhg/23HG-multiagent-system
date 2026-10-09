@@ -1,3 +1,5 @@
+import argparse
+from pathlib import Path
 import os
 import sys
 import re
@@ -9,8 +11,13 @@ from openpyxl.utils import get_column_letter
 
 print("=== STARTING MASTER CAD TAKEOFF EXCEL GENERATOR (WITH FULL X-Y AXES) ===", flush=True)
 
+parser = argparse.ArgumentParser(description="Tạo Master CAD takeoff B9 từ CSV")
+parser.add_argument("--input-dir", type=Path, default=Path(__file__).resolve().parent)
+parser.add_argument("--output", type=Path, required=True, help="Đường dẫn workbook đầu ra")
+args = parser.parse_args()
+
 # 1. LOAD CAD DATA
-df_blocks = pd.read_csv(r'C:\Users\baotu\Downloads\cad_blocks.csv', on_bad_lines='skip')
+df_blocks = pd.read_csv(args.input_dir / 'cad_blocks.csv')
 tengas = df_blocks[df_blocks['BlockName'].isin(['TengaK', 'XR TNT$0$Xr-TNT-Khai$0$xr COT$0$TN-TENGA5'])].copy().reset_index(drop=True)
 
 def parse_attrs(s):
@@ -102,7 +109,7 @@ df_manholes = pd.DataFrame(manholes)
 print(f"Total Manholes: {len(df_manholes)}")
 
 # 2. LOAD CULVERTS
-df_p = pd.read_csv(r'C:\Users\baotu\Downloads\cad_pline_coords.csv')
+df_p = pd.read_csv(args.input_dir / 'cad_pline_coords.csv')
 d800_cross = df_p[df_p['Layer'] == 'dim 800 ngang duong'].copy().reset_index(drop=True)
 d300_cross = df_p[df_p['Layer'] == 'dim 300 ngang duong'].copy().reset_index(drop=True)
 d300_he = df_p[df_p['Layer'].str.contains('HTKT_TN_D300', regex=False)].copy().reset_index(drop=True)
@@ -1304,8 +1311,8 @@ ws5.column_dimensions["Q"].width = 14
 ws5.column_dimensions["R"].width = 16
 
 # Save in folder
-target_folder = r"C:\Users\baotu\Downloads\261008.MB TNT LÔ B9.2-3-4 Layout1 (12)_Marker"
-out_excel = os.path.join(target_folder, "Boc_Tach_Khoi_Luong_Cong_HoGa_B9_CAD_Master.xlsx")
+out_excel = args.output
+out_excel.parent.mkdir(parents=True, exist_ok=True)
 wb.save(out_excel)
 
 print(f"SUCCESS: Saved Master Excel with Full Trục X-Y to:\n{out_excel}", flush=True)
