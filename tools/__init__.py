@@ -41,6 +41,8 @@ from tools.office365_takeoff_engine import (
     build_executive_365_dashboard,
     embed_cad_proof_images,
 )
+from tools.sync_project_experience import sync_all_historical_experiences
+
 
 __all__ = [
     "EquipmentFleetScheduler",
@@ -73,4 +75,5 @@ __all__ = [
     "build_xlookup_formula",
     "build_executive_365_dashboard",
     "embed_cad_proof_images",
+    "sync_all_historical_experiences",
 ]

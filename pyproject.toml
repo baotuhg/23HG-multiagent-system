@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "23hg-multiagent-system"
-version = "3.0.0"
+version = "3.1.0"
 authors = [
   { name="Nguyễn Bảo Tú (@baotuhg)", email="137134098+baotuhg@users.noreply.github.com" },
 ]
-description = "Autonomous Closed-Loop Multi-Agent System for Civil Engineering (State Graph, AI Supervisor, OR-Tools Rebar, CPM, QA/QC Lab Link & As-Built Loop)"
+description = "Autonomous Closed-Loop Multi-Agent System for Civil Engineering (Office 365 Dynamic Engine, State Graph, AI Supervisor, OR-Tools Rebar, CPM, QA/QC Lab Link & As-Built Loop)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -39,6 +39,8 @@ dependencies = [
 
 [project.scripts]
 23hg-aec = "run_state_graph:main"
+23hg-sync-xp = "tools.sync_project_experience:sync_all_historical_experiences"
+
 
 [tool.setuptools]
 py-modules = ["run_state_graph"]

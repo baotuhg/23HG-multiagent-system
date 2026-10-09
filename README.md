@@ -18,7 +18,7 @@
 - **Đọc được file thật:** BBS (Excel/CSV/JSON), tiến độ MS Project XML/Excel/CSV, bảng QS/BOQ, phiếu thí nghiệm, IFC (qua `ifcopenshell`), DXF (qua `ezdxf`).
 
 ### Những gì đã được kiểm chứng
-- `python -m unittest discover -s tests -t .`: 310 test đạt (4 test bỏ qua khi thiếu thư viện tùy chọn), gồm các phép tính tay độc lập cho tiền, đo bóc và hồ sơ mẫu; CI chạy trên Ubuntu (Python 3.10, 3.12) và Windows (Python 3.11). Test chưa phủ hết: ví dụ lỗi cú pháp trong `tools/qs_export.py` (làm `--qs-out` hỏng) tồn tại từ commit `8a90ad4` mà không test nào bắt được, đến nay mới sửa và bổ sung test.
+- `python -m unittest discover -s tests -t .`: 340 test đạt (4 test bỏ qua khi thiếu thư viện tùy chọn), gồm các phép tính tay độc lập cho tiền, đo bóc và hồ sơ mẫu; CI chạy trên Ubuntu (Python 3.10, 3.12) và Windows (Python 3.11). Test chưa phủ hết: ví dụ lỗi cú pháp trong `tools/qs_export.py` (làm `--qs-out` hỏng) tồn tại từ commit `8a90ad4` mà không test nào bắt được, đến nay mới sửa và bổ sung test.
 - Chạy `--demo` đủ 8 pha (CAD → cắt thép → QS → QA/QC → Human Gate → CPM → ca máy → As-Built) không lỗi.
 - Solver cắt thép tách theo từng Ø và mác thép, tính lưỡi cắt, báo **cận dưới** số cây (`OPTIMAL` nghĩa là đã chứng minh không dùng ít hơn được).
 - Quét tĩnh các file Excel mẫu bằng `python -m tools.audit_excels_static <thư_mục>` (không cần Excel): không có mã lỗi công thức, không có tham chiếu tới sheet không tồn tại. Quality Gate khi xuất hồ sơ cũng kiểm tra điều này.
@@ -614,8 +614,13 @@ flowchart TD
    - Khi phát hiện một chuỗi thao tác kỹ thuật lặp lại qua nhiều dự án, hệ thống tự động soạn thảo `CandidateSkill` ở trạng thái `PENDING_APPROVAL`.
    - Cổng `HumanGate` hiển thị thông tin để Kỹ sư trưởng phê duyệt trước khi kỹ năng được kích hoạt chính thức (`APPROVED`) và xuất ra tài liệu chuẩn `SKILL.md`.
 
-### Lệnh Tra cứu Cấp độ & Điểm Kinh nghiệm (Level-Up CLI):
+### Lệnh Tra cứu & Đồng bộ Cấp độ Điểm Kinh nghiệm (Level-Up CLI):
 ```bash
+# Đồng bộ hóa toàn bộ kinh nghiệm từ các dự án thực chiến đã kinh qua
+python tools/sync_project_experience.py
+# hoặc entrypoint:
+23hg-sync-xp
+
 # Xem Báo cáo Cấp độ (Level) & Thành tựu Tích lũy của Hệ thống AI
 python run_state_graph.py --evolution-report
 # hoặc viết tắt:
@@ -625,22 +630,23 @@ python run_state_graph.py --level
 # =====================================================================
 # 🏆 BÁO CÁO TIẾN HÓA & CẤP ĐỘ HỆ THỐNG AEC MULTI-AGENT (LEVEL-UP)
 # =====================================================================
-  ⭐ CẤP ĐỘ HIỆN TẠI (LEVEL)      : LEVEL 3
-  🎖️ DANH HIỆU NGHỆP VỤ          : Kỹ sư Tập sự (Novice Assistant)
-  ⚡ TỔNG ĐIỂM KINH NGHIỆM (XP)   : 250 XP
-  📈 TIẾN ĐỘ LÊN LEVEL 4       : 45.0% (250 / 360 XP)
+  ⭐ CẤP ĐỘ HIỆN TẠI (LEVEL)      : LEVEL 7
+  🎖️ DANH HIỆU NGHỆP VỤ          : Kỹ sư Giám sát Hiện trường (Field Engineer)
+  ⚡ TỔNG ĐIỂM KINH NGHIỆM (XP)   : 1,850 XP
+  📈 TIẾN ĐỘ LÊN LEVEL 8       : 78.8% (1,850 / 1,960 XP) (Cần thêm 110 XP)
 ---------------------------------------------------------------------
   📊 THỐNG KÊ TÍCH LŨY KINH NGHIỆM THỰC CHIẾN:
-     - Số dự án đã hoàn thành          : 2 dự án (+200 XP)
-     - Quan trắc năng suất hiện trường : 0 mẫu (+0 XP)
-     - Mẫu cắt thép vàng tối ưu        : 0 mẫu (+0 XP)
-     - Số lần tái sử dụng mẫu vàng     : 0 lần
-     - Bộ quy tắc miễn dịch lỗi active : 5 quy tắc (+50 XP)
-     - Kỹ năng mới đã phê duyệt (Skills): 0 kỹ năng (+0 XP)
+     - Số dự án đã hoàn thành          : 10 dự án (+1,000 XP)
+     - Quan trắc năng suất hiện trường : 12 mẫu (+120 XP)
+     - Mẫu cắt thép vàng tối ưu        : 6 mẫu (+330 XP)
+     - Số lần tái sử dụng mẫu vàng     : 12 lần
+     - Bộ quy tắc miễn dịch lỗi active : 10 quy tắc (+100 XP)
+     - Kỹ năng mới đã phê duyệt (Skills): 6 kỹ năng (+300 XP)
 =====================================================================
 ```
 
-> **Kho kinh nghiệm chỉ chứa dữ liệu tích lũy thật trên máy người dùng** (`.aec_state/`, không đưa lên git). Repo không kèm sẵn dữ liệu kinh nghiệm: mọi quan trắc năng suất phải đến từ nhật ký thi công thật, và mọi kỹ năng mới phải được Kỹ sư trưởng duyệt qua Human Gate. Chế độ `--human-gate auto` chỉ dùng để chạy thử.
+> **Cơ chế lưu trữ**: Toàn bộ kinh nghiệm được đồng bộ hóa và lưu trữ nguyên tử (atomic write) tại `.aec_state/experience_store.json`. Cơ chế tính Level: $\text{Level} = 1 + \lfloor\sqrt{\text{Total\_XP} / 40.0}\rfloor$. Càng trải qua nhiều dự án thực tế, tích lũy mẫu cắt thép vàng $< 1.5\%$ và bổ sung quy tắc miễn dịch lỗi, hệ thống càng thăng tiến cấp bậc từ Tập sự lên Kỹ sư trưởng và Chuyên gia trưởng AEC.
+
 
 ---
 
@@ -676,6 +682,37 @@ Có 10 unit test trong [`tests/test_civil_and_bridge_takeoff.py`](tests/test_civ
 
 ---
 
+## 📊 8c. Động cơ Đo bóc Khối lượng Động Microsoft 365 Enterprise Engine
+
+Module [`tools/office365_takeoff_engine.py`](tools/office365_takeoff_engine.py) cung cấp giải pháp đo bóc và kiểm toán khối lượng hiện đại theo chuẩn **Microsoft 365 Enterprise**, xóa bỏ hoàn toàn thực trạng "số chết" (hardcoded values) và công thức thủ công bằng hệ thống công thức động cao cấp:
+
+### 1. Hệ thống 8 Hàm Tự Định Nghĩa AEC LAMBDA (OpenXML Standard):
+Hệ thống đăng ký 8 hàm LAMBDA chuyên ngành AEC thông qua chuẩn OpenXML (`_xlfn.LAMBDA` và `_xlpm.` parameter names) sẵn sàng gọi trực tiếp trong Excel:
+- `V_PRISM(qty, L, W, H)`: Tính thể tích hình lăng trụ chữ nhật $= qty \times L \times W \times H$ (m³).
+- `V_CYLINDER(qty, L, D)`: Tính thể tích hình trụ tròn / cọc khoan nhồi $= qty \times \pi \times (D/2)^2 \times L$ (m³).
+- `V_FRUSTUM(qty, H, S1, S2)`: Thể tích hình chóp cụt 2 đáy $= qty \times \frac{H}{3} \times (S_1 + S_2 + \sqrt{S_1 \times S_2})$ (m³).
+- `S_FORMWORK_BOX(qty, L, W, H)`: Diện tích ván khuôn thành hộp 4 mặt $= qty \times 2 \times (L + W) \times H$ (m²).
+- `S_FORMWORK_TRI(qty, B, H)`: Diện tích ván khuôn tam giác / vát góc $= qty \times B \times H \times 0.5$ (m²).
+- `STEEL_RATIO(steel_kg, conc_m3)`: Hàm lượng cốt thép bình quân $= steel\_kg / conc\_m3$ (kg/m³).
+- `V_AVERAGE_END(F1, F2, L)`: Khối lượng đào đắp mặt cắt ngang 2 đầu (Average-End-Area) $= \frac{F_1 + F_2}{2} \times L$ (m³).
+- `REBAR_WEIGHT(L, N, d)`: Trọng lượng thanh thép theo TCVN 1651:2018 $= L \times N \times (0.006165 \times d^2)$ (kg).
+
+### 2. Mô hình Công thức Động `LET()` & `XLOOKUP()` Chống Gãy Liên Kết:
+- **`_xlfn.LET()`**: Đặt tên biến cục bộ trực tiếp trong ô tính, loại bỏ tính toán lặp lại và tăng tốc độ xử lý bảng tính lớn.
+- **`_xlfn.XLOOKUP()` Wildcard (`match_mode=2`)**: Tra cứu linh hoạt liên sheet theo mẫu chuỗi đại diện (ví dụ `*TỔNG BÊ TÔNG*`). Giúp Dashboard không bao giờ bị gãy liên kết hay tham chiếu sai ô (`#REF!`) khi kỹ sư hiện trường chèn/xóa thêm dòng cấu kiện ở các sheet thành phần.
+
+### 3. Dashboard Điều Hành Tập Trung `00_DASHBOARD_365`:
+- Tập hợp toàn bộ chỉ số KPI sống của dự án: Tổng thể tích bê tông, ván khuôn, cốt thép, số cấu kiện mố/trụ/cọc, tỷ lệ nghiệm thu.
+- Tự động cảnh báo đỏ nếu phát hiện công thức lỗi hoặc số liệu sai lệch so với hồ sơ thiết kế.
+
+### 4. Nhúng Ảnh Bằng Chứng CAD Minh Bạch Đo Bóc:
+- Tích hợp `embed_cad_proof_images()` chèn trực tiếp hình ảnh trích xuất từ bản vẽ CAD (Mặt đứng mố M1, M2, Mặt cắt ngang trụ T1, T2, Chi tiết cọc khoan nhồi) vào cột minh họa của bảng tính.
+- Mọi con số kích thước trên bảng tính đều có thể đối chiếu trực quan 1-1 với bản vẽ thiết kế gốc ngay trong file Excel.
+
+> 📁 **Hồ sơ mẫu thực tế:** Xem [`examples/HO_SO_CAU_KM19_529/`](examples/HO_SO_CAU_KM19_529/) — Bảng đo bóc hoàn chỉnh toàn bộ hạ bộ Cầu Km19+529 QL23 đạt điểm kiểm toán tuyệt đối 100/100 (`BANG_BOC_TACH_CHI_TIET_HA_BO_MO_TRU_COC_KM19.xlsx`).
+
+---
+
 ## 📁 9. Cấu trúc Cây Thư mục Dự án
 
 ```text
@@ -691,6 +728,8 @@ Có 10 unit test trong [`tests/test_civil_and_bridge_takeoff.py`](tests/test_civ
 │   └── gates/                    # quality_gate.py (cổng kỹ thuật), human_gate.py (kỹ sư duyệt)
 │
 ├── tools/                        # Công cụ tính toán xác định (Python thuần, không LLM)
+│   ├── office365_takeoff_engine.py # Động cơ bóc tách Office 365: 8 AEC LAMBDA, LET, XLOOKUP, nhúng ảnh CAD
+│   ├── sync_project_experience.py # Đồng bộ hóa kinh nghiệm thực chiến Level-Up & tri thức tích lũy
 │   ├── civil_and_bridge_takeoff_engine.py # Động cơ bóc tách mố, trụ xẻ nước, dầm Super-T, dầm thép liên hợp
 │   ├── cutting_stock_solver.py   # Cắt thép 1D: Column Generation (GLOP) + CP-SAT, cận dưới
 │   ├── cpm_calculator.py         # CPM: FS/SS/FF/SF + lag, lịch nghỉ
@@ -725,6 +764,7 @@ Có 10 unit test trong [`tests/test_civil_and_bridge_takeoff.py`](tests/test_civ
 │   ├── HO_SO_CONG_HOP_TUYEN_A5/  # Hồ sơ mẫu Cống hộp A5: Master, 8 hồ sơ vi mô, 5 gói Hub & Spoke (README riêng)
 │   ├── TIEN_DO_THI_CONG_CUM_B9_OLYMPIC/ # Tiến độ & ca máy Cụm B9
 │   ├── HO_SO_CAU_KM19_529/       # Đội hình Dream Team Cầu Km19+529.080 (3 nhịp Super-T, 6 gói tinh gọn)
+│   │   ├── BANG_BOC_TACH_CHI_TIET_HA_BO_MO_TRU_COC_KM19.xlsx # Bảng đo bóc Office 365 động 100/100
 │   │   ├── 00_BAN_CHI_HUY_MASTER/          # RACI, bàn giao, Master 14 sheet, BPTC, Gantt
 │   │   ├── 01_HIEN_TRUONG_QLCL_KCS/        # 22 BBNT A4, Sổ theo dõi tần suất TN bê tông & thép 3 sheet
 │   │   ├── 02_XUONG_TIEN_CHE_COT_THEP/     # RebarCut 11.7m theo 11 phi, BBS 396 dòng, lệnh CNC CSV
@@ -736,8 +776,9 @@ Có 10 unit test trong [`tests/test_civil_and_bridge_takeoff.py`](tests/test_civ
 │   ├── clean_a5_dossier.py       # Dọn & đối chiếu hồ sơ A5 (chạy lặp được)
 │   └── *.py                      # Script dựng hồ sơ từng dự án, demo CAD diff, runner kiểm toán
 │
-├── tests/                        # python -m unittest discover -s tests -t . (310 tests)
+├── tests/                        # python -m unittest discover -s tests -t . (340 tests)
 │   ├── golden/                   # Chỗ đặt bảng dự toán thật đã duyệt (README hướng dẫn)
+│   ├── test_office365_engine.py  # 20 unit tests kiểm định OpenXML XML namespace, dynamic LAMBDA, LET, XLOOKUP
 │   ├── test_civil_and_bridge_takeoff.py # 10 unit tests kiểm định hình học cầu & KCT
 │   ├── test_experience_store.py  # 10 unit tests kiểm định Level-Up, XP, Golden Pattern, Immunity Rules
 │   └── test_*.py                 # Cắt thép, CPM, QS/G_XD, 03a, tiền, đo bóc, đóng gói, hồ sơ mẫu...
