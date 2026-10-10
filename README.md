@@ -28,7 +28,7 @@
 - **Chưa thay thế kỹ sư.** Kết quả dự toán, thanh toán và hồ sơ nghiệm thu phải được kỹ sư QS/QLCL rà soát trước khi dùng cho hồ sơ pháp lý. Các căn cứ pháp lý và công thức nêu trong tài liệu là tham chiếu của tác giả, chưa qua thẩm định độc lập.
 - **"Điểm Audit 100/100" do chính hệ thống tự chấm**, không phải đánh giá độc lập; các kiểm tra Excel ở đây là kiểm tra tĩnh, chưa đối chiếu bằng Microsoft Excel hay MS Project thật.
 - **Một số phần mới ở mức nguyên mẫu:** Thuyết minh BPTC hiện là mẫu viết sẵn (chưa có RAG); So sánh phiên bản CAD mới đọc được dữ liệu cấu kiện/diện tích đa tuyến khép kín; bóc tách sơ bộ cầu (mục 8b) chưa đối chiếu bản vẽ thật; chưa có giao diện Web/Mobile hay ký số.
-- **Lỗi đã biết:** `--phase fleet` / `--phase dispatch` có trong `--help` nhưng Supervisor chưa xử lý (dừng với "Phase không xác định").
+- **Ca máy và đóng gói:** dùng API `tools.equipment_fleet_scheduler` và tùy chọn `--export-all`; `fleet` / `dispatch` chưa là pha của Supervisor nên không được đưa vào `--phase`.
 - **Hồ sơ mẫu chưa hoàn chỉnh:** Cống A5 có 8/14 hồ sơ vi mô (6 sheet trong Master ghi "CHƯA LẬP"); số liệu đầu vào là số nhập, còn sai khác cốt thép +14,4% chờ kỹ sư QS — xem `examples/HO_SO_CONG_HOP_TUYEN_A5/README.md`. Các bản sao giữa các gói là chủ ý và được test kiểm tra không lệch nhau. Phần "Tự tiến hóa" (`aec_core/experience_store.py`) là kho kinh nghiệm hiệu chuẩn định mức/mẫu cắt thép, không phải học máy.
 
 ### Căn cứ tham chiếu (cần kỹ sư xác nhận khi áp dụng)
@@ -307,9 +307,7 @@ python run_state_graph.py --takeoff "cau_kien.csv" --takeoff-out bang_khoi_luong
 >   `python run_state_graph.py --takeoff cau_kien.csv --phase takeoff rebar qs --takeoff-profile tt13-2021`
 
 #### a5. Điều phối Ca xe, Ca máy & Kế hoạch Nhiên liệu Dầu Diezel:
-```powershell
-python run_state_graph.py --phase fleet --fleet-out ca_xe_ca_may.xlsx --shifts 2
-```
+Chức năng hiện có qua API Python [`tools/equipment_fleet_scheduler.py`](tools/equipment_fleet_scheduler.py); xem cách tạo `FleetTask`, tính lịch và xuất Excel/XML trong [`tests/test_equipment_fleet_scheduler.py`](tests/test_equipment_fleet_scheduler.py). Supervisor chưa có pha `fleet`.
 > - Tự động bóc tách ca máy từ khối lượng công tác và tiến độ CPM theo định mức ca máy Vincons / Thông tư 37/2026/TT-BXD.
 > - Xuất bảng tiến độ ca máy chi tiết theo ngày/tuần, biểu đồ phụ tải máy móc và bảng dự trù cấp phát nhiên liệu dầu Diezel (Lít) theo từng ca làm việc.
 
@@ -330,6 +328,8 @@ python -m tools.package_dispatcher --master "Du_An_Master.xlsx" --target "./HO_S
 # 5. Đóng gói theo thư mục nguồn (chế độ site operation):
 python -m tools.package_dispatcher --source ./examples/HO_SO_CONG_HOP_TUYEN_A5 --target ./HO_SO_HUB_AND_SPOKE
 ```
+> Khi xuất qua `run_state_graph.py`, cổng người duyệt chạy trước khi ghi hồ sơ; chỉ dùng `--demo` để tự duyệt dữ liệu thử nghiệm. Audit thất bại trả mã thoát 1 ở cả chế độ xuất riêng và xuất sau các pha.
+> Tài liệu kèm theo phải chỉ định rõ, ví dụ `--companion docx=./bien_ban.docx --companion fleet_xml=./tien_do.xml`. Các khóa hỗ trợ: `fleet_template`, `fleet_xml`, `mpp`, `docx`, `audit`, `bptc`. Hệ thống không tự lấy tài liệu mẫu của dự án khác.
 > - **Tự động sản xuất đồng bộ 3 tầng đóng gói**:
 >   1. **Tầng 1 (Macro Master)**: `BO_HO_SO_01_MACRO_MASTER_14_SHEET` (Master 14 Sheet, XML/MPP Gantt, BBNT Word A4, Thuyết minh BPTC, Báo cáo kiểm toán tự chấm).
 >   2. **Tầng 2 (Micro 14 bộ)**: `BO_HO_SO_02_VI_MO_CHUYEN_SAU_14_BO` (12-14 file độc lập chuyên sâu; công thức trỏ sang sheet không có trong file được thay bằng ma trận giá trị sạch; sheet chưa có dữ liệu không được xuất).

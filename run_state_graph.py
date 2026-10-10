@@ -55,8 +55,6 @@ PHASE_MAP = {
     "schedule": ProjectPhase.SCHEDULE_CPM,
     "asbuilt":  ProjectPhase.ASBUILT_LOOP,
     "payment":  ProjectPhase.PAYMENT_03A,
-    "fleet":    ProjectPhase.FLEET_DISPATCH,
-    "dispatch": ProjectPhase.FLEET_DISPATCH,
 }
 
 
@@ -362,10 +360,7 @@ def build_parser() -> "argparse.ArgumentParser":
                      help="Kiểm tra 6 Bất biến Lõi Hồ sơ QLCL / KCS (.xlsx/.xlsm) theo TCVN & Nghiên cứu Kè")
     lab.add_argument("--audit-kcs-sheet", default=None, help="Tên sheet Danh mục công việc (mặc định: tự tìm)")
 
-    fleet = parser.add_argument_group("Điều phối Ca xe, Ca máy & Nhiên liệu Dầu (phase fleet / dispatch)")
-    fleet.add_argument("--fleet-out", default=None, help="Xuất file Master Ca máy Excel (.xlsx)")
-    fleet.add_argument("--dispatch-out", default=None, help="Thư mục xuất các gói Hub & Spoke")
-    fleet.add_argument("--shifts", type=int, default=2, help="Số ca làm việc / ngày (mặc định 2)")
+
     parser.add_argument(
         "--project-name", default=None,
         help="Tên dự án hiển thị trong báo cáo"
@@ -423,7 +418,47 @@ def build_parser() -> "argparse.ArgumentParser":
         "--sync-dir", default=None,
         help="Thư mục đích phụ lồng nhau (nested) để tự động đồng bộ sang"
     )
+    exp.add_argument("--companion", action="append", default=[], metavar="KEY=PATH",
+                     help="Tệp cùng dự án do người dùng chọn: fleet_template, fleet_xml, mpp, docx, audit, bptc (lặp lại được)")
     return parser
+
+
+def export_dossier(args, master_path):
+    """Single export path: explicit sources, approval, and honest audit exit status."""
+    from core.gates.human_gate import ApprovalRequest, HumanGate
+    from tools.package_dispatcher import AECPackageDispatcher
+    if not master_path or not os.path.isfile(master_path):
+        print("  ❌ Cần --excel trỏ tới Master có thật (hoặc --demo).")
+        return False
+    companion = {}
+    allowed = {"fleet_template", "fleet_xml", "mpp", "docx", "audit", "bptc"}
+    for spec in args.companion:
+        key, sep, path = spec.partition("=")
+        if not sep or key not in allowed or key in companion or not os.path.isfile(path):
+            print(f"  ❌ Companion không hợp lệ hoặc trùng khóa: {spec}")
+            return False
+        companion[key] = os.path.abspath(path)
+    mode = args.human_gate or ("auto" if args.demo else "cli")
+    decision = HumanGate(mode=mode).request_approval(ApprovalRequest(
+        gate_id="DOSSIER-EXPORT", gate_name="Phê duyệt đóng gói hồ sơ",
+        phase="EXPORT", document_ref=os.path.abspath(master_path),
+        summary_data={"Dự án": args.project_name or "(chưa đặt tên)",
+                      "Nguồn": "DEMO" if args.demo else "Dữ liệu người dùng cung cấp",
+                      "Tệp kèm": companion,
+                      "Thư mục đích": args.export_dir or "EXPORTED_DOSSIERS"}))
+    if not decision.approved:
+        return False
+    target = args.export_dir or os.path.join(ROOT, f"EXPORTED_DOSSIERS_{args.project_name or 'PROJECT'}")
+    try:
+        manifest = AECPackageDispatcher(base_output_dir=target).dispatch_full_industrial_dossier(
+            master_excel_path=master_path, project_name=args.project_name or "Du_An_AEC",
+            target_dir=target, sync_nested_dirs=[args.sync_dir] if args.sync_dir else [],
+            companion_files=companion)
+    except (OSError, ValueError) as exc:
+        print(f"  ❌ Xuất hồ sơ thất bại: {exc}")
+        return False
+    print(manifest.summary_report)
+    return manifest.audit_zero_errors
 
 
 def main():
@@ -474,93 +509,8 @@ def main():
 
     excel_path = args.excel if args.excel is not None else (SAMPLE_EXCEL_MASTER if args.demo else "")
 
-    # Nếu chỉ kích hoạt --export-all mà không chạy phase riêng lẻ
     if args.export_all and not args.phase:
-        target_export = args.export_dir or os.path.join(ROOT, f"EXPORTED_DOSSIERS_{args.project_name or 'PROJECT'}")
-        master_wb_path = excel_path or (SAMPLE_EXCEL_MASTER if args.demo else "")
-        if not master_wb_path or not os.path.exists(master_wb_path):
-            print(f"  ❌ Lỗi: Không tìm thấy file Master Excel để xuất xưởng! Hãy chỉ định --excel <path> hoặc thêm --demo.")
-            sys.exit(1)
-
-        print("\n" + "═" * 70)
-        print("  🚀 KÍCH HOẠT QUY TRÌNH XUẤT HỒ SƠ CÔNG NGHIỆP 3 TẦNG (ZERO ERROR)")
-        print("═" * 70)
-
-        from tools.package_dispatcher import AECPackageDispatcher
-        dispatcher = AECPackageDispatcher(base_output_dir=target_export)
-        companion_dict = {}
-        templates_dir = os.path.join(ROOT, "templates")
-
-        def _norm(s):
-            return re.sub(r"[^a-z0-9]", "", str(s).lower())
-
-        proj_key = _norm(args.project_name or "")
-        # Tên dự án thường không có tiền tố "Cau": so khớp cả khi bỏ tiền tố "cau"/"du an"
-        proj_keys = {k for k in (proj_key, proj_key[3:] if proj_key.startswith("cau") else "") if len(k) >= 4}
-        if os.path.exists(templates_dir):
-            for fn in sorted(os.listdir(templates_dir)):
-                fp = os.path.join(templates_dir, fn)
-                matched = any(k in _norm(fn) for k in proj_keys)
-                is_generic_audit = fn == "BAO_CAO_THAM_TRA_AEC_AUDIT.md"
-                if not (matched or is_generic_audit):
-                    continue  # KHÔNG trộn tệp của dự án khác vào hồ sơ này
-                if fn.endswith(".xml") and "fleet_xml" not in companion_dict: companion_dict["fleet_xml"] = fp
-                elif fn.endswith(".mpp") and "mpp" not in companion_dict: companion_dict["mpp"] = fp
-                elif fn.endswith(".docx") and "docx" not in companion_dict: companion_dict["docx"] = fp
-                elif "AUDIT" in fn.upper() and fn.endswith(".md") and ("audit" not in companion_dict or matched): companion_dict["audit"] = fp
-                elif "BIEN_PHAP" in fn.upper() and fn.endswith(".md"): companion_dict["bptc"] = fp
-            if not any(k in companion_dict for k in ("fleet_xml", "mpp", "docx")):
-                print(f"  ⚠ Không có tệp XML/MPP/DOCX nào khớp tên dự án '{args.project_name}' trong templates/ — bỏ qua (không dùng hồ sơ dự án khác).")
-
-        sync_list = [args.sync_dir] if args.sync_dir else []
-
-        # Gói A: Tìm tệp ca máy chuẩn hóa có sẵn của dự án hoặc suy luận từ định mức đã học
-        if "fleet_template" not in companion_dict:
-            found_fleet = None
-            proj_tokens = [t.lower() for t in re.split(r'[\s_+-]+', args.project_name or "") if len(t) >= 2]
-            for search_dir in [os.path.dirname(master_wb_path), os.path.dirname(os.path.dirname(master_wb_path)), os.path.join(ROOT, "examples")]:
-                if not os.path.exists(search_dir):
-                    continue
-                for r, _, files in os.walk(search_dir):
-                    if any(skip in r for skip in [".git", "BO_HO_SO_01", "BO_HO_SO_02", os.sep + "HUB" + os.sep]):
-                        continue
-                    for f in files:
-                        if f.endswith(".xlsx") and any(k in f.lower() for k in ["tdtc_caxe", "caxe_camay", "ca_xe", "tdtc_ca_may"]) and not f.startswith("~$"):
-                            fn_lower = f.lower()
-                            if proj_tokens and all(tok in fn_lower for tok in proj_tokens):
-                                found_fleet = os.path.join(r, f)
-                                break
-                    if found_fleet:
-                        break
-                if found_fleet:
-                    break
-
-            if found_fleet:
-                companion_dict["fleet_template"] = found_fleet
-                print(f"  ℹ Gói A: Sử dụng tệp ca máy & tiến độ thực chiến chuẩn: {os.path.basename(found_fleet)}")
-            else:
-                try:
-                    import tempfile
-                    from tools.fleet_learning import infer_fleet_workbook_from_master
-                    tmp_fleet = os.path.join(tempfile.mkdtemp(prefix="fleet_"), "CaMay_SuyLuan.xlsx")
-                    inferred = infer_fleet_workbook_from_master(master_wb_path, tmp_fleet, args.project_name or "Du an")
-                    if inferred:
-                        companion_dict["fleet_template"] = inferred
-                        print("  ℹ Gói A: SUY LUẬN ca máy từ định mức đã học (knowledge/fleet_norms.json) — chờ kỹ sư xác nhận.")
-                except Exception as exc:  # không để lỗi suy luận chặn việc xuất hồ sơ
-                    print(f"  ⚠ Bỏ qua suy luận ca máy: {exc}")
-        manifest = dispatcher.dispatch_full_industrial_dossier(
-            master_excel_path=master_wb_path,
-            project_name=args.project_name or "Du_An_AEC",
-            target_dir=target_export,
-            sync_nested_dirs=sync_list,
-            companion_files=companion_dict
-        )
-
-        print("\n" + "═" * 70)
-        print(manifest.summary_report)
-        print("═" * 70 + "\n")
-        sys.exit(0 if manifest.audit_zero_errors else 1)
+        sys.exit(0 if export_dossier(args, excel_path) else 1)
 
     human_gate_mode = args.human_gate or ("auto" if args.demo else "cli")
     if human_gate_mode == "auto" and not args.demo:
@@ -605,38 +555,8 @@ def main():
         print("\n  ⚠ KẾT QUẢ CÓ DÙNG DỮ LIỆU MẪU — KHÔNG DÙNG CHO HỒ SƠ THẬT:")
         for src in report["sample_data_sources"]:
             print(f"     • {src['agent_id']}: {src['note']}")
-    # Xuất hồ sơ công nghiệp nếu có cờ --export-all
     if args.export_all and success:
-        target_export = args.export_dir or os.path.join(ROOT, f"EXPORTED_DOSSIERS_{args.project_name or 'PROJECT'}")
-        master_wb_path = excel_path or (SAMPLE_EXCEL_MASTER if args.demo else "")
-        if master_wb_path and os.path.exists(master_wb_path):
-            print("\n" + "═" * 70)
-            print("  🚀 KÍCH HOẠT QUY TRÌNH XUẤT HỒ SƠ CÔNG NGHIỆP 3 TẦNG (ZERO ERROR)")
-            print("═" * 70)
-            from tools.package_dispatcher import AECPackageDispatcher
-            dispatcher = AECPackageDispatcher(base_output_dir=target_export)
-            companion_dict = {}
-            templates_dir = os.path.join(ROOT, "templates")
-            if os.path.exists(templates_dir):
-                for fn in os.listdir(templates_dir):
-                    fp = os.path.join(templates_dir, fn)
-                    if fn.endswith(".xml") and "fleet_xml" not in companion_dict: companion_dict["fleet_xml"] = fp
-                    elif fn.endswith(".mpp") and "mpp" not in companion_dict: companion_dict["mpp"] = fp
-                    elif fn.endswith(".docx") and "docx" not in companion_dict: companion_dict["docx"] = fp
-                    elif "AUDIT" in fn.upper() and fn.endswith(".md"): companion_dict["audit"] = fp
-                    elif "BIEN_PHAP" in fn.upper() and fn.endswith(".md"): companion_dict["bptc"] = fp
-
-            sync_list = [args.sync_dir] if args.sync_dir else []
-            manifest = dispatcher.dispatch_full_industrial_dossier(
-                master_excel_path=master_wb_path,
-                project_name=args.project_name or "Du_An_AEC",
-                target_dir=target_export,
-                sync_nested_dirs=sync_list,
-                companion_files=companion_dict
-            )
-            print("\n" + "═" * 70)
-            print(manifest.summary_report)
-            print("═" * 70 + "\n")
+        success = export_dossier(args, excel_path)
 
     sys.exit(0 if success else 1)
 

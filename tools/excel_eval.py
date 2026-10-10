@@ -11,7 +11,8 @@ Hỗ trợ (đủ cho bảng QS / BBS / tiến độ thông dụng):
   (có $, sang sheet khác); phép toán theo TỪNG PHẦN TỬ khi gặp vùng ô (vd SUMPRODUCT((A1:A9>0)*B1:B9));
   ngày tháng là số seri như Excel (1900, gốc 30/12/1899).
   SUM, SUMIF(S), COUNTIF(S), SUMPRODUCT, ROUND/ROUNDUP/ROUNDDOWN, MIN, MAX, AVERAGE, ABS, SQRT, PI, PRODUCT,
-  IF, AND, OR, NOT, IFERROR, ISERROR, VLOOKUP, MONTH, YEAR, DAY, DATEVALUE (dd/mm/yyyy hoặc yyyy-mm-dd),
+  LET (biến cục bộ, kể cả namespace Office 365), IF, AND, OR, NOT, IFERROR, ISERROR,
+  VLOOKUP, MONTH, YEAR, DAY, DATEVALUE (dd/mm/yyyy hoặc yyyy-mm-dd),
   TEXT (định dạng "@", "0", "0.0", "#,##0", "#,##0.00", "0%", "dd/mm/yyyy", "mm/yyyy", "yyyy").
 Lỗi Excel (#DIV/0!, #N/A, #VALUE!, #REF!, #NUM!) là GIÁ TRỊ lan truyền như trong Excel (IF/IFERROR xử lý được);
 ô có kết quả lỗi → ExcelErrorResult (lớp con của FormulaError, thuộc tính .code).
@@ -67,6 +68,7 @@ _TOKEN = re.compile(r"""
   | (?P<num>\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|\.\d+)
   | (?P<func>[A-Za-z_][A-Za-z0-9_\.]*)\s*\(
   | (?P<bool>(?i:TRUE|FALSE))\b
+  | (?P<name>[A-Za-z_][A-Za-z0-9_\.]*)
   | (?P<op><>|<=|>=|[-+*/^&(),:<>=%])
 """, re.VERBOSE)
 
@@ -453,6 +455,7 @@ def _match(value: Any, criterion: Any) -> bool:
 class _Parser:
     def __init__(self, ev: WorkbookEvaluator, sheet: str, text: str):
         self.ev, self.sheet = ev, sheet
+        self.bindings = {}
         self.tokens = []
         pos = 0
         while pos < len(text):
@@ -542,6 +545,11 @@ class _Parser:
             return text[1:-1].replace('""', '"')
         if kind == "bool":
             return text.upper() == "TRUE"
+        if kind == "name":
+            key = text.upper().removeprefix("_XLPM.")
+            if key not in self.bindings:
+                raise FormulaError(f"Tên chưa được khai báo: {text}")
+            return self.bindings[key]
         if kind == "ref":
             return self.reference(text)
         if kind == "func":
@@ -582,6 +590,26 @@ class _Parser:
             return out
 
     def function(self, name: str):
+        name = name.removeprefix("_XLFN.")
+        if name == "LET":
+            outer = self.bindings
+            self.bindings = dict(outer)
+            count = 0
+            try:
+                while self.peek()[0] == "name" and self.i + 1 < len(self.tokens) and self.tokens[self.i + 1][1] == ",":
+                    key = self.take()[1].upper().removeprefix("_XLPM.")
+                    self.take(",")
+                    value = self.compare()
+                    self.take(",")
+                    self.bindings[key] = value
+                    count += 1
+                if not count:
+                    raise FormulaError("LET cần ít nhất một cặp tên/giá trị")
+                value = self.compare()
+                self.take(")")
+                return value
+            finally:
+                self.bindings = outer
         a = self.args()
         nums = lambda values: [_num(x) for v in values for x in _flatten(v) if _is_numlike(x)]
         # Các hàm xử lý lỗi / điều kiện: KHÔNG lan truyền lỗi của nhánh không dùng
